@@ -5,12 +5,16 @@ use tera::{Context as TeraContext, Tera};
 
 use ferrum_shared_models::{Module, Node, NodeType};
 
+/// Code generator that materializes a graph of nodes into Rust and
+/// TypeScript sources as well as accompanying documentation.
 pub struct Generator {
     templates: Tera,
     output_dir: PathBuf,
 }
 
 impl Generator {
+    /// Create a new generator pointing at the template directory and the
+    /// desired output directory.
     pub fn new<P: AsRef<Path>>(templates_dir: P, output_dir: P) -> Result<Self> {
         let templates_path = templates_dir.as_ref().join("**/*");
         let templates_glob = templates_path
@@ -27,6 +31,7 @@ impl Generator {
         })
     }
 
+    /// Generate code for all nodes contained in the provided [`Module`].
     pub fn generate(&self, module: &Module) -> Result<()> {
         for node in &module.nodes {
             self.generate_node(module, node)?;
