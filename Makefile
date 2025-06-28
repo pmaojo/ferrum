@@ -23,7 +23,7 @@ typeshare-project:
 typeshare --lang=typescript --output-dir projects/\$(PROJECT)/frontend/src/types projects/\$(PROJECT)/shared-models
 
 ai-setup:
-        cd ai/prompt && python -m pip install -r requirements.txt
+        cd ai && python -m pip install -r requirements.txt
 
 ai-dev:
-        cd ai/prompt && uvicorn app:app --reload --host 0.0.0.0 --port 8000
+        cd ai && uvicorn main:app --reload --host 0.0.0.0 --port 8000

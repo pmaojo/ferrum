@@ -50,11 +50,11 @@ services:
       - ./data/ollama:/root/.ollama
 
   ferrum-ai:
-    build: ./ai/prompt
+    build: ./ai
     ports:
       - "8001:8000"
     volumes:
-      - ./ai/prompt:/app
+      - ./ai:/app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 

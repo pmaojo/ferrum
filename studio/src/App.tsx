@@ -5,6 +5,7 @@ import { VisualEditor } from "./features/visual/VisualEditor";
 import { OutputPreview } from "./features/output/OutputPreview";
 import { DocsViewer } from "./features/docs/DocsViewer";
 import { PromptGenerator } from "./features/prompt/PromptGenerator";
+import AiScaffoldPage from "./features/ai-scaffold/pages/AiScaffoldPage";
 import { ProjectInit } from "./features/init/ProjectInit";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <TabsTrigger value="grafo">grafo.yaml</TabsTrigger>
           <TabsTrigger value="ai">Prompt</TabsTrigger>
           <TabsTrigger value="visual">Visual</TabsTrigger>
+          <TabsTrigger value="ai-scaffold">AI Scaffold</TabsTrigger>
           <TabsTrigger value="docs">Docs</TabsTrigger>
           <TabsTrigger value="output">Output</TabsTrigger>
         </TabsList>
@@ -32,6 +34,9 @@ export default function App() {
         </TabsContent>
         <TabsContent value="visual">
           <VisualEditor />
+        </TabsContent>
+        <TabsContent value="ai-scaffold">
+          <AiScaffoldPage />
         </TabsContent>
         <TabsContent value="docs">
           <DocsViewer />
