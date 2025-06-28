@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
+use typeshare::typeshare;
 
+#[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum NodeType {
@@ -9,6 +11,7 @@ pub enum NodeType {
     Entity,
 }
 
+#[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Field {
     pub name: String,
@@ -16,15 +19,14 @@ pub struct Field {
     pub field_type: String,
 }
 
+#[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Node {
     pub id: String,
     #[serde(rename = "type")]
     pub node_type: NodeType,
-    /// Optional functional description of the node
     #[serde(default)]
     pub description: Option<String>,
-    /// Optional user story explaining the use case
     #[serde(default)]
     pub story: Option<String>,
     #[serde(default)]
@@ -35,6 +37,7 @@ pub struct Node {
     pub implements: Option<String>,
 }
 
+#[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Module {
     #[serde(rename = "module")]

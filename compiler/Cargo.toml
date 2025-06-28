@@ -11,6 +11,7 @@ tera = "1.19"
 anyhow = "1.0"
 thiserror = "1.0"
 tracing = "0.1"
+ferrum-shared-models = { path = "../shared-models" }
 
 [dev-dependencies]
 tempfile = "3"

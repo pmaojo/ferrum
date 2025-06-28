@@ -108,19 +108,28 @@ nodes:
 
 ---
 
-## 🧱 Monorepo Project Structure
+## 🧱 Framework Structure
 
 ```bash
 ferrum/
-├── gen/                # YAML modules
-│   └── users.yaml
-├── cli/                # CLI: `ferrum compile`, `ferrum prompt`
-├── compiler/           # Parser + AST + codegen
-├── templates/          # Tera-based code templates
-├── shared-models/      # Rust models for typeshare
-├── backend/            # Axum-compatible Rust output
-├── frontend/           # Vite + React + Zod generated code
+├── cli/            # CLI commands
+├── compiler/       # Parser, AST and codegen
+├── templates/      # Tera-based code templates
+├── shared-models/  # Rust models exported to TypeScript
+├── studio/         # Visual editor UI
+├── docker-compose.yml
+├── Makefile
 └── Cargo.toml
+```
+
+Generated projects live outside this repo, for example:
+
+```bash
+~/projects/my-crm-app/
+├── backend/
+├── frontend/
+├── shared-models/
+└── grafo.yaml
 ```
 
 ---
@@ -140,15 +149,15 @@ ferrum/
 ## 📦 Output Example
 
 ```bash
-shared-models/user.rs                # Rust model
-frontend/src/types/User.ts          # TypeScript model
-frontend/src/hooks/useUser.ts       # React data hook
-frontend/src/components/UserView.tsx# Auto-generated component
-frontend/src/schemas/userSchema.ts  # Zod validation schema
-backend/handlers/users.rs           # Axum HTTP handler
-backend/routes/users.rs             # Route definition
-backend/db/users.rs                 # Adapter logic
-backend/ports.rs                    # Port traits
+my-crm-app/shared-models/user.rs          # Rust model
+my-crm-app/frontend/src/types/User.ts     # TypeScript model
+my-crm-app/frontend/src/hooks/useUser.ts  # React data hook
+my-crm-app/frontend/src/components/UserView.tsx # Auto-generated component
+my-crm-app/frontend/src/schemas/userSchema.ts   # Zod validation schema
+my-crm-app/backend/handlers/users.rs      # Axum HTTP handler
+my-crm-app/backend/routes/users.rs        # Route definition
+my-crm-app/backend/db/users.rs            # Adapter logic
+my-crm-app/backend/ports.rs               # Port traits
 ```
 
 ---

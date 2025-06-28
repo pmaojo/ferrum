@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
 
-use crate::ast::Module;
+use ferrum_shared_models::Module;
 
 pub fn parse_yaml<P: AsRef<Path>>(path: P) -> Result<Module> {
     let content = fs::read_to_string(&path)

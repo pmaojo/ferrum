@@ -3,7 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tera::{Context as TeraContext, Tera};
 
-use crate::ast::{Module, Node, NodeType};
+use ferrum_shared_models::{Module, Node, NodeType};
 
 pub struct Generator {
     templates: Tera,
