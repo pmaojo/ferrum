@@ -90,6 +90,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
 
     let module = ferrum_compiler::parse_yaml(&file)?;
+    ferrum_compiler::validate_module(&module)?;
 
     let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
     generator.generate(&module)?;
@@ -283,7 +284,7 @@ pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Resul
     use neo4rs::Graph;
 
     let module = ferrum_compiler::parse_yaml(&file)?;
-
+    ferrum_compiler::validate_module(&module)?;
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(async {
         let graph = Graph::new(uri.clone(), user.clone(), password.clone())?;
