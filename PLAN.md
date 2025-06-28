@@ -130,7 +130,26 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [ ] Implement core plugin system
 - [ ] Create authentication plugin
 - [ ] Create database migration plugin
+
+### 3.3 SQLx Migrations Integration
+
+- [ ] Generate migration files based on entity nodes
+- [ ] Use SQLx's built-in migration system to apply them
+- [ ] Add a ferrum migrate command to the CLI
+- [ ] Schema Generation from Entities
+- [ ] Add a template for SQL schema generation
+- [ ] Generate CREATE TABLE statements from entity definitions
+- [ ] Support for relationships between entities
+- [ ] Migration Management
+- [ ] Track schema versions in a dedicated table
+- [ ] Generate migration files with proper up/down methods
+- [ ] Support for schema evolution over time
+
+### 3.4 GraphQL Plugin
+
 - [ ] Create GraphQL plugin
+- [ ] Scaffold shared RPC functions with typed input/output
+- [ ] Sync request/response models via `typeshare`
 
 ## 🧩 Phase 4: Visual Editor
 
