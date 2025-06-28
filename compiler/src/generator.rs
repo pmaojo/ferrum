@@ -30,6 +30,7 @@ impl Generator {
     pub fn generate(&self, module: &Module) -> Result<()> {
         for node in &module.nodes {
             self.generate_node(module, node)?;
+            self.generate_documentation(module, node)?;
         }
 
         // Run post-processing tasks
@@ -177,6 +178,32 @@ impl Generator {
         self.write_file(&schema_path, &schema_content)?;
 
         Ok(())
+    }
+
+    fn generate_documentation(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+
+        let doc_content = self
+            .templates
+            .render("docs/node.tera", &context)
+            .context("Failed to render documentation template")?;
+
+        let dir = match node.node_type {
+            NodeType::Entity => "docs/db",
+            NodeType::UseCase => "docs/api",
+            _ => "docs/modules",
+        };
+
+        let file_name = if matches!(node.node_type, NodeType::Entity) {
+            format!("{}_entity.md", node.id)
+        } else {
+            format!("{}.md", node.id)
+        };
+
+        let doc_path = self.output_dir.join(dir).join(file_name);
+        self.write_file(&doc_path, &doc_content)
     }
 
     fn write_file<P: AsRef<Path>>(&self, path: P, content: &str) -> Result<()> {

@@ -21,6 +21,12 @@ pub struct Node {
     pub id: String,
     #[serde(rename = "type")]
     pub node_type: NodeType,
+    /// Optional functional description of the node
+    #[serde(default)]
+    pub description: Option<String>,
+    /// Optional user story explaining the use case
+    #[serde(default)]
+    pub story: Option<String>,
     #[serde(default)]
     pub input: Vec<Field>,
     pub output: Option<String>,
