@@ -101,6 +101,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
 
 /// Generate a `grafo.yaml` file from a free form prompt.
 pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
+    use reqwest::blocking::Client;
     use std::fs;
 
     println!("🤖 AI Architecture Generation");
@@ -108,17 +109,19 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     println!("Prompt: {}", text);
     println!();
 
-    // Very naive prompt processing: take the first word as module name
-    let module_name = text
-        .split_whitespace()
-        .next()
-        .unwrap_or("generated")
-        .to_lowercase();
+    // Call Python AI service
+    let client = Client::new();
+    let response = client
+        .post("http://localhost:8000/generate-yaml")
+        .json(&serde_json::json!({ "text": text, "model": "gpt-4" }))
+        .send()?;
 
-    let yaml = format!(
-        "module: {}\nnodes:\n  - id: example\n    type: usecase\n",
-        module_name
-    );
+    let yaml = response
+        .json::<serde_json::Value>()?
+        .get("yaml")
+        .and_then(|v| v.as_str())
+        .unwrap_or("module: generated\nnodes: []")
+        .to_string();
 
     let output_path = output.unwrap_or_else(|| PathBuf::from("gen/generated.yaml"));
     fs::create_dir_all(output_path.parent().unwrap())?;
