@@ -29,11 +29,11 @@ This document outlines the development roadmap for Ferrum, an AI-first scaffoldi
 - [x] Shared model templates
 - [ ] Implement post-processing (run typeshare & formatting)
 - [ ] Add error handling and validation
+- [ ] Add `--with-auth`, `--with-jobs`, etc. flags to enable batteries-included templates
 
 ### 1.3 Typeshare Step
 
-The `typeshare` CLI keeps our Rust models synchronized with TypeScript on both
-the Studio dashboard and any generated project.
+The `typeshare` CLI keeps our Rust models synchronized with TypeScript on both the Studio dashboard and any generated project.
 
 1. Annotate structs in `shared-models/*.rs` with `#[typeshare]`.
 2. Invoke the CLI at the end of the generation pipeline:
@@ -47,18 +47,14 @@ the Studio dashboard and any generated project.
        .status();
    ```
 
-3. Generated `.ts` files appear under `frontend/src/types` (and under
-   `studio/src/types` for the SaaS).
+3. Generated `.ts` files appear under `frontend/src/types` (and under `studio/src/types` for the SaaS).
 4. Import these types directly in your frontend code:
 
    ```ts
    import type { Usuario } from '@/types/usuario';
    ```
 
-Automate this step via Docker or Make tasks so types remain aligned across the
-stack. The Makefile now provides `typeshare-studio` and `typeshare-project`
-targets, and the backend Dockerfile installs the `typeshare-cli` to generate
-TypeScript during CI builds.
+Automate this step via Docker or Make tasks so types remain aligned across the stack. The Makefile now provides `typeshare-studio` and `typeshare-project` targets, and the backend Dockerfile installs the `typeshare-cli` to generate TypeScript during CI builds.
 
 ### 1.4 Testing & Documentation
 
@@ -89,6 +85,28 @@ TypeScript during CI builds.
 - [ ] Develop prompt engineering for architecture extraction
 - [ ] Implement validation for generated YAML
 - [ ] Create feedback loop for refinement
+
+## 🧠 Phase 2.5: WASP-inspired UX Enhancements
+
+### 2.5.1 DSL Enhancements
+- [ ] Extend YAML syntax to support auth, jobs, pages, RPC
+- [ ] Introduce semantic keywords inspired by Wasp DSL
+
+### 2.5.2 AI Generation CLI
+- [ ] Implement `ferrum init --ai` for guided prompts
+- [ ] Generate full-stack `grafo.yaml` from prompt using Python microservice
+
+### 2.5.3 Full-stack Typed RPC
+- [ ] Scaffold shared RPC functions with typed input/output
+- [ ] Sync request/response models via `typeshare`
+
+### 2.5.4 Batteries Included
+- [ ] Optional modules: `auth`, `jobs`, `email`, `db`
+- [ ] Templates auto-importable via `--with-X` flags
+
+### 2.5.5 Smart README + Metadata
+- [ ] Generate `README.md` with usage & architecture summary
+- [ ] Export `metadata.json` describing modules & endpoints
 
 ## 🛠️ Phase 3: Advanced Features
 
@@ -140,7 +158,7 @@ TypeScript during CI builds.
 ## 📅 Timeline
 
 - **Phase 1**: Q2-Q3 2025
-- **Phase 2**: Q3-Q4 2025
+- **Phase 2 + 2.5**: Q3-Q4 2025
 - **Phase 3**: Q1-Q2 2026
 - **Phase 4**: Q3-Q4 2026
 
@@ -168,6 +186,11 @@ TypeScript during CI builds.
    - Prototype simple prompt-to-YAML conversion
    - Define architectural ontology for reasoning
 
+5. Implement WASP-inspired `ferrum init --ai` CLI flow
+   - Connect to Python prompt service
+   - Output `grafo.yaml` with modules
+   - Trigger compilation to full project
+
 ## 🤝 Contribution Guidelines
 
 We welcome contributions to Ferrum! Here's how you can help:
@@ -187,3 +210,4 @@ Please follow our coding standards and submit PRs with clear descriptions.
 - [React Documentation](https://reactjs.org/docs/getting-started.html)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tera Templates](https://tera.netlify.app/)
+- [Wasp](https://wasp-lang.dev/)
