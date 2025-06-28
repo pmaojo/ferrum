@@ -11,6 +11,7 @@ It follows **Hexagonal Architecture** and **SOLID principles** to produce clean,
 
 ```bash
 cargo install --path .
+cargo install typeshare-cli
 ```
 
 ### ⚙️ Usage
