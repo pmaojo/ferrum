@@ -6,6 +6,8 @@ export function ProjectInit() {
   const [withGraph, setWithGraph] = useState(false);
   const [withAi, setWithAi] = useState(false);
   const [withDb, setWithDb] = useState(false);
+  const [withAuth, setWithAuth] = useState(false);
+  const [withJobs, setWithJobs] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const initProject = async () => {
@@ -20,6 +22,8 @@ export function ProjectInit() {
           with_graph: withGraph,
           with_ai: withAi,
           with_db: withDb,
+          with_auth: withAuth,
+          with_jobs: withJobs,
         }),
       });
       if (res.ok) {
@@ -62,6 +66,24 @@ export function ProjectInit() {
           className="mr-2"
         />
         With PostgreSQL
+      </label>
+      <label className="block">
+        <input
+          type="checkbox"
+          checked={withAuth}
+          onChange={(e) => setWithAuth(e.target.checked)}
+          className="mr-2"
+        />
+        With authentication
+      </label>
+      <label className="block">
+        <input
+          type="checkbox"
+          checked={withJobs}
+          onChange={(e) => setWithJobs(e.target.checked)}
+          className="mr-2"
+        />
+        With background jobs
       </label>
       <label className="block">
         <input
