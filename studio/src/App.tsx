@@ -33,7 +33,7 @@ export default function App() {
           <PromptGenerator onResult={setYaml} />
         </TabsContent>
         <TabsContent value="visual">
-          <VisualEditor />
+          <VisualEditor yaml={yaml} />
         </TabsContent>
         <TabsContent value="ai-scaffold">
           <AiScaffoldPage />
