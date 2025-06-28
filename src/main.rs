@@ -1,6 +1,6 @@
 use anyhow::Result;
-use ferrum_cli::commands::{Cli, Commands, compile, prompt, dev, init};
 use clap::Parser;
+use ferrum_cli::commands::{compile, dev, init, prompt, Cli, Commands};
 
 fn main() -> Result<()> {
     // Initialize logging
@@ -12,17 +12,20 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Compile { file, output, templates } => {
-            compile(file, output, templates)
-        },
-        Commands::Prompt { text, output } => {
-            prompt(text, output)
-        },
-        Commands::Dev { with_graph, with_ai } => {
-            dev(with_graph, with_ai)
-        },
-        Commands::Init { name, with_graph, with_ai } => {
-            init(name, with_graph, with_ai)
-        },
+        Commands::Compile {
+            file,
+            output,
+            templates,
+        } => compile(file, output, templates),
+        Commands::Prompt { text, output } => prompt(text, output),
+        Commands::Dev {
+            with_graph,
+            with_ai,
+        } => dev(with_graph, with_ai),
+        Commands::Init {
+            name,
+            with_graph,
+            with_ai,
+        } => init(name, with_graph, with_ai),
     }
 }

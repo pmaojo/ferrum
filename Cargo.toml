@@ -9,6 +9,7 @@ authors = ["Ferrum Team"]
 members = [
     "cli",
     "compiler",
+    "shared-models",
 ]
 
 [dependencies]

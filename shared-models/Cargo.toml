@@ -1,0 +1,9 @@
+[package]
+name = "ferrum-shared-models"
+version = "0.1.0"
+edition = "2021"
+description = "Shared Rust models for Ferrum"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+typeshare = "1.0"

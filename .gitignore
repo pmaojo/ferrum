@@ -4,12 +4,7 @@
 Cargo.lock
 
 # Generated code
-/backend/handlers
-/backend/routes
-/backend/db
-/frontend/src/components
-/frontend/src/hooks
-/shared-models
+/projects
 
 # Docker data
 /data
