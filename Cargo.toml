@@ -10,10 +10,11 @@ members = [
     "cli",
     "compiler",
     "shared-models",
+    "engine",
 ]
-
 [dependencies]
 ferrum-cli = { path = "./cli" }
+ferrum-engine = { path = "./engine" }
 clap = { version = "4.4", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
