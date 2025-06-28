@@ -27,10 +27,38 @@ This document outlines the development roadmap for Ferrum, an AI-first scaffoldi
 - [x] Backend templates (handlers, routes, adapters, ports)
 - [x] Frontend templates (hooks, components, schemas)
 - [x] Shared model templates
-- [ ] Implement post-processing (typeshare, formatting)
+- [ ] Implement post-processing (run typeshare & formatting)
 - [ ] Add error handling and validation
 
-### 1.3 Testing & Documentation
+### 1.3 Typeshare Step
+
+The `typeshare` CLI keeps our Rust models synchronized with TypeScript on both
+the Studio dashboard and any generated project.
+
+1. Annotate structs in `shared-models/*.rs` with `#[typeshare]`.
+2. Invoke the CLI at the end of the generation pipeline:
+
+   ```rust
+   let typeshare_status = Command::new("typeshare")
+       .arg("--lang=typescript")
+       .arg("--output-dir")
+       .arg(output_dir.join("frontend/src/types"))
+       .arg(output_dir.join("shared-models"))
+       .status();
+   ```
+
+3. Generated `.ts` files appear under `frontend/src/types` (and under
+   `studio/src/types` for the SaaS).
+4. Import these types directly in your frontend code:
+
+   ```ts
+   import type { Usuario } from '@/types/usuario';
+   ```
+
+Automate this step via Docker or Make tasks so types remain aligned across the
+stack.
+
+### 1.4 Testing & Documentation
 
 - [ ] Unit tests for parser and generator
 - [ ] Integration tests for end-to-end flow
@@ -117,7 +145,7 @@ This document outlines the development roadmap for Ferrum, an AI-first scaffoldi
 ## 🔄 Immediate Next Steps
 
 1. Complete the post-processing functionality
-   - Implement typeshare integration
+   - Implement typeshare integration (see Section 1.3)
    - Add code formatting (cargo fmt, prettier)
    - Create validation for generated code
 
