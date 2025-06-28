@@ -56,6 +56,33 @@ app.post('/prompt', async (req, res) => {
   }
 });
 
+app.post('/init', async (req, res) => {
+  const { name, with_graph, with_ai, with_db } = req.body;
+  if (!name) return res.status(400).json({ error: 'Missing name' });
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ferrum-'));
+  const projectDir = path.join(tmpDir, name);
+  const args = [
+    'cargo run --quiet -- init',
+    projectDir,
+    with_graph ? '--with-graph' : '',
+    with_ai ? '--with-ai' : '',
+    with_db ? '--with-db' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  try {
+    await runCommand(args, path.resolve(__dirname, '..'));
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename=${name}.zip`);
+    const archive = archiver('zip');
+    archive.directory(projectDir, false);
+    archive.finalize();
+    archive.pipe(res);
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`CLI server running on port ${PORT}`);
