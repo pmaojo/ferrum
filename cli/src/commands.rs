@@ -84,6 +84,7 @@ pub enum Commands {
     },
 }
 
+/// Compile a `grafo.yaml` architecture file into source code.
 pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
     let output_dir = output.unwrap_or_else(|| PathBuf::from("."));
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
@@ -97,6 +98,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     Ok(())
 }
 
+/// Generate a `grafo.yaml` file from a free form prompt.
 pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     use std::fs;
 
@@ -133,6 +135,7 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     Ok(())
 }
 
+/// Start the local development environment using Docker.
 pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
     use std::process::Command;
 
@@ -177,6 +180,7 @@ pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
     Ok(())
 }
 
+/// Scaffold a new Ferrum project on disk.
 pub fn init(name: String, with_graph: bool, with_ai: bool) -> Result<()> {
     use std::fs;
     use std::io::Write;
@@ -274,6 +278,7 @@ ferrum dev --with-ai
     Ok(())
 }
 
+/// Synchronize a `grafo.yaml` file with a Neo4j instance.
 pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Result<()> {
     use neo4rs::Graph;
 

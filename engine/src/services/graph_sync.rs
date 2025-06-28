@@ -1,3 +1,8 @@
+//! Graph-related services.
+//!
+//! This module provides utilities to synchronize the in-memory architecture
+//! representation with a Neo4j graph database.
+
 use anyhow::Result;
 use ferrum_shared_models::{Module, NodeType};
 use neo4rs::{query, Graph};

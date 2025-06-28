@@ -1,8 +1,11 @@
 import { useState } from "react";
 
 interface Props {
+  /** Callback invoked with the generated YAML text */
   onResult?: (yaml: string) => void;
 }
+
+/** Form for generating a `grafo.yaml` file using the CLI. */
 
 export function PromptGenerator({ onResult }: Props) {
   const [text, setText] = useState("");

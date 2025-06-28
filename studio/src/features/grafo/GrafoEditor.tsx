@@ -2,9 +2,13 @@ import Editor from "@monaco-editor/react";
 import { useState } from "react";
 
 interface Props {
+  /** Current YAML value */
   value: string;
+  /** Handler called when the YAML changes */
   onChange: (v: string) => void;
 }
+
+/** Editor for manually writing a `grafo.yaml` file. */
 
 export function GrafoEditor({ value, onChange }: Props) {
   const [loading, setLoading] = useState(false);
