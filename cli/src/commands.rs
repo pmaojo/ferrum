@@ -92,3 +92,47 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     
     Ok(())
 }
+
+pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
+    use std::process::Command;
+    
+    println!("🐳 Starting Ferrum development environment");
+    println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    
+    // Create a docker-compose command with the appropriate services
+    let mut services = vec!["backend", "frontend", "db"];
+    
+    if with_graph {
+        services.push("graphdb");
+        println!("🔍 Including graph database (Neo4j)");
+    }
+    
+    if with_ai {
+        services.push("llm");
+        println!("🧠 Including AI/LLM service (Ollama)");
+    }
+    
+    println!("⚙️  Starting services: {}", services.join(", "));
+    println!();
+    
+    // Build the docker-compose command
+    let services_arg = services.join(" ");
+    let docker_compose_cmd = format!("docker-compose up {}", services_arg);
+    
+    println!("🚀 Launching development environment...");
+    println!("💡 Press Ctrl+C to stop all services");
+    println!();
+    
+    // Execute the command
+    let status = Command::new("sh")
+        .arg("-c")
+        .arg(&docker_compose_cmd)
+        .status()?;
+    
+    if !status.success() {
+        println!("❌ Failed to start development environment");
+        return Err(anyhow::anyhow!("Docker command failed"));
+    }
+    
+    Ok(())
+}
