@@ -1,5 +1,5 @@
 use anyhow::Result;
-use ferrum_cli::commands::{Cli, Commands, compile, prompt};
+use ferrum_cli::commands::{Cli, Commands, compile, prompt, dev};
 use clap::Parser;
 
 fn main() -> Result<()> {
@@ -17,6 +17,9 @@ fn main() -> Result<()> {
         },
         Commands::Prompt { text, output } => {
             prompt(text, output)
+        },
+        Commands::Dev { with_graph, with_ai } => {
+            dev(with_graph, with_ai)
         },
     }
 }
