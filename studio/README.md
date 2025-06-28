@@ -36,8 +36,21 @@ export default tseslint.config([
       // other options...
     },
   },
-])
+  ])
+  ```
+
+## AI Backend Configuration
+
+Ferrum Studio communicates with the prompt service via the
+`/generate-yaml` endpoint. Set the base URL of that service through the
+`VITE_AI_URL` environment variable when running the dev server:
+
+```bash
+VITE_AI_URL=http://localhost:8001 npm run dev
 ```
+
+Once running, choose the desired backend (OpenAI, Local, Anthropic)
+from the dropdown in the **Prompt** tab.
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
@@ -67,3 +80,4 @@ export default tseslint.config([
   },
 ])
 ```
+

@@ -54,6 +54,19 @@ ferrum compile gen/users.yaml
 ferrum prompt "CRUD for user"
 ```
 
+The prompt command relies on a running AI service. You can start the
+service manually with:
+
+```bash
+make ai-dev
+```
+
+By default it uses OpenAI, but you can select another backend (e.g.
+`local` or `anthropic`) by hitting the `/generate-yaml` endpoint of the
+service. When using the **Studio** UI, set the environment variable
+`VITE_AI_URL` to the base URL (default `http://localhost:8001`). A
+dropdown allows choosing the backend at runtime.
+
 ---
 
 ## 🐳 Docker Environment
