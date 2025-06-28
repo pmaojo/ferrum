@@ -555,6 +555,9 @@ dependencies = [
  "anyhow",
  "clap",
  "ferrum-compiler",
+ "ferrum-engine",
+ "neo4rs",
+ "tokio",
  "tracing",
  "tracing-subscriber",
 ]
