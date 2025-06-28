@@ -17,8 +17,8 @@ impl Generator {
             .to_str()
             .context("Failed to convert templates path to string")?;
 
-        let mut templates = Tera::new(templates_glob)
-            .context("Failed to initialize Tera template engine")?;
+        let mut templates =
+            Tera::new(templates_glob).context("Failed to initialize Tera template engine")?;
         templates.autoescape_on(vec![]);
 
         Ok(Self {
@@ -53,30 +53,46 @@ impl Generator {
         context.insert("module_name", &module.name);
 
         // Generate handler
-        let handler_content = self.templates.render("backend/handler.tera", &context)
+        let handler_content = self
+            .templates
+            .render("backend/handler.tera", &context)
             .context("Failed to render handler template")?;
-        let handler_path = self.output_dir.join("backend/handlers")
+        let handler_path = self
+            .output_dir
+            .join("backend/handlers")
             .join(format!("{}.rs", module.name));
         self.write_file(&handler_path, &handler_content)?;
 
         // Generate route
-        let route_content = self.templates.render("backend/route.tera", &context)
+        let route_content = self
+            .templates
+            .render("backend/route.tera", &context)
             .context("Failed to render route template")?;
-        let route_path = self.output_dir.join("backend/routes")
+        let route_path = self
+            .output_dir
+            .join("backend/routes")
             .join(format!("{}.rs", module.name));
         self.write_file(&route_path, &route_content)?;
 
         // Generate frontend hook
-        let hook_content = self.templates.render("frontend/hook.tera", &context)
+        let hook_content = self
+            .templates
+            .render("frontend/hook.tera", &context)
             .context("Failed to render hook template")?;
-        let hook_path = self.output_dir.join("frontend/src/hooks")
+        let hook_path = self
+            .output_dir
+            .join("frontend/src/hooks")
             .join(format!("use{}.ts", capitalize(&node.id)));
         self.write_file(&hook_path, &hook_content)?;
 
         // Generate frontend component
-        let component_content = self.templates.render("frontend/component.tera", &context)
+        let component_content = self
+            .templates
+            .render("frontend/component.tera", &context)
             .context("Failed to render component template")?;
-        let component_path = self.output_dir.join("frontend/src/components")
+        let component_path = self
+            .output_dir
+            .join("frontend/src/components")
             .join(format!("{}.tsx", capitalize(&node.id)));
         self.write_file(&component_path, &component_content)?;
 
@@ -89,9 +105,13 @@ impl Generator {
         context.insert("node", node);
         context.insert("module_name", &module.name);
 
-        let adapter_content = self.templates.render("backend/adapter.tera", &context)
+        let adapter_content = self
+            .templates
+            .render("backend/adapter.tera", &context)
             .context("Failed to render adapter template")?;
-        let adapter_path = self.output_dir.join("backend/db")
+        let adapter_path = self
+            .output_dir
+            .join("backend/db")
             .join(format!("{}.rs", module.name));
         self.write_file(&adapter_path, &adapter_content)?;
 
@@ -104,10 +124,12 @@ impl Generator {
         context.insert("node", node);
         context.insert("module_name", &module.name);
 
-        let port_content = self.templates.render("backend/port.tera", &context)
+        let port_content = self
+            .templates
+            .render("backend/port.tera", &context)
             .context("Failed to render port template")?;
         let port_path = self.output_dir.join("backend/ports.rs");
-        
+
         // Append to ports file or create if it doesn't exist
         let existing_content = if port_path.exists() {
             fs::read_to_string(&port_path).unwrap_or_default()
@@ -133,16 +155,24 @@ impl Generator {
         context.insert("module_name", &module.name);
 
         // Generate Rust model
-        let model_content = self.templates.render("shared-models/model.tera", &context)
+        let model_content = self
+            .templates
+            .render("shared-models/model.tera", &context)
             .context("Failed to render model template")?;
-        let model_path = self.output_dir.join("shared-models")
+        let model_path = self
+            .output_dir
+            .join("shared-models")
             .join(format!("{}.rs", node.id.to_lowercase()));
         self.write_file(&model_path, &model_content)?;
 
         // Generate TypeScript schema
-        let schema_content = self.templates.render("frontend/schema.tera", &context)
+        let schema_content = self
+            .templates
+            .render("frontend/schema.tera", &context)
             .context("Failed to render schema template")?;
-        let schema_path = self.output_dir.join("frontend/src/schemas")
+        let schema_path = self
+            .output_dir
+            .join("frontend/src/schemas")
             .join(format!("{}.ts", node.id.to_lowercase()));
         self.write_file(&schema_path, &schema_content)?;
 
@@ -163,17 +193,67 @@ impl Generator {
     }
 
     fn run_post_processing(&self) -> Result<()> {
-        // This would run typeshare, cargo fmt, prettier, etc.
-        // For now, we'll just return Ok as a placeholder
+        use std::process::Command;
+
+        // Attempt to run typeshare if available
+        let types_output_dir = self.output_dir.join("frontend/src/types");
+        let typeshare_status = Command::new("typeshare")
+            .arg("--lang=typescript")
+            .arg("--output-dir")
+            .arg(&types_output_dir)
+            .arg(self.output_dir.join("shared-models"))
+            .status();
+        if typeshare_status
+            .as_ref()
+            .map(|s| !s.success())
+            .unwrap_or(true)
+        {
+            println!("⚠️  typeshare not available or failed, skipping TypeScript generation");
+        }
+
+        // Format Rust code
+        let fmt_status = Command::new("cargo")
+            .arg("fmt")
+            .arg("--all")
+            .current_dir(&self.output_dir)
+            .status();
+        if fmt_status.as_ref().map(|s| !s.success()).unwrap_or(true) {
+            println!("⚠️  cargo fmt failed or is unavailable");
+        }
+
+        // Format frontend files with prettier if installed
+        let prettier_status = Command::new("prettier")
+            .arg("--write")
+            .arg(self.output_dir.join("frontend").to_str().unwrap())
+            .status();
+        if prettier_status
+            .as_ref()
+            .map(|s| !s.success())
+            .unwrap_or(true)
+        {
+            println!("⚠️  prettier failed or is unavailable");
+        }
+
         Ok(())
     }
 }
 
 // Helper function to capitalize first letter of a string
-fn capitalize(s: &str) -> String {
+pub(crate) fn capitalize(s: &str) -> String {
     let mut chars = s.chars();
     match chars.next() {
         None => String::new(),
         Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::capitalize;
+
+    #[test]
+    fn test_capitalize() {
+        assert_eq!(capitalize("hello"), "Hello");
+        assert_eq!(capitalize(""), "");
     }
 }
