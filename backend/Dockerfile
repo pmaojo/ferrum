@@ -7,8 +7,8 @@ RUN apt-get update && \
     apt-get install -y pkg-config libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Install cargo-watch for development hot-reload
-RUN cargo install cargo-watch
+# Install cargo-watch for development hot-reload and typeshare CLI
+RUN cargo install cargo-watch typeshare-cli
 
 # Copy the Cargo.toml and Cargo.lock files
 COPY Cargo.toml Cargo.lock ./
