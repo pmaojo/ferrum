@@ -9,13 +9,16 @@ use neo4rs::{query, Graph};
 /// dependency.
 ///
 /// This function is idempotent thanks to Cypher's `MERGE` clauses.
-pub async fn sync_module_to_graph(module: &Module, graph: &Graph) -> Result<()> {
+pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
     for node in &module.nodes {
         let label = match node.node_type {
             NodeType::UseCase => "Usecase",
             NodeType::Adapter => "Adapter",
             NodeType::Port => "Port",
             NodeType::Entity => "Entity",
+            NodeType::Component => "Component",
+            NodeType::Hook => "Hook",
+            NodeType::Schema => "Schema",
         };
 
         // Merge node with basic properties

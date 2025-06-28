@@ -9,6 +9,9 @@ pub enum NodeType {
     Adapter,
     Port,
     Entity,
+    Component,
+    Hook,
+    Schema,
 }
 
 #[typeshare]
@@ -35,6 +38,12 @@ pub struct Node {
     #[serde(default)]
     pub depends_on: Vec<String>,
     pub implements: Option<String>,
+    #[serde(default)]
+    pub view: Option<String>,
+    #[serde(default)]
+    pub schema: Option<String>,
+    #[serde(default)]
+    pub api_name: Option<String>,
 }
 
 #[typeshare]

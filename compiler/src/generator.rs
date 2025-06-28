@@ -43,6 +43,9 @@ impl Generator {
             NodeType::Adapter => self.generate_adapter(module, node),
             NodeType::Port => self.generate_port(module, node),
             NodeType::Entity => self.generate_entity(module, node),
+            NodeType::Component => self.generate_component(module, node),
+            NodeType::Hook => self.generate_hook(module, node),
+            NodeType::Schema => self.generate_schema(module, node),
         }
     }
 
@@ -178,6 +181,57 @@ impl Generator {
         self.write_file(&schema_path, &schema_content)?;
 
         Ok(())
+    }
+
+    fn generate_component(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+        context.insert("module_name", &module.name);
+
+        let component_content = self
+            .templates
+            .render("frontend/component.tera", &context)
+            .context("Failed to render component template")?;
+        let component_path = self
+            .output_dir
+            .join("frontend/src/components")
+            .join(format!("{}.tsx", capitalize(&node.id)));
+        self.write_file(&component_path, &component_content)
+    }
+
+    fn generate_hook(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+        context.insert("module_name", &module.name);
+
+        let hook_content = self
+            .templates
+            .render("frontend/hook.tera", &context)
+            .context("Failed to render hook template")?;
+        let hook_path = self
+            .output_dir
+            .join("frontend/src/hooks")
+            .join(format!("use{}.ts", capitalize(&node.id)));
+        self.write_file(&hook_path, &hook_content)
+    }
+
+    fn generate_schema(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+        context.insert("module_name", &module.name);
+
+        let schema_content = self
+            .templates
+            .render("frontend/schema.tera", &context)
+            .context("Failed to render schema template")?;
+        let schema_path = self
+            .output_dir
+            .join("frontend/src/schemas")
+            .join(format!("{}.ts", node.id.to_lowercase()));
+        self.write_file(&schema_path, &schema_content)
     }
 
     fn generate_documentation(&self, module: &Module, node: &Node) -> Result<()> {

@@ -1,3 +1,3 @@
 pub mod services;
 
-pub use services::graph_sync::sync_module_to_graph;
+pub use services::graph_sync::sync_ast_to_graph;
