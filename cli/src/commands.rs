@@ -37,28 +37,28 @@ pub enum Commands {
         #[arg(short, long, value_name = "FILE")]
         output: Option<PathBuf>,
     },
-    
+
     /// Start development environment with Docker
     Dev {
         /// Include graph database (Neo4j)
         #[arg(long)]
         with_graph: bool,
-        
+
         /// Include AI/LLM service (Ollama)
         #[arg(long)]
         with_ai: bool,
     },
-    
+
     /// Initialize a new Ferrum project
     Init {
         /// Project name
         #[arg(value_name = "NAME")]
         name: String,
-        
+
         /// Include graph database support
         #[arg(long)]
         with_graph: bool,
-        
+
         /// Include AI/LLM integration
         #[arg(long)]
         with_ai: bool,
@@ -70,7 +70,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
 
     let module = ferrum_compiler::parse_yaml(&file)?;
-    
+
     let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
     generator.generate(&module)?;
 
@@ -79,90 +79,96 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
 }
 
 pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
-    // This is where the AI magic will happen in the future
-    // The system will use RAG (Retrieval Augmented Generation) + OWL reasoning
-    // to convert natural language prompts into architecture graphs
-    
+    use std::fs;
+
     println!("🤖 AI Architecture Generation");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("Prompt: {}", text);
     println!();
-    println!("🧠 Analyzing requirements...");
-    println!("🔍 Identifying architectural patterns...");
-    println!("📐 Designing hexagonal architecture...");
-    println!("📝 Generating grafo.yaml specification...");
-    println!();
-    
-    // In a real implementation, this would:
-    // 1. Use an LLM to analyze the prompt
-    // 2. Apply architectural patterns from a knowledge base
-    // 3. Generate a valid grafo.yaml file
-    // 4. Validate the architecture for completeness
-    
+
+    // Very naive prompt processing: take the first word as module name
+    let module_name = text
+        .split_whitespace()
+        .next()
+        .unwrap_or("generated")
+        .to_lowercase();
+
+    let yaml = format!(
+        "module: {}\nnodes:\n  - id: example\n    type: usecase\n",
+        module_name
+    );
+
     let output_path = output.unwrap_or_else(|| PathBuf::from("gen/generated.yaml"));
-    println!("✅ Architecture graph would be generated at: {}", output_path.display());
-    println!("ℹ️  Run 'ferrum compile {}' to generate code from this architecture", output_path.display());
-    println!();
-    println!("Note: Full AI functionality will be implemented in the next release.");
-    
+    fs::create_dir_all(output_path.parent().unwrap())?;
+    fs::write(&output_path, yaml)?;
+
+    println!(
+        "✅ Architecture graph generated at: {}",
+        output_path.display()
+    );
+    println!(
+        "ℹ️  Run 'ferrum compile {}' to generate code from this architecture",
+        output_path.display()
+    );
+
     Ok(())
 }
 
 pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
     use std::process::Command;
-    
+
     println!("🐳 Starting Ferrum development environment");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    
+
     // Create a docker-compose command with the appropriate services
     let mut services = vec!["backend", "frontend", "db"];
-    
+
     if with_graph {
         services.push("graphdb");
         println!("🔍 Including graph database (Neo4j)");
     }
-    
+
     if with_ai {
         services.push("llm");
         println!("🧠 Including AI/LLM service (Ollama)");
     }
-    
+
     println!("⚙️  Starting services: {}", services.join(", "));
     println!();
-    
+
     // Build the docker-compose command
     let services_arg = services.join(" ");
     let docker_compose_cmd = format!("docker-compose up {}", services_arg);
-    
+
     println!("🚀 Launching development environment...");
     println!("💡 Press Ctrl+C to stop all services");
     println!();
-    
+
     // Execute the command
     let status = Command::new("sh")
         .arg("-c")
         .arg(&docker_compose_cmd)
         .status()?;
-    
+
     if !status.success() {
         println!("❌ Failed to start development environment");
         return Err(anyhow::anyhow!("Docker command failed"));
     }
-    
+
     Ok(())
 }
 
 pub fn init(name: String, with_graph: bool, with_ai: bool) -> Result<()> {
     use std::fs;
     use std::io::Write;
-    
+
     println!("🏗️  Initializing new Ferrum project: {}", name);
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    
+
     // Create project directory
     let project_dir = PathBuf::from(&name);
     fs::create_dir_all(&project_dir)?;
-    
+
     // Create directory structure
     let dirs = [
         "backend/src",
@@ -174,38 +180,39 @@ pub fn init(name: String, with_graph: bool, with_ai: bool) -> Result<()> {
         "gen",
         "data/postgres",
     ];
-    
+
     for dir in dirs.iter() {
         fs::create_dir_all(project_dir.join(dir))?;
         println!("📁 Created directory: {}/{}", name, dir);
     }
-    
+
     // Create additional directories based on flags
     if with_graph {
         fs::create_dir_all(project_dir.join("data/neo4j"))?;
         println!("📁 Created directory: {}/data/neo4j", name);
     }
-    
+
     if with_ai {
         fs::create_dir_all(project_dir.join("data/ollama"))?;
         println!("📁 Created directory: {}/data/ollama", name);
     }
-    
+
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
     let docker_compose_content = include_str!("../../docker-compose.yml");
     docker_compose.write_all(docker_compose_content.as_bytes())?;
     println!("📄 Created docker-compose.yml");
-    
+
     // Create example grafo.yaml
     let mut example_yaml = fs::File::create(project_dir.join("gen/example.yaml"))?;
     let example_yaml_content = include_str!("../../gen/users.yaml");
     example_yaml.write_all(example_yaml_content.as_bytes())?;
     println!("📄 Created example grafo.yaml");
-    
+
     // Create README.md
     let mut readme = fs::File::create(project_dir.join("README.md"))?;
-    let readme_content = format!(r#"# {}
+    let readme_content = format!(
+        r#"# {}
 
 An AI-first full-stack application scaffolded with Ferrum.
 
@@ -230,10 +237,12 @@ ferrum dev --with-ai
 - `templates/`: Templates for code generation
 - `gen/`: YAML architecture files
 - `data/`: Persistent data for Docker services
-"#, name);
+"#,
+        name
+    );
     readme.write_all(readme_content.as_bytes())?;
     println!("📄 Created README.md");
-    
+
     println!();
     println!("✅ Project initialized successfully!");
     println!("📂 Project location: {}", project_dir.display());
@@ -242,6 +251,6 @@ ferrum dev --with-ai
     println!("  1. cd {}", name);
     println!("  2. ferrum compile gen/example.yaml");
     println!("  3. ferrum dev");
-    
+
     Ok(())
 }
