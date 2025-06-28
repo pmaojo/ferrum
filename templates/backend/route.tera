@@ -1,0 +1,8 @@
+use axum::{routing::post, Router};
+
+use crate::handlers::{{ module_name }}::{{ node.id }}_handler;
+
+pub fn {{ module_name }}_routes() -> Router {
+    Router::new()
+        .route("/{{ module_name }}/{{ node.id | lower }}", post({{ node.id }}_handler))
+}

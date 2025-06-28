@@ -1,0 +1,32 @@
+import { useQuery } from '@tanstack/react-query';
+import { {{ node.output }} } from '../types/{{ node.output }}';
+
+interface {{ node.id | capitalize }}Params {
+  {% for input in node.input %}
+  {{ input.name }}: string; // Using string as default type
+  {% endfor %}
+}
+
+export const use{{ node.id | capitalize }} = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }: {{ node.id | capitalize }}Params) => {
+  return useQuery<{{ node.output }}>(
+    ['{{ node.id }}', {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %}],
+    async () => {
+      const response = await fetch(`/api/{{ module_name }}/{{ node.id | lower }}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      return response.json();
+    },
+    {
+      enabled: {% for input in node.input %}!!{{ input.name }}{% if not loop.last %} && {% endif %}{% endfor %},
+    }
+  );
+};

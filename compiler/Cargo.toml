@@ -1,0 +1,13 @@
+[package]
+name = "ferrum-compiler"
+version = "0.1.0"
+edition = "2021"
+description = "Compiler for the Ferrum scaffolding system"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tera = "1.19"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"

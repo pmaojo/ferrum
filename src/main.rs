@@ -1,0 +1,22 @@
+use anyhow::Result;
+use ferrum_cli::commands::{Cli, Commands, compile, prompt};
+use clap::Parser;
+
+fn main() -> Result<()> {
+    // Initialize logging
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .with_target(false)
+        .init();
+
+    let cli = Cli::parse();
+
+    match cli.command {
+        Commands::Compile { file, output, templates } => {
+            compile(file, output, templates)
+        },
+        Commands::Prompt { text, output } => {
+            prompt(text, output)
+        },
+    }
+}

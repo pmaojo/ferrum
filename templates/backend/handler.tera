@@ -1,0 +1,21 @@
+use axum::{extract::State, Json};
+use uuid::Uuid;
+
+use crate::shared_models::{{ node.output | lower }}::{{ node.output }};
+use crate::usecases::{{ module_name }}::{{ node.id }};
+
+pub async fn {{ node.id }}_handler(
+    State(state): State<crate::AppState>,
+    {% if node.input | length > 0 %}
+    Json(payload): Json<{{ node.id }}::Request>,
+    {% endif %}
+) -> Json<{{ node.output }}> {
+    let result = {{ node.id }}::execute(
+        &state.{{ node.depends_on[0] }},
+        {% if node.input | length > 0 %}
+        payload,
+        {% endif %}
+    ).await;
+
+    Json(result)
+}
