@@ -1,0 +1,10 @@
+[package]
+name = "ferrum-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+neo4rs = { version = "0.9.0-rc.6", features = ["json"] }
+ferrum-shared-models = { path = "../shared-models" }
+
