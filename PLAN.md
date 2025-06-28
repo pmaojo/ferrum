@@ -27,9 +27,12 @@ This document outlines the development roadmap for Ferrum, an AI-first scaffoldi
 - [x] Backend templates (handlers, routes, adapters, ports)
 - [x] Frontend templates (hooks, components, schemas)
 - [x] Shared model templates
-- [ ] Implement post-processing (run typeshare & formatting)
-- [ ] Add error handling and validation
+- [x] Implement post-processing (run typeshare & formatting)
+- [x] Add error handling and validation
 - [ ] Add `--with-auth`, `--with-jobs`, etc. flags to enable batteries-included templates
+- [x] Add `--with-db` flag for Diesel support
+- [x] Add `--with-graph` flag for Neo4j setup
+- [x] Implement `ferrum sync` command to push graph to Neo4j
 
 ### 1.3 Typeshare Step
 
@@ -58,7 +61,8 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 
 ### 1.4 Testing & Documentation
 
-- [ ] Unit tests for parser and generator
+- [x] Unit tests for parser and validator
+- [ ] Unit tests for generator
 - [ ] Integration tests for end-to-end flow
 - [ ] Example projects with different complexity levels
 - [ ] Comprehensive documentation with examples
@@ -78,12 +82,12 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [ ] Implement reasoning engine for architectural decisions
 - [ ] Create rules for validating architecture
 - [ ] Develop explanation system for architectural choices
-
+-
 ### 2.3 Prompt-to-YAML Generation
 
-- [ ] Integrate with LLM API (OpenAI, Anthropic, etc.)
+- [x] Integrate with LLM API (OpenAI, Anthropic, local)
 - [ ] Develop prompt engineering for architecture extraction
-- [ ] Implement validation for generated YAML
+- [x] Implement validation for generated YAML
 - [ ] Create feedback loop for refinement
 
 ## 🧠 Phase 2.5: WASP-inspired UX Enhancements
@@ -94,7 +98,7 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 
 ### 2.5.2 AI Generation CLI
 - [ ] Implement `ferrum init --ai` for guided prompts
-- [ ] Generate full-stack `grafo.yaml` from prompt using Python microservice
+- [x] Generate full-stack `grafo.yaml` from prompt using Python microservice
 
 ### 2.5.3 Full-stack Typed RPC
 - [ ] Scaffold shared RPC functions with typed input/output
@@ -155,14 +159,14 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 
 ### 4.1 Architecture Visualization
 
-- [ ] Implement graph visualization for architecture
-- [ ] Create interactive node editor
-- [ ] Add real-time validation
+- [x] Implement graph visualization for architecture
+- [x] Create interactive node editor
+- [x] Add real-time validation
 - [ ] Implement export/import functionality
 
 ### 4.2 Web Interface
 
-- [ ] Create web application for Ferrum
+- [x] Create web application for Ferrum
 - [ ] Implement user authentication
 - [ ] Add project management
 - [ ] Create dashboard for projects
@@ -183,29 +187,17 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 
 ## 🔄 Immediate Next Steps
 
-1. Complete the post-processing functionality
-   - Implement typeshare integration (see Section 1.3)
-   - Add code formatting (cargo fmt, prettier)
-   - Create validation for generated code
-
-2. Enhance error handling
-   - Add detailed error messages
-   - Implement validation for input YAML
-   - Create recovery mechanisms for common errors
-
-3. Write comprehensive tests
-   - Unit tests for parser
-   - Unit tests for generator
+1. Finalize testing efforts
+   - Parser and validator tests complete
+   - Add generator tests
    - Integration tests for CLI
    - End-to-end tests for full workflow
 
-4. Begin AI integration research
-   - Evaluate LLM options (OpenAI, Anthropic, local models)
-   - Research vector databases for RAG
-   - Prototype simple prompt-to-YAML conversion
-   - Define architectural ontology for reasoning
+2. Continue improving error handling
+   - Expand validation messages
+   - Add recovery mechanisms for common errors
 
-5. Implement WASP-inspired `ferrum init --ai` CLI flow
+3. Implement WASP-inspired `ferrum init --ai` CLI flow
    - Connect to Python prompt service
    - Output `grafo.yaml` with modules
    - Trigger compilation to full project
