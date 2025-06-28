@@ -56,7 +56,9 @@ the Studio dashboard and any generated project.
    ```
 
 Automate this step via Docker or Make tasks so types remain aligned across the
-stack.
+stack. The Makefile now provides `typeshare-studio` and `typeshare-project`
+targets, and the backend Dockerfile installs the `typeshare-cli` to generate
+TypeScript during CI builds.
 
 ### 1.4 Testing & Documentation
 
