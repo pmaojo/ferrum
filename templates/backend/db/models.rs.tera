@@ -1,0 +1,13 @@
+use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+use super::schema::users;
+
+#[derive(Queryable, Insertable, Serialize, Deserialize)]
+#[diesel(table_name = users)]
+pub struct User {
+    pub id: Uuid,
+    pub name: String,
+    pub created_at: chrono::NaiveDateTime,
+}

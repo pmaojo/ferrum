@@ -27,7 +27,8 @@ fn main() -> Result<()> {
             name,
             with_graph,
             with_ai,
-        } => ferrum_cli::commands::init(name, with_graph, with_ai),
+            with_db,
+        } => ferrum_cli::commands::init(name, with_graph, with_ai, with_db),
         Commands::Sync {
             file,
             uri,
