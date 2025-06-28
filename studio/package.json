@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -15,7 +16,9 @@
     "@shadcn/ui": "^0.0.4",
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-query": "^5.81.5",
+    "archiver": "^7.0.1",
     "autoprefixer": "^10.4.21",
+    "express": "^5.1.0",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

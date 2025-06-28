@@ -13,7 +13,7 @@ interface TriggerProps {
   value: string;
 }
 
-export function TabsList({ children }: PropsWithChildren<{}>) {
+export function TabsList({ children }: PropsWithChildren<object>) {
   return <div className="flex gap-2 border-b mb-2">{children}</div>;
 }
 
