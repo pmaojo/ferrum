@@ -29,7 +29,7 @@ This document outlines the development roadmap for Ferrum, an AI-first scaffoldi
 - [x] Shared model templates
 - [x] Implement post-processing (run typeshare & formatting)
 - [x] Add error handling and validation
-- [ ] Add `--with-auth`, `--with-jobs`, etc. flags to enable batteries-included templates
+- [x] Add `--with-auth`, `--with-jobs`, etc. flags to enable batteries-included templates
 - [x] Add `--with-db` flag for Diesel support
 - [x] Add `--with-graph` flag for Neo4j setup
 - [x] Implement `ferrum sync` command to push graph to Neo4j

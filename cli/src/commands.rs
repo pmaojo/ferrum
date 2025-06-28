@@ -66,6 +66,14 @@ pub enum Commands {
         /// Include Diesel ORM setup
         #[arg(long)]
         with_db: bool,
+
+        /// Include authentication templates
+        #[arg(long)]
+        with_auth: bool,
+
+        /// Include background job templates
+        #[arg(long)]
+        with_jobs: bool,
     },
 
     /// Sync a grafo.yaml file to Neo4j
@@ -189,7 +197,14 @@ pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
 }
 
 /// Scaffold a new Ferrum project on disk.
-pub fn init(name: String, with_graph: bool, with_ai: bool, with_db: bool) -> Result<()> {
+pub fn init(
+    name: String,
+    with_graph: bool,
+    with_ai: bool,
+    with_db: bool,
+    with_auth: bool,
+    with_jobs: bool,
+) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
 
@@ -267,6 +282,24 @@ pub fn init(name: String, with_graph: bool, with_ai: bool, with_db: bool) -> Res
         println!("📄 Added Diesel templates and .env file");
     }
 
+    if with_auth {
+        fs::create_dir_all(project_dir.join("templates/batteries/auth"))?;
+        fs::write(
+            project_dir.join("templates/batteries/auth/login_handler.rs.tera"),
+            include_str!("../../templates/batteries/auth/login_handler.rs.tera"),
+        )?;
+        println!("📄 Added authentication templates");
+    }
+
+    if with_jobs {
+        fs::create_dir_all(project_dir.join("templates/batteries/jobs"))?;
+        fs::write(
+            project_dir.join("templates/batteries/jobs/example_job.rs.tera"),
+            include_str!("../../templates/batteries/jobs/example_job.rs.tera"),
+        )?;
+        println!("📄 Added job templates");
+    }
+
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
     let mut docker_compose_content = include_str!("../../docker-compose.yml").to_string();
@@ -325,6 +358,11 @@ ferrum dev --with-graph
 
 # With AI/LLM service
 ferrum dev --with-ai
+# With authentication templates
+ferrum init myapp --with-auth
+
+# With job templates
+ferrum init myapp --with-jobs
 ```
 
 ## Project Structure

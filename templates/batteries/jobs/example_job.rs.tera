@@ -1,0 +1,4 @@
+// Example background job placeholder
+pub async fn run() {
+    // TODO: implement job logic
+}
