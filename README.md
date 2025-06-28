@@ -15,17 +15,59 @@ cargo install --path .
 
 ### ⚙️ Usage
 
-#### 1. Compile a YAML architecture graph
+#### 1. Initialize a new project
+
+```bash
+# Create a basic project
+ferrum init my-project
+
+# With graph database support
+ferrum init my-project --with-graph
+
+# With AI/LLM integration
+ferrum init my-project --with-ai
+```
+
+#### 2. Start the development environment
+
+```bash
+# Start basic services (backend, frontend, database)
+ferrum dev
+
+# With graph database
+ferrum dev --with-graph
+
+# With AI/LLM service
+ferrum dev --with-ai
+```
+
+#### 3. Compile a YAML architecture graph
 
 ```bash
 ferrum compile gen/users.yaml
 ```
 
-#### 2. (Future) Generate architecture from a natural prompt
+#### 4. Generate architecture from a natural prompt
 
 ```bash
 ferrum prompt "CRUD for user"
 ```
+
+---
+
+## 🐳 Docker Environment
+
+Ferrum comes with a pre-configured Docker environment that includes:
+
+| Service | Purpose |
+|---------|----------|
+| **backend** | Rust (Axum) server with hot reload |
+| **frontend** | Vite + React frontend with shared types |
+| **db** | PostgreSQL database |
+| **graphdb** (optional) | Neo4j for graph modeling |
+| **llm** (optional) | Ollama for local AI inference |
+
+The Docker environment is automatically set up when you initialize a new project and can be started with the `ferrum dev` command.
 
 ---
 
