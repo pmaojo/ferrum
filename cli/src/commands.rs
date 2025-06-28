@@ -62,6 +62,10 @@ pub enum Commands {
         /// Include AI/LLM integration
         #[arg(long)]
         with_ai: bool,
+
+        /// Include Diesel ORM setup
+        #[arg(long)]
+        with_db: bool,
     },
 
     /// Sync a grafo.yaml file to Neo4j
@@ -185,8 +189,8 @@ pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
 }
 
 /// Scaffold a new Ferrum project on disk.
-pub fn init(name: String, with_graph: bool, with_ai: bool) -> Result<()> {
-    use std::fs;
+pub fn init(name: String, with_graph: bool, with_ai: bool, with_db: bool) -> Result<()> {
+    use std::fs::{self, OpenOptions};
     use std::io::Write;
 
     println!("🏗️  Initializing new Ferrum project: {}", name);
@@ -224,17 +228,84 @@ pub fn init(name: String, with_graph: bool, with_ai: bool) -> Result<()> {
         println!("📁 Created directory: {}/data/ollama", name);
     }
 
+    if with_db {
+        fs::create_dir_all(project_dir.join("backend/db/migrations"))?;
+        fs::create_dir_all(project_dir.join("templates/backend/db/migrations"))?;
+        println!("📁 Created directory: {}/backend/db/migrations", name);
+
+        // Copy Diesel templates into project templates directory
+        fs::write(
+            project_dir.join("templates/backend/db/schema.rs.tera"),
+            include_str!("../../templates/backend/db/schema.rs.tera"),
+        )?;
+        fs::write(
+            project_dir.join("templates/backend/db/models.rs.tera"),
+            include_str!("../../templates/backend/db/models.rs.tera"),
+        )?;
+        fs::write(
+            project_dir.join("templates/backend/db/mod.rs.tera"),
+            include_str!("../../templates/backend/db/mod.rs.tera"),
+        )?;
+
+        let mig_dir = project_dir.join("templates/backend/db/migrations/0001_create_users");
+        fs::create_dir_all(&mig_dir)?;
+        fs::write(
+            mig_dir.join("up.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_users/up.sql"),
+        )?;
+        fs::write(
+            mig_dir.join("down.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_users/down.sql"),
+        )?;
+
+        // Create .env with database URL
+        fs::write(
+            project_dir.join(".env"),
+            "DATABASE_URL=postgres://ferrum:password@db/ferrum\n",
+        )?;
+
+        println!("📄 Added Diesel templates and .env file");
+    }
+
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
-    let docker_compose_content = include_str!("../../docker-compose.yml");
+    let mut docker_compose_content = include_str!("../../docker-compose.yml").to_string();
+    if with_db {
+        docker_compose_content.push_str("\n  diesel:\n    image: rust:latest\n    command: ['cargo', 'install', 'diesel_cli']\n");
+    }
     docker_compose.write_all(docker_compose_content.as_bytes())?;
     println!("📄 Created docker-compose.yml");
+
+    if with_db {
+        let dockerfile_path = project_dir.join("backend/Dockerfile");
+        fs::create_dir_all(project_dir.join("backend"))?;
+        fs::write(
+            dockerfile_path,
+            "FROM rust:latest\nRUN apt-get update && apt-get install -y libpq-dev \\n+    && cargo install diesel_cli --no-default-features --features postgres\nWORKDIR /app\n",
+        )?;
+        println!("📄 Created backend/Dockerfile with diesel_cli");
+    }
 
     // Create example grafo.yaml
     let mut example_yaml = fs::File::create(project_dir.join("gen/example.yaml"))?;
     let example_yaml_content = include_str!("../../gen/users.yaml");
     example_yaml.write_all(example_yaml_content.as_bytes())?;
     println!("📄 Created example grafo.yaml");
+
+    if with_db {
+        let cargo_toml_path = project_dir.join("backend/Cargo.toml");
+        fs::create_dir_all(project_dir.join("backend"))?;
+        let mut cargo_toml = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&cargo_toml_path)?;
+        writeln!(
+            cargo_toml,
+            "diesel = {{ version = \"2\", features = [\"postgres\"] }}"
+        )?;
+        writeln!(cargo_toml, "dotenvy = \"0.15\"")?;
+        println!("📄 Updated backend/Cargo.toml with Diesel dependencies");
+    }
 
     // Create README.md
     let mut readme = fs::File::create(project_dir.join("README.md"))?;

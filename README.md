@@ -25,6 +25,9 @@ ferrum init my-project
 # With graph database support
 ferrum init my-project --with-graph
 
+# With PostgreSQL setup
+ferrum init my-project --with-db
+
 # With AI/LLM integration
 ferrum init my-project --with-ai
 ```
