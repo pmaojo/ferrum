@@ -63,6 +63,25 @@ pub enum Commands {
         #[arg(long)]
         with_ai: bool,
     },
+
+    /// Sync a grafo.yaml file to Neo4j
+    Sync {
+        /// Path to the grafo.yaml file
+        #[arg(value_name = "FILE")]
+        file: PathBuf,
+
+        /// Neo4j connection URI
+        #[arg(long, default_value = "bolt://localhost:7687")]
+        uri: String,
+
+        /// Neo4j username
+        #[arg(long, default_value = "neo4j")]
+        user: String,
+
+        /// Neo4j password
+        #[arg(long, default_value = "test")]
+        password: String,
+    },
 }
 
 pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
@@ -252,5 +271,21 @@ ferrum dev --with-ai
     println!("  2. ferrum compile gen/example.yaml");
     println!("  3. ferrum dev");
 
+    Ok(())
+}
+
+pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Result<()> {
+    use neo4rs::Graph;
+
+    let module = ferrum_compiler::parse_yaml(&file)?;
+
+    let rt = tokio::runtime::Runtime::new()?;
+    rt.block_on(async {
+        let graph = Graph::new(uri.clone(), user.clone(), password.clone())?;
+        ferrum_engine::sync_ast_to_graph(&module, &graph).await?;
+        Ok::<_, anyhow::Error>(())
+    })?;
+
+    println!("✅ Synced {} to {}", file.display(), uri);
     Ok(())
 }
