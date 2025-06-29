@@ -61,9 +61,79 @@ use std::collections::BTreeMap;
 pub struct DslApp {
     pub name: String,
     #[serde(default)]
+    pub title: Option<String>,
+    #[serde(default)]
+    pub version: Option<String>,
+    #[serde(default)]
     pub database: Option<String>,
     #[serde(default)]
     pub features: Vec<String>,
+    #[serde(default)]
+    pub auth: Option<DslAuth>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslAuth {
+    #[serde(rename = "userEntity")]
+    pub user_entity: String,
+    #[serde(default)]
+    pub methods: Vec<String>,
+    #[serde(default, rename = "onAuthFailedRedirectTo")]
+    pub on_auth_failed_redirect_to: Option<String>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslRoute {
+    pub name: String,
+    pub path: String,
+    pub to: String,
+    #[serde(default, rename = "authRequired")]
+    pub auth_required: bool,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslAppPage {
+    pub name: String,
+    pub component: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslQuery {
+    pub name: String,
+    pub handler: String,
+    #[serde(default)]
+    pub entities: Vec<String>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslMutation {
+    pub name: String,
+    pub handler: String,
+    #[serde(default)]
+    pub entities: Vec<String>,
+    #[serde(default, rename = "authRequired")]
+    pub auth_required: bool,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslJob {
+    pub name: String,
+    pub schedule: String,
+    pub handler: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslStandaloneEntity {
+    pub name: String,
+    #[serde(default)]
+    pub fields: BTreeMap<String, String>,
 }
 
 #[typeshare]
@@ -120,4 +190,16 @@ pub struct FerrumDsl {
     pub app: DslApp,
     #[serde(default)]
     pub modules: BTreeMap<String, DslModule>,
+    #[serde(default)]
+    pub routes: Vec<DslRoute>,
+    #[serde(default)]
+    pub pages: Vec<DslAppPage>,
+    #[serde(default)]
+    pub queries: Vec<DslQuery>,
+    #[serde(default)]
+    pub mutations: Vec<DslMutation>,
+    #[serde(default)]
+    pub jobs: Vec<DslJob>,
+    #[serde(default)]
+    pub entities: Vec<DslStandaloneEntity>,
 }

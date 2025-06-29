@@ -58,3 +58,42 @@ modules:
     assert!(user.entity.is_some());
     assert!(user.usecases.contains_key("hello"));
 }
+
+#[test]
+fn parse_extended_format() {
+    let yaml = r#"app:
+  name: ferrusBlog
+  title: "Blog Ferrus"
+  version: "0.7.0"
+  auth:
+    userEntity: User
+    methods:
+      - email
+routes:
+  - name: Root
+    path: /
+    to: HomePage
+    authRequired: false
+pages:
+  - name: HomePage
+    component: ./frontend/pages/Home.tsx
+queries:
+  - name: getPosts
+    handler: ./backend/queries/getPosts.rs
+    entities: [Post]
+entities:
+  - name: User
+    fields:
+      id: int
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("ext.yaml");
+    fs::write(&file, yaml).unwrap();
+    let project = parse_dsl_yaml(&file).unwrap();
+    assert_eq!(project.app.title.as_deref(), Some("Blog Ferrus"));
+    assert_eq!(project.routes.len(), 1);
+    assert_eq!(project.pages.len(), 1);
+    assert_eq!(project.queries.len(), 1);
+    assert_eq!(project.entities.len(), 1);
+    assert!(project.app.auth.is_some());
+}
