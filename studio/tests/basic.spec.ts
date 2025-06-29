@@ -9,5 +9,6 @@ test('homepage has all tabs', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'AI Scaffold' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Docs' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Output' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Preview' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Tools' })).toBeVisible();
 });
