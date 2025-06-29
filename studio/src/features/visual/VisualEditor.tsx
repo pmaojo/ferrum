@@ -1,4 +1,5 @@
-import ReactFlow, { Background, Edge, Node } from "react-flow-renderer";
+import ReactFlow, { Background } from "react-flow-renderer";
+import type { Edge, Node } from "react-flow-renderer";
 import { useMemo } from "react";
 import * as jsYaml from "js-yaml";
 
