@@ -117,13 +117,6 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [ ] Add versioning for templates
 - [ ] Develop template validation
 
-### 3.2 Additional Framework Support
-
-- [ ] Add support for Tauri (desktop apps)
-- [ ] Add support for Bun/Deno
-- [ ] Add support for GraphQL
-- [ ] Add support for tRPC
-
 ### 3.3 Plugin System
 
 - [ ] Design plugin architecture
@@ -160,9 +153,9 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [ ] Add real-time validation
 - [ ] Implement export/import functionality
 
-### 4.2 Web Interface
+### 4.2 Studio
 
-- [ ] Create web application for Ferrum
+- [x] Create web application for Ferrum
 - [ ] Implement user authentication
 - [ ] Add project management
 - [ ] Create dashboard for projects
