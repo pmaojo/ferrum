@@ -94,6 +94,14 @@ pub fn compile_dsl(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     for query in &dsl.queries {
         generate_query(query, paths)?;
     }
+    // Mutations
+    crate::mutationgen::compile_mutations(dsl, paths)?;
+    // Routes
+    crate::routegen::generate_routes(dsl, paths)?;
+    // Authentication
+    crate::authgen::generate_auth(dsl, paths)?;
+    // Jobs
+    crate::jobgen::compile_jobs(dsl, paths)?;
     Ok(())
 }
 
