@@ -133,10 +133,13 @@ ferrum/
 ├── templates/      # Tera-based code templates
 ├── shared-models/  # Rust models exported to TypeScript
 ├── studio/         # Visual editor UI
-├── docker-compose.yml
+├── templates/docker-compose.yml  # Docker template copied to new projects
 ├── Makefile
 └── Cargo.toml
 ```
+
+The compose file here is only a template. It gets copied into new projects and
+is not meant to be run directly from this repository.
 
 Generated projects live outside this repo, for example:
 
