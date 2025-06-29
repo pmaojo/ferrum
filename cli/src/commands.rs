@@ -94,6 +94,9 @@ pub enum Commands {
         #[arg(long, default_value = "test")]
         password: String,
     },
+
+    /// Run Diesel database migrations
+    Migrate {},
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
@@ -272,7 +275,21 @@ pub fn init(
             include_str!("../../templates/backend/db/mod.rs.tera"),
         )?;
 
-        let mig_template_dir = project_dir.join("templates/backend/db/migrations/0001_create_usuarios");
+        // Copy optional seed data
+        fs::create_dir_all(project_dir.join("templates/backend/db/seeds"))?;
+        fs::write(
+            project_dir.join("templates/backend/db/seeds/usuarios.sql"),
+            include_str!("../../templates/backend/db/seeds/usuarios.sql"),
+        )?;
+
+        fs::create_dir_all(project_dir.join("backend/seeds"))?;
+        fs::write(
+            project_dir.join("backend/seeds/usuarios.sql"),
+            include_str!("../../templates/backend/db/seeds/usuarios.sql"),
+        )?;
+
+        let mig_template_dir =
+            project_dir.join("templates/backend/db/migrations/0001_create_usuarios");
         fs::create_dir_all(&mig_template_dir)?;
         fs::write(
             mig_template_dir.join("up.sql"),
@@ -398,6 +415,19 @@ ferrum init myapp --with-auth
 ferrum init myapp --with-jobs
 ```
 
+## Database Setup
+
+```bash
+diesel setup       # create database
+diesel migration run
+```
+
+Run optional seeds:
+
+```bash
+psql $DATABASE_URL -f backend/seeds/usuarios.sql
+```
+
 ## Project Structure
 
 - `backend/`: Rust backend using Axum
@@ -438,5 +468,21 @@ pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Resul
     })?;
 
     println!("✅ Synced {} to {}", file.display(), uri);
+    Ok(())
+}
+
+/// Run Diesel database migrations using `diesel_migrations`.
+pub fn migrate() -> Result<()> {
+    use diesel::prelude::*;
+    use diesel_migrations::{FileBasedMigrations, MigrationHarness};
+
+    dotenvy::dotenv().ok();
+    let database_url = std::env::var("DATABASE_URL")?;
+    let mut conn = PgConnection::establish(&database_url)?;
+    let migrations = FileBasedMigrations::find_migrations_directory()?;
+    conn.run_pending_migrations(migrations)
+        .map_err(|e| anyhow::anyhow!(e))?;
+
+    println!("✅ Database migrations applied");
     Ok(())
 }

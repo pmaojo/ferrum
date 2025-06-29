@@ -1,8 +1,11 @@
-use ferrum_compiler::{Generator, Module, Node, NodeType, Field};
+use ferrum_compiler::{Field, Generator, Module, Node, NodeType};
 use std::path::PathBuf;
 
 fn templates_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().join("templates")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("templates")
 }
 
 fn basic_entity_module() -> Module {
@@ -51,7 +54,10 @@ fn generate_usecase_creates_files() {
                 node_type: NodeType::UseCase,
                 description: None,
                 story: None,
-                input: vec![Field { name: "userId".into(), field_type: "uuid".into() }],
+                input: vec![Field {
+                    name: "userId".into(),
+                    field_type: "uuid".into(),
+                }],
                 output: Some("User".into()),
                 depends_on: vec!["userRepository".into()],
                 implements: None,
@@ -93,7 +99,10 @@ fn generate_usecase_creates_files() {
     assert!(dir.path().join("backend/handlers/users.rs").exists());
     assert!(dir.path().join("backend/routes/users.rs").exists());
     assert!(dir.path().join("frontend/src/hooks/useGetUser.ts").exists());
-    assert!(dir.path().join("frontend/src/components/GetUser.tsx").exists());
+    assert!(dir
+        .path()
+        .join("frontend/src/components/GetUser.tsx")
+        .exists());
     assert!(dir.path().join("backend/db/users.rs").exists());
     assert!(dir.path().join("backend/ports.rs").exists());
     assert!(dir.path().join("docs/api/getUser.md").exists());

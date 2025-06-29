@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use ferrum_cli::commands::{compile, dev, init, prompt, sync, Cli, Commands};
+use ferrum_cli::commands::{compile, dev, init, migrate, prompt, sync, Cli, Commands};
 
 fn main() -> Result<()> {
     // Initialize logging
@@ -29,19 +29,13 @@ fn main() -> Result<()> {
             with_db,
             with_auth,
             with_jobs,
-        } => init(
-            name,
-            with_graph,
-            with_ai,
-            with_db,
-            with_auth,
-            with_jobs,
-        ),
+        } => init(name, with_graph, with_ai, with_db, with_auth, with_jobs),
         Commands::Sync {
             file,
             uri,
             user,
             password,
         } => sync(file, uri, user, password),
+        Commands::Migrate {} => migrate(),
     }
 }

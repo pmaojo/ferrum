@@ -185,6 +185,32 @@ impl Generator {
             .join(format!("{}.ts", node.id.to_lowercase()));
         self.write_file(&schema_path, &schema_content)?;
 
+        // Generate Diesel migration based on entity fields
+        let mig_root = self.output_dir.join("backend/migrations");
+        std::fs::create_dir_all(&mig_root)?;
+        let mig_idx = std::fs::read_dir(&mig_root)?.count() + 1;
+        let mig_dir = mig_root.join(format!("{:04}_create_{}", mig_idx, node.id.to_lowercase()));
+        std::fs::create_dir_all(&mig_dir)?;
+
+        let mut columns = String::new();
+        for field in &node.input {
+            let sql_type = match field.field_type.as_str() {
+                "uuid" => "UUID",
+                "int" | "integer" => "INTEGER",
+                "bool" => "BOOLEAN",
+                "timestamp" => "TIMESTAMP",
+                _ => "TEXT",
+            };
+            columns.push_str(&format!("    {} {} NOT NULL,\n", field.name, sql_type));
+        }
+        let up_sql = format!(
+            "CREATE TABLE {} (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n{}    created_at TIMESTAMP DEFAULT now()\n);\n",
+            node.id.to_lowercase(), columns
+        );
+        std::fs::write(mig_dir.join("up.sql"), up_sql)?;
+        let down_sql = format!("DROP TABLE {};", node.id.to_lowercase());
+        std::fs::write(mig_dir.join("down.sql"), down_sql)?;
+
         Ok(())
     }
 
