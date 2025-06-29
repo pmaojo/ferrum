@@ -155,7 +155,7 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [x] Implement graph visualization for architecture
 - [x] Create interactive node editor
 - [x] Add real-time validation
-- [ ] Implement export/import functionality
+- [x] Implement export/import functionality
 
 ### 4.2 Studio
 

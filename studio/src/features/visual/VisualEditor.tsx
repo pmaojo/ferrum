@@ -62,6 +62,48 @@ export function VisualEditor({ yaml, onChange }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [rfInstance, setRfInstance] = useState<any>(null);
   const [editing, setEditing] = useState<Node | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const buildYaml = () => {
+    const yamlNodes = nodes.map((n) => {
+      const deps = edges.filter((e) => e.source === n.id).map((e) => e.target);
+      const obj: any = { id: n.id, type: n.data.type };
+      if (n.data.description) obj.description = n.data.description;
+      if (n.data.input && n.data.input.length) obj.input = n.data.input;
+      if (n.data.output) obj.output = n.data.output;
+      if (deps.length) obj.depends_on = deps;
+      if (n.data.implements) obj.implements = n.data.implements;
+      return obj;
+    });
+    const yamlObj: any = { module: "demo", nodes: yamlNodes };
+    const feats = Object.keys(features).filter((k) => features[k]);
+    if (feats.length) yamlObj.app = { features: feats };
+    return jsYaml.dump(yamlObj);
+  };
+
+  const handleExport = () => {
+    const data = buildYaml();
+    const blob = new Blob([data], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "grafo.yaml";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (text) {
+        onChange(text);
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -85,28 +127,13 @@ export function VisualEditor({ yaml, onChange }: Props) {
             output: "",
           },
           position,
-        })
+        }),
       );
     }
   };
 
   const onSave = async () => {
-    const yamlNodes = nodes.map((n) => {
-      const deps = edges
-        .filter((e) => e.source === n.id)
-        .map((e) => e.target);
-      const obj: any = { id: n.id, type: n.data.type };
-      if (n.data.description) obj.description = n.data.description;
-      if (n.data.input && n.data.input.length) obj.input = n.data.input;
-      if (n.data.output) obj.output = n.data.output;
-      if (deps.length) obj.depends_on = deps;
-      if (n.data.implements) obj.implements = n.data.implements;
-      return obj;
-    });
-    const yamlObj: any = { module: "demo", nodes: yamlNodes };
-    const feats = Object.keys(features).filter((k) => features[k]);
-    if (feats.length) yamlObj.app = { features: feats };
-    const newYaml = jsYaml.dump(yamlObj);
+    const newYaml = buildYaml();
     onChange(newYaml);
     await fetch("http://localhost:3001/save", {
       method: "POST",
@@ -141,12 +168,33 @@ export function VisualEditor({ yaml, onChange }: Props) {
         >
           <Background />
         </ReactFlow>
-        <button
-          className="absolute bottom-2 right-2 bg-blue-600 text-white px-3 py-1 rounded"
-          onClick={onSave}
-        >
-          Save &amp; Compile
-        </button>
+        <input
+          type="file"
+          accept=".yaml,.yml"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleImport}
+        />
+        <div className="absolute bottom-2 right-2 space-x-2">
+          <button
+            className="bg-gray-200 px-3 py-1 rounded"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            Import
+          </button>
+          <button
+            className="bg-gray-200 px-3 py-1 rounded"
+            onClick={handleExport}
+          >
+            Export
+          </button>
+          <button
+            className="bg-blue-600 text-white px-3 py-1 rounded"
+            onClick={onSave}
+          >
+            Save &amp; Compile
+          </button>
+        </div>
         {editing && (
           <NodeEditModal
             node={editing}
@@ -157,8 +205,8 @@ export function VisualEditor({ yaml, onChange }: Props) {
               const oldId = editing.id;
               setNodes((nds) =>
                 nds.map((n) =>
-                  n.id === oldId ? { ...updated } : { ...n, id: n.id }
-                )
+                  n.id === oldId ? { ...updated } : { ...n, id: n.id },
+                ),
               );
               setEdges((eds) => {
                 let others = eds
