@@ -45,11 +45,9 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
         for dep in &node.depends_on {
             graph
                 .run(
-                    query(
-                        "MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:DEPENDS_ON]->(b)",
-                    )
-                    .param("from", node.id.clone())
-                    .param("to", dep.clone()),
+                    query("MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:DEPENDS_ON]->(b)")
+                        .param("from", node.id.clone())
+                        .param("to", dep.clone()),
                 )
                 .await?;
         }
@@ -58,11 +56,9 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
         if let Some(port) = &node.implements {
             graph
                 .run(
-                    query(
-                        "MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:IMPLEMENTS]->(b)",
-                    )
-                    .param("from", node.id.clone())
-                    .param("to", port.clone()),
+                    query("MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:IMPLEMENTS]->(b)")
+                        .param("from", node.id.clone())
+                        .param("to", port.clone()),
                 )
                 .await?;
         }

@@ -128,10 +128,10 @@ Automate this step via Docker or Make tasks so types remain aligned across the s
 - [ ] Create authentication plugin
 - [ ] Create database migration plugin
 
-### 3.3 SQLx Migrations Integration
+### 3.3 Diesel Migrations Integration
 
 - [ ] Generate migration files based on entity nodes
-- [ ] Use SQLx's built-in migration system to apply them
+- [ ] Apply migrations using Diesel's migration API
 - [ ] Add a ferrum migrate command to the CLI
 - [ ] Schema Generation from Entities
 - [ ] Add a template for SQL schema generation
