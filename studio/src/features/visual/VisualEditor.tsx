@@ -8,6 +8,7 @@ import type { Edge, Node } from "react-flow-renderer";
 import { useMemo, useRef, useState } from "react";
 import * as jsYaml from "js-yaml";
 import { FeatureSidebar } from "./FeatureSidebar";
+import { NodeEditModal } from "./NodeEditModal";
 
 interface Props {
   /** Source `grafo.yaml` text */
@@ -24,7 +25,14 @@ export function VisualEditor({ yaml, onChange }: Props) {
       const yamlNodes = Array.isArray(doc?.nodes) ? doc.nodes : [];
       const nodes: Node[] = yamlNodes.map((n: any, idx: number) => ({
         id: String(n.id),
-        data: { label: String(n.id), type: n.type },
+        data: {
+          label: String(n.id),
+          type: n.type,
+          description: n.description ?? "",
+          implements: n.implements ?? "",
+          input: n.input ?? [],
+          output: n.output ?? "",
+        },
         position: { x: 0, y: idx * 80 },
       }));
       const edges: Edge[] = [];
@@ -53,6 +61,7 @@ export function VisualEditor({ yaml, onChange }: Props) {
   });
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [rfInstance, setRfInstance] = useState<any>(null);
+  const [editing, setEditing] = useState<Node | null>(null);
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -64,7 +73,20 @@ export function VisualEditor({ yaml, onChange }: Props) {
         y: e.clientY - bounds.top,
       });
       const id = `${type}-${nodes.length + 1}`;
-      setNodes((nds) => nds.concat({ id, data: { label: id, type }, position }));
+      setNodes((nds) =>
+        nds.concat({
+          id,
+          data: {
+            label: id,
+            type,
+            description: "",
+            implements: "",
+            input: [],
+            output: "",
+          },
+          position,
+        })
+      );
     }
   };
 
@@ -74,7 +96,11 @@ export function VisualEditor({ yaml, onChange }: Props) {
         .filter((e) => e.source === n.id)
         .map((e) => e.target);
       const obj: any = { id: n.id, type: n.data.type };
+      if (n.data.description) obj.description = n.data.description;
+      if (n.data.input && n.data.input.length) obj.input = n.data.input;
+      if (n.data.output) obj.output = n.data.output;
       if (deps.length) obj.depends_on = deps;
+      if (n.data.implements) obj.implements = n.data.implements;
       return obj;
     });
     const yamlObj: any = { module: "demo", nodes: yamlNodes };
@@ -111,6 +137,7 @@ export function VisualEditor({ yaml, onChange }: Props) {
           onEdgesChange={onEdgesChange}
           onConnect={(c) => setEdges((eds) => addEdge(c, eds))}
           onInit={setRfInstance}
+          onNodeDoubleClick={(_, n) => setEditing(n)}
         >
           <Background />
         </ReactFlow>
@@ -120,6 +147,38 @@ export function VisualEditor({ yaml, onChange }: Props) {
         >
           Save &amp; Compile
         </button>
+        {editing && (
+          <NodeEditModal
+            node={editing}
+            allNodes={nodes}
+            edges={edges}
+            onClose={() => setEditing(null)}
+            onSave={(updated, deps) => {
+              const oldId = editing.id;
+              setNodes((nds) =>
+                nds.map((n) =>
+                  n.id === oldId ? { ...updated } : { ...n, id: n.id }
+                )
+              );
+              setEdges((eds) => {
+                let others = eds
+                  .map((e) => ({
+                    ...e,
+                    source: e.source === oldId ? updated.id : e.source,
+                    target: e.target === oldId ? updated.id : e.target,
+                  }))
+                  .filter((e) => e.source !== oldId);
+                const newEdges = deps.map((d, i) => ({
+                  id: `${updated.id}-${d}-${i}`,
+                  source: updated.id,
+                  target: d,
+                }));
+                return [...others, ...newEdges];
+              });
+              setEditing(null);
+            }}
+          />
+        )}
       </div>
     </div>
   );
