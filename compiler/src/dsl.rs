@@ -1,4 +1,5 @@
 use crate::{Field, Module, Node, NodeType};
+use crate::features::expand_features;
 use ferrum_shared_models::{DslModule, FerrumDsl};
 
 /// Convert a [`FerrumDsl`] project into a list of [`Module`] structures.
@@ -6,11 +7,14 @@ use ferrum_shared_models::{DslModule, FerrumDsl};
 /// This provides a bridge between the higher level YAML DSL and the existing
 /// code generation pipeline which operates on `Module` instances.
 pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
-    project
+    let mut modules: Vec<Module> = project
         .modules
         .iter()
         .map(|(name, module)| dsl_module_to_module(name, module))
-        .collect()
+        .collect();
+
+    expand_features(project, &mut modules);
+    modules
 }
 
 /// Convert a single [`DslModule`] into a [`Module`].
