@@ -124,6 +124,22 @@ nodes:
 
 ---
 
+### Extended DSL Sections
+
+Ferrum's DSL supports high level declarations beyond modules. You can define:
+
+- `queries` → generates Rust handlers and React hooks
+- `mutations` → generates handlers and hooks (with optional auth)
+- `routes` / `pages` → produces a `frontend/routes.tsx` file
+- `auth` → scaffolds basic login form and hook
+- `jobs` → creates scheduled tasks in `backend/jobs/`
+- standalone `entities`
+
+These sections enable a Wasp-like workflow where most of the app can be
+described in a single `grafo.yaml` file.
+
+---
+
 ## 🧱 Framework Structure
 
 ```bash

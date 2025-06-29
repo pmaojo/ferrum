@@ -20,3 +20,33 @@ queries:
     assert!(out.path().join("backend/queries/get_posts.rs").exists());
     assert!(out.path().join("frontend/hooks/useGetPosts.ts").exists());
 }
+
+#[test]
+fn compile_dsl_creates_mutation_and_routes() {
+    let yaml = r#"app:
+  name: demo
+routes:
+  - name: home
+    path: /
+    to: HomePage
+    authRequired: false
+pages:
+  - name: HomePage
+    component: HomePage.tsx
+mutations:
+  - name: createUser
+    handler: ./backend/mutations/create_user.rs
+    entities: [User]
+    authRequired: true
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/mutations/create_user.rs").exists());
+    assert!(out.path().join("frontend/hooks/useCreateUser.ts").exists());
+    assert!(out.path().join("frontend/routes.tsx").exists());
+}
