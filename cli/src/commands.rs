@@ -353,7 +353,7 @@ pub fn init(
 
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
-    let mut docker_compose_content = include_str!("../../docker-compose.yml").to_string();
+    let mut docker_compose_content = include_str!("../../templates/docker-compose.yml").to_string();
     if with_db {
         docker_compose_content.push_str("\n  diesel:\n    image: rust:latest\n    command: ['cargo', 'install', 'diesel_cli']\n");
     }
