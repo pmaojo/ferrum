@@ -49,16 +49,14 @@ services:
     volumes:
       - ./data/ollama:/root/.ollama
 
-  ai-service:
+  ferrum-ai:
     build: ./ai
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./ai:/app
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    depends_on:
-      - vector-db
 
   vector-db:
     image: qdrant/qdrant

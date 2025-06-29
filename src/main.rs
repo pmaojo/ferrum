@@ -26,7 +26,17 @@ fn main() -> Result<()> {
             name,
             with_graph,
             with_ai,
-        } => init(name, with_graph, with_ai),
+            with_db,
+            with_auth,
+            with_jobs,
+        } => init(
+            name,
+            with_graph,
+            with_ai,
+            with_db,
+            with_auth,
+            with_jobs,
+        ),
         Commands::Sync {
             file,
             uri,

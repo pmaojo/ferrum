@@ -36,6 +36,26 @@ export function GrafoEditor({ value, onChange }: Props) {
     }
   };
 
+  const validate = async () => {
+    setLoading(true);
+    try {
+      const endpoint = import.meta.env.VITE_AI_URL ?? "http://localhost:8001";
+      const res = await fetch(`${endpoint}/validate/yaml`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yaml: value }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        alert("YAML válido");
+      } else {
+        alert("YAML inválido");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Editor
@@ -44,13 +64,22 @@ export function GrafoEditor({ value, onChange }: Props) {
         value={value}
         onChange={(v) => onChange(v ?? "")}
       />
-      <button
-        className="bg-green-500 text-white px-4 py-2 rounded"
-        onClick={compile}
-        disabled={loading}
-      >
-        {loading ? "Compiling..." : "Compile"}
-      </button>
+      <div className="space-x-2">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={validate}
+          disabled={loading}
+        >
+          {loading ? "Validating..." : "Validate"}
+        </button>
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded"
+          onClick={compile}
+          disabled={loading}
+        >
+          {loading ? "Compiling..." : "Compile"}
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-use ferrum_compiler::{parse_yaml, validate_module};
+use ferrum_compiler::{parse_yaml, validate_module, ValidationError};
 use std::fs;
 
 #[test]
@@ -33,7 +33,7 @@ nodes:
     fs::write(&file, yaml).unwrap();
     let module = parse_yaml(&file).unwrap();
     let err = validate_module(&module).unwrap_err();
-    assert!(err.to_string().contains("unknown node"));
+    assert!(matches!(err, ValidationError::UnknownDependency { .. }));
 }
 
 #[test]
@@ -50,5 +50,5 @@ nodes:
     fs::write(&file, yaml).unwrap();
     let module = parse_yaml(&file).unwrap();
     let err = validate_module(&module).unwrap_err();
-    assert!(err.to_string().contains("duplicate"));
+    assert!(matches!(err, ValidationError::DuplicateNodeId { .. }));
 }

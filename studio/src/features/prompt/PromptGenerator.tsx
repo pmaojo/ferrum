@@ -10,14 +10,18 @@ interface Props {
 export function PromptGenerator({ onResult }: Props) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [backend, setBackend] = useState("openai");
+
+  const endpoint =
+    import.meta.env.VITE_AI_URL ?? "http://localhost:8001";
 
   const generate = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3001/prompt", {
+      const res = await fetch(`${endpoint}/generate-yaml`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, backend }),
       });
       const data = await res.json();
       if (data.yaml && onResult) {
@@ -36,6 +40,15 @@ export function PromptGenerator({ onResult }: Props) {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
+      <select
+        className="border rounded p-2"
+        value={backend}
+        onChange={(e) => setBackend(e.target.value)}
+      >
+        <option value="openai">OpenAI</option>
+        <option value="local">Local</option>
+        <option value="anthropic">Anthropic</option>
+      </select>
       <button
         className="bg-blue-500 text-white px-4 py-2 rounded"
         onClick={generate}
