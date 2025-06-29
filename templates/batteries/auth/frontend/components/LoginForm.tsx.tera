@@ -1,0 +1,4 @@
+// Login form component
+export function LoginForm() {
+    return <form>{/* TODO: login form */}</form>;
+}

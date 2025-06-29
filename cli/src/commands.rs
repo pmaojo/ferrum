@@ -107,6 +107,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     // Try new DSL format first, fall back to legacy format
     if let Ok(project) = ferrum_compiler::parse_dsl_yaml(&file) {
         let modules = ferrum_compiler::project_to_modules(&project);
+        ferrum_compiler::validate_features(&project, &modules)?;
         let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
         for m in modules {
             ferrum_compiler::validate_module(&m)?;
