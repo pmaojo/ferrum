@@ -120,6 +120,20 @@ app.post('/sync', async (req, res) => {
   }
 });
 
+app.post('/save', async (req, res) => {
+  const { yaml } = req.body || {};
+  if (!yaml) return res.status(400).json({ error: 'Missing yaml' });
+  const filePath = path.resolve(__dirname, 'grafo.yaml');
+  try {
+    fs.writeFileSync(filePath, yaml);
+    const cmd = `cargo run --quiet -- compile ${filePath}`;
+    await runCommand(cmd, path.resolve(__dirname, '..'));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 app.post('/migrate', async (_req, res) => {
   try {
     const out = await runCommand(
