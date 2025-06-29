@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  cli:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+  ferrum-ai:
+    build: ./ai
+    ports:
+      - "8001:8000"
+  studio:
+    build: ./studio
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_AI_URL=http://ferrum-ai:8000
+      - VITE_CLI_URL=http://cli:3001
+    depends_on:
+      - ferrum-ai
+      - cli
