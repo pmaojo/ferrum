@@ -101,11 +101,21 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     let output_dir = output.unwrap_or_else(|| PathBuf::from("."));
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
 
-    let module = ferrum_compiler::parse_yaml(&file)?;
-    ferrum_compiler::validate_module(&module)?;
+    // Try new DSL format first, fall back to legacy format
+    if let Ok(project) = ferrum_compiler::parse_dsl_yaml(&file) {
+        let modules = ferrum_compiler::project_to_modules(&project);
+        let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
+        for m in modules {
+            ferrum_compiler::validate_module(&m)?;
+            generator.generate(&m)?;
+        }
+    } else {
+        let module = ferrum_compiler::parse_yaml(&file)?;
+        ferrum_compiler::validate_module(&module)?;
 
-    let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
-    generator.generate(&module)?;
+        let generator = ferrum_compiler::Generator::new(templates_dir, output_dir)?;
+        generator.generate(&module)?;
+    }
 
     println!("✅ Successfully compiled {}", file.display());
     Ok(())
