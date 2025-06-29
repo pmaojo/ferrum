@@ -1,0 +1,4 @@
+// Auth handler
+pub async fn login() {
+    // TODO: implement login logic
+}

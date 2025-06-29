@@ -17,6 +17,10 @@ pub enum ValidationError {
     /// A node implements a port that is not defined.
     #[error("node '{node}' implements unknown port '{port}'")]
     UnknownPort { node: String, port: String },
+
+    /// Missing required user entity when auth feature is enabled.
+    #[error("auth feature requires a 'user' entity to be defined")]
+    MissingUserEntity,
 }
 
 /// Validate a parsed [`Module`].
@@ -59,6 +63,23 @@ pub fn validate_module(module: &Module) -> ValidationResult<()> {
                     port: port.clone(),
                 });
             }
+        }
+    }
+
+    Ok(())
+}
+
+use crate::FerrumDsl;
+
+/// Validate feature-level preconditions across modules.
+pub fn validate_features(project: &FerrumDsl, modules: &[Module]) -> ValidationResult<()> {
+    if project.app.features.contains(&"auth".to_string()) {
+        let has_user = modules
+            .iter()
+            .flat_map(|m| &m.nodes)
+            .any(|n| n.id == "user" && matches!(n.node_type, crate::NodeType::Entity));
+        if !has_user {
+            return Err(ValidationError::MissingUserEntity);
         }
     }
 

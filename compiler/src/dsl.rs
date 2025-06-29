@@ -1,5 +1,5 @@
-use crate::{Field, Module, Node, NodeType};
 use crate::features::expand_features;
+use crate::{Field, Module, Node, NodeType};
 use ferrum_shared_models::{DslModule, FerrumDsl};
 
 /// Convert a [`FerrumDsl`] project into a list of [`Module`] structures.

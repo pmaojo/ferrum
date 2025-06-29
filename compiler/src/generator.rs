@@ -38,6 +38,9 @@ impl Generator {
             self.generate_documentation(module, node)?;
         }
 
+        // Additional battery templates
+        self.generate_batteries(module)?;
+
         // Run post-processing tasks
         self.run_post_processing()
     }
@@ -263,6 +266,53 @@ impl Generator {
             .join("frontend/src/schemas")
             .join(format!("{}.ts", node.id.to_lowercase()));
         self.write_file(&schema_path, &schema_content)
+    }
+
+    fn generate_batteries(&self, module: &Module) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("module_name", &module.name);
+
+        if module.nodes.iter().any(|n| n.id == "authService") {
+            let handler_content = self
+                .templates
+                .render("batteries/auth/backend/handlers/auth.rs.tera", &context)
+                .context("Failed to render auth handler template")?;
+            let handler_path = self.output_dir.join("backend/handlers").join("auth.rs");
+            self.write_file(&handler_path, &handler_content)?;
+
+            let route_content = self
+                .templates
+                .render("batteries/auth/backend/routes/auth.rs.tera", &context)
+                .context("Failed to render auth routes template")?;
+            let route_path = self.output_dir.join("backend/routes").join("auth.rs");
+            self.write_file(&route_path, &route_content)?;
+
+            let hook_content = self
+                .templates
+                .render("batteries/auth/frontend/hooks/useLogin.ts.tera", &context)
+                .context("Failed to render useLogin hook template")?;
+            let hook_path = self
+                .output_dir
+                .join("frontend/src/hooks")
+                .join("useLogin.ts");
+            self.write_file(&hook_path, &hook_content)?;
+
+            let component_content = self
+                .templates
+                .render(
+                    "batteries/auth/frontend/components/LoginForm.tsx.tera",
+                    &context,
+                )
+                .context("Failed to render LoginForm component template")?;
+            let component_path = self
+                .output_dir
+                .join("frontend/src/components")
+                .join("LoginForm.tsx");
+            self.write_file(&component_path, &component_content)?;
+        }
+
+        Ok(())
     }
 
     fn generate_documentation(&self, module: &Module, node: &Node) -> Result<()> {
