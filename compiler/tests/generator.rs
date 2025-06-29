@@ -38,6 +38,11 @@ fn generate_entity_creates_files() {
     assert!(dir.path().join("shared-models/user.rs").exists());
     assert!(dir.path().join("frontend/src/schemas/user.ts").exists());
     assert!(dir.path().join("docs/db/user_entity.md").exists());
+    assert!(dir.path().join("backend/src/db/models.rs").exists());
+    assert!(dir.path().join("backend/src/db/schema.rs").exists());
+    assert!(dir.path().join("backend/src/db/mod.rs").exists());
+    let migs = std::fs::read_dir(dir.path().join("backend/migrations")).unwrap();
+    assert!(migs.count() > 0);
 }
 
 #[test]
@@ -106,4 +111,38 @@ fn generate_usecase_creates_files() {
     assert!(dir.path().join("backend/db/users.rs").exists());
     assert!(dir.path().join("backend/ports.rs").exists());
     assert!(dir.path().join("docs/api/getUser.md").exists());
+}
+
+#[test]
+fn multiple_entities_generate_diesel_code() {
+    use ferrum_compiler::{parse_dsl_yaml, project_to_modules};
+    use std::fs;
+
+    let yaml = r#"app:
+  name: demo
+entities:
+  - name: Post
+    fields:
+      title: string
+  - name: Comment
+    fields:
+      text: string
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&dsl);
+    let templates = templates_path();
+    let generator = Generator::new(templates.as_path(), dir.path()).unwrap();
+    for m in modules {
+        generator.generate(&m).unwrap();
+    }
+
+    let models = fs::read_to_string(dir.path().join("backend/src/db/models.rs")).unwrap();
+    let schema = fs::read_to_string(dir.path().join("backend/src/db/schema.rs")).unwrap();
+    assert!(models.contains("struct Post"));
+    assert!(models.contains("struct Comment"));
+    assert!(schema.contains("post (id)"));
+    assert!(schema.contains("comment (id)"));
 }

@@ -1,8 +1,7 @@
 diesel::table! {
-    usuarios (id) {
+    {{ table_name }} (id) {
         id -> Uuid,
-        email -> Text,
-        password -> Text,
-        creado_en -> Timestamp,
+{% for f in fields %}        {{ f.name }} -> {{ f.sql_type }},
+{% endfor %}        created_at -> Timestamp,
     }
 }

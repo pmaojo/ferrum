@@ -214,6 +214,84 @@ impl Generator {
         let down_sql = format!("DROP TABLE {};", node.id.to_lowercase());
         std::fs::write(mig_dir.join("down.sql"), down_sql)?;
 
+        // ---------------- Diesel ORM generation ----------------
+        use std::fs::OpenOptions;
+        use std::io::Write;
+
+        let db_dir = self.output_dir.join("backend/src/db");
+        std::fs::create_dir_all(&db_dir)?;
+        let models_path = db_dir.join("models.rs");
+        let schema_path = db_dir.join("schema.rs");
+        let mod_path = db_dir.join("mod.rs");
+
+        if !mod_path.exists() {
+            self.write_file(&mod_path, "pub mod models;\npub mod schema;\n")?;
+        }
+
+        // Prepare field metadata for templates
+        #[derive(serde::Serialize)]
+        struct DieselField {
+            name: String,
+            rust_type: String,
+            sql_type: String,
+        }
+        let fields: Vec<DieselField> = node
+            .input
+            .iter()
+            .map(|f| DieselField {
+                name: f.name.clone(),
+                rust_type: match f.field_type.as_str() {
+                    "uuid" => "Uuid".into(),
+                    "int" | "integer" => "i32".into(),
+                    "bool" => "bool".into(),
+                    "timestamp" => "chrono::NaiveDateTime".into(),
+                    _ => "String".into(),
+                },
+                sql_type: match f.field_type.as_str() {
+                    "uuid" => "Uuid".into(),
+                    "int" | "integer" => "Integer".into(),
+                    "bool" => "Bool".into(),
+                    "timestamp" => "Timestamp".into(),
+                    _ => "Text".into(),
+                },
+            })
+            .collect();
+
+        let mut diesel_ctx = TeraContext::new();
+        diesel_ctx.insert("table_name", &node.id.to_lowercase());
+        diesel_ctx.insert("struct_name", &capitalize(&node.id));
+        diesel_ctx.insert("fields", &fields);
+
+        let model_snippet = self
+            .templates
+            .render("backend/db/models.rs.tera", &diesel_ctx)
+            .context("Failed to render Diesel model template")?;
+        let schema_snippet = self
+            .templates
+            .render("backend/db/schema.rs.tera", &diesel_ctx)
+            .context("Failed to render Diesel schema template")?;
+
+        if !models_path.exists() {
+            let mut f = OpenOptions::new()
+                .create(true)
+                .write(true)
+                .open(&models_path)?;
+            writeln!(f, "use diesel::prelude::*;")?;
+            writeln!(f, "use serde::{{Deserialize, Serialize}};")?;
+            writeln!(f, "use uuid::Uuid;\n")?;
+            f.write_all(model_snippet.as_bytes())?;
+        } else {
+            let mut f = OpenOptions::new().append(true).open(&models_path)?;
+            writeln!(f)?;
+            f.write_all(model_snippet.as_bytes())?;
+        }
+
+        let mut schema_file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&schema_path)?;
+        writeln!(schema_file, "{}", schema_snippet.trim_end())?;
+
         Ok(())
     }
 
