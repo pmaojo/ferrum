@@ -138,6 +138,10 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 These sections enable a Wasp-like workflow where most of the app can be
 described in a single `grafo.yaml` file.
 
+Standalone entities automatically generate Diesel models, schema entries and
+migrations. Declaring an entity under `entities:` is enough to get a fully
+typed Rust struct and the corresponding `diesel::table!` in `schema.rs`.
+
 ---
 
 ## 🧱 Framework Structure

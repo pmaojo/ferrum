@@ -13,6 +13,34 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
         .map(|(name, module)| dsl_module_to_module(name, module))
         .collect();
 
+    // Standalone entities outside modules
+    for ent in &project.entities {
+        let fields = ent
+            .fields
+            .iter()
+            .map(|(fname, ftype)| Field {
+                name: fname.clone(),
+                field_type: ftype.clone(),
+            })
+            .collect();
+        modules.push(Module {
+            name: ent.name.clone(),
+            nodes: vec![Node {
+                id: ent.name.clone(),
+                node_type: NodeType::Entity,
+                description: None,
+                story: None,
+                input: fields,
+                output: None,
+                depends_on: Vec::new(),
+                implements: None,
+                view: None,
+                schema: None,
+                api_name: None,
+            }],
+        });
+    }
+
     expand_features(project, &mut modules);
     modules
 }
