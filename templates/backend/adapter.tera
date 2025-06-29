@@ -1,28 +1,26 @@
 use async_trait::async_trait;
-use sqlx::PgPool;
+use diesel::prelude::*;
+use uuid::Uuid;
 
 use crate::ports::{{ node.implements }};
-use crate::shared_models::{{ module_name }}::{{ module_name | capitalize }};
+use crate::db::{DbPool};
+use crate::db::models::Usuario;
+use crate::db::schema::usuarios::dsl::*;
 
 pub struct {{ node.id | capitalize }} {
-    pool: PgPool,
+    pool: DbPool,
 }
 
 impl {{ node.id | capitalize }} {
-    pub fn new(pool: PgPool) -> Self {
+    pub fn new(pool: DbPool) -> Self {
         Self { pool }
     }
 }
 
 #[async_trait]
 impl {{ node.implements | capitalize }} for {{ node.id | capitalize }} {
-    async fn get_{{ module_name | lower }}(&self, id: uuid::Uuid) -> {{ module_name | capitalize }} {
-        // In a real implementation, this would query the database
-        // For now, we return a placeholder
-        {{ module_name | capitalize }} {
-            id,
-            name: "Example".to_string(),
-            created_at: chrono::Utc::now(),
-        }
+    async fn get_{{ module_name | lower }}(&self, id: Uuid) -> Usuario {
+        let mut conn = self.pool.get().unwrap();
+        usuarios.find(id).first::<Usuario>(&mut conn).unwrap()
     }
 }

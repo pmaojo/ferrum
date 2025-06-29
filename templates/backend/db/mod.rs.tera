@@ -1,2 +1,14 @@
+use diesel::r2d2::{ConnectionManager, Pool};
+use diesel::PgConnection;
+
+pub type DbPool = Pool<ConnectionManager<PgConnection>>;
+
+pub fn create_pool(database_url: &str) -> DbPool {
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    Pool::builder()
+        .build(manager)
+        .expect("Error al construir el pool")
+}
+
 pub mod models;
 pub mod schema;
