@@ -1,0 +1,10 @@
+app:
+  name: ExampleApp
+  features:
+    - auth
+modules:
+  users:
+    entity:
+      fields:
+        email: string
+        password: string

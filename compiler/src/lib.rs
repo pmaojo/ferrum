@@ -1,4 +1,5 @@
 pub mod dsl;
+pub mod features;
 pub mod generator;
 pub mod parser;
 pub mod validator;
@@ -8,3 +9,4 @@ pub use ferrum_shared_models::*;
 pub use generator::*;
 pub use parser::*;
 pub use validator::*;
+pub use features::*;
