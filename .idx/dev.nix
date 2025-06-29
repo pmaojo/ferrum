@@ -33,12 +33,32 @@
 
     workspace = {
       onCreate = {
-        # Opcional: asegúrate que Docker esté activo
-        enable-docker = "sudo dockerd > /tmp/docker.log 2>&1 &";
+        # Inicia Docker si no se encuentra corriendo y espera a que esté listo
+        enable-docker = ''
+          if ! pgrep dockerd >/dev/null; then
+            sudo dockerd > /tmp/docker.log 2>&1 &
+            for i in {1..30}; do
+              if docker info >/dev/null 2>&1; then
+                break
+              fi
+              sleep 1
+            done
+          fi
+        '';
       };
       onStart = {
-        # También podemos arrancar Docker al reiniciar el entorno
-        start-docker = "sudo dockerd > /tmp/docker.log 2>&1 &";
+        # Reinicia Docker al volver a abrir el entorno si es necesario
+        start-docker = ''
+          if ! pgrep dockerd >/dev/null; then
+            sudo dockerd > /tmp/docker.log 2>&1 &
+            for i in {1..30}; do
+              if docker info >/dev/null 2>&1; then
+                break
+              fi
+              sleep 1
+            done
+          fi
+        '';
       };
     };
   };
