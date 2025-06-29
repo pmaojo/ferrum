@@ -254,9 +254,9 @@ pub fn init(
     }
 
     if with_db {
-        fs::create_dir_all(project_dir.join("backend/db/migrations"))?;
+        fs::create_dir_all(project_dir.join("backend/migrations"))?;
         fs::create_dir_all(project_dir.join("templates/backend/db/migrations"))?;
-        println!("📁 Created directory: {}/backend/db/migrations", name);
+        println!("📁 Created directory: {}/backend/migrations", name);
 
         // Copy Diesel templates into project templates directory
         fs::write(
@@ -272,21 +272,44 @@ pub fn init(
             include_str!("../../templates/backend/db/mod.rs.tera"),
         )?;
 
-        let mig_dir = project_dir.join("templates/backend/db/migrations/0001_create_users");
+        let mig_template_dir = project_dir.join("templates/backend/db/migrations/0001_create_usuarios");
+        fs::create_dir_all(&mig_template_dir)?;
+        fs::write(
+            mig_template_dir.join("up.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
+        )?;
+        fs::write(
+            mig_template_dir.join("down.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
+        )?;
+
+        let mig_dir = project_dir.join("backend/migrations/0001_create_usuarios");
         fs::create_dir_all(&mig_dir)?;
         fs::write(
             mig_dir.join("up.sql"),
-            include_str!("../../templates/backend/db/migrations/0001_create_users/up.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
         )?;
         fs::write(
             mig_dir.join("down.sql"),
-            include_str!("../../templates/backend/db/migrations/0001_create_users/down.sql"),
+            include_str!("../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
         )?;
 
         // Create .env with database URL
         fs::write(
             project_dir.join(".env"),
-            "DATABASE_URL=postgres://ferrum:password@db/ferrum\n",
+            "DATABASE_URL=postgres://usuario:clave@localhost/ferrus_dev\n",
+        )?;
+
+        // Create diesel.toml for CLI configuration
+        fs::write(
+            project_dir.join("diesel.toml"),
+            "[print_schema]\nfile = \"src/schema.rs\"\n",
+        )?;
+
+        // Create basic Makefile with DB init commands
+        fs::write(
+            project_dir.join("Makefile"),
+            "db-init:\n\tdiesel setup\n\tdiesel migration generate create_usuarios\n",
         )?;
 
         println!("📄 Added Diesel templates and .env file");
@@ -344,7 +367,7 @@ pub fn init(
             .open(&cargo_toml_path)?;
         writeln!(
             cargo_toml,
-            "diesel = {{ version = \"2\", features = [\"postgres\"] }}"
+            "diesel = {{ version = \"2.1\", features = [\"postgres\", \"r2d2\"] }}"
         )?;
         writeln!(cargo_toml, "dotenvy = \"0.15\"")?;
         println!("📄 Updated backend/Cargo.toml with Diesel dependencies");

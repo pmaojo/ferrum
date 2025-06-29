@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
+use chrono::NaiveDateTime;
 
 #[typeshare]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct {{ node.id | capitalize }} {
     pub id: Uuid,
-    pub name: String,
-    pub created_at: DateTime<Utc>,
+    pub email: String,
+    pub password: String,
+    pub creado_en: NaiveDateTime,
 }

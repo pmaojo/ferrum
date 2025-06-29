@@ -1,21 +1,14 @@
-use axum::{extract::State, Json};
-use uuid::Uuid;
+use axum::{extract::Extension, Json};
+use diesel::prelude::*;
 
-use crate::shared_models::{{ node.output | lower }}::{{ node.output }};
-use crate::usecases::{{ module_name }}::{{ node.id }};
+use crate::db::{DbPool};
+use crate::db::models::Usuario;
+use crate::db::schema::usuarios::dsl::*;
 
 pub async fn {{ node.id }}_handler(
-    State(state): State<crate::AppState>,
-    {% if node.input | length > 0 %}
-    Json(payload): Json<{{ node.id }}::Request>,
-    {% endif %}
-) -> Json<{{ node.output }}> {
-    let result = {{ node.id }}::execute(
-        &state.{{ node.depends_on[0] }},
-        {% if node.input | length > 0 %}
-        payload,
-        {% endif %}
-    ).await;
-
-    Json(result)
+    Extension(pool): Extension<DbPool>,
+) -> Json<Vec<Usuario>> {
+    let mut conn = pool.get().unwrap();
+    let results = usuarios.load::<Usuario>(&mut conn).unwrap();
+    Json(results)
 }

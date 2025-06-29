@@ -1,7 +1,8 @@
 diesel::table! {
-    users (id) {
+    usuarios (id) {
         id -> Uuid,
-        name -> Text,
-        created_at -> Timestamp,
+        email -> Text,
+        password -> Text,
+        creado_en -> Timestamp,
     }
 }
