@@ -7,6 +7,7 @@ import { DocsViewer } from "./features/docs/DocsViewer";
 import { PromptGenerator } from "./features/prompt/PromptGenerator";
 import AiScaffoldPage from "./features/ai-scaffold/pages/AiScaffoldPage";
 import { ProjectInit } from "./features/init/ProjectInit";
+import { Toolchain } from "./features/toolchain/Toolchain";
 
 export default function App() {
   const [yaml, setYaml] = useState("module: demo\nnodes: []");
@@ -22,6 +23,7 @@ export default function App() {
           <TabsTrigger value="ai-scaffold">AI Scaffold</TabsTrigger>
           <TabsTrigger value="docs">Docs</TabsTrigger>
           <TabsTrigger value="output">Output</TabsTrigger>
+          <TabsTrigger value="tools">Tools</TabsTrigger>
         </TabsList>
         <TabsContent value="init">
           <ProjectInit />
@@ -43,6 +45,9 @@ export default function App() {
         </TabsContent>
         <TabsContent value="output">
           <OutputPreview />
+        </TabsContent>
+        <TabsContent value="tools">
+          <Toolchain yaml={yaml} />
         </TabsContent>
       </Tabs>
     </div>

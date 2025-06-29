@@ -85,6 +85,53 @@ app.post('/init', async (req, res) => {
   }
 });
 
+app.post('/dev', async (req, res) => {
+  const { with_graph, with_ai } = req.body || {};
+  const services = ['backend', 'frontend', 'db'];
+  if (with_graph) services.push('graphdb');
+  if (with_ai) services.push('llm');
+  const cmd = `docker-compose up -d ${services.join(' ')}`;
+  try {
+    const out = await runCommand(cmd, path.resolve(__dirname, '..'));
+    res.json({ output: out });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.post('/sync', async (req, res) => {
+  const { yaml, uri, user, password } = req.body;
+  if (!yaml) return res.status(400).json({ error: 'Missing yaml' });
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ferrum-'));
+  const yamlPath = path.join(tmpDir, 'grafo.yaml');
+  fs.writeFileSync(yamlPath, yaml);
+  const args = [
+    'cargo run --quiet -- sync',
+    yamlPath,
+    `--uri ${uri || 'bolt://localhost:7687'}`,
+    `--user ${user || 'neo4j'}`,
+    `--password ${password || 'test'}`,
+  ].join(' ');
+  try {
+    const out = await runCommand(args, path.resolve(__dirname, '..'));
+    res.json({ output: out });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.post('/migrate', async (_req, res) => {
+  try {
+    const out = await runCommand(
+      'cargo run --quiet -- migrate',
+      path.resolve(__dirname, '..')
+    );
+    res.json({ output: out });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`CLI server running on port ${PORT}`);
