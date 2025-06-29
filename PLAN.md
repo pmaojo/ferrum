@@ -1,217 +1,146 @@
-# 🗺️ Ferrum Development Plan
+# Ferrus · Plan de evolución para superar a Wasp 🚀
 
-## 📋 Overview
+Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en el framework full-stack más potente del ecosistema Rust/React, superando a Wasp tanto en experiencia de desarrollo como en arquitectura, extensibilidad y automatización.
 
-This document outlines the development roadmap for Ferrum, an AI-first scaffolding system that generates full-stack (Rust + React + TypeScript) code structured by layers following Hexagonal Architecture and SOLID principles.
+---
 
-## 🎯 Current Status
+## Fase 1 · Consolidación base (actual)
 
-- ✅ Basic project structure implemented
-- ✅ Core AST for `grafo.yaml` parsing
-- ✅ CLI commands for `compile` and `prompt` (placeholder)
-- ✅ Template system with Tera
-- ✅ Code generation for backend and frontend
+🎯 Objetivo: sentar una base sólida de scaffolding full-stack hexagonal con generación AI-aware y entorno DX dockerizado.
 
-## 🚀 Phase 1: Core Functionality (Current)
+- [x] CLI `ferrum init`, `ferrum compile`, `ferrum dev`, `ferrum prompt`
+- [x] Generación de backend en Rust (Axum) y frontend en React (Vite + TS)
+- [x] Integración básica con PostgreSQL (Diesel) y Neo4j
+- [x] Compartición de tipos con `typeshare`
+- [x] Arquitectura hexagonal (entities, ports, adapters, usecases)
+- [x] Hot reload en entorno Docker
+- [x] Plantillas Tera editables (`templates/`)
+- [x] Esqueleto de autenticación (`--with-auth`)
+- [x] Comando `ferrum sync` para grafo en Neo4j
 
-### 1.1 Infrastructure & Architecture
+---
 
-- [x] Set up project structure
-- [x] Define AST for `grafo.yaml`
-- [x] Implement YAML parser
-- [x] Create CLI interface
-- [x] Implement template rendering system
+## Fase 2 · DSL enriquecido y AI productiva 🤖
 
-### 1.2 Code Generation
+🎯 Objetivo: ampliar la capacidad declarativa del YAML y permitir generación semántica completa desde IA.
 
-- [x] Backend templates (handlers, routes, adapters, ports)
-- [x] Frontend templates (hooks, components, schemas)
-- [x] Shared model templates
-- [x] Implement post-processing (run typeshare & formatting)
-- [x] Add error handling and validation
-- [x] Add `--with-auth`, `--with-jobs`, etc. flags to enable batteries-included templates
-- [x] Add `--with-db` flag for Diesel support
-- [x] Add `--with-graph` flag for Neo4j setup
-- [x] Implement `ferrum sync` command to push graph to Neo4j
+### DSL
 
-### 1.3 Typeshare Step
+- [ ] Añadir soporte para:
+  - [ ] `auth` `{ userEntity, methods }`
+  - [ ] `route` `{ path, screen, authRequired }`
+  - [ ] `job`, `mutation`, `query` declarativas
+  - [ ] `policy` o `guard` para autorización
+  - [ ] `resource` para definir integraciones externas (APIs, colas)
 
-The `typeshare` CLI keeps our Rust models synchronized with TypeScript on both the Studio dashboard and any generated project.
+- [ ] Validación del DSL con errores claros y sugerencias AI-powered
+- [ ] Documentación del YAML enriquecido con ejemplos
 
-1. Annotate structs in `shared-models/*.rs` with `#[typeshare]`.
-2. Invoke the CLI at the end of the generation pipeline:
+### AI-first
 
-   ```rust
-   let typeshare_status = Command::new("typeshare")
-       .arg("--lang=typescript")
-       .arg("--output-dir")
-       .arg(output_dir.join("frontend/src/types"))
-       .arg(output_dir.join("shared-models"))
-       .status();
-   ```
+- [ ] `ferrum prompt` debe generar YAML completo desde instrucciones tipo:  
+  _"Quiero una app de tareas con login por Google y tareas compartidas entre usuarios"_
+- [ ] Sugerencias de nombres, validaciones, comentarios en los módulos
+- [ ] Incluir `llm-config.yaml` para usar OpenAI u Ollama
 
-3. Generated `.ts` files appear under `frontend/src/types` (and under `studio/src/types` for the SaaS).
-4. Import these types directly in your frontend code:
+---
 
-   ```ts
-   import type { Usuario } from '@/types/usuario';
-   ```
+## Fase 3 · Plugins, módulos y marketplace 🔌
 
-Automate this step via Docker or Make tasks so types remain aligned across the stack. The Makefile now provides `typeshare-studio` and `typeshare-project` targets, and the backend Dockerfile installs the `typeshare-cli` to generate TypeScript during CI builds.
+🎯 Objetivo: crear un sistema extensible, inspirando un ecosistema colaborativo de módulos reutilizables.
 
-### 1.4 Testing & Documentation
+- [ ] Sistema de plugins:
+  - [ ] `onInit`, `onCompile`, `onEntity`, `onRoute` hooks
+  - [ ] Plugins pueden extender DSL (YAML) y añadir comandos CLI
 
-- [x] Unit tests for parser and validator
-- [ ] Unit tests for generator
-- [ ] Integration tests for end-to-end flow
-- [ ] Example projects with different complexity levels
-- [ ] Comprehensive documentation with examples
+- [ ] Comando `ferrum add <plugin>`:
+  - [ ] `auth-password`
+  - [ ] `auth-oauth`
+  - [ ] `graphql`
+  - [ ] `stripe`
+  - [ ] `cms-notion`
+  - [ ] `jobs-cron`
+  - [ ] `realtime-sse`
 
-## 🧠 Phase 2: AI Integration
+- [ ] Registry de plugins:
+  - [ ] Buscar y añadir desde GitHub o fuente remota (`ferrum add user/plugin-name`)
 
-### 2.1 RAG System
+---
 
-- [ ] Set up vector database for architectural patterns
-- [ ] Implement knowledge base for hexagonal architecture
-- [ ] Create embeddings for common code patterns
-- [ ] Develop retrieval system for relevant patterns
+## Fase 4 · Experiencia de desarrollo top-tier 🧑‍💻
 
-### 2.2 OWL Reasoning
+🎯 Objetivo: entregar una experiencia comparable o superior a Wasp/Rails, orientada a velocidad, feedback y documentación.
 
-- [ ] Define ontology for software architecture
-- [ ] Implement reasoning engine for architectural decisions
-- [ ] Create rules for validating architecture
-- [ ] Develop explanation system for architectural choices
--
-### 2.3 Prompt-to-YAML Generation
+- [ ] CLI avanzada:
+  - [ ] `ferrum init` interactivo
+  - [ ] `ferrum generate usecase CreatePost`
+  - [ ] `ferrum doctor`, `ferrum graph`, `ferrum explain`
 
-- [x] Integrate with LLM API (OpenAI, Anthropic, local)
-- [ ] Develop prompt engineering for architecture extraction
-- [x] Implement validation for generated YAML
-- [ ] Create feedback loop for refinement
+- [ ] UI Studio (visual):
+  - [ ] Crear entidades, rutas y relaciones en un editor visual
+  - [ ] Exportar/importar YAML
+  - [ ] Mostrar rutas, casos de uso y flujo hexagonal
 
-## 🧠 Phase 2.5: WASP-inspired UX Enhancements
+- [ ] Mejorar DX:
+  - [ ] Recarga fuera de Docker (`cargo-watch`, `vite dev`)
+  - [ ] Logs combinados en terminal
+  - [ ] Test templates generados automáticamente (`*.test.ts`, `*_test.rs`)
 
-### 2.5.1 DSL Enhancements
-- [ ] Extend YAML syntax to support auth, jobs, pages, RPC
-- [ ] Introduce semantic keywords inspired by Wasp DSL
+- [ ] Deploy:
+  - [ ] `ferrum build` para producción
+  - [ ] `ferrum deploy fly` / `railway` / `render`
+  - [ ] `Dockerfile` y `compose.prod.yaml` auto-generados
 
-### 2.5.2 AI Generation CLI
-- [ ] Implement `ferrum init --ai` for guided prompts
-- [x] Generate full-stack `grafo.yaml` from prompt using Python microservice
+---
 
-### 2.5.3 Full-stack Typed RPC
-- [ ] Scaffold shared RPC functions with typed input/output
-- [ ] Sync request/response models via `typeshare`
+## Fase 5 · DevOps, i18n y polish ✨
 
-### 2.5.4 Batteries Included
-- [ ] Optional modules: `auth`, `jobs`, `email`, `db`
-- [ ] Templates auto-importable via `--with-X` flags
+🎯 Objetivo: completar el ciclo con internacionalización, validaciones, seguridad y calidad de producción.
 
-### 2.5.5 Smart README + Metadata
-- [ ] Generate `README.md` with usage & architecture summary
-- [ ] Export `metadata.json` describing modules & endpoints
+- [ ] i18n:
+  - [ ] Extracción automática de mensajes de YAML/plantillas
+  - [ ] Generar `i18n.ts` y uso con `FormattedMessage`
 
-## 🛠️ Phase 3: Advanced Features
+- [ ] Validación:
+  - [ ] Validación declarativa con Zod generada desde Rust
+  - [ ] Hooks de validación en backend y frontend
 
-### 3.1 Template Marketplace
+- [ ] Auth avanzada:
+  - [ ] OAuth con Google/GitHub via `ferrum add auth-oauth`
+  - [ ] Refresh tokens y sesiones via JWT/Redis
+  - [ ] Roles y permisos en DSL
 
-- [ ] Create template repository structure
-- [ ] Implement template discovery and installation
-- [ ] Add versioning for templates
-- [ ] Develop template validation
+- [ ] Documentación:
+  - [ ] Storybook generado desde DSL (`*.stories.tsx`)
+  - [ ] Documentación por módulo (`docs/modules/user.md` generados)
+  - [ ] Web de documentación pública (`ferrum docs`)
 
-### 3.3 Plugin System
+---
 
-- [ ] Design plugin architecture
-- [ ] Implement core plugin system
-- [ ] Create authentication plugin
-- [ ] Create database migration plugin
+## Fase 6 · Experimentos visionarios 🤯
 
-### 3.3 Diesel Migrations Integration
+🎯 Objetivo: ir más allá de Wasp, Rails y Blitz.  
+Construir el *framework del futuro*, donde el grafo semántico + IA generen sistemas autónomos.
 
-- [ ] Generate migration files based on entity nodes
-- [ ] Apply migrations using Diesel's migration API
-- [ ] Add a ferrum migrate command to the CLI
-- [ ] Schema Generation from Entities
-- [ ] Add a template for SQL schema generation
-- [ ] Generate CREATE TABLE statements from entity definitions
-- [ ] Support for relationships between entities
-- [ ] Migration Management
-- [ ] Track schema versions in a dedicated table
-- [ ] Generate migration files with proper up/down methods
-- [ ] Support for schema evolution over time
+- [ ] `ferrum simulate`: simular flujo de datos entre módulos (end-to-end tracing)
+- [ ] `ferrum explain`: IA explica módulo, ruta o grafo completo
+- [ ] `ferrum plan`: IA sugiere qué crear a partir de funcionalidades deseadas
+- [ ] `ferrum studio` colaborativo con exportación en tiempo real (WebRTC o CRDT)
 
-### 3.4 GraphQL Plugin
+---
 
-- [ ] Create GraphQL plugin
-- [ ] Scaffold shared RPC functions with typed input/output
-- [ ] Sync request/response models via `typeshare`
+## Leyenda de versiones
 
-## 🧩 Phase 4: Visual Editor
+| Versión | Objetivo principal                            |
+|---------|-----------------------------------------------|
+| 0.5.0   | Scaffolding estable, generación AI y DSL base |
+| 0.6.0   | Plugins, DSL extendido y deploy básico        |
+| 0.7.0   | UI Studio + CLI avanzada                      |
+| 0.8.0   | Auth completo + i18n + marketplace            |
+| 0.9.0   | LLM-powered refactors y generación semántica  |
+| 1.0.0   | Versión estable superior a Wasp 🏆             |
 
-### 4.1 Architecture Visualization
+---
 
-- [x] Implement graph visualization for architecture
-- [x] Create interactive node editor
-- [x] Add real-time validation
-- [x] Implement export/import functionality
-
-### 4.2 Studio
-
-- [x] Create web application for Ferrum
-- [ ] Implement user authentication
-- [ ] Add project management
-- [ ] Create dashboard for projects
-
-### 4.3 Collaboration Features
-
-- [ ] Add real-time collaboration
-- [ ] Implement version control integration
-- [ ] Add commenting and feedback system
-- [ ] Create sharing functionality
-
-## 📅 Timeline
-
-- **Phase 1**: Q2-Q3 2025
-- **Phase 2 + 2.5**: Q3-Q4 2025
-- **Phase 3**: Q1-Q2 2026
-- **Phase 4**: Q3-Q4 2026
-
-## 🔄 Immediate Next Steps
-
-1. Finalize testing efforts
-   - Parser and validator tests complete
-   - Add generator tests
-   - Integration tests for CLI
-   - End-to-end tests for full workflow
-
-2. Continue improving error handling
-   - Expand validation messages
-   - Add recovery mechanisms for common errors
-
-3. Implement WASP-inspired `ferrum init --ai` CLI flow
-   - Connect to Python prompt service
-   - Output `grafo.yaml` with modules
-   - Trigger compilation to full project
-
-## 🤝 Contribution Guidelines
-
-We welcome contributions to Ferrum! Here's how you can help:
-
-1. **Code**: Implement features, fix bugs, improve performance
-2. **Templates**: Create new templates for different frameworks
-3. **Documentation**: Improve docs, write tutorials, create examples
-4. **Testing**: Write tests, report bugs, suggest improvements
-
-Please follow our coding standards and submit PRs with clear descriptions.
-
-## 📚 Resources
-
-- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
-- [Rust Book](https://doc.rust-lang.org/book/)
-- [React Documentation](https://reactjs.org/docs/getting-started.html)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tera Templates](https://tera.netlify.app/)
-- [Wasp](https://wasp-lang.dev/)
+**"La arquitectura no debe escribirse... debe declararse, compilarse y entenderse."**  
+— *Ferrus Manifesto, 2025*
