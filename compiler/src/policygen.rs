@@ -1,4 +1,5 @@
 use anyhow::Result;
+use inflector::Inflector;
 use std::fs;
 
 use ferrum_shared_models::{DslPolicy, FerrumDsl};
@@ -16,6 +17,16 @@ pub fn generate_policy(policy: &DslPolicy, paths: &ProjectPaths) -> Result<()> {
         dir.join(format!("{}.rs", policy.name.to_lowercase())),
         content,
     )?;
+
+    let hook_dir = paths.frontend.join("hooks");
+    fs::create_dir_all(&hook_dir)?;
+    let hook_name = format!("use{}", policy.name.to_pascal_case());
+    let ts_content = format!(
+        "import {{ useEffect, useState }} from 'react';\n\nexport function {hook_name}() {{\n  const [allowed, setAllowed] = useState(false);\n  useEffect(() => {{\n    fetch('/api/policies/{orig}')\n      .then(res => res.json())\n      .then(setAllowed)\n      .catch(() => setAllowed(false));\n  }}, []);\n  return allowed;\n}}\n",
+        hook_name = hook_name,
+        orig = policy.name
+    );
+    fs::write(hook_dir.join(format!("{hook_name}.ts")), ts_content)?;
     Ok(())
 }
 

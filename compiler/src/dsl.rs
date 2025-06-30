@@ -9,14 +9,18 @@ use std::collections::BTreeMap;
 /// code generation pipeline which operates on `Module` instances.
 pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
     // Collect entity definitions for derive resolution
-    let mut entity_defs: BTreeMap<String, (Option<String>, BTreeMap<String, String>)> = BTreeMap::new();
+    let mut entity_defs: BTreeMap<String, (Option<String>, BTreeMap<String, String>)> =
+        BTreeMap::new();
     for (name, module) in &project.modules {
         if let Some(ent) = &module.entity {
             entity_defs.insert(name.clone(), (ent.derive_from.clone(), ent.fields.clone()));
         }
     }
     for ent in &project.entities {
-        entity_defs.insert(ent.name.clone(), (ent.derive_from.clone(), ent.fields.clone()));
+        entity_defs.insert(
+            ent.name.clone(),
+            (ent.derive_from.clone(), ent.fields.clone()),
+        );
     }
 
     fn resolve_fields(
@@ -101,7 +105,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                 Node {
                     id: f.name.clone(),
                     node_type: NodeType::Form,
-                    doc: None,
+                    doc: f.policy.clone(),
                     description: Some(f.submit_to.clone()),
                     story: None,
                     input,

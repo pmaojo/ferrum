@@ -12,15 +12,22 @@ pub fn generate_routes(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     }
     let mut imports = String::new();
     for page in &dsl.pages {
-        imports.push_str(&format!("import {{ {} }} from './pages/{}';\n", page.name, page.component.trim_end_matches(".tsx")));
+        imports.push_str(&format!(
+            "import {{ {} }} from './pages/{}';\n",
+            page.name,
+            page.component.trim_end_matches(".tsx")
+        ));
     }
     let mut routes_arr = String::from("const routes = [\n");
     for route in &dsl.routes {
+        let policy = route
+            .policy
+            .as_ref()
+            .map(|p| format!("'{}'", p))
+            .unwrap_or_else(|| "undefined".to_string());
         routes_arr.push_str(&format!(
-            "  {{ path: '{}', element: <{} />, authRequired: {} }},\n",
-            route.path,
-            route.to,
-            route.auth_required
+            "  {{ path: '{}', element: <{} />, authRequired: {}, policy: {} }},\n",
+            route.path, route.to, route.auth_required, policy
         ));
     }
     routes_arr.push_str("] as const;\n\nexport default routes;\n");

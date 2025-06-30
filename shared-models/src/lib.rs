@@ -100,6 +100,8 @@ pub struct DslRoute {
     pub to: String,
     #[serde(default, rename = "authRequired")]
     pub auth_required: bool,
+    #[serde(default)]
+    pub policy: Option<String>,
 }
 
 #[typeshare]
@@ -136,6 +138,8 @@ pub struct DslMutation {
     pub entities: Vec<String>,
     #[serde(default, rename = "authRequired")]
     pub auth_required: bool,
+    #[serde(default)]
+    pub policy: Option<String>,
 }
 
 #[typeshare]
@@ -144,6 +148,8 @@ pub struct DslJob {
     pub name: String,
     pub schedule: String,
     pub handler: String,
+    #[serde(default)]
+    pub policy: Option<String>,
 }
 
 #[typeshare]
@@ -164,6 +170,8 @@ pub struct DslStandaloneForm {
     pub submit_to: String,
     #[serde(default)]
     pub fields: BTreeMap<String, String>,
+    #[serde(default)]
+    pub policy: Option<String>,
 }
 
 #[typeshare]
