@@ -1,0 +1,3 @@
+name = "template"
+version = "0.1.0"
+library = "target/release/libferrus_plugin_template.so"

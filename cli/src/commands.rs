@@ -644,6 +644,40 @@ pub fn add_plugin(plugin: String) -> Result<()> {
             .open(&file_path)?;
         writeln!(f, "{}", plugins.join("\n"))?;
         println!("✅ Added plugin: {}", entry);
+
+        // Automatically compile if Cargo.toml exists
+        let cargo_path = Path::new(&entry).join("Cargo.toml");
+        if cargo_path.exists() {
+            println!("🔨 Building plugin...");
+            let status = Command::new("cargo")
+                .arg("build")
+                .arg("--release")
+                .current_dir(&entry)
+                .status()?;
+            if status.success() {
+                println!("✅ Plugin compiled");
+                // Show SHA256 of compiled library if plugin.toml defines it
+                let meta = Path::new(&entry).join("plugin.toml");
+                if let Ok(meta) = ferrum_engine::plugins::PluginMetadata::from_file(&meta) {
+                    let lib_path = Path::new(&entry).join(&meta.library);
+                    if lib_path.exists() {
+                        if let Ok(bytes) = std::fs::read(&lib_path) {
+                            use sha2::{Digest, Sha256};
+                            let hash = Sha256::digest(&bytes);
+                            println!("🔑 SHA256: {:x}", hash);
+                        }
+                    }
+                }
+            } else {
+                println!("⚠️ Failed to compile plugin");
+            }
+        } else {
+            let meta = Path::new(&entry).join("plugin.toml");
+            if meta.exists() {
+                println!("⚠️ Using precompiled plugin binary. Ensure you trust the source.");
+            }
+        }
+
         // show docs if available
         if let Ok(_) = plugin_docs(entry.clone()) {}
     } else {
@@ -729,18 +763,51 @@ pub fn explain(file: PathBuf) -> Result<()> {
 /// Show documentation for a plugin if available.
 pub fn plugin_docs(plugin: String) -> Result<()> {
     use std::fs;
+
     let name = plugin
         .split('/')
         .last()
         .unwrap_or(&plugin)
         .trim_end_matches(".git");
-    let path = PathBuf::from(format!("docs/plugins/{name}.md"));
-    if path.exists() {
-        let contents = fs::read_to_string(path)?;
+
+    // First try built-in docs
+    let builtin = PathBuf::from(format!("docs/plugins/{name}.md"));
+    if builtin.exists() {
+        let contents = fs::read_to_string(builtin)?;
         println!("{}", contents);
-    } else {
-        println!("No docs found for {plugin}");
+        return Ok(());
     }
+
+    // Then check installed plugin directories
+    let plugins_file = PathBuf::from(".ferrum/plugins.txt");
+    if plugins_file.exists() {
+        let list = fs::read_to_string(&plugins_file)?;
+        for line in list.lines() {
+            let path = PathBuf::from(line.trim());
+            let dir_name = path
+                .file_name()
+                .map(|s| s.to_string_lossy())
+                .unwrap_or_default();
+            if dir_name == name || line.trim() == plugin {
+                let readme = path.join("README.md");
+                if readme.exists() {
+                    let contents = fs::read_to_string(readme)?;
+                    println!("{}", contents);
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    // Finally, allow passing a direct path
+    let direct = PathBuf::from(&plugin).join("README.md");
+    if direct.exists() {
+        let contents = fs::read_to_string(direct)?;
+        println!("{}", contents);
+        return Ok(());
+    }
+
+    println!("No docs found for {plugin}");
     Ok(())
 }
 
