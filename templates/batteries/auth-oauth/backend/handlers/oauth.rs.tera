@@ -1,0 +1,18 @@
+use axum::response::Redirect;
+
+/// Redirects the user to the Google OAuth consent screen.
+pub async fn google_login() -> Redirect {
+    // TODO: real OAuth flow using oauth2 crate
+    Redirect::temporary("/auth/google")
+}
+
+/// Redirects the user to the GitHub OAuth consent screen.
+pub async fn github_login() -> Redirect {
+    Redirect::temporary("/auth/github")
+}
+
+/// Callback endpoint that should exchange the code for a token and issue a JWT.
+pub async fn oauth_callback() -> &'static str {
+    // TODO: implement callback logic
+    "ok"
+}
