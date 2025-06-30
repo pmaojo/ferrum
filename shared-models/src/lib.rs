@@ -285,6 +285,8 @@ pub struct FerrumDsl {
     #[serde(default)]
     pub pages: Vec<DslAppPage>,
     #[serde(default)]
+    pub components: Vec<SharedComponent>,
+    #[serde(default)]
     pub queries: Vec<DslQuery>,
     #[serde(default)]
     pub mutations: Vec<DslMutation>,

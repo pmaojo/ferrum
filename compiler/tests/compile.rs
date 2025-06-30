@@ -77,11 +77,38 @@ resources:
     assert!(out.path().join("backend/policies/isadmin.rs").exists());
     assert!(out.path().join("frontend/hooks/useIsAdmin.ts").exists());
     assert!(out.path().join("frontend/hooks/usePolicy.ts").exists());
-    assert!(out.path().join("frontend/components/PolicyGate.tsx").exists());
-    assert!(out.path().join("frontend/components/PoliciesAdmin.tsx").exists());
+    assert!(out
+        .path()
+        .join("frontend/components/PolicyGate.tsx")
+        .exists());
+    assert!(out
+        .path()
+        .join("frontend/components/PoliciesAdmin.tsx")
+        .exists());
     assert!(out.path().join("docs/policies.md").exists());
     let res_file = out.path().join("backend/resources/store.rs");
     assert!(res_file.exists());
     let content = fs::read_to_string(res_file).unwrap();
     assert!(content.contains("aws_sdk_s3") || content.contains("redis"));
+}
+
+#[test]
+fn compile_components_creates_files() {
+    let yaml = r#"app:
+  name: demo
+components:
+  - name: Card
+    props:
+      - name: title
+        type: string
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("frontend/components/Card.tsx").exists());
+    assert!(out.path().join("frontend/components/index.ts").exists());
 }

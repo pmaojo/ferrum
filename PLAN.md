@@ -183,3 +183,12 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Implemented parallel dev server using cargo and vite with `ferrum dev`.
 - Automatic route generation now outputs backend and frontend files.
 - Added preliminary shared component model.
+
+### Session 2025-06-30
+- Reviewed grafo.yaml example; components section not recognized by parser.
+
+### Session 2025-06-30
+- Added components field to FerrumDsl for parsing component definitions.
+
+### Session 2025-06-30
+- Implemented SharedComponent generator producing TSX files and index exports.

@@ -1,4 +1,5 @@
 pub mod authgen;
+pub mod componentgen;
 pub mod dsl;
 pub mod features;
 pub mod generator;
@@ -12,6 +13,7 @@ pub mod routegen;
 pub mod validator;
 
 pub use authgen::*;
+pub use componentgen::*;
 pub use dsl::*;
 pub use features::*;
 pub use ferrum_shared_models::*;
