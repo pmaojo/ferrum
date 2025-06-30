@@ -1,0 +1,18 @@
+use axum::response::sse::{Event, Sse};
+use axum::response::IntoResponse;
+use axum::routing::get;
+use axum::Router;
+use futures_util::{stream, Stream};
+use std::convert::Infallible;
+use std::time::Duration;
+use tokio_stream::StreamExt as _;
+
+pub async fn sse_handler() -> impl IntoResponse {
+    let stream = stream::repeat_with(|| Event::default().data("ping"))
+        .throttle(Duration::from_secs(5));
+    Sse::new(stream)
+}
+
+pub fn routes() -> Router {
+    Router::new().route("/events", get(sse_handler))
+}
