@@ -118,6 +118,7 @@ mod tests {
             name: "getPosts".into(),
             handler: "./backend/queries/getPosts.rs".into(),
             entities: vec!["Post".into()],
+            cache: None,
         };
         generate_query(&query, &paths).unwrap();
         assert!(dir.path().join("backend/queries/get_posts.rs").exists());

@@ -14,6 +14,7 @@ pub fn expand_features(project: &FerrumDsl, modules: &mut Vec<Module>) {
     feature_nodes.push(Node {
         id: "userReaderPort".to_string(),
         node_type: NodeType::Port,
+        doc: None,
         description: None,
         story: None,
         input: Vec::new(),
@@ -23,11 +24,13 @@ pub fn expand_features(project: &FerrumDsl, modules: &mut Vec<Module>) {
         view: None,
         schema: None,
         api_name: None,
+        ref_node: None,
     });
 
     feature_nodes.push(Node {
         id: "userRepository".to_string(),
         node_type: NodeType::Adapter,
+        doc: None,
         description: None,
         story: None,
         input: Vec::new(),
@@ -37,11 +40,13 @@ pub fn expand_features(project: &FerrumDsl, modules: &mut Vec<Module>) {
         view: None,
         schema: None,
         api_name: None,
+        ref_node: None,
     });
 
     feature_nodes.push(Node {
         id: "authService".to_string(),
         node_type: NodeType::UseCase,
+        doc: None,
         description: None,
         story: None,
         input: Vec::new(),
@@ -51,6 +56,7 @@ pub fn expand_features(project: &FerrumDsl, modules: &mut Vec<Module>) {
         view: None,
         schema: None,
         api_name: None,
+        ref_node: None,
     });
 
     modules.push(Module {
