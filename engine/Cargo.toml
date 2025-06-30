@@ -7,4 +7,5 @@ edition = "2021"
 anyhow = "1.0"
 neo4rs = { version = "0.9.0-rc.6", features = ["json"] }
 ferrum-shared-models = { path = "../shared-models" }
-
+async-graphql = "7"
+lettre = { version = "0.11", features = ["builder", "smtp-transport"] }

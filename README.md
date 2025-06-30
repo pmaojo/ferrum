@@ -198,6 +198,14 @@ Generated projects live outside this repo, for example:
 | `entity`  | `shared-models/*.rs`, auto-exported to TS via `typeshare` |
 | *any*     | Frontend: TS types, Zod schemas, React hooks/components   |
 
+### Plugin Framework & Services
+
+Ferrum includes a lightweight plugin manager. Plugins can hook into
+`ferrum init` or `ferrum compile` to customize the generated project.
+
+Additional runtime utilities are provided under `ferrum-engine::services`,
+including a basic GraphQL schema and a helper for sending SMTP emails.
+
 ---
 
 ## 📦 Output Example
