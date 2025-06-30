@@ -109,6 +109,18 @@ nodes:
 
   - id: userReaderPort
     type: port
+
+forms:
+  - name: LoginForm
+    submitTo: loginUser
+    fields:
+      email: string
+      password: string
+
+validations:
+  - name: emailIsValid
+    appliesTo: users.registerUser.email
+    rule: "email must match regex /@/"
 ```
 
 ### 🧠 Node Field Reference
@@ -116,7 +128,7 @@ nodes:
 | Field        | Type                                      | Required | Description                  |
 | ------------ | ----------------------------------------- | -------- | ---------------------------- |
 | `id`         | `string`                                  | ✅        | Unique node identifier       |
-| `type`       | `usecase` / `adapter` / `port` / `entity` | ✅        | Architectural role           |
+| `type`       | `usecase` / `adapter` / `port` / `entity` / `form` / `validation` | ✅        | Architectural role           |
 | `input`      | List of fields (`name`, `type`)           | ❌        | Input parameters             |
 | `output`     | `string`                                  | ❌        | Output type name             |
 | `depends_on` | `string[]`                                | ❌        | IDs of required dependencies |
@@ -134,6 +146,8 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `auth` → scaffolds basic login form and hook
 - `jobs` → creates scheduled tasks in `backend/jobs/`
 - standalone `entities`
+- `forms` → declarative form specification
+- `validations` → shared validation rules
 
 These sections enable a Wasp-like workflow where most of the app can be
 described in a single `grafo.yaml` file.

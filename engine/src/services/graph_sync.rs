@@ -24,6 +24,8 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
             NodeType::Component => "Component",
             NodeType::Hook => "Hook",
             NodeType::Schema => "Schema",
+            NodeType::Form => "Form",
+            NodeType::Validation => "Validation",
         };
 
         // Merge node with basic properties

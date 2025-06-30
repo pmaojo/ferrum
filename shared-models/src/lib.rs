@@ -12,6 +12,8 @@ pub enum NodeType {
     Component,
     Hook,
     Schema,
+    Form,
+    Validation,
 }
 
 #[typeshare]
@@ -138,6 +140,25 @@ pub struct DslStandaloneEntity {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslStandaloneForm {
+    pub name: String,
+    #[serde(rename = "submitTo")]
+    pub submit_to: String,
+    #[serde(default)]
+    pub fields: BTreeMap<String, String>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslValidation {
+    pub name: String,
+    #[serde(rename = "appliesTo")]
+    pub applies_to: String,
+    pub rule: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslForm {
     #[serde(default)]
     pub fields: Vec<String>,
@@ -202,4 +223,8 @@ pub struct FerrumDsl {
     pub jobs: Vec<DslJob>,
     #[serde(default)]
     pub entities: Vec<DslStandaloneEntity>,
+    #[serde(default)]
+    pub forms: Vec<DslStandaloneForm>,
+    #[serde(default)]
+    pub validations: Vec<DslValidation>,
 }

@@ -68,6 +68,8 @@ export function NodeEditModal({ node, allNodes, edges, onSave, onClose }: Props)
               "component",
               "hook",
               "schema",
+              "form",
+              "validation",
             ].map((t) => (
               <option key={t} value={t}>
                 {t}

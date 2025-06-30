@@ -41,6 +41,66 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
         });
     }
 
+    // Standalone forms
+    if !project.forms.is_empty() {
+        let form_nodes: Vec<Node> = project
+            .forms
+            .iter()
+            .map(|f| {
+                let input = f
+                    .fields
+                    .iter()
+                    .map(|(name, ty)| Field {
+                        name: name.clone(),
+                        field_type: ty.clone(),
+                    })
+                    .collect();
+                Node {
+                    id: f.name.clone(),
+                    node_type: NodeType::Form,
+                    description: Some(f.submit_to.clone()),
+                    story: None,
+                    input,
+                    output: None,
+                    depends_on: vec![f.submit_to.clone()],
+                    implements: None,
+                    view: None,
+                    schema: None,
+                    api_name: None,
+                }
+            })
+            .collect();
+        modules.push(Module {
+            name: "forms".to_string(),
+            nodes: form_nodes,
+        });
+    }
+
+    // Validations
+    if !project.validations.is_empty() {
+        let val_nodes: Vec<Node> = project
+            .validations
+            .iter()
+            .map(|v| Node {
+                id: v.name.clone(),
+                node_type: NodeType::Validation,
+                description: Some(v.applies_to.clone()),
+                story: Some(v.rule.clone()),
+                input: Vec::new(),
+                output: None,
+                depends_on: Vec::new(),
+                implements: None,
+                view: None,
+                schema: None,
+                api_name: None,
+            })
+            .collect();
+        modules.push(Module {
+            name: "validations".to_string(),
+            nodes: val_nodes,
+        });
+    }
+
     expand_features(project, &mut modules);
     modules
 }
