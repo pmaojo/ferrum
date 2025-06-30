@@ -134,6 +134,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(&file) {
         plugins.extend_dsl_all(&mut project)?;
         let modules = ferrum_compiler::project_to_modules(&project);
+        ferrum_compiler::validate_modules(&modules)?;
         ferrum_compiler::validate_features(&project, &modules)?;
         ferrum_compiler::validate_validations(&project, &modules)?;
         let mut generator =
@@ -162,6 +163,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
 pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     use reqwest::blocking::Client;
     use std::fs;
+    use std::path::PathBuf;
 
     println!("🤖 AI Architecture Generation");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -588,6 +590,7 @@ pub fn doctor() -> Result<()> {
 pub fn add_plugin(plugin: String) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
+    use std::path::Path;
     use std::process::Command;
 
     let dir = PathBuf::from(".ferrum");
@@ -602,9 +605,15 @@ pub fn add_plugin(plugin: String) -> Result<()> {
         Vec::new()
     };
 
-    // Allow installing plugins from GitHub repositories
-    if plugin.contains('/') && !plugin.starts_with("http") {
-        let repo_url = format!("https://github.com/{}.git", plugin);
+    let mut entry = plugin.clone();
+
+    if plugin.starts_with("http") || (plugin.contains('/') && !Path::new(&plugin).exists()) {
+        // Install from a remote git repository
+        let repo_url = if plugin.starts_with("http") {
+            plugin.clone()
+        } else {
+            format!("https://github.com/{}.git", plugin)
+        };
         let repo_name = plugin.split('/').last().unwrap().trim_end_matches(".git");
         let dest = dir.join(repo_name);
         if !dest.exists() {
@@ -618,35 +627,27 @@ pub fn add_plugin(plugin: String) -> Result<()> {
                 println!("Failed to clone repository");
             }
         }
-    } else if plugin.starts_with("http") {
-        let repo_name = plugin.split('/').last().unwrap().trim_end_matches(".git");
-        let dest = dir.join(repo_name);
-        if !dest.exists() {
-            println!("📥 Cloning {plugin}...");
-            let status = Command::new("git")
-                .arg("clone")
-                .arg(&plugin)
-                .arg(&dest)
-                .status()?;
-            if !status.success() {
-                println!("Failed to clone repository");
-            }
-        }
+        entry = dest.to_string_lossy().into_owned();
+    } else if Path::new(&plugin).exists() {
+        // Local path
+        entry = std::fs::canonicalize(&plugin)?
+            .to_string_lossy()
+            .into_owned();
     }
 
-    if !plugins.contains(&plugin) {
-        plugins.push(plugin.clone());
+    if !plugins.contains(&entry) {
+        plugins.push(entry.clone());
         let mut f = OpenOptions::new()
             .create(true)
             .write(true)
             .truncate(true)
             .open(&file_path)?;
         writeln!(f, "{}", plugins.join("\n"))?;
-        println!("✅ Added plugin: {}", plugin);
+        println!("✅ Added plugin: {}", entry);
         // show docs if available
-        if let Ok(_) = plugin_docs(plugin.clone()) {}
+        if let Ok(_) = plugin_docs(entry.clone()) {}
     } else {
-        println!("Plugin '{}' already added", plugin);
+        println!("Plugin '{}' already added", entry);
     }
     Ok(())
 }
@@ -745,12 +746,14 @@ pub fn plugin_docs(plugin: String) -> Result<()> {
 
 fn load_plugins() -> Result<ferrum_engine::PluginManager> {
     use std::fs;
+    use std::path::PathBuf;
     let mut manager = ferrum_engine::PluginManager::new();
     let file_path = PathBuf::from(".ferrum/plugins.txt");
     if file_path.exists() {
         let contents = fs::read_to_string(file_path)?;
         for name in contents.lines() {
-            match name.trim() {
+            let entry = name.trim();
+            match entry {
                 "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
                 "auth" => manager.register(ferrum_engine::plugins::AuthPlugin),
                 "auth-password" => manager.register(ferrum_engine::plugins::AuthPasswordPlugin),
@@ -759,8 +762,30 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                 "cron" => manager.register(ferrum_engine::plugins::CronPlugin),
                 "cms-sanity" => manager.register(ferrum_engine::plugins::CmsSanityPlugin),
                 "realtime-sse" => manager.register(ferrum_engine::plugins::RealtimeSsePlugin),
-                other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
-                _ => {}
+                other => {
+                    let path = PathBuf::from(other);
+                    if path.exists() {
+                        let meta_path = path.join("plugin.toml");
+                        if meta_path.exists() {
+                            if let Ok(meta) =
+                                ferrum_engine::plugins::PluginMetadata::from_file(&meta_path)
+                            {
+                                let lib_path = path.join(&meta.library);
+                                unsafe {
+                                    if let Ok(p) =
+                                        ferrum_engine::plugins::DynamicPlugin::load(&lib_path)
+                                    {
+                                        manager.register(p);
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                        println!("⚠️ Could not load plugin at {}", other);
+                    } else if !other.is_empty() {
+                        println!("⚠️ Unknown plugin '{}'", other);
+                    }
+                }
             }
         }
     }

@@ -4,7 +4,9 @@ pub mod auth_oauth;
 pub mod auth_password;
 pub mod cms_sanity;
 pub mod cron;
+pub mod dynamic;
 pub mod graphql;
+pub mod metadata;
 pub mod realtime_sse;
 pub mod stripe;
 
@@ -79,6 +81,8 @@ pub use auth_oauth::AuthOAuthPlugin;
 pub use auth_password::AuthPasswordPlugin;
 pub use cms_sanity::CmsSanityPlugin;
 pub use cron::CronPlugin;
+pub use dynamic::DynamicPlugin;
 pub use graphql::GraphQLPlugin;
+pub use metadata::PluginMetadata;
 pub use realtime_sse::RealtimeSsePlugin;
 pub use stripe::StripePlugin;
