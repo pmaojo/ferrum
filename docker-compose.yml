@@ -64,10 +64,9 @@ services:
       - llm
     environment:
       - VITE_AI_URL=http://ferrum-ai:8000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ./ai:/app
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   vector-db:
     image: qdrant/qdrant
