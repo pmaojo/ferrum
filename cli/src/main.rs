@@ -1,7 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
-    add_plugin, compile, list_plugins, migrate, prompt, remove_plugin, sync, Cli, Commands,
+    add_plugin, compile, explain, list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync,
+    Cli, Commands,
 };
 use tracing::Level;
 
@@ -53,5 +54,7 @@ fn main() -> Result<()> {
         Commands::Add { plugin } => add_plugin(plugin),
         Commands::Remove { plugin } => remove_plugin(plugin),
         Commands::List {} => list_plugins(),
+        Commands::Explain { file } => explain(file),
+        Commands::Docs { plugin } => plugin_docs(plugin),
     }
 }
