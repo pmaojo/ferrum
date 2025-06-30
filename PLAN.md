@@ -49,13 +49,13 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
 
 🎯 Objetivo: crear un sistema extensible, inspirando un ecosistema colaborativo de módulos reutilizables.
 
-- [ ] Sistema de plugins:
-  - [ ] `onInit`, `onCompile`, `onEntity`, `onRoute` hooks
-  - [ ] Plugins pueden extender DSL (YAML) y añadir comandos CLI
+- [x] Sistema de plugins:
+  - [x] `onInit`, `onCompile`, `onEntity`, `onRoute` hooks
+  - [x] Plugins pueden extender DSL (YAML) y añadir comandos CLI
 
-- [ ] Comando `ferrum add <plugin>`:
+- [x] Comando `ferrum add <plugin>`:
   - [ ] `auth-password`
-  - [ ] `auth-oauth`
+  - [x] `auth-oauth`
   - [ ] `graphql`
   - [ ] `stripe`
   - [ ] `cms-notion`
@@ -110,7 +110,7 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] React dropzone component
 
 - [ ] Auth avanzada:
-  - [ ] OAuth con Google/GitHub via `ferrum add auth-oauth`
+  - [x] OAuth con Google/GitHub via `ferrum add auth-oauth`
   - [ ] Refresh tokens y sesiones via JWT/Redis
   - [ ] Roles y permisos en DSL
     - [ ] Integración con `Role` extraído del JWT
