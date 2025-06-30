@@ -86,6 +86,15 @@ ferrum component "Card with image, title and footer slot"
 This command generates a YAML snippet under `gen/component.yaml` describing the
 component props and slots. You can include it in your main `grafo.yaml`.
 
+#### 6. Generate a usecase skeleton
+
+```bash
+ferrum generate-usecase CreatePost
+```
+
+This outputs a minimal YAML file like `gen/createpost_usecase.yaml` which you
+can include in your architecture and then compile.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to

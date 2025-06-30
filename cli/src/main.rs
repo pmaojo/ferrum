@@ -23,6 +23,9 @@ fn main() -> Result<()> {
         } => compile(file, output, templates),
         Commands::Prompt { text, output } => prompt(text, output),
         Commands::Component { text, output } => component_prompt(text, output),
+        Commands::GenerateUsecase { name, output } => {
+            ferrum_cli::commands::generate_usecase(name, output)
+        }
         Commands::Dev {
             docker,
             with_graph,
