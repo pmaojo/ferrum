@@ -112,6 +112,16 @@ pub enum Commands {
         plugin: String,
     },
     List {},
+    /// Explain a DSL file after applying installed plugins
+    Explain {
+        #[arg(value_name = "FILE")]
+        file: PathBuf,
+    },
+    /// Show documentation for a plugin
+    Docs {
+        #[arg(value_name = "PLUGIN")]
+        plugin: String,
+    },
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
@@ -578,6 +588,7 @@ pub fn doctor() -> Result<()> {
 pub fn add_plugin(plugin: String) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
+    use std::process::Command;
 
     let dir = PathBuf::from(".ferrum");
     fs::create_dir_all(&dir)?;
@@ -590,6 +601,39 @@ pub fn add_plugin(plugin: String) -> Result<()> {
     } else {
         Vec::new()
     };
+
+    // Allow installing plugins from GitHub repositories
+    if plugin.contains('/') && !plugin.starts_with("http") {
+        let repo_url = format!("https://github.com/{}.git", plugin);
+        let repo_name = plugin.split('/').last().unwrap().trim_end_matches(".git");
+        let dest = dir.join(repo_name);
+        if !dest.exists() {
+            println!("📥 Cloning {repo_url}...");
+            let status = Command::new("git")
+                .arg("clone")
+                .arg(&repo_url)
+                .arg(&dest)
+                .status()?;
+            if !status.success() {
+                println!("Failed to clone repository");
+            }
+        }
+    } else if plugin.starts_with("http") {
+        let repo_name = plugin.split('/').last().unwrap().trim_end_matches(".git");
+        let dest = dir.join(repo_name);
+        if !dest.exists() {
+            println!("📥 Cloning {plugin}...");
+            let status = Command::new("git")
+                .arg("clone")
+                .arg(&plugin)
+                .arg(&dest)
+                .status()?;
+            if !status.success() {
+                println!("Failed to clone repository");
+            }
+        }
+    }
+
     if !plugins.contains(&plugin) {
         plugins.push(plugin.clone());
         let mut f = OpenOptions::new()
@@ -599,6 +643,8 @@ pub fn add_plugin(plugin: String) -> Result<()> {
             .open(&file_path)?;
         writeln!(f, "{}", plugins.join("\n"))?;
         println!("✅ Added plugin: {}", plugin);
+        // show docs if available
+        if let Ok(_) = plugin_docs(plugin.clone()) {}
     } else {
         println!("Plugin '{}' already added", plugin);
     }
@@ -650,6 +696,49 @@ pub fn list_plugins() -> Result<()> {
         }
     } else {
         println!("No plugins installed.");
+    }
+    Ok(())
+}
+
+/// Explain the final DSL after applying all installed plugins.
+pub fn explain(file: PathBuf) -> Result<()> {
+    let mut dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
+    let plugins = load_plugins()?;
+    plugins.extend_dsl_all(&mut dsl)?;
+
+    println!("Features:\n-----------");
+    for f in &dsl.app.features {
+        println!("- {}", f);
+    }
+    println!("\nResources:\n-----------");
+    for r in &dsl.resources {
+        println!("- {} ({})", r.name, r.resource_type);
+    }
+    println!("\nJobs:\n-----");
+    for j in &dsl.jobs {
+        println!("- {} -> {}", j.name, j.handler);
+    }
+    println!("\nRoutes:\n-------");
+    for r in &dsl.routes {
+        println!("- {} {}", r.name, r.path);
+    }
+    Ok(())
+}
+
+/// Show documentation for a plugin if available.
+pub fn plugin_docs(plugin: String) -> Result<()> {
+    use std::fs;
+    let name = plugin
+        .split('/')
+        .last()
+        .unwrap_or(&plugin)
+        .trim_end_matches(".git");
+    let path = PathBuf::from(format!("docs/plugins/{name}.md"));
+    if path.exists() {
+        let contents = fs::read_to_string(path)?;
+        println!("{}", contents);
+    } else {
+        println!("No docs found for {plugin}");
     }
     Ok(())
 }

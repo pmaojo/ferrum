@@ -1,5 +1,7 @@
 use ferrum_engine::plugins::RealtimeSsePlugin;
-use ferrum_engine::plugins::{CmsSanityPlugin, CronPlugin, PluginManager, StripePlugin};
+use ferrum_engine::plugins::{
+    AuthPlugin, CmsSanityPlugin, CronPlugin, GraphQLPlugin, PluginManager, StripePlugin,
+};
 use ferrum_shared_models::FerrumDsl;
 
 #[test]
@@ -44,4 +46,25 @@ fn realtime_sse_plugin_extends_dsl() {
     manager.register(RealtimeSsePlugin);
     manager.extend_dsl_all(&mut dsl).unwrap();
     assert!(dsl.app.features.contains(&"realtime-sse".to_string()));
+}
+
+#[test]
+fn auth_plugin_extends_dsl() {
+    let yaml = "app:\n  name: demo\n";
+    let mut dsl: FerrumDsl = serde_yaml::from_str(yaml).unwrap();
+    let mut manager = PluginManager::new();
+    manager.register(AuthPlugin);
+    manager.extend_dsl_all(&mut dsl).unwrap();
+    assert!(dsl.app.features.contains(&"auth".to_string()));
+    assert!(dsl.app.auth.is_some());
+}
+
+#[test]
+fn graphql_plugin_extends_dsl() {
+    let yaml = "app:\n  name: demo\n";
+    let mut dsl: FerrumDsl = serde_yaml::from_str(yaml).unwrap();
+    let mut manager = PluginManager::new();
+    manager.register(GraphQLPlugin);
+    manager.extend_dsl_all(&mut dsl).unwrap();
+    assert!(dsl.app.features.contains(&"graphql".to_string()));
 }
