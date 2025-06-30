@@ -164,3 +164,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2024-05-04
 - Added initial cms-notion plugin implementation and tests.
+### Session 2025-06-30
+- Added minimal backend and frontend skeleton to `ferrum init` and
+  documented automatic typeshare execution during compile.

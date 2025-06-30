@@ -32,6 +32,10 @@ ferrum init my-project --with-db
 ferrum init my-project --with-ai
 ```
 
+Running `ferrum init` now creates a minimal Axum server and Vite
+React frontend so you can `cd` into the new directory and start the
+dev environment immediately.
+
 #### 2. Start the development environment
 
 ```bash
@@ -50,6 +54,9 @@ ferrum dev --with-ai
 ```bash
 ferrum compile gen/users.yaml
 ```
+
+The compile command automatically runs `typeshare` to export any
+shared Rust models into TypeScript types.
 
 #### 4. Generate architecture from a natural prompt
 
