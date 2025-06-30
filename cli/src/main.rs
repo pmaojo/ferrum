@@ -40,6 +40,7 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            api_only,
         } => ferrum_cli::commands::init(
             name,
             with_graph,
@@ -48,6 +49,7 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            api_only,
         ),
         Commands::Sync {
             file,
