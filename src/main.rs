@@ -55,5 +55,6 @@ fn main() -> Result<()> {
         Commands::List {} => list_plugins(),
         Commands::Explain { file } => explain(file),
         Commands::Docs { plugin } => plugin_docs(plugin),
+        Commands::I18n { dir, output } => ferrum_cli::commands::extract_i18n(dir, output),
     }
 }

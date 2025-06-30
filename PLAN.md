@@ -156,6 +156,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 - 2025-06-30: Revisión de los últimos commits y corrección de configuraciones
   en `docker-compose.yml` y `ai/router.py`.
+- 2025-06-30: Implementación inicial de extracción de mensajes i18n y generación
+  automática de `i18n.ts`.
 
 ---
 
@@ -164,3 +166,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2024-05-04
 - Added initial cms-notion plugin implementation and tests.
+
+### Session 2025-06-30
+- Added i18n extraction command and generator.

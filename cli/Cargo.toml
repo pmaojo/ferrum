@@ -21,3 +21,5 @@ dotenvy = "0.15"
 sha2 = "0.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
+regex = "1"
+walkdir = "2"
