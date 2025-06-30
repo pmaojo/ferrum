@@ -10,7 +10,7 @@ router = APIRouter()
 @router.post("/generate/yaml")
 @router.post("/generate-yaml")
 async def generate_yaml_route(req: PromptRequest):
-    yaml_code = await run_in_threadpool(generate_yaml, req.text)
+    yaml_code = await run_in_threadpool(generate_yaml, req.text, req.model)
     return {"yaml": yaml_code}
 
 @router.post("/explain/yaml")

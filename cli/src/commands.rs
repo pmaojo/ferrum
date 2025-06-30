@@ -156,9 +156,10 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
 
     // Call Python AI service
     let client = Client::new();
+    let model = std::env::var("MODEL").unwrap_or_else(|_| "openai".to_string());
     let response = client
         .post("http://localhost:8000/generate-yaml")
-        .json(&serde_json::json!({ "text": text, "model": "gpt-4" }))
+        .json(&serde_json::json!({ "text": text, "model": model }))
         .send()?;
 
     let yaml = response
