@@ -1,0 +1,8 @@
+# Configuration for AI model used by ferrum prompt and AI services
+# Valid options for `model` are `openai`, `ollama`, or `anthropic`.
+# Set API keys or endpoints as needed.
+model: openai
+openai:
+  api_key: "your-openai-key"
+ollama:
+  endpoint: "http://localhost:1234/v1/chat/completions"

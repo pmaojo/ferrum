@@ -161,6 +161,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
 
 /// Generate a `grafo.yaml` file from a free form prompt.
 pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
+    use crate::config::LlmConfig;
     use reqwest::blocking::Client;
     use std::fs;
     use std::path::PathBuf;
@@ -170,9 +171,15 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     println!("Prompt: {}", text);
     println!();
 
+    // Determine model from env or llm-config.yaml
+    let cfg_model = LlmConfig::load().and_then(|c| c.model);
+    let model = std::env::var("MODEL")
+        .ok()
+        .or(cfg_model)
+        .unwrap_or_else(|| "openai".to_string());
+
     // Call Python AI service
     let client = Client::new();
-    let model = std::env::var("MODEL").unwrap_or_else(|_| "openai".to_string());
     let response = client
         .post("http://localhost:8000/generate-yaml")
         .json(&serde_json::json!({ "text": text, "model": model }))

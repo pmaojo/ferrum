@@ -70,6 +70,22 @@ service. When using the **Studio** UI, set the environment variable
 `VITE_AI_URL` to the base URL (default `http://localhost:8001`). A
 dropdown allows choosing the backend at runtime.
 
+### LLM configuration
+
+Ferrum reads an optional `llm-config.yaml` file to decide which model to
+use when running `ferrum prompt` or the AI service. Example:
+
+```yaml
+model: openai
+openai:
+  api_key: "your-openai-key"
+ollama:
+  endpoint: "http://localhost:1234/v1/chat/completions"
+```
+
+You can still override the model with the `MODEL` environment variable.
+
+
 ---
 
 ## 🐳 Docker Environment
