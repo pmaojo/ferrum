@@ -1,0 +1,9 @@
+import { useEffect } from 'react';
+
+export function useSse(url: string, onMessage: (e: MessageEvent) => void) {
+  useEffect(() => {
+    const es = new EventSource(url);
+    es.onmessage = onMessage;
+    return () => es.close();
+  }, [url, onMessage]);
+}

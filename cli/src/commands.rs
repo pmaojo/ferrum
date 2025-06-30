@@ -669,6 +669,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                 "stripe" => manager.register(ferrum_engine::plugins::StripePlugin),
                 "cron" => manager.register(ferrum_engine::plugins::CronPlugin),
                 "cms-sanity" => manager.register(ferrum_engine::plugins::CmsSanityPlugin),
+                "realtime-sse" => manager.register(ferrum_engine::plugins::RealtimeSsePlugin),
                 other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
                 _ => {}
             }
