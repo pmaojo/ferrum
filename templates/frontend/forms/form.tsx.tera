@@ -1,0 +1,34 @@
+import React from 'react';
+import { use{{ node.description | capitalize }} } from '../hooks/use{{ node.description | capitalize }}';
+import { z } from 'zod';
+
+const schema = z.object({
+{% for field in node.input %}  {{ field.name }}: z.string(),
+{% endfor %}});
+
+type FormData = z.infer<typeof schema>;
+
+export const {{ node.id | capitalize }}: React.FC = () => {
+  const { mutate } = use{{ node.description | capitalize }}();
+  const [values, setValues] = React.useState<FormData>({
+{% for field in node.input %}    {{ field.name }}: '',
+{% endfor %}  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = schema.safeParse(values);
+    if (!res.success) { console.error(res.error); return; }
+    mutate(values);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+{% for field in node.input %}      <input name="{{ field.name }}" value={values.{{ field.name }}} onChange={handleChange} placeholder="{{ field.name }}" />
+{% endfor %}      <button type="submit">Submit</button>
+    </form>
+  );
+};

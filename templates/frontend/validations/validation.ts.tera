@@ -1,0 +1,9 @@
+import { z } from 'zod';
+
+{% if rule.kind == "Regex" %}
+export const {{ node.id }} = (value: unknown) => z.string().regex(/{{ rule.pattern }}/).safeParse(value).success;
+{% elif rule.kind == "Range" %}
+export const {{ node.id }} = (value: unknown) => z.number().min({{ rule.min }}).max({{ rule.max }}).safeParse(value).success;
+{% else %}
+export const {{ node.id }} = (_value: unknown) => true; // custom rule not implemented
+{% endif %}

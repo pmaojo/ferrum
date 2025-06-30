@@ -21,6 +21,10 @@ pub enum ValidationError {
     /// Missing required user entity when auth feature is enabled.
     #[error("auth feature requires a 'user' entity to be defined")]
     MissingUserEntity,
+
+    /// Validation references a field that does not exist
+    #[error("validation target not found: {path}")]
+    UnknownValidationTarget { path: String },
 }
 
 /// Validate a parsed [`Module`].
@@ -80,6 +84,28 @@ pub fn validate_features(project: &FerrumDsl, modules: &[Module]) -> ValidationR
             .any(|n| n.id == "user" && matches!(n.node_type, crate::NodeType::Entity));
         if !has_user {
             return Err(ValidationError::MissingUserEntity);
+        }
+    }
+
+    Ok(())
+}
+
+/// Validate that validation rules point to existing usecase fields.
+pub fn validate_validations(project: &FerrumDsl, modules: &[Module]) -> ValidationResult<()> {
+    let mut valid_paths = HashSet::new();
+    for module in modules {
+        for node in &module.nodes {
+            if matches!(node.node_type, crate::NodeType::UseCase) {
+                for field in &node.input {
+                    valid_paths.insert(format!("{}.{}.{}", module.name, node.id, field.name));
+                }
+            }
+        }
+    }
+
+    for val in &project.validations {
+        if !valid_paths.contains(&val.applies_to) {
+            return Err(ValidationError::UnknownValidationTarget { path: val.applies_to.clone() });
         }
     }
 

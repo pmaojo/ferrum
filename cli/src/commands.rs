@@ -108,10 +108,12 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     if let Ok(project) = ferrum_compiler::parse_dsl_yaml(&file) {
         let modules = ferrum_compiler::project_to_modules(&project);
         ferrum_compiler::validate_features(&project, &modules)?;
-        let generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
-        for m in modules {
-            ferrum_compiler::validate_module(&m)?;
-            generator.generate(&m)?;
+        ferrum_compiler::validate_validations(&project, &modules)?;
+        let mut generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+        generator.set_modules(modules.clone());
+        for m in &modules {
+            ferrum_compiler::validate_module(m)?;
+            generator.generate(m)?;
         }
         let paths = ferrum_compiler::ProjectPaths::new(&output_dir);
         ferrum_compiler::compile_dsl(&project, &paths)?;

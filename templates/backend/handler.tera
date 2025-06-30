@@ -1,5 +1,8 @@
-use axum::{extract::Extension, Json};
+use axum::{extract::{Extension, Json}, http::StatusCode};
 use diesel::prelude::*;
+{% if field_validations %}
+use crate::validations::{% for v in field_validations %}{{ v.func }}{% if not loop.last %}, {% endif %}{% endfor %};
+{% endif %}
 
 use crate::db::{DbPool};
 use crate::db::models::Usuario;
@@ -7,8 +10,17 @@ use crate::db::schema::usuarios::dsl::*;
 
 pub async fn {{ node.id }}_handler(
     Extension(pool): Extension<DbPool>,
-) -> Json<Vec<Usuario>> {
+    Json(payload): Json<serde_json::Value>,
+) -> Result<Json<Vec<Usuario>>, StatusCode> {
     let mut conn = pool.get().unwrap();
+    {% if field_validations %}
+    // Simple validation
+    {% for v in field_validations %}
+    if !{{ v.func }}(payload["{{ v.field }}"].as_str().unwrap_or("")) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    {% endfor %}
+    {% endif %}
     let results = usuarios.load::<Usuario>(&mut conn).unwrap();
-    Json(results)
+    Ok(Json(results))
 }

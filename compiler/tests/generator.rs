@@ -146,3 +146,37 @@ entities:
     assert!(schema.contains("post (id)"));
     assert!(schema.contains("comment (id)"));
 }
+
+#[test]
+fn generate_forms_and_validations() {
+    use ferrum_compiler::{parse_dsl_yaml, project_to_modules};
+    use std::fs;
+
+    let yaml = r#"app:
+  name: demo
+forms:
+  - name: LoginForm
+    submitTo: loginUser
+    fields:
+      email: string
+validations:
+  - name: emailIsValid
+    appliesTo: demo.loginUser.email
+    rule: "regex /@/"
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&dsl);
+    let templates = templates_path();
+    let mut generator = Generator::new(templates.as_path(), dir.path()).unwrap();
+    generator.set_modules(modules.clone());
+    for m in &modules {
+        generator.generate(m).unwrap();
+    }
+
+    assert!(dir.path().join("frontend/src/forms/LoginForm.tsx").exists());
+    assert!(dir.path().join("frontend/src/validations/emailIsValid.ts").exists());
+    assert!(dir.path().join("backend/src/validations/email_is_valid.rs").exists());
+}
