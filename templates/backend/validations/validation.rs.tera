@@ -1,0 +1,15 @@
+use regex::Regex;
+
+{% if rule.kind == "Regex" %}
+pub fn {{ fn_name }}(value: &str) -> bool {
+    Regex::new(r"{{ rule.pattern }}").unwrap().is_match(value)
+}
+{% elif rule.kind == "Range" %}
+pub fn {{ fn_name }}(value: i32) -> bool {
+    value >= {{ rule.min }} && value <= {{ rule.max }}
+}
+{% else %}
+pub fn {{ fn_name }}<_T>(_value: _T) -> bool {
+    true // custom rule not implemented
+}
+{% endif %}

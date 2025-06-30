@@ -1,4 +1,4 @@
-use ferrum_compiler::{parse_yaml, validate_module, ValidationError};
+use ferrum_compiler::{parse_yaml, parse_dsl_yaml, project_to_modules, validate_module, validate_validations, ValidationError};
 use std::fs;
 
 #[test]
@@ -51,4 +51,27 @@ nodes:
     let module = parse_yaml(&file).unwrap();
     let err = validate_module(&module).unwrap_err();
     assert!(matches!(err, ValidationError::DuplicateNodeId { .. }));
+}
+
+#[test]
+fn fails_on_unknown_validation_target() {
+    let yaml = r#"app:
+  name: demo
+forms:
+  - name: LoginForm
+    submitTo: loginUser
+    fields:
+      email: string
+validations:
+  - name: checkEmail
+    appliesTo: demo.loginUser.missing
+    rule: "regex /@/"
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    std::fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&dsl);
+    let err = validate_validations(&dsl, &modules).unwrap_err();
+    assert!(matches!(err, ValidationError::UnknownValidationTarget { .. }));
 }

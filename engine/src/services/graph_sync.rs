@@ -64,6 +64,22 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
                 )
                 .await?;
         }
+
+        if matches!(node.node_type, NodeType::Validation) {
+            if let Some(applies) = &node.description {
+                let parts: Vec<&str> = applies.split('.').collect();
+                if parts.len() >= 2 {
+                    let usecase = parts[parts.len() - 2];
+                    graph
+                        .run(
+                            query("MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:VALIDATES]->(b)")
+                                .param("from", node.id.clone())
+                                .param("to", usecase.to_string()),
+                        )
+                        .await?;
+                }
+            }
+        }
     }
     Ok(())
 }

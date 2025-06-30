@@ -10,6 +10,7 @@ use ferrum_shared_models::{Module, Node, NodeType};
 pub struct Generator {
     templates: Tera,
     output_dir: PathBuf,
+    modules: Vec<Module>,
 }
 
 impl Generator {
@@ -28,7 +29,13 @@ impl Generator {
         Ok(Self {
             templates,
             output_dir: output_dir.as_ref().to_path_buf(),
+            modules: Vec::new(),
         })
+    }
+
+    /// Provide all modules for cross-references (e.g. validations)
+    pub fn set_modules(&mut self, modules: Vec<Module>) {
+        self.modules = modules;
     }
 
     /// Generate code for all nodes contained in the provided [`Module`].
@@ -65,6 +72,27 @@ impl Generator {
         context.insert("node", node);
         // Add module name directly to context for templates
         context.insert("module_name", &module.name);
+
+        // Collect validations for this usecase
+        let mut field_validations: Vec<FieldValidation> = Vec::new();
+        if let Some(vmod) = self.modules.iter().find(|m| m.name == "validations") {
+            for val in &vmod.nodes {
+                if let Some(applies) = &val.description {
+                    for field in &node.input {
+                        let expected = format!("{}.{}.{}", module.name, node.id, field.name);
+                        if applies == &expected {
+                            field_validations.push(FieldValidation {
+                                field: field.name.clone(),
+                                func: snake_case(&val.id),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        if !field_validations.is_empty() {
+            context.insert("field_validations", &field_validations);
+        }
 
         // Generate handler
         let handler_content = self
@@ -348,14 +376,57 @@ impl Generator {
         self.write_file(&schema_path, &schema_content)
     }
 
-    fn generate_form(&self, _module: &Module, _node: &Node) -> Result<()> {
-        // Forms currently do not produce code directly
-        Ok(())
+    fn generate_form(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+
+        let form_content = self
+            .templates
+            .render("frontend/forms/form.tsx.tera", &context)
+            .context("Failed to render form template")?;
+        let form_path = self
+            .output_dir
+            .join("frontend/src/forms")
+            .join(format!("{}.tsx", capitalize(&node.id)));
+        self.write_file(&form_path, &form_content)
     }
 
-    fn generate_validation(&self, _module: &Module, _node: &Node) -> Result<()> {
-        // Validations currently do not produce code directly
-        Ok(())
+    fn generate_validation(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+        if let Some(rule) = &node.story {
+            let parsed = parse_validation_rule(rule);
+            context.insert("rule", &parsed);
+        } else {
+            context.insert(
+                "rule",
+                &ParsedRule { kind: "Custom".into(), pattern: None, min: None, max: None },
+            );
+        }
+        let fn_name = snake_case(&node.id);
+        context.insert("fn_name", &fn_name);
+
+        let backend_content = self
+            .templates
+            .render("backend/validations/validation.rs.tera", &context)
+            .context("Failed to render backend validation template")?;
+        let backend_path = self
+            .output_dir
+            .join("backend/src/validations")
+            .join(format!("{}.rs", fn_name));
+        self.write_file(&backend_path, &backend_content)?;
+
+        let frontend_content = self
+            .templates
+            .render("frontend/validations/validation.ts.tera", &context)
+            .context("Failed to render frontend validation template")?;
+        let frontend_path = self
+            .output_dir
+            .join("frontend/src/validations")
+            .join(format!("{}.ts", node.id));
+        self.write_file(&frontend_path, &frontend_content)
     }
 
     fn generate_batteries(&self, module: &Module) -> Result<()> {
@@ -499,13 +570,87 @@ pub(crate) fn capitalize(s: &str) -> String {
     }
 }
 
+pub(crate) fn snake_case(s: &str) -> String {
+    let mut out = String::new();
+    for (i, c) in s.chars().enumerate() {
+        if c.is_uppercase() {
+            if i != 0 {
+                out.push('_');
+            }
+            for low in c.to_lowercase() {
+                out.push(low);
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+#[derive(Debug, serde::Serialize)]
+struct ParsedRule {
+    kind: String,
+    pattern: Option<String>,
+    min: Option<i32>,
+    max: Option<i32>,
+}
+
+#[derive(Debug, serde::Serialize)]
+struct FieldValidation {
+    field: String,
+    func: String,
+}
+
+fn parse_validation_rule(rule: &str) -> ParsedRule {
+    if let Some(pat) = rule.strip_prefix("regex ") {
+        let pat = pat.trim().trim_start_matches('/').trim_end_matches('/');
+        return ParsedRule {
+            kind: "Regex".into(),
+            pattern: Some(pat.to_string()),
+            min: None,
+            max: None,
+        };
+    }
+    if let Some(range) = rule.strip_prefix("range ") {
+        if let Some((min, max)) = range.split_once("..") {
+            if let (Ok(min), Ok(max)) = (min.parse::<i32>(), max.parse::<i32>()) {
+                return ParsedRule {
+                    kind: "Range".into(),
+                    pattern: None,
+                    min: Some(min),
+                    max: Some(max),
+                };
+            }
+        }
+    }
+    ParsedRule {
+        kind: "Custom".into(),
+        pattern: None,
+        min: None,
+        max: None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::capitalize;
+    use super::{capitalize, snake_case, parse_validation_rule};
 
     #[test]
     fn test_capitalize() {
         assert_eq!(capitalize("hello"), "Hello");
         assert_eq!(capitalize(""), "");
+    }
+
+    #[test]
+    fn test_snake_case() {
+        assert_eq!(snake_case("HelloWorld"), "hello_world");
+        assert_eq!(snake_case("test"), "test");
+    }
+
+    #[test]
+    fn test_parse_validation_rule() {
+        let r = parse_validation_rule("regex /@/");
+        assert_eq!(r.kind, "Regex");
+        assert_eq!(r.pattern.unwrap(), "@");
     }
 }
