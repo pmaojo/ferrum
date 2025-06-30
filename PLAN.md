@@ -179,3 +179,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Discussed single command script for starting backend and frontend.
 
 
+### Session 2025-06-30
+- Implemented parallel dev server using cargo and vite with `ferrum dev`.
+- Automatic route generation now outputs backend and frontend files.
+- Added preliminary shared component model.

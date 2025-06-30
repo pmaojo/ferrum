@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 use typeshare::typeshare;
 
+pub mod components;
+pub use components::SharedComponent;
+
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
