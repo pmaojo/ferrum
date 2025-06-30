@@ -58,7 +58,7 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [x] `auth-oauth`
   - [x] `graphql`
   - [x] `stripe`
-  - [ ] `cms-notion`
+  - [x] `cms-notion`
   - [x] `jobs-cron`
   - [x] `realtime-sse`
 
@@ -154,3 +154,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 **"La arquitectura no debe escribirse... debe declararse, compilarse y entenderse."**  
 — *Ferrus Manifesto, 2025*
+
+### Session 2024-05-04
+- Added initial cms-notion plugin implementation and tests.
