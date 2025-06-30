@@ -78,10 +78,10 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] `ferrum graph`
   - [x] `ferrum explain`
 
-- [ ] UI Studio (visual):
-  - [ ] Crear entidades, rutas y relaciones en un editor visual
-  - [ ] Exportar/importar YAML
-  - [ ] Mostrar rutas, casos de uso y flujo hexagonal
+- [x] UI Studio (visual):
+  - [x] Crear entidades, rutas y relaciones en un editor visual
+  - [x] Exportar/importar YAML
+  - [x] Mostrar rutas, casos de uso y flujo hexagonal
 
 - [ ] Mejorar DX:
   - [ ] Recarga fuera de Docker (`cargo-watch`, `vite dev`)
