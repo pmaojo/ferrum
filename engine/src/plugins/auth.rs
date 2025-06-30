@@ -1,10 +1,9 @@
 use anyhow::Result;
-use std::fs;
-use std::path::Path;
 
 use ferrum_shared_models::FerrumDsl;
 
 use super::Plugin;
+use super::utils::{copy_if_missing, ensure_env_var}; // Updated import
 
 /// Experimental auth plugin that scaffolds basic authentication support.
 pub struct AuthPlugin;
@@ -42,11 +41,8 @@ impl Plugin for AuthPlugin {
 }
 
 fn ensure_env() -> Result<()> {
-    let path = Path::new(".env");
-    if !path.exists() {
-        let content = "JWT_SECRET=change_me\nAUTH_REDIRECT=/login\n";
-        fs::write(path, content)?;
-    }
+    ensure_env_var("JWT_SECRET", "change_me")?;
+    ensure_env_var("AUTH_REDIRECT", "/login")?;
     Ok(())
 }
 
@@ -67,17 +63,5 @@ fn ensure_templates() -> Result<()> {
         include_str!("../../../templates/batteries/auth/frontend/components/LoginForm.tsx.tera"),
         "frontend/src/components/LoginForm.tsx",
     )?;
-    Ok(())
-}
-
-fn copy_if_missing<P: AsRef<Path>>(contents: &str, dest: P) -> Result<()> {
-    let dest = dest.as_ref();
-    if dest.exists() {
-        return Ok(());
-    }
-    if let Some(parent) = dest.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    fs::write(dest, contents)?;
     Ok(())
 }
