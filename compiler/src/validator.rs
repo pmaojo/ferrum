@@ -105,9 +105,19 @@ pub fn validate_validations(project: &FerrumDsl, modules: &[Module]) -> Validati
 
     for val in &project.validations {
         if !valid_paths.contains(&val.applies_to) {
-            return Err(ValidationError::UnknownValidationTarget { path: val.applies_to.clone() });
+            return Err(ValidationError::UnknownValidationTarget {
+                path: val.applies_to.clone(),
+            });
         }
     }
 
+    Ok(())
+}
+
+/// Validate multiple [`Module`] instances.
+pub fn validate_modules(modules: &[Module]) -> ValidationResult<()> {
+    for m in modules {
+        validate_module(m)?;
+    }
     Ok(())
 }
