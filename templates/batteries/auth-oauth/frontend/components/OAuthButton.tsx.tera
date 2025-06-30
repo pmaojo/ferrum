@@ -1,0 +1,12 @@
+import React from 'react';
+import { useOAuthLogin } from '../hooks/useOAuthLogin';
+
+interface Props {
+  provider: 'google' | 'github';
+  children: React.ReactNode;
+}
+
+export const OAuthButton: React.FC<Props> = ({ provider, children }) => {
+  const login = useOAuthLogin(provider);
+  return <button onClick={login}>{children}</button>;
+};

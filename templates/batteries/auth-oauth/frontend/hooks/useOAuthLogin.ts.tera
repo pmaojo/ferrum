@@ -1,0 +1,6 @@
+// Initiates an OAuth login flow for the given provider
+export function useOAuthLogin(provider: 'google' | 'github') {
+    return () => {
+        window.location.href = `/api/auth/${provider}`;
+    };
+}

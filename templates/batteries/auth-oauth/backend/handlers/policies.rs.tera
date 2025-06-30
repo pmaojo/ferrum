@@ -1,0 +1,7 @@
+use axum::{extract::Path, Json};
+
+/// Check a policy by name and return `true` if allowed.
+pub async fn check_policy(Path(name): Path<String>) -> Json<bool> {
+    let allowed = crate::policies::evaluate_policy(&name);
+    Json(allowed)
+}

@@ -120,7 +120,8 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
         let modules = ferrum_compiler::project_to_modules(&project);
         ferrum_compiler::validate_features(&project, &modules)?;
         ferrum_compiler::validate_validations(&project, &modules)?;
-        let mut generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+        let mut generator =
+            ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
         generator.set_modules(modules.clone());
         for m in &modules {
             ferrum_compiler::validate_module(m)?;
@@ -379,8 +380,11 @@ pub fn init(
             include_str!("../../templates/batteries/uploads/backend/routes/uploads.rs.tera"),
         )?;
         fs::write(
-            project_dir.join("templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
-            include_str!("../../templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
+            project_dir
+                .join("templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
+            include_str!(
+                "../../templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"
+            ),
         )?;
         fs::write(
             project_dir.join("templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
@@ -537,13 +541,20 @@ pub fn add_plugin(plugin: String) -> Result<()> {
     fs::create_dir_all(&dir)?;
     let file_path = dir.join("plugins.txt");
     let mut plugins = if file_path.exists() {
-        fs::read_to_string(&file_path)?.lines().map(|s| s.to_string()).collect::<Vec<_>>()
+        fs::read_to_string(&file_path)?
+            .lines()
+            .map(|s| s.to_string())
+            .collect::<Vec<_>>()
     } else {
         Vec::new()
     };
     if !plugins.contains(&plugin) {
         plugins.push(plugin.clone());
-        let mut f = OpenOptions::new().create(true).write(true).truncate(true).open(&file_path)?;
+        let mut f = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(&file_path)?;
         writeln!(f, "{}", plugins.join("\n"))?;
         println!("✅ Added plugin: {}", plugin);
     } else {
@@ -582,6 +593,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
             match name.trim() {
                 "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
                 "auth" => manager.register(ferrum_engine::plugins::AuthPlugin),
+                "auth-oauth" => manager.register(ferrum_engine::plugins::AuthOAuthPlugin),
                 other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
                 _ => {}
             }

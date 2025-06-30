@@ -1,5 +1,6 @@
 use anyhow::Result;
 pub mod auth;
+pub mod auth_oauth;
 pub mod graphql;
 
 /// Trait implemented by all Ferrum plugins.
@@ -69,4 +70,5 @@ impl PluginManager {
     }
 }
 pub use auth::AuthPlugin;
+pub use auth_oauth::AuthOAuthPlugin;
 pub use graphql::GraphQLPlugin;
