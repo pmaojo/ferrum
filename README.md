@@ -151,7 +151,7 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `queries` → generates Rust handlers and React hooks
 - `mutations` → generates handlers and hooks (with optional auth)
 - `routes` / `pages` → produces a `frontend/routes.tsx` file
-- `auth` → scaffolds basic login form and hook
+- `auth-password` → scaffolds basic login form and hook
 - `jobs` → creates scheduled tasks in `backend/jobs/`
 - `uploads` → file upload endpoint and React hook
 - `resources` → integrate external services like APIs or queues
@@ -219,6 +219,7 @@ including a basic GraphQL schema and a helper for sending SMTP emails.
 Built-in plugins:
 
 - `graphql` – adds a default GraphQL schema file.
+- `auth-password` – scaffolds basic login form and handler.
 - `auth` – injects authentication nodes into the DSL and scaffolds login resources.
 
 Plugins can also mutate the parsed DSL before code generation. Each plugin may
