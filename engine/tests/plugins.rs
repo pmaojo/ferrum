@@ -1,6 +1,6 @@
 use ferrum_engine::plugins::RealtimeSsePlugin;
 use ferrum_engine::plugins::{
-    AuthPlugin, CmsSanityPlugin, CronPlugin, GraphQLPlugin, PluginManager, StripePlugin,
+    AuthPlugin, CmsNotionPlugin, CmsSanityPlugin, CronPlugin, GraphQLPlugin, PluginManager, StripePlugin,
 };
 use ferrum_shared_models::FerrumDsl;
 
@@ -36,6 +36,17 @@ fn cms_sanity_plugin_extends_dsl() {
     manager.extend_dsl_all(&mut dsl).unwrap();
     assert!(dsl.app.features.contains(&"cms-sanity".to_string()));
     assert!(dsl.resources.iter().any(|r| r.name == "SanityClient"));
+}
+
+#[test]
+fn cms_notion_plugin_extends_dsl() {
+    let yaml = "app:\n  name: demo\n";
+    let mut dsl: FerrumDsl = serde_yaml::from_str(yaml).unwrap();
+    let mut manager = PluginManager::new();
+    manager.register(CmsNotionPlugin);
+    manager.extend_dsl_all(&mut dsl).unwrap();
+    assert!(dsl.app.features.contains(&"cms-notion".to_string()));
+    assert!(dsl.resources.iter().any(|r| r.name == "NotionClient"));
 }
 
 #[test]

@@ -835,6 +835,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                 "stripe" => manager.register(ferrum_engine::plugins::StripePlugin),
                 "cron" => manager.register(ferrum_engine::plugins::CronPlugin),
                 "cms-sanity" => manager.register(ferrum_engine::plugins::CmsSanityPlugin),
+                "cms-notion" => manager.register(ferrum_engine::plugins::CmsNotionPlugin),
                 "realtime-sse" => manager.register(ferrum_engine::plugins::RealtimeSsePlugin),
                 other => {
                     let path = PathBuf::from(other);

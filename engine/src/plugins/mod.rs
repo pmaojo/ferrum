@@ -4,6 +4,7 @@ pub mod auth_oauth;
 pub mod auth_password;
 pub mod utils; // Added this line
 pub mod cms_sanity;
+pub mod cms_notion;
 pub mod cron;
 pub mod dynamic;
 pub mod graphql;
@@ -81,6 +82,7 @@ pub use auth::AuthPlugin;
 pub use auth_oauth::AuthOAuthPlugin;
 pub use auth_password::AuthPasswordPlugin;
 pub use cms_sanity::CmsSanityPlugin;
+pub use cms_notion::CmsNotionPlugin;
 pub use cron::CronPlugin;
 pub use dynamic::DynamicPlugin;
 pub use graphql::GraphQLPlugin;
