@@ -4,3 +4,5 @@ openai
 anthropic
 requests
 pyyaml
+qdrant-client
+neo4j

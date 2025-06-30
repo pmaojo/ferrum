@@ -7,3 +7,11 @@ class PromptRequest(BaseModel):
 
 class YamlRequest(BaseModel):
     yaml: str
+
+
+class ChatRequest(BaseModel):
+    message: str
+
+
+class ChatResponse(BaseModel):
+    reply: str
