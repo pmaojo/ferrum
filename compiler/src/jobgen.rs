@@ -13,7 +13,7 @@ pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
     let policy_check = job
         .policy
         .as_ref()
-        .map(|p| format!("    if !crate::policies::{}() {{\n        // TODO: unauthorized handling\n        return;\n    }}\n", p.to_snake_case()))
+        .map(|p| format!("    if !crate::policies::evaluate_policy(\"{p}\") {{\n        // TODO: unauthorized handling\n        return;\n    }}\n", p = p))
         .unwrap_or_default();
     let content = format!(
         "// Scheduled: {}\n\npub async fn {}() {{\n{policy_check}    // TODO implement\n}}\n",

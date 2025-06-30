@@ -76,6 +76,10 @@ resources:
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/policies/isadmin.rs").exists());
     assert!(out.path().join("frontend/hooks/useIsAdmin.ts").exists());
+    assert!(out.path().join("frontend/hooks/usePolicy.ts").exists());
+    assert!(out.path().join("frontend/components/PolicyGate.tsx").exists());
+    assert!(out.path().join("frontend/components/PoliciesAdmin.tsx").exists());
+    assert!(out.path().join("docs/policies.md").exists());
     let res_file = out.path().join("backend/resources/store.rs");
     assert!(res_file.exists());
     let content = fs::read_to_string(res_file).unwrap();
