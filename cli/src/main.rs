@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use ferrum_cli::commands::{compile, migrate, prompt, sync, Cli, Commands};
+use ferrum_cli::commands::{compile, migrate, prompt, sync, add_plugin, list_plugins, Cli, Commands};
 use tracing::Level;
 
 fn main() -> Result<()> {
@@ -39,5 +39,7 @@ fn main() -> Result<()> {
             password,
         } => sync(file, uri, user, password),
         Commands::Migrate {} => migrate(),
+        Commands::Add { plugin } => add_plugin(plugin),
+        Commands::List {} => list_plugins(),
     }
 }

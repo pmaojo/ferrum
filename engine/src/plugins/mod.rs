@@ -1,4 +1,5 @@
 use anyhow::Result;
+pub mod graphql;
 
 /// Trait implemented by all Ferrum plugins.
 ///
@@ -53,3 +54,4 @@ impl PluginManager {
         Ok(())
     }
 }
+pub use graphql::GraphQLPlugin;

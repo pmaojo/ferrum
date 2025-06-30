@@ -101,6 +101,11 @@ pub enum Commands {
 
     /// Run Diesel database migrations
     Migrate {},
+    Add {
+        #[arg(value_name = "PLUGIN")]
+        plugin: String,
+    },
+    List {},
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
@@ -130,6 +135,8 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     }
 
     println!("✅ Successfully compiled {}", file.display());
+    let plugins = load_plugins()?;
+    plugins.compile_all()?;
     Ok(())
 }
 
@@ -475,6 +482,8 @@ psql $DATABASE_URL -f backend/seeds/usuarios.sql
 
     println!();
     println!("✅ Project initialized successfully!");
+    let plugins = load_plugins()?;
+    plugins.init_all()?;
     println!("📂 Project location: {}", project_dir.display());
     println!();
     println!("Next steps:");
@@ -516,4 +525,65 @@ pub fn migrate() -> Result<()> {
 
     println!("✅ Database migrations applied");
     Ok(())
+}
+
+/// Add a plugin to the local .ferrum/plugins list.
+pub fn add_plugin(plugin: String) -> Result<()> {
+    use std::fs::{self, OpenOptions};
+    use std::io::Write;
+
+    let dir = PathBuf::from(".ferrum");
+    fs::create_dir_all(&dir)?;
+    let file_path = dir.join("plugins.txt");
+    let mut plugins = if file_path.exists() {
+        fs::read_to_string(&file_path)?.lines().map(|s| s.to_string()).collect::<Vec<_>>()
+    } else {
+        Vec::new()
+    };
+    if !plugins.contains(&plugin) {
+        plugins.push(plugin.clone());
+        let mut f = OpenOptions::new().create(true).write(true).truncate(true).open(&file_path)?;
+        writeln!(f, "{}", plugins.join("\n"))?;
+        println!("✅ Added plugin: {}", plugin);
+    } else {
+        println!("Plugin '{}' already added", plugin);
+    }
+    Ok(())
+}
+
+/// List installed plugins from .ferrum/plugins.
+pub fn list_plugins() -> Result<()> {
+    use std::fs;
+    let file_path = PathBuf::from(".ferrum/plugins.txt");
+    if file_path.exists() {
+        let contents = fs::read_to_string(file_path)?;
+        if contents.trim().is_empty() {
+            println!("No plugins installed.");
+        } else {
+            println!("Installed plugins:");
+            for p in contents.lines() {
+                println!("- {}", p);
+            }
+        }
+    } else {
+        println!("No plugins installed.");
+    }
+    Ok(())
+}
+
+fn load_plugins() -> Result<ferrum_engine::PluginManager> {
+    use std::fs;
+    let mut manager = ferrum_engine::PluginManager::new();
+    let file_path = PathBuf::from(".ferrum/plugins.txt");
+    if file_path.exists() {
+        let contents = fs::read_to_string(file_path)?;
+        for name in contents.lines() {
+            match name.trim() {
+                "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
+                other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
+                _ => {}
+            }
+        }
+    }
+    Ok(manager)
 }
