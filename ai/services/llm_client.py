@@ -1,12 +1,26 @@
 import os
 import requests
 import openai
+import yaml
 from anthropic import Anthropic
 
 
-MODEL = os.environ.get("MODEL", "openai")
+config_path = os.environ.get("LLM_CONFIG", "llm-config.yaml")
+CONFIG = {}
+if os.path.exists(config_path):
+    with open(config_path, "r") as f:
+        CONFIG = yaml.safe_load(f) or {}
+
+MODEL = os.environ.get("MODEL", CONFIG.get("model", "openai"))
 LOCAL_ENDPOINT = os.environ.get(
-    "LOCAL_ENDPOINT", "http://localhost:1234/v1/chat/completions"
+    "LOCAL_ENDPOINT",
+    CONFIG.get("ollama", {}).get(
+        "endpoint", "http://localhost:1234/v1/chat/completions"
+    ),
+)
+
+openai.api_key = os.environ.get(
+    "OPENAI_API_KEY", CONFIG.get("openai", {}).get("api_key", "")
 )
 
 
