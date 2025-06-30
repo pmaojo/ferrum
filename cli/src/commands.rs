@@ -115,6 +115,10 @@ pub enum Commands {
         /// Include file upload templates
         #[arg(long)]
         with_uploads: bool,
+
+        /// Backend only project without frontend
+        #[arg(long)]
+        api_only: bool,
     },
 
     /// Sync a grafo.yaml file to Neo4j
@@ -367,12 +371,15 @@ pub fn generate_usecase(name: String, output: Option<PathBuf>) -> Result<()> {
 
 /// Start the local development environment using Docker.
 pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
+    use std::path::Path;
     use std::process::{Command, Stdio};
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
 
     println!("🚀 Starting Ferrum development environment");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    let frontend_exists = Path::new("frontend").exists();
 
     if !docker {
         // Run local cargo and vite processes in parallel
@@ -392,11 +399,17 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
             .stdout(Stdio::inherit())
             .stderr(Stdio::inherit())
             .spawn()?;
-        let mut frontend = Command::new("npm")
-            .args(["run", "dev", "--prefix", "frontend"])
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .spawn()?;
+        let mut frontend = if frontend_exists {
+            Some(
+                Command::new("npm")
+                    .args(["run", "dev", "--prefix", "frontend"])
+                    .stdout(Stdio::inherit())
+                    .stderr(Stdio::inherit())
+                    .spawn()?,
+            )
+        } else {
+            None
+        };
 
         let running = Arc::new(AtomicBool::new(true));
         let r = running.clone();
@@ -406,18 +419,25 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
 
         while running.load(Ordering::SeqCst) {
             std::thread::sleep(std::time::Duration::from_millis(500));
-            if backend.try_wait()?.is_some() || frontend.try_wait()?.is_some() {
+            if backend.try_wait()?.is_some()
+                || frontend.as_mut().and_then(|f| f.try_wait().ok()).is_some()
+            {
                 running.store(false, Ordering::SeqCst);
             }
         }
 
         let _ = backend.kill();
-        let _ = frontend.kill();
+        if let Some(mut f) = frontend {
+            let _ = f.kill();
+        }
         return Ok(());
     }
 
     // Create a docker-compose command with the appropriate services
-    let mut services = vec!["backend", "frontend", "db"];
+    let mut services = vec!["backend", "db"];
+    if frontend_exists {
+        services.insert(1, "frontend");
+    }
 
     if with_graph {
         services.push("graphdb");
@@ -463,6 +483,7 @@ pub fn init(
     with_auth: bool,
     with_jobs: bool,
     with_uploads: bool,
+    api_only: bool,
 ) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
@@ -475,16 +496,18 @@ pub fn init(
     fs::create_dir_all(&project_dir)?;
 
     // Create directory structure
-    let dirs = [
+    let mut dirs = vec![
         "backend/src",
-        "frontend/src",
         "shared-models",
         "templates/backend",
-        "templates/frontend",
         "templates/shared-models",
         "gen",
         "data/postgres",
     ];
+    if !api_only {
+        dirs.push("frontend/src");
+        dirs.push("templates/frontend");
+    }
 
     for dir in dirs.iter() {
         fs::create_dir_all(project_dir.join(dir))?;
@@ -524,10 +547,11 @@ serde = { version = "1", features = ["derive"] }
 "#,
     )?;
 
-    // Basic frontend skeleton using Vite + React
-    fs::write(
-        project_dir.join("frontend/package.json"),
-        r#"{
+    if !api_only {
+        // Basic frontend skeleton using Vite + React
+        fs::write(
+            project_dir.join("frontend/package.json"),
+            r#"{
   "name": "frontend",
   "version": "0.0.0",
   "private": true,
@@ -547,10 +571,10 @@ serde = { version = "1", features = ["derive"] }
   }
 }
 "#,
-    )?;
-    fs::write(
-        project_dir.join("frontend/tsconfig.json"),
-        r#"{
+        )?;
+        fs::write(
+            project_dir.join("frontend/tsconfig.json"),
+            r#"{
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -563,20 +587,20 @@ serde = { version = "1", features = ["derive"] }
   "include": ["src"]
 }
 "#,
-    )?;
-    fs::write(
-        project_dir.join("frontend/vite.config.ts"),
-        r#"import { defineConfig } from 'vite';
+        )?;
+        fs::write(
+            project_dir.join("frontend/vite.config.ts"),
+            r#"import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
 });
 "#,
-    )?;
-    fs::write(
-        project_dir.join("frontend/index.html"),
-        r#"<!doctype html>
+        )?;
+        fs::write(
+            project_dir.join("frontend/index.html"),
+            r#"<!doctype html>
 <html lang=\"en\">
   <head>
     <meta charset=\"UTF-8\" />
@@ -589,15 +613,15 @@ export default defineConfig({
   </body>
 </html>
 "#,
-    )?;
-    fs::write(project_dir.join("frontend/src/index.css"), "")?;
-    fs::write(
-        project_dir.join("frontend/src/App.tsx"),
-        "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n",
-    )?;
-    fs::write(
-        project_dir.join("frontend/src/main.tsx"),
-        r#"import React from 'react';
+        )?;
+        fs::write(project_dir.join("frontend/src/index.css"), "")?;
+        fs::write(
+            project_dir.join("frontend/src/App.tsx"),
+            "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n",
+        )?;
+        fs::write(
+            project_dir.join("frontend/src/main.tsx"),
+            r#"import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
@@ -608,7 +632,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 "#,
-    )?;
+        )?;
+    }
 
     // Create additional directories based on flags
     if with_graph {
@@ -742,6 +767,28 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
     let mut docker_compose_content = include_str!("../../templates/docker-compose.yml").to_string();
+    if api_only {
+        let mut filtered = String::new();
+        let mut skip = false;
+        for line in docker_compose_content.lines() {
+            if line.starts_with("  frontend:") {
+                skip = true;
+                continue;
+            }
+            if skip {
+                if line.starts_with("  ") && !line.starts_with("    ") {
+                    skip = false;
+                } else {
+                    continue;
+                }
+            }
+            if !skip {
+                filtered.push_str(line);
+                filtered.push('\n');
+            }
+        }
+        docker_compose_content = filtered;
+    }
     if with_db {
         docker_compose_content.push_str("\n  diesel:\n    image: rust:latest\n    command: ['cargo', 'install', 'diesel_cli']\n");
     }
@@ -781,6 +828,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
     // Create README.md
     let mut readme = fs::File::create(project_dir.join("README.md"))?;
+    let frontend_section = if api_only {
+        String::new()
+    } else {
+        "- `frontend/`: React frontend with TypeScript\n".to_string()
+    };
     let readme_content = format!(
         r#"# {}
 
@@ -820,13 +872,13 @@ psql $DATABASE_URL -f backend/seeds/usuarios.sql
 ## Project Structure
 
 - `backend/`: Rust backend using Axum
-- `frontend/`: React frontend with TypeScript
-- `shared-models/`: Shared models between backend and frontend
+{frontend_section}- `shared-models/`: Shared models between backend and frontend
 - `templates/`: Templates for code generation
 - `gen/`: YAML architecture files
 - `data/`: Persistent data for Docker services
 "#,
-        name
+        name,
+        frontend_section = frontend_section
     );
     readme.write_all(readme_content.as_bytes())?;
     println!("📄 Created README.md");

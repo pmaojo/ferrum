@@ -30,11 +30,15 @@ ferrum init my-project --with-db
 
 # With AI/LLM integration
 ferrum init my-project --with-ai
+
+# API-only backend (skip frontend)
+ferrum init my-project --api-only
 ```
 
 Running `ferrum init` now creates a minimal Axum server and Vite
 React frontend so you can `cd` into the new directory and start the
-dev environment immediately.
+dev environment immediately. Use `--api-only` if you only need the
+backend.
 
 #### 2. Start the development environment
 
@@ -128,7 +132,7 @@ Ferrum comes with a pre-configured Docker environment that includes:
 | Service | Purpose |
 |---------|----------|
 | **backend** | Rust (Axum) server with hot reload |
-| **frontend** | Vite + React frontend with shared types |
+| **frontend** | Vite + React frontend with shared types (omit with `--api-only`) |
 | **db** | PostgreSQL database |
 | **graphdb** (optional) | Neo4j for graph modeling |
 | **llm** (optional) | Ollama for local AI inference |

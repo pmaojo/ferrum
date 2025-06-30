@@ -39,6 +39,7 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            api_only,
         } => init(
             name,
             with_graph,
@@ -47,6 +48,7 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            api_only,
         ),
         Commands::Sync {
             file,

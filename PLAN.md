@@ -207,3 +207,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-06-30
 - Implemented GraphRAG validator using Neo4j context and integrated with design_usecase. Added /validate/usecase endpoint.
 
+### Session 2025-06-30
+- Added `--api-only` flag to `ferrum init` for backend-only projects; dev and docker-compose skip frontend when used.
