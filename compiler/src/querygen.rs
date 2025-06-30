@@ -106,6 +106,8 @@ pub fn compile_dsl(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     crate::policygen::compile_policies(dsl, paths)?;
     // Resources
     crate::resourcegen::compile_resources(dsl, paths)?;
+    // Components
+    crate::componentgen::compile_components(dsl, paths)?;
     Ok(())
 }
 
