@@ -1,0 +1,30 @@
+use oauth2::{
+    basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl,
+};
+use std::env;
+
+/// OAuth client configured for Google login
+pub fn google_client() -> BasicClient {
+    BasicClient::new(
+        ClientId::new(env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID")),
+        Some(ClientSecret::new(env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET"))),
+        AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string()).unwrap(),
+        Some(TokenUrl::new("https://oauth2.googleapis.com/token".to_string()).unwrap()),
+    )
+    .set_redirect_uri(
+        RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap(),
+    )
+}
+
+/// OAuth client configured for GitHub login
+pub fn github_client() -> BasicClient {
+    BasicClient::new(
+        ClientId::new(env::var("GITHUB_CLIENT_ID").expect("GITHUB_CLIENT_ID")),
+        Some(ClientSecret::new(env::var("GITHUB_CLIENT_SECRET").expect("GITHUB_CLIENT_SECRET"))),
+        AuthUrl::new("https://github.com/login/oauth/authorize".to_string()).unwrap(),
+        Some(TokenUrl::new("https://github.com/login/oauth/access_token".to_string()).unwrap()),
+    )
+    .set_redirect_uri(
+        RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap(),
+    )
+}

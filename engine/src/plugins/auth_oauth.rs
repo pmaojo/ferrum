@@ -47,6 +47,10 @@ fn ensure_templates() -> Result<()> {
         "backend/handlers/oauth.rs",
     )?;
     copy_if_missing(
+        include_str!("../../../templates/batteries/auth-oauth/backend/oauth_clients.rs.tera"),
+        "backend/oauth_clients.rs",
+    )?;
+    copy_if_missing(
         include_str!("../../../templates/batteries/auth-oauth/backend/handlers/policies.rs.tera"),
         "backend/handlers/policies.rs",
     )?;

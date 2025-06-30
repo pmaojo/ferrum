@@ -1,32 +1,23 @@
-use axum::{response::Redirect, extract::Query};
+use axum::{
+    extract::{Extension, Query},
+    http::{header, HeaderMap, StatusCode},
+    response::{IntoResponse, Redirect, Response},
+};
 use oauth2::{
-    basic::BasicClient, reqwest::async_http_client, AuthorizationCode, AuthUrl,
-    ClientId, ClientSecret, CsrfToken, RedirectUrl, Scope, TokenResponse, TokenUrl,
+    reqwest::async_http_client, AuthorizationCode, CsrfToken, Scope, TokenResponse,
 };
 use serde::Deserialize;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use std::env;
+use diesel::prelude::*;
+use uuid::Uuid;
+use chrono::Utc;
 
-fn google_client() -> BasicClient {
-    BasicClient::new(
-        ClientId::new(env::var("GOOGLE_CLIENT_ID").unwrap()),
-        Some(ClientSecret::new(env::var("GOOGLE_CLIENT_SECRET").unwrap())),
-        AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string()).unwrap(),
-        Some(TokenUrl::new("https://oauth2.googleapis.com/token".to_string()).unwrap()),
-    )
-    .set_redirect_uri(RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap())
-}
-
-fn github_client() -> BasicClient {
-    BasicClient::new(
-        ClientId::new(env::var("GITHUB_CLIENT_ID").unwrap()),
-        Some(ClientSecret::new(env::var("GITHUB_CLIENT_SECRET").unwrap())),
-        AuthUrl::new("https://github.com/login/oauth/authorize".to_string()).unwrap(),
-        Some(TokenUrl::new("https://github.com/login/oauth/access_token".to_string()).unwrap()),
-    )
-    .set_redirect_uri(RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap())
-}
+use crate::db::{DbPool};
+use crate::db::models::Usuario;
+use crate::db::schema::usuarios::dsl::*;
+use crate::oauth_clients::{google_client, github_client};
 
 #[derive(Serialize)]
 struct Claims {
@@ -59,25 +50,65 @@ pub async fn github_login() -> Redirect {
 }
 
 /// Callback endpoint that should exchange the code for a token and issue a JWT.
-pub async fn oauth_callback(Query(q): Query<OAuthQuery>) -> String {
-    let client = if q.state.as_deref() == Some("github") {
-        github_client()
+pub async fn oauth_callback(
+    Extension(pool): Extension<DbPool>,
+    Query(q): Query<OAuthQuery>,
+) -> Response {
+    let (client, userinfo_url) = if q.state.as_deref() == Some("github") {
+        (github_client(), "https://api.github.com/user")
     } else {
-        google_client()
+        (google_client(), "https://www.googleapis.com/oauth2/v3/userinfo")
     };
-    let _token = client
+
+    let token = client
         .exchange_code(AuthorizationCode::new(q.code))
         .request_async(async_http_client)
         .await
-        .ok();
+        .unwrap();
 
-    // In a real app we'd fetch the user info using the access token.
+    let user: serde_json::Value = reqwest::Client::new()
+        .get(userinfo_url)
+        .bearer_auth(token.access_token().secret())
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    let email_val = user.get("email").and_then(|v| v.as_str()).unwrap_or("oauth-user");
+
+    let mut conn = pool.get().unwrap();
+    let existing = usuarios
+        .filter(email.eq(email_val))
+        .first::<Usuario>(&mut conn)
+        .optional()
+        .unwrap();
+    if existing.is_none() {
+        let new_user = Usuario {
+            id: uuid::Uuid::new_v4(),
+            email: email_val.to_string(),
+            password: "".to_string(),
+            created_at: chrono::Utc::now().naive_utc(),
+        };
+        diesel::insert_into(usuarios)
+            .values(&new_user)
+            .execute(&mut conn)
+            .unwrap();
+    }
+
     let claims = Claims {
-        sub: "oauth-user".into(),
+        sub: email_val.to_string(),
         roles: vec!["user".into()],
         exp: chrono::Utc::now().timestamp() as usize + 3600,
     };
     let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
     let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
-    jwt
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        header::SET_COOKIE,
+        format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap(),
+    );
+    (StatusCode::FOUND, headers, Redirect::temporary("/")).into_response()
 }
