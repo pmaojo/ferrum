@@ -27,6 +27,8 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
             NodeType::Form => "Form",
             NodeType::Validation => "Validation",
             NodeType::Upload => "Upload",
+            NodeType::Policy => "Policy",
+            NodeType::Resource => "Resource",
         };
 
         // Merge node with basic properties
@@ -73,9 +75,11 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
                     let usecase = parts[parts.len() - 2];
                     graph
                         .run(
-                            query("MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:VALIDATES]->(b)")
-                                .param("from", node.id.clone())
-                                .param("to", usecase.to_string()),
+                            query(
+                                "MATCH (a {id: $from}), (b {id: $to})\nMERGE (a)-[:VALIDATES]->(b)",
+                            )
+                            .param("from", node.id.clone())
+                            .param("to", usecase.to_string()),
                         )
                         .await?;
                 }

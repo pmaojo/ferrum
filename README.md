@@ -121,6 +121,14 @@ validations:
   - name: emailIsValid
     appliesTo: users.registerUser.email
     rule: "email must match regex /@/"
+
+resources:
+  - name: cache
+    type: redis
+
+policies:
+  - name: isAdmin
+    guard: check_admin
 ```
 
 ### 🧠 Node Field Reference
@@ -128,7 +136,7 @@ validations:
 | Field        | Type                                      | Required | Description                  |
 | ------------ | ----------------------------------------- | -------- | ---------------------------- |
 | `id`         | `string`                                  | ✅        | Unique node identifier       |
-| `type`       | `usecase` / `adapter` / `port` / `entity` / `form` / `validation` | ✅        | Architectural role           |
+| `type`       | `usecase` / `adapter` / `port` / `entity` / `form` / `validation` / `upload` / `policy` / `resource` | ✅        | Architectural role           |
 | `input`      | List of fields (`name`, `type`)           | ❌        | Input parameters             |
 | `output`     | `string`                                  | ❌        | Output type name             |
 | `depends_on` | `string[]`                                | ❌        | IDs of required dependencies |
@@ -146,6 +154,8 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `auth` → scaffolds basic login form and hook
 - `jobs` → creates scheduled tasks in `backend/jobs/`
 - `uploads` → file upload endpoint and React hook
+- `resources` → integrate external services like APIs or queues
+- `policies` → authorization guards reusable across routes
 - standalone `entities`
 - `forms` → declarative form specification
 - `validations` → shared validation rules

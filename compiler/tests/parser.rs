@@ -97,3 +97,24 @@ entities:
     assert_eq!(project.entities.len(), 1);
     assert!(project.app.auth.is_some());
 }
+
+#[test]
+fn parse_policies_and_resources() {
+    let yaml = r#"app:
+  name: demo
+policies:
+  - name: isAdmin
+    guard: check_admin
+resources:
+  - name: queue
+    type: rabbitmq
+    config:
+      url: amqp://localhost
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("extra.yaml");
+    fs::write(&file, yaml).unwrap();
+    let project = parse_dsl_yaml(&file).unwrap();
+    assert_eq!(project.policies.len(), 1);
+    assert_eq!(project.resources.len(), 1);
+}
