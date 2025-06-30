@@ -1,10 +1,9 @@
 use anyhow::Result;
-use std::fs;
-use std::path::Path;
 
 use ferrum_shared_models::FerrumDsl;
 
 use super::Plugin;
+use super::utils::{copy_if_missing, ensure_env_var}; // Updated import
 
 /// Plugin that scaffolds OAuth authentication with Google and GitHub.
 pub struct AuthOAuthPlugin;
@@ -33,11 +32,12 @@ impl Plugin for AuthOAuthPlugin {
 }
 
 fn ensure_env() -> Result<()> {
-    let path = Path::new(".env");
-    if !path.exists() {
-        let content = "JWT_SECRET=change_me\nREDIS_URL=redis://localhost:6379\nGOOGLE_CLIENT_ID=\nGOOGLE_CLIENT_SECRET=\nGITHUB_CLIENT_ID=\nGITHUB_CLIENT_SECRET=\n";
-        fs::write(path, content)?;
-    }
+    ensure_env_var("JWT_SECRET", "change_me")?;
+    ensure_env_var("REDIS_URL", "redis://localhost:6379")?;
+    ensure_env_var("GOOGLE_CLIENT_ID", "")?;
+    ensure_env_var("GOOGLE_CLIENT_SECRET", "")?;
+    ensure_env_var("GITHUB_CLIENT_ID", "")?;
+    ensure_env_var("GITHUB_CLIENT_SECRET", "")?;
     Ok(())
 }
 
@@ -80,17 +80,5 @@ fn ensure_templates() -> Result<()> {
         ),
         "frontend/src/components/OAuthButton.tsx",
     )?;
-    Ok(())
-}
-
-fn copy_if_missing<P: AsRef<Path>>(contents: &str, dest: P) -> Result<()> {
-    let dest = dest.as_ref();
-    if dest.exists() {
-        return Ok(());
-    }
-    if let Some(parent) = dest.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    fs::write(dest, contents)?;
     Ok(())
 }

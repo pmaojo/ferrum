@@ -2,6 +2,7 @@ use anyhow::Result;
 pub mod auth;
 pub mod auth_oauth;
 pub mod auth_password;
+pub mod utils; // Added this line
 pub mod cms_sanity;
 pub mod cron;
 pub mod dynamic;
