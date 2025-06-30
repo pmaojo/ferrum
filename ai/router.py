@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from .types import PromptRequest, YamlRequest
+from fastapi.concurrency import run_in_threadpool
+from .types import PromptRequest, YamlRequest, ChatRequest, ChatResponse
 from agents.generator import generate_yaml
 from agents.explainer import explain_yaml
 from agents.validator import validate_yaml

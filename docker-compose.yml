@@ -1,17 +1,6 @@
 # Docker Compose configuration for Ferrus project
 
 services:
-  studio:
-    build: ./studio
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./studio:/app
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgres://ferrum:password@db/ferrum
-
   engine:
     build: ./engine
     ports:
@@ -19,6 +8,23 @@ services:
     volumes:
       - ./engine:/app
       - ./shared-models:/shared-models
+    depends_on:
+      - db
+
+  studio:
+    build: ./studio
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./studio:/app
+    depends_on:
+      - engine
+      - db
+      - ferrum-ai
+    environment:
+      - DATABASE_URL=postgres://ferrum:password@db/ferrum
+      - VITE_AI_URL=http://ferrum-ai:8000
+      - VITE_ENGINE_URL=http://engine:3000
 
   db:
     image: postgres:15
@@ -42,7 +48,6 @@ services:
     volumes:
       - ./data/neo4j:/data
 
-  # Optional: AI backend
   llm:
     image: ollama/ollama
     ports:
@@ -54,6 +59,11 @@ services:
     build: ./ai
     ports:
       - "8001:8000"
+
+    depends_on:
+      - llm
+    environment:
+      - VITE_AI_URL=http://ferrum-ai:8000
     volumes:
       - ./ai:/app
     environment:

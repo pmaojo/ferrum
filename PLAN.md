@@ -152,5 +152,12 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ---
 
+## Registro de sesiones
+
+- 2025-06-30: Revisión de los últimos commits y corrección de configuraciones
+  en `docker-compose.yml` y `ai/router.py`.
+
+---
+
 **"La arquitectura no debe escribirse... debe declararse, compilarse y entenderse."**  
 — *Ferrus Manifesto, 2025*
