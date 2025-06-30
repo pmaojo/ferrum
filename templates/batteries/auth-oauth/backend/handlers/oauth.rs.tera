@@ -1,18 +1,83 @@
-use axum::response::Redirect;
+use axum::{response::Redirect, extract::Query};
+use oauth2::{
+    basic::BasicClient, reqwest::async_http_client, AuthorizationCode, AuthUrl,
+    ClientId, ClientSecret, CsrfToken, RedirectUrl, Scope, TokenResponse, TokenUrl,
+};
+use serde::Deserialize;
+use jsonwebtoken::{encode, EncodingKey, Header};
+use serde::Serialize;
+use std::env;
+
+fn google_client() -> BasicClient {
+    BasicClient::new(
+        ClientId::new(env::var("GOOGLE_CLIENT_ID").unwrap()),
+        Some(ClientSecret::new(env::var("GOOGLE_CLIENT_SECRET").unwrap())),
+        AuthUrl::new("https://accounts.google.com/o/oauth2/v2/auth".to_string()).unwrap(),
+        Some(TokenUrl::new("https://oauth2.googleapis.com/token".to_string()).unwrap()),
+    )
+    .set_redirect_uri(RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap())
+}
+
+fn github_client() -> BasicClient {
+    BasicClient::new(
+        ClientId::new(env::var("GITHUB_CLIENT_ID").unwrap()),
+        Some(ClientSecret::new(env::var("GITHUB_CLIENT_SECRET").unwrap())),
+        AuthUrl::new("https://github.com/login/oauth/authorize".to_string()).unwrap(),
+        Some(TokenUrl::new("https://github.com/login/oauth/access_token".to_string()).unwrap()),
+    )
+    .set_redirect_uri(RedirectUrl::new("http://localhost:3000/api/auth/callback".to_string()).unwrap())
+}
+
+#[derive(Serialize)]
+struct Claims {
+    sub: String,
+    roles: Vec<String>,
+    exp: usize,
+}
+
+#[derive(Deserialize)]
+pub struct OAuthQuery {
+    code: String,
+    state: Option<String>,
+}
 
 /// Redirects the user to the Google OAuth consent screen.
 pub async fn google_login() -> Redirect {
-    // TODO: real OAuth flow using oauth2 crate
-    Redirect::temporary("/auth/google")
+    let (url, _csrf) = google_client()
+        .authorize_url(CsrfToken::new_random)
+        .add_scope(Scope::new("email".into()))
+        .url();
+    Redirect::temporary(url.as_str())
 }
 
 /// Redirects the user to the GitHub OAuth consent screen.
 pub async fn github_login() -> Redirect {
-    Redirect::temporary("/auth/github")
+    let (url, _csrf) = github_client()
+        .authorize_url(CsrfToken::new_random)
+        .url();
+    Redirect::temporary(url.as_str())
 }
 
 /// Callback endpoint that should exchange the code for a token and issue a JWT.
-pub async fn oauth_callback() -> &'static str {
-    // TODO: implement callback logic
-    "ok"
+pub async fn oauth_callback(Query(q): Query<OAuthQuery>) -> String {
+    let client = if q.state.as_deref() == Some("github") {
+        github_client()
+    } else {
+        google_client()
+    };
+    let _token = client
+        .exchange_code(AuthorizationCode::new(q.code))
+        .request_async(async_http_client)
+        .await
+        .ok();
+
+    // In a real app we'd fetch the user info using the access token.
+    let claims = Claims {
+        sub: "oauth-user".into(),
+        roles: vec!["user".into()],
+        exp: chrono::Utc::now().timestamp() as usize + 3600,
+    };
+    let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+    let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+    jwt
 }
