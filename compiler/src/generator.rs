@@ -54,6 +54,8 @@ impl Generator {
             NodeType::Component => self.generate_component(module, node),
             NodeType::Hook => self.generate_hook(module, node),
             NodeType::Schema => self.generate_schema(module, node),
+            NodeType::Form => self.generate_form(module, node),
+            NodeType::Validation => self.generate_validation(module, node),
         }
     }
 
@@ -344,6 +346,16 @@ impl Generator {
             .join("frontend/src/schemas")
             .join(format!("{}.ts", node.id.to_lowercase()));
         self.write_file(&schema_path, &schema_content)
+    }
+
+    fn generate_form(&self, _module: &Module, _node: &Node) -> Result<()> {
+        // Forms currently do not produce code directly
+        Ok(())
+    }
+
+    fn generate_validation(&self, _module: &Module, _node: &Node) -> Result<()> {
+        // Validations currently do not produce code directly
+        Ok(())
     }
 
     fn generate_batteries(&self, module: &Module) -> Result<()> {
