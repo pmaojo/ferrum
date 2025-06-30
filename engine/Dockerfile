@@ -18,6 +18,8 @@ RUN mkdir -p /shared-models
 # Build the application
 # Note: We'll mount the shared-models directory at runtime via Docker Compose volume
 
-EXPOSE 3000
+# Command that will keep the container running instead of trying to run cargo
+# since we're using this as a development environment
+CMD ["tail", "-f", "/dev/null"]
 
-CMD ["cargo", "run", "--release"]
+EXPOSE 3000
