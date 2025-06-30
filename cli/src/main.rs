@@ -1,8 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
-    add_plugin, compile, explain, list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync,
-    Cli, Commands,
+    add_plugin, compile, component_prompt, explain, list_plugins, migrate, plugin_docs, prompt,
+    remove_plugin, sync, Cli, Commands,
 };
 use tracing::Level;
 
@@ -22,6 +22,7 @@ fn main() -> Result<()> {
             templates,
         } => compile(file, output, templates),
         Commands::Prompt { text, output } => prompt(text, output),
+        Commands::Component { text, output } => component_prompt(text, output),
         Commands::Dev {
             docker,
             with_graph,

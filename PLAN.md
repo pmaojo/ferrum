@@ -192,3 +192,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-06-30
 - Implemented SharedComponent generator producing TSX files and index exports.
+
+### Session 2025-06-30
+- Added ComponentDesignerAgent for generating component YAML via AI.
+- New CLI command `ferrum component` and API endpoint `/generate-component`.

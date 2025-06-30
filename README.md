@@ -77,6 +77,15 @@ service. When using the **Studio** UI, set the environment variable
 `VITE_AI_URL` to the base URL (default `http://localhost:8001`). A
 dropdown allows choosing the backend at runtime.
 
+#### 5. Design a shared component from a prompt
+
+```bash
+ferrum component "Card with image, title and footer slot"
+```
+
+This command generates a YAML snippet under `gen/component.yaml` describing the
+component props and slots. You can include it in your main `grafo.yaml`.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to
