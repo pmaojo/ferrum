@@ -145,6 +145,7 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `routes` / `pages` → produces a `frontend/routes.tsx` file
 - `auth` → scaffolds basic login form and hook
 - `jobs` → creates scheduled tasks in `backend/jobs/`
+- `uploads` → file upload endpoint and React hook
 - standalone `entities`
 - `forms` → declarative form specification
 - `validations` → shared validation rules

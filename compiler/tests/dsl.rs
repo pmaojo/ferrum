@@ -79,3 +79,23 @@ validations:
         .iter()
         .any(|n| matches!(n.node_type, ferrum_compiler::NodeType::Validation)));
 }
+
+#[test]
+fn uploads_nodes_present() {
+    let yaml = r#"app:
+  name: demo
+uploads:
+  - name: profilePic
+    path: /uploads/users
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let project = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&project);
+    assert!(modules.iter().any(|m| m.name == "uploads"));
+    let all_nodes: Vec<_> = modules.iter().flat_map(|m| &m.nodes).collect();
+    assert!(all_nodes
+        .iter()
+        .any(|n| matches!(n.node_type, ferrum_compiler::NodeType::Upload)));
+}

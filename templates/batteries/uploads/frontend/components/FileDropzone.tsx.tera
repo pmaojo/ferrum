@@ -1,0 +1,4 @@
+// Simple file dropzone component
+export function FileDropzone() {
+    return <div>{/* TODO: implement dropzone */}</div>;
+}

@@ -63,6 +63,7 @@ impl Generator {
             NodeType::Schema => self.generate_schema(module, node),
             NodeType::Form => self.generate_form(module, node),
             NodeType::Validation => self.generate_validation(module, node),
+            NodeType::Upload => self.generate_upload(module, node),
         }
     }
 
@@ -429,6 +430,52 @@ impl Generator {
         self.write_file(&frontend_path, &frontend_content)
     }
 
+    fn generate_upload(&self, module: &Module, node: &Node) -> Result<()> {
+        let mut context = TeraContext::new();
+        context.insert("module", module);
+        context.insert("node", node);
+
+        let handler_content = self
+            .templates
+            .render("batteries/uploads/backend/handlers/upload.rs.tera", &context)
+            .context("Failed to render upload handler template")?;
+        let handler_path = self
+            .output_dir
+            .join("backend/handlers")
+            .join("upload.rs");
+        self.write_file(&handler_path, &handler_content)?;
+
+        let route_content = self
+            .templates
+            .render("batteries/uploads/backend/routes/uploads.rs.tera", &context)
+            .context("Failed to render upload routes template")?;
+        let route_path = self
+            .output_dir
+            .join("backend/routes")
+            .join("uploads.rs");
+        self.write_file(&route_path, &route_content)?;
+
+        let component_content = self
+            .templates
+            .render("batteries/uploads/frontend/components/FileDropzone.tsx.tera", &context)
+            .context("Failed to render FileDropzone template")?;
+        let component_path = self
+            .output_dir
+            .join("frontend/src/components")
+            .join("FileDropzone.tsx");
+        self.write_file(&component_path, &component_content)?;
+
+        let hook_content = self
+            .templates
+            .render("batteries/uploads/frontend/hooks/useUploadFile.ts.tera", &context)
+            .context("Failed to render useUploadFile template")?;
+        let hook_path = self
+            .output_dir
+            .join("frontend/src/hooks")
+            .join("useUploadFile.ts");
+        self.write_file(&hook_path, &hook_content)
+    }
+
     fn generate_batteries(&self, module: &Module) -> Result<()> {
         let mut context = TeraContext::new();
         context.insert("module", module);
@@ -488,7 +535,7 @@ impl Generator {
 
         let dir = match node.node_type {
             NodeType::Entity => "docs/db",
-            NodeType::UseCase => "docs/api",
+            NodeType::UseCase | NodeType::Upload => "docs/api",
             _ => "docs/modules",
         };
 

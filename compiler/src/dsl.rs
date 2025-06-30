@@ -101,6 +101,31 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
         });
     }
 
+    // Uploads
+    if !project.uploads.is_empty() {
+        let upload_nodes: Vec<Node> = project
+            .uploads
+            .iter()
+            .map(|u| Node {
+                id: u.name.clone(),
+                node_type: NodeType::Upload,
+                description: Some(u.path.clone()),
+                story: None,
+                input: Vec::new(),
+                output: None,
+                depends_on: Vec::new(),
+                implements: None,
+                view: None,
+                schema: None,
+                api_name: None,
+            })
+            .collect();
+        modules.push(Module {
+            name: "uploads".to_string(),
+            nodes: upload_nodes,
+        });
+    }
+
     expand_features(project, &mut modules);
     modules
 }

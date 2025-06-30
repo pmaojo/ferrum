@@ -8,6 +8,7 @@ export function ProjectInit() {
   const [withDb, setWithDb] = useState(false);
   const [withAuth, setWithAuth] = useState(false);
   const [withJobs, setWithJobs] = useState(false);
+  const [withUploads, setWithUploads] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const initProject = async () => {
@@ -24,6 +25,7 @@ export function ProjectInit() {
           with_db: withDb,
           with_auth: withAuth,
           with_jobs: withJobs,
+          with_uploads: withUploads,
         }),
       });
       if (res.ok) {
@@ -84,6 +86,15 @@ export function ProjectInit() {
           className="mr-2"
         />
         With background jobs
+      </label>
+      <label className="block">
+        <input
+          type="checkbox"
+          checked={withUploads}
+          onChange={(e) => setWithUploads(e.target.checked)}
+          className="mr-2"
+        />
+        With file uploads
       </label>
       <label className="block">
         <input
