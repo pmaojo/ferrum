@@ -10,9 +10,16 @@ pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
     let func_name = job.name.to_snake_case();
     let backend_dir = paths.backend.join("jobs");
     fs::create_dir_all(&backend_dir)?;
+    let policy_check = job
+        .policy
+        .as_ref()
+        .map(|p| format!("    if !crate::policies::{}() {{\n        // TODO: unauthorized handling\n        return;\n    }}\n", p.to_snake_case()))
+        .unwrap_or_default();
     let content = format!(
-        "// Scheduled: {}\n\npub async fn {}() {{\n    // TODO implement\n}}\n",
-        job.schedule, func_name
+        "// Scheduled: {}\n\npub async fn {}() {{\n{policy_check}    // TODO implement\n}}\n",
+        job.schedule,
+        func_name,
+        policy_check = policy_check
     );
     fs::write(backend_dir.join(format!("{}.rs", func_name)), content)?;
     Ok(())

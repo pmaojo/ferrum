@@ -30,6 +30,7 @@ routes:
     path: /
     to: HomePage
     authRequired: false
+    policy: isAdmin
 pages:
   - name: HomePage
     component: HomePage.tsx
@@ -38,6 +39,10 @@ mutations:
     handler: ./backend/mutations/create_user.rs
     entities: [User]
     authRequired: true
+    policy: isAdmin
+policies:
+  - name: isAdmin
+    guard: check_admin
 "#;
     let dir = tempfile::tempdir().unwrap();
     let file = dir.path().join("dsl.yaml");
@@ -70,5 +75,9 @@ resources:
     let paths = ProjectPaths::new(out.path());
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/policies/isadmin.rs").exists());
-    assert!(out.path().join("backend/resources/store.rs").exists());
+    assert!(out.path().join("frontend/hooks/useIsAdmin.ts").exists());
+    let res_file = out.path().join("backend/resources/store.rs");
+    assert!(res_file.exists());
+    let content = fs::read_to_string(res_file).unwrap();
+    assert!(content.contains("aws_sdk_s3") || content.contains("redis"));
 }

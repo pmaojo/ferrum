@@ -18,19 +18,29 @@ pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result
 
     let mut imports = String::new();
     for ent in &mutation.entities {
-        imports.push_str(&format!("use crate::domain::{}::{};\n", ent.to_snake_case(), ent));
+        imports.push_str(&format!(
+            "use crate::domain::{}::{};\n",
+            ent.to_snake_case(),
+            ent
+        ));
     }
     let ret_ty = mutation
         .entities
         .first()
         .cloned()
         .unwrap_or_else(|| "serde_json::Value".into());
+    let policy_check = mutation
+        .policy
+        .as_ref()
+        .map(|p| format!("    if !crate::policies::{}() {{\n        // TODO: unauthorized handling\n    }}\n", p.to_snake_case()))
+        .unwrap_or_default();
 
     let rust_content = format!(
-        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>, Json(_input): Json<{ret_ty}>) -> Json<{ret_ty}> {{\n    // TODO: implementar lógica real\n    Json(_input)\n}}\n",
+        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>, Json(_input): Json<{ret_ty}>) -> Json<{ret_ty}> {{\n{policy_check}    // TODO: implementar lógica real\n    Json(_input)\n}}\n",
         imports = imports,
         func_name = func_name,
         ret_ty = ret_ty,
+        policy_check = policy_check,
     );
     fs::write(backend_dir.join(format!("{}.rs", func_name)), rust_content)?;
 
@@ -84,6 +94,7 @@ mod tests {
             handler: "./backend/mutations/create_user.rs".into(),
             entities: vec!["User".into()],
             auth_required: true,
+            policy: None,
         };
         generate_mutation(&mutation, &paths).unwrap();
         assert!(dir.path().join("backend/mutations/create_user.rs").exists());

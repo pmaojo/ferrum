@@ -1,5 +1,7 @@
 import React from 'react';
 import { use{{ node.description | capitalize }} } from '../hooks/use{{ node.description | capitalize }}';
+{% if node.doc %}import { use{{ node.doc | capitalize }} } from '../hooks/use{{ node.doc | capitalize }}';
+{% endif %}
 import { z } from 'zod';
 
 const schema = z.object({
@@ -10,7 +12,9 @@ type FormData = z.infer<typeof schema>;
 
 export const {{ node.id | capitalize }}: React.FC = () => {
   const { mutate } = use{{ node.description | capitalize }}();
-  const [values, setValues] = React.useState<FormData>({
+{% if node.doc %}  const allowed = use{{ node.doc | capitalize }}();
+  if (!allowed) return null;
+{% endif %}  const [values, setValues] = React.useState<FormData>({
 {% for field in node.input %}    {{ field.name }}: '',
 {% endfor %}  });
 
