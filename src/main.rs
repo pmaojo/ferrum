@@ -1,7 +1,8 @@
 use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
-    add_plugin, compile, dev, init, list_plugins, migrate, prompt, sync, Cli, Commands,
+    add_plugin, compile, dev, init, list_plugins, migrate, prompt, remove_plugin, sync, Cli,
+    Commands,
 };
 
 fn main() -> Result<()> {
@@ -50,6 +51,7 @@ fn main() -> Result<()> {
         Commands::Migrate {} => migrate(),
         Commands::Doctor {} => ferrum_cli::commands::doctor(),
         Commands::Add { plugin } => add_plugin(plugin),
+        Commands::Remove { plugin } => remove_plugin(plugin),
         Commands::List {} => list_plugins(),
     }
 }

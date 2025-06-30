@@ -1,7 +1,10 @@
 use anyhow::Result;
 pub mod auth;
 pub mod auth_oauth;
+pub mod cms_sanity;
+pub mod cron;
 pub mod graphql;
+pub mod stripe;
 
 /// Trait implemented by all Ferrum plugins.
 ///
@@ -71,4 +74,7 @@ impl PluginManager {
 }
 pub use auth::AuthPlugin;
 pub use auth_oauth::AuthOAuthPlugin;
+pub use cms_sanity::CmsSanityPlugin;
+pub use cron::CronPlugin;
 pub use graphql::GraphQLPlugin;
+pub use stripe::StripePlugin;
