@@ -300,6 +300,125 @@ pub fn init(
         println!("📁 Created directory: {}/{}", name, dir);
     }
 
+    // Basic backend skeleton
+    fs::write(
+        project_dir.join("backend/src/main.rs"),
+        r#"use axum::{routing::get, Router};
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() {
+    let app = Router::new().route("/", get(|| async { "Hello Ferrum" }));
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    println!("🚀 backend running on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+"#,
+    )?;
+    fs::write(
+        project_dir.join("backend/Cargo.toml"),
+        r#"[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+"#,
+    )?;
+
+    // Basic frontend skeleton using Vite + React
+    fs::write(
+        project_dir.join("frontend/package.json"),
+        r#"{
+  "name": "frontend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
+"#,
+    )?;
+    fs::write(
+        project_dir.join("frontend/tsconfig.json"),
+        r#"{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"]
+}
+"#,
+    )?;
+    fs::write(
+        project_dir.join("frontend/vite.config.ts"),
+        r#"import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+});
+"#,
+    )?;
+    fs::write(
+        project_dir.join("frontend/index.html"),
+        r#"<!doctype html>
+<html lang=\"en\">
+  <head>
+    <meta charset=\"UTF-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+    <title>Ferrum App</title>
+  </head>
+  <body>
+    <div id=\"root\"></div>
+    <script type=\"module\" src=\"/src/main.tsx\"></script>
+  </body>
+</html>
+"#,
+    )?;
+    fs::write(project_dir.join("frontend/src/index.css"), "")?;
+    fs::write(
+        project_dir.join("frontend/src/App.tsx"),
+        "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n",
+    )?;
+    fs::write(
+        project_dir.join("frontend/src/main.tsx"),
+        r#"import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+"#,
+    )?;
+
     // Create additional directories based on flags
     if with_graph {
         fs::create_dir_all(project_dir.join("data/neo4j"))?;
