@@ -15,6 +15,8 @@ pub enum NodeType {
     Form,
     Validation,
     Upload,
+    Policy,
+    Resource,
 }
 
 #[typeshare]
@@ -183,6 +185,23 @@ pub struct DslUpload {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslPolicy {
+    pub name: String,
+    pub guard: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslResource {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub resource_type: String,
+    #[serde(default)]
+    pub config: BTreeMap<String, String>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslForm {
     #[serde(default)]
     pub fields: Vec<String>,
@@ -193,7 +212,10 @@ pub struct DslForm {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DslStep {
-    Ref { #[serde(rename = "ref")] reference: String },
+    Ref {
+        #[serde(rename = "ref")]
+        reference: String,
+    },
     Name(String),
 }
 
@@ -265,4 +287,8 @@ pub struct FerrumDsl {
     pub validations: Vec<DslValidation>,
     #[serde(default)]
     pub uploads: Vec<DslUpload>,
+    #[serde(default)]
+    pub policies: Vec<DslPolicy>,
+    #[serde(default)]
+    pub resources: Vec<DslResource>,
 }

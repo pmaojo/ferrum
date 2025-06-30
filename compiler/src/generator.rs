@@ -64,6 +64,7 @@ impl Generator {
             NodeType::Form => self.generate_form(module, node),
             NodeType::Validation => self.generate_validation(module, node),
             NodeType::Upload => self.generate_upload(module, node),
+            NodeType::Policy | NodeType::Resource => Ok(()),
         }
     }
 
@@ -403,7 +404,12 @@ impl Generator {
         } else {
             context.insert(
                 "rule",
-                &ParsedRule { kind: "Custom".into(), pattern: None, min: None, max: None },
+                &ParsedRule {
+                    kind: "Custom".into(),
+                    pattern: None,
+                    min: None,
+                    max: None,
+                },
             );
         }
         let fn_name = snake_case(&node.id);
@@ -437,27 +443,27 @@ impl Generator {
 
         let handler_content = self
             .templates
-            .render("batteries/uploads/backend/handlers/upload.rs.tera", &context)
+            .render(
+                "batteries/uploads/backend/handlers/upload.rs.tera",
+                &context,
+            )
             .context("Failed to render upload handler template")?;
-        let handler_path = self
-            .output_dir
-            .join("backend/handlers")
-            .join("upload.rs");
+        let handler_path = self.output_dir.join("backend/handlers").join("upload.rs");
         self.write_file(&handler_path, &handler_content)?;
 
         let route_content = self
             .templates
             .render("batteries/uploads/backend/routes/uploads.rs.tera", &context)
             .context("Failed to render upload routes template")?;
-        let route_path = self
-            .output_dir
-            .join("backend/routes")
-            .join("uploads.rs");
+        let route_path = self.output_dir.join("backend/routes").join("uploads.rs");
         self.write_file(&route_path, &route_content)?;
 
         let component_content = self
             .templates
-            .render("batteries/uploads/frontend/components/FileDropzone.tsx.tera", &context)
+            .render(
+                "batteries/uploads/frontend/components/FileDropzone.tsx.tera",
+                &context,
+            )
             .context("Failed to render FileDropzone template")?;
         let component_path = self
             .output_dir
@@ -467,7 +473,10 @@ impl Generator {
 
         let hook_content = self
             .templates
-            .render("batteries/uploads/frontend/hooks/useUploadFile.ts.tera", &context)
+            .render(
+                "batteries/uploads/frontend/hooks/useUploadFile.ts.tera",
+                &context,
+            )
             .context("Failed to render useUploadFile template")?;
         let hook_path = self
             .output_dir
@@ -680,7 +689,7 @@ fn parse_validation_rule(rule: &str) -> ParsedRule {
 
 #[cfg(test)]
 mod tests {
-    use super::{capitalize, snake_case, parse_validation_rule};
+    use super::{capitalize, parse_validation_rule, snake_case};
 
     #[test]
     fn test_capitalize() {

@@ -102,6 +102,10 @@ pub fn compile_dsl(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     crate::authgen::generate_auth(dsl, paths)?;
     // Jobs
     crate::jobgen::compile_jobs(dsl, paths)?;
+    // Policies
+    crate::policygen::compile_policies(dsl, paths)?;
+    // Resources
+    crate::resourcegen::compile_resources(dsl, paths)?;
     Ok(())
 }
 
