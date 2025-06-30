@@ -26,22 +26,22 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
 
 ### DSL
 
-- [ ] Añadir soporte para:
-  - [ ] `auth` `{ userEntity, methods }`
-  - [ ] `route` `{ path, screen, authRequired }`
-  - [ ] `job`, `mutation`, `query` declarativas
-  - [ ] `policy` o `guard` para autorización
-  - [ ] `resource` para definir integraciones externas (APIs, colas)
+- [x] Añadir soporte para:
+  - [x] `auth` `{ userEntity, methods }`
+  - [x] `route` `{ path, screen, authRequired }`
+  - [x] `job`, `mutation`, `query` declarativas
+  - [x] `policy` o `guard` para autorización
+  - [x] `resource` para definir integraciones externas (APIs, colas)
 
-- [ ] Validación del DSL con errores claros y sugerencias AI-powered
+- [x] Validación del DSL con errores claros y sugerencias AI-powered
 - [ ] Documentación del YAML enriquecido con ejemplos
 
 ### AI-first
 
-- [ ] `ferrum prompt` debe generar YAML completo desde instrucciones tipo:  
+- [x] `ferrum prompt` debe generar YAML completo desde instrucciones tipo:
   _"Quiero una app de tareas con login por Google y tareas compartidas entre usuarios"_
 - [ ] Sugerencias de nombres, validaciones, comentarios en los módulos
-- [ ] Incluir `llm-config.yaml` para usar OpenAI u Ollama
+- [x] Incluir `llm-config.yaml` para usar OpenAI u Ollama
 
 ---
 
@@ -54,16 +54,16 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [x] Plugins pueden extender DSL (YAML) y añadir comandos CLI
 
 - [x] Comando `ferrum add <plugin>`:
-  - [ ] `auth-password`
+  - [x] `auth-password`
   - [x] `auth-oauth`
-  - [ ] `graphql`
-  - [ ] `stripe`
+  - [x] `graphql`
+  - [x] `stripe`
   - [ ] `cms-notion`
-  - [ ] `jobs-cron`
-  - [ ] `realtime-sse`
+  - [x] `jobs-cron`
+  - [x] `realtime-sse`
 
-- [ ] Registry de plugins:
-  - [ ] Buscar y añadir desde GitHub o fuente remota (`ferrum add user/plugin-name`)
+- [x] Registry de plugins:
+  - [x] Buscar y añadir desde GitHub o fuente remota (`ferrum add user/plugin-name`)
 
 ---
 
@@ -74,7 +74,9 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
 - [ ] CLI avanzada:
   - [ ] `ferrum init` interactivo
   - [ ] `ferrum generate usecase CreatePost`
-  - [ ] `ferrum doctor`, `ferrum graph`, `ferrum explain`
+  - [x] `ferrum doctor`
+  - [ ] `ferrum graph`
+  - [x] `ferrum explain`
 
 - [ ] UI Studio (visual):
   - [ ] Crear entidades, rutas y relaciones en un editor visual
@@ -102,21 +104,21 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] Generar `i18n.ts` y uso con `FormattedMessage`
 
 - [ ] Validación:
-  - [ ] Validación declarativa con Zod generada desde Rust
-  - [ ] Hooks de validación en backend y frontend
+  - [x] Validación declarativa con Zod generada desde Rust
+  - [x] Hooks de validación en backend y frontend
 
 - [ ] File uploads:
-  - [ ] Endpoint Axum + multipart handler
-  - [ ] React dropzone component
+  - [x] Endpoint Axum + multipart handler
+  - [x] React dropzone component
 
 - [ ] Auth avanzada:
   - [x] OAuth con Google/GitHub via `ferrum add auth-oauth`
   - [ ] Refresh tokens y sesiones via JWT/Redis
-  - [ ] Roles y permisos en DSL
-    - [ ] Integración con `Role` extraído del JWT
-    - [ ] Hook `useCurrentUserRoles()` para evaluación real de policies
-    - [ ] Mostrar/ocultar NavItem o Button con `<PolicyGate policy="...">`
-    - [ ] Ruta `/api/policies/:name` que devuelva `bool` para tests de políticas
+  - [x] Roles y permisos en DSL
+    - [x] Integración con `Role` extraído del JWT
+    - [x] Hook `useCurrentUserRoles()` para evaluación real de policies
+    - [x] Mostrar/ocultar NavItem o Button con `<PolicyGate policy="...">`
+    - [x] Ruta `/api/policies/:name` que devuelva `bool` para tests de políticas
 
 - [ ] Documentación:
   - [ ] Storybook generado desde DSL (`*.stories.tsx`)
