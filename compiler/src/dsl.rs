@@ -1,22 +1,63 @@
 use crate::features::expand_features;
 use crate::{Field, Module, Node, NodeType};
 use ferrum_shared_models::{DslModule, FerrumDsl};
+use std::collections::BTreeMap;
 
 /// Convert a [`FerrumDsl`] project into a list of [`Module`] structures.
 ///
 /// This provides a bridge between the higher level YAML DSL and the existing
 /// code generation pipeline which operates on `Module` instances.
 pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
+    // Collect entity definitions for derive resolution
+    let mut entity_defs: BTreeMap<String, (Option<String>, BTreeMap<String, String>)> = BTreeMap::new();
+    for (name, module) in &project.modules {
+        if let Some(ent) = &module.entity {
+            entity_defs.insert(name.clone(), (ent.derive_from.clone(), ent.fields.clone()));
+        }
+    }
+    for ent in &project.entities {
+        entity_defs.insert(ent.name.clone(), (ent.derive_from.clone(), ent.fields.clone()));
+    }
+
+    fn resolve_fields(
+        name: &str,
+        defs: &BTreeMap<String, (Option<String>, BTreeMap<String, String>)>,
+        cache: &mut BTreeMap<String, BTreeMap<String, String>>,
+    ) -> BTreeMap<String, String> {
+        if let Some(res) = cache.get(name) {
+            return res.clone();
+        }
+        if let Some((base, fields)) = defs.get(name) {
+            let mut out = if let Some(b) = base {
+                resolve_fields(b, defs, cache)
+            } else {
+                BTreeMap::new()
+            };
+            out.extend(fields.clone());
+            cache.insert(name.to_string(), out.clone());
+            out
+        } else {
+            BTreeMap::new()
+        }
+    }
+
+    let mut resolved: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+    for name in entity_defs.keys() {
+        let _ = resolve_fields(name, &entity_defs, &mut resolved);
+    }
+
     let mut modules: Vec<Module> = project
         .modules
         .iter()
-        .map(|(name, module)| dsl_module_to_module(name, module))
+        .map(|(name, module)| dsl_module_to_module(name, module, &resolved))
         .collect();
 
     // Standalone entities outside modules
     for ent in &project.entities {
-        let fields = ent
-            .fields
+        let fields = resolved
+            .get(&ent.name)
+            .cloned()
+            .unwrap_or_default()
             .iter()
             .map(|(fname, ftype)| Field {
                 name: fname.clone(),
@@ -28,6 +69,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
             nodes: vec![Node {
                 id: ent.name.clone(),
                 node_type: NodeType::Entity,
+                doc: None,
                 description: None,
                 story: None,
                 input: fields,
@@ -37,6 +79,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             }],
         });
     }
@@ -58,6 +101,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                 Node {
                     id: f.name.clone(),
                     node_type: NodeType::Form,
+                    doc: None,
                     description: Some(f.submit_to.clone()),
                     story: None,
                     input,
@@ -67,6 +111,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                     view: None,
                     schema: None,
                     api_name: None,
+                    ref_node: None,
                 }
             })
             .collect();
@@ -84,6 +129,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
             .map(|v| Node {
                 id: v.name.clone(),
                 node_type: NodeType::Validation,
+                doc: None,
                 description: Some(v.applies_to.clone()),
                 story: Some(v.rule.clone()),
                 input: Vec::new(),
@@ -93,6 +139,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             })
             .collect();
         modules.push(Module {
@@ -109,6 +156,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
             .map(|u| Node {
                 id: u.name.clone(),
                 node_type: NodeType::Upload,
+                doc: None,
                 description: Some(u.path.clone()),
                 story: None,
                 input: Vec::new(),
@@ -118,6 +166,7 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             })
             .collect();
         modules.push(Module {
@@ -131,13 +180,20 @@ pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
 }
 
 /// Convert a single [`DslModule`] into a [`Module`].
-fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
+fn dsl_module_to_module(
+    name: &str,
+    module: &DslModule,
+    resolved: &BTreeMap<String, BTreeMap<String, String>>,
+) -> Module {
     let mut nodes = Vec::new();
 
     // Entity
     if let Some(entity) = &module.entity {
-        let fields = entity
-            .fields
+        let fields_map = resolved
+            .get(name)
+            .cloned()
+            .unwrap_or_else(|| entity.fields.clone());
+        let fields = fields_map
             .iter()
             .map(|(fname, ftype)| Field {
                 name: fname.clone(),
@@ -147,6 +203,7 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
         nodes.push(Node {
             id: name.to_string(),
             node_type: NodeType::Entity,
+            doc: None,
             description: None,
             story: None,
             input: fields,
@@ -156,6 +213,7 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
             view: None,
             schema: None,
             api_name: None,
+            ref_node: None,
         });
     }
 
@@ -173,15 +231,24 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
         nodes.push(Node {
             id: uc_name.clone(),
             node_type: NodeType::UseCase,
+            doc: uc.doc.clone(),
             description: None,
             story: None,
             input,
             output: uc.output.clone(),
-            depends_on: uc.steps.clone(),
+            depends_on: uc
+                .steps
+                .iter()
+                .map(|s| match s {
+                    ferrum_shared_models::DslStep::Ref { reference } => reference.clone(),
+                    ferrum_shared_models::DslStep::Name(n) => n.clone(),
+                })
+                .collect(),
             implements: None,
             view: None,
             schema: None,
             api_name: None,
+            ref_node: None,
         });
     }
 
@@ -199,15 +266,24 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
         nodes.push(Node {
             id: rpc_name.clone(),
             node_type: NodeType::UseCase,
+            doc: rpc.doc.clone(),
             description: None,
             story: None,
             input,
             output: rpc.output.clone(),
-            depends_on: rpc.steps.clone(),
+            depends_on: rpc
+                .steps
+                .iter()
+                .map(|s| match s {
+                    ferrum_shared_models::DslStep::Ref { reference } => reference.clone(),
+                    ferrum_shared_models::DslStep::Name(n) => n.clone(),
+                })
+                .collect(),
             implements: None,
             view: None,
             schema: None,
             api_name: None,
+            ref_node: None,
         });
     }
 
@@ -216,6 +292,7 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
         nodes.push(Node {
             id: page_name.clone(),
             node_type: NodeType::Component,
+            doc: None,
             description: Some(page.route.clone()),
             story: None,
             input: Vec::new(),
@@ -225,6 +302,7 @@ fn dsl_module_to_module(name: &str, module: &DslModule) -> Module {
             view: page.component.clone(),
             schema: None,
             api_name: None,
+            ref_node: None,
         });
     }
 

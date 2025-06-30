@@ -32,6 +32,8 @@ pub struct Node {
     #[serde(rename = "type")]
     pub node_type: NodeType,
     #[serde(default)]
+    pub doc: Option<String>,
+    #[serde(default)]
     pub description: Option<String>,
     #[serde(default)]
     pub story: Option<String>,
@@ -47,6 +49,8 @@ pub struct Node {
     pub schema: Option<String>,
     #[serde(default)]
     pub api_name: Option<String>,
+    #[serde(default, rename = "ref")]
+    pub ref_node: Option<String>,
 }
 
 #[typeshare]
@@ -105,11 +109,20 @@ pub struct DslAppPage {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslCache {
+    pub ttl: u32,
+    pub key: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslQuery {
     pub name: String,
     pub handler: String,
     #[serde(default)]
     pub entities: Vec<String>,
+    #[serde(default)]
+    pub cache: Option<DslCache>,
 }
 
 #[typeshare]
@@ -135,6 +148,8 @@ pub struct DslJob {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslStandaloneEntity {
     pub name: String,
+    #[serde(default, rename = "deriveFrom")]
+    pub derive_from: Option<String>,
     #[serde(default)]
     pub fields: BTreeMap<String, String>,
 }
@@ -176,6 +191,14 @@ pub struct DslForm {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DslStep {
+    Ref { #[serde(rename = "ref")] reference: String },
+    Name(String),
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslPage {
     pub route: String,
     #[serde(default)]
@@ -191,12 +214,16 @@ pub struct DslUseCase {
     pub input: BTreeMap<String, String>,
     pub output: Option<String>,
     #[serde(default)]
-    pub steps: Vec<String>,
+    pub doc: Option<String>,
+    #[serde(default)]
+    pub steps: Vec<DslStep>,
 }
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslEntity {
+    #[serde(default, rename = "deriveFrom")]
+    pub derive_from: Option<String>,
     #[serde(default)]
     pub fields: BTreeMap<String, String>,
 }

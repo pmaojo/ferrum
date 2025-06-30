@@ -14,6 +14,7 @@ fn basic_entity_module() -> Module {
         nodes: vec![Node {
             id: "user".into(),
             node_type: NodeType::Entity,
+            doc: None,
             description: None,
             story: None,
             input: vec![],
@@ -23,6 +24,7 @@ fn basic_entity_module() -> Module {
             view: None,
             schema: None,
             api_name: None,
+            ref_node: None,
         }],
     }
 }
@@ -57,6 +59,7 @@ fn generate_usecase_creates_files() {
             Node {
                 id: "getUser".into(),
                 node_type: NodeType::UseCase,
+                doc: None,
                 description: None,
                 story: None,
                 input: vec![Field {
@@ -69,10 +72,12 @@ fn generate_usecase_creates_files() {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             },
             Node {
                 id: "userRepository".into(),
                 node_type: NodeType::Adapter,
+                doc: None,
                 description: None,
                 story: None,
                 input: vec![],
@@ -82,10 +87,12 @@ fn generate_usecase_creates_files() {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             },
             Node {
                 id: "userReaderPort".into(),
                 node_type: NodeType::Port,
+                doc: None,
                 description: None,
                 story: None,
                 input: vec![],
@@ -95,6 +102,7 @@ fn generate_usecase_creates_files() {
                 view: None,
                 schema: None,
                 api_name: None,
+                ref_node: None,
             },
         ],
     };
