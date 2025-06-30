@@ -95,6 +95,14 @@ ferrum generate-usecase CreatePost
 This outputs a minimal YAML file like `gen/createpost_usecase.yaml` which you
 can include in your architecture and then compile.
 
+#### 7. Generate a usecase from a natural language description
+
+```bash
+ferrum usecase "crear post con título y cuerpo"
+```
+
+This produces a structured `usecase` YAML file ready to be compiled.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to
