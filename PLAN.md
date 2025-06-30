@@ -199,3 +199,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-06-30
 - Implemented `ferrum generate-usecase` command to scaffold YAML for new usecases.
+### Session 2025-06-30
+- Added ferrum usecase command powered by AI to generate YAML.

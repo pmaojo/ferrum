@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
     add_plugin, compile, component_prompt, explain, list_plugins, migrate, plugin_docs, prompt,
-    remove_plugin, sync, Cli, Commands,
+    remove_plugin, sync, usecase_prompt, Cli, Commands,
 };
 use tracing::Level;
 
@@ -23,6 +23,7 @@ fn main() -> Result<()> {
         } => compile(file, output, templates),
         Commands::Prompt { text, output } => prompt(text, output),
         Commands::Component { text, output } => component_prompt(text, output),
+        Commands::Usecase { text, output } => usecase_prompt(text, output),
         Commands::GenerateUsecase { name, output } => {
             ferrum_cli::commands::generate_usecase(name, output)
         }
