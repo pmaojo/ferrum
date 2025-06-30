@@ -42,12 +42,12 @@ def call_anthropic(prompt: str, system: str) -> str:
     return response.content[0].text.strip()
 
 
-def call_llm(prompt: str, system: str) -> str:
-    model = os.environ.get("MODEL", MODEL)
-    if model == "openai":
+def call_llm(prompt: str, system: str, model: str | None = None) -> str:
+    selected = model or os.environ.get("MODEL", MODEL)
+    if selected == "openai":
         return call_openai(prompt, system)
-    if model in {"local", "ollama"}:
+    if selected in {"local", "ollama"}:
         return call_ollama(prompt, system)
-    if model == "anthropic":
+    if selected == "anthropic":
         return call_anthropic(prompt, system)
-    raise ValueError(f"Unknown model {model}")
+    raise ValueError(f"Unknown model {selected}")
