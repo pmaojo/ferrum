@@ -38,8 +38,12 @@ pub enum Commands {
         output: Option<PathBuf>,
     },
 
-    /// Start development environment with Docker
+    /// Start development environment
     Dev {
+        /// Run using docker-compose instead of local processes
+        #[arg(long)]
+        docker: bool,
+
         /// Include graph database (Neo4j)
         #[arg(long)]
         with_graph: bool,
@@ -129,7 +133,12 @@ pub enum Commands {
         dir: PathBuf,
 
         /// Output TypeScript file
-        #[arg(short, long, value_name = "FILE", default_value = "frontend/src/i18n.ts")]
+        #[arg(
+            short,
+            long,
+            value_name = "FILE",
+            default_value = "frontend/src/i18n.ts"
+        )]
         output: PathBuf,
     },
 }
@@ -219,11 +228,55 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
 }
 
 /// Start the local development environment using Docker.
-pub fn dev(with_graph: bool, with_ai: bool) -> Result<()> {
-    use std::process::Command;
+pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
+    use std::process::{Command, Stdio};
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
 
-    println!("🐳 Starting Ferrum development environment");
+    println!("🚀 Starting Ferrum development environment");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    if !docker {
+        // Run local cargo and vite processes in parallel
+        // Compile all YAML files first to ensure routes and types are up to date
+        if let Ok(entries) = std::fs::read_dir("gen") {
+            for entry in entries.flatten() {
+                if entry.path().extension().and_then(|s| s.to_str()) == Some("yaml") {
+                    let _ = compile(entry.path(), None, None);
+                }
+            }
+        }
+
+        let mut backend = Command::new("cargo")
+            .arg("run")
+            .arg("--manifest-path")
+            .arg("backend/Cargo.toml")
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn()?;
+        let mut frontend = Command::new("npm")
+            .args(["run", "dev", "--prefix", "frontend"])
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .spawn()?;
+
+        let running = Arc::new(AtomicBool::new(true));
+        let r = running.clone();
+        ctrlc::set_handler(move || {
+            r.store(false, Ordering::SeqCst);
+        })?;
+
+        while running.load(Ordering::SeqCst) {
+            std::thread::sleep(std::time::Duration::from_millis(500));
+            if backend.try_wait()?.is_some() || frontend.try_wait()?.is_some() {
+                running.store(false, Ordering::SeqCst);
+            }
+        }
+
+        let _ = backend.kill();
+        let _ = frontend.kill();
+        return Ok(());
+    }
 
     // Create a docker-compose command with the appropriate services
     let mut services = vec!["backend", "frontend", "db"];
@@ -985,7 +1038,11 @@ pub fn extract_i18n(dir: PathBuf, output: PathBuf) -> Result<()> {
         fs::create_dir_all(parent)?;
     }
     fs::write(&output, out)?;
-    println!("✅ Wrote {} messages to {}", messages.len(), output.display());
+    println!(
+        "✅ Wrote {} messages to {}",
+        messages.len(),
+        output.display()
+    );
     Ok(())
 }
 

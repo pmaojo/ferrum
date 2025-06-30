@@ -35,5 +35,16 @@ pub fn generate_routes(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     let file = paths.frontend.join("routes.tsx");
     fs::create_dir_all(file.parent().unwrap())?;
     fs::write(file, content)?;
+
+    // Also generate a simple backend routes list for Axum
+    let mut backend = String::from("pub const ROUTES: &[(&str, &str)] = &[\n");
+    for route in &dsl.routes {
+        backend.push_str(&format!("    (\"{}\", \"{}\"),\n", route.name, route.path));
+    }
+    backend.push_str("]\n");
+    let backend_file = paths.backend.join("src").join("routes.rs");
+    fs::create_dir_all(backend_file.parent().unwrap())?;
+    fs::write(backend_file, backend)?;
+
     Ok(())
 }
