@@ -49,6 +49,17 @@ pub enum Commands {
         output: Option<PathBuf>,
     },
 
+    /// Generate a skeleton usecase YAML
+    GenerateUsecase {
+        /// Name of the usecase in PascalCase
+        #[arg(value_name = "NAME")]
+        name: String,
+
+        /// Output file for the generated YAML
+        #[arg(short, long, value_name = "FILE")]
+        output: Option<PathBuf>,
+    },
+
     /// Start development environment
     Dev {
         /// Run using docker-compose instead of local processes
@@ -274,6 +285,31 @@ pub fn component_prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     fs::write(&output_path, yaml)?;
 
     println!("✅ Component YAML generated at: {}", output_path.display());
+
+    Ok(())
+}
+
+/// Generate a simple usecase YAML snippet.
+pub fn generate_usecase(name: String, output: Option<PathBuf>) -> Result<()> {
+    use std::fs;
+    use std::path::PathBuf;
+
+    println!("📝 Generating usecase: {}", name);
+    println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    let module = name.to_lowercase();
+    let yaml = format!(
+        "module: {module}\nnodes:\n  - id: {id}\n    type: usecase\n    input:\n      - name: example\n        type: string\n",
+        module = module,
+        id = name
+    );
+
+    let default_path = format!("gen/{}_usecase.yaml", module);
+    let output_path = output.unwrap_or_else(|| PathBuf::from(default_path));
+    fs::create_dir_all(output_path.parent().unwrap())?;
+    fs::write(&output_path, yaml)?;
+
+    println!("✅ Usecase YAML generated at: {}", output_path.display());
 
     Ok(())
 }

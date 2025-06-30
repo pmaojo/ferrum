@@ -73,7 +73,7 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
 
 - [ ] CLI avanzada:
   - [ ] `ferrum init` interactivo
-  - [ ] `ferrum generate usecase CreatePost`
+  - [x] `ferrum generate usecase CreatePost`
   - [x] `ferrum doctor`
   - [ ] `ferrum graph`
   - [x] `ferrum explain`
@@ -196,3 +196,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-06-30
 - Added ComponentDesignerAgent for generating component YAML via AI.
 - New CLI command `ferrum component` and API endpoint `/generate-component`.
+
+### Session 2025-06-30
+- Implemented `ferrum generate-usecase` command to scaffold YAML for new usecases.
