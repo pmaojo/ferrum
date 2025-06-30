@@ -112,9 +112,11 @@ pub enum Commands {
 pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
     let output_dir = output.unwrap_or_else(|| PathBuf::from("."));
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
+    let plugins = load_plugins()?;
 
     // Try new DSL format first, fall back to legacy format
-    if let Ok(project) = ferrum_compiler::parse_dsl_yaml(&file) {
+    if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(&file) {
+        plugins.extend_dsl_all(&mut project)?;
         let modules = ferrum_compiler::project_to_modules(&project);
         ferrum_compiler::validate_features(&project, &modules)?;
         ferrum_compiler::validate_validations(&project, &modules)?;
@@ -135,7 +137,6 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     }
 
     println!("✅ Successfully compiled {}", file.display());
-    let plugins = load_plugins()?;
     plugins.compile_all()?;
     Ok(())
 }
@@ -580,6 +581,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
         for name in contents.lines() {
             match name.trim() {
                 "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
+                "auth" => manager.register(ferrum_engine::plugins::AuthPlugin),
                 other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
                 _ => {}
             }

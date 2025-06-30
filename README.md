@@ -206,6 +206,11 @@ Ferrum includes a lightweight plugin manager. Plugins can hook into
 Additional runtime utilities are provided under `ferrum-engine::services`,
 including a basic GraphQL schema and a helper for sending SMTP emails.
 
+Built-in plugins:
+
+- `graphql` – adds a default GraphQL schema file.
+- `auth` – injects authentication nodes into the DSL and scaffolds login resources.
+
 ---
 
 ## 📦 Output Example

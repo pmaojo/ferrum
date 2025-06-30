@@ -1,4 +1,5 @@
 use anyhow::Result;
+pub mod auth;
 pub mod graphql;
 
 /// Trait implemented by all Ferrum plugins.
@@ -16,6 +17,11 @@ pub trait Plugin: Send + Sync {
 
     /// Called after `ferrum compile` finishes.
     fn on_compile(&self) -> Result<()> {
+        Ok(())
+    }
+
+    /// Allows a plugin to modify the parsed DSL before code generation.
+    fn extend_dsl(&self, _dsl: &mut ferrum_shared_models::FerrumDsl) -> Result<()> {
         Ok(())
     }
 }
@@ -53,5 +59,14 @@ impl PluginManager {
         }
         Ok(())
     }
+
+    /// Allow plugins to mutate the DSL before generation.
+    pub fn extend_dsl_all(&self, dsl: &mut ferrum_shared_models::FerrumDsl) -> Result<()> {
+        for p in &self.plugins {
+            p.extend_dsl(dsl)?;
+        }
+        Ok(())
+    }
 }
+pub use auth::AuthPlugin;
 pub use graphql::GraphQLPlugin;
