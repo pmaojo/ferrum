@@ -173,4 +173,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-06-30
 - Added i18n extraction command and generator.
+### Session 2025-06-30
+- Reviewed dev server proposal to run Cargo and Vite in parallel with hot reload.
+- Planned automatic route generation from YAML and shared-models support.
+- Discussed single command script for starting backend and frontend.
+
 
