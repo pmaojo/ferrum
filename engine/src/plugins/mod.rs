@@ -1,5 +1,6 @@
 use anyhow::Result;
 pub mod auth;
+pub mod auth_password;
 pub mod auth_oauth;
 pub mod cms_sanity;
 pub mod cron;
@@ -73,6 +74,7 @@ impl PluginManager {
     }
 }
 pub use auth::AuthPlugin;
+pub use auth_password::AuthPasswordPlugin;
 pub use auth_oauth::AuthOAuthPlugin;
 pub use cms_sanity::CmsSanityPlugin;
 pub use cron::CronPlugin;

@@ -664,6 +664,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
             match name.trim() {
                 "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
                 "auth" => manager.register(ferrum_engine::plugins::AuthPlugin),
+                "auth-password" => manager.register(ferrum_engine::plugins::AuthPasswordPlugin),
                 "auth-oauth" => manager.register(ferrum_engine::plugins::AuthOAuthPlugin),
                 "stripe" => manager.register(ferrum_engine::plugins::StripePlugin),
                 "cron" => manager.register(ferrum_engine::plugins::CronPlugin),

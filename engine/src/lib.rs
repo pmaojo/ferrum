@@ -6,5 +6,5 @@
 pub mod plugins;
 pub mod services;
 
-pub use plugins::{AuthPlugin, GraphQLPlugin, Plugin, PluginManager};
+pub use plugins::{AuthPlugin, AuthPasswordPlugin, GraphQLPlugin, Plugin, PluginManager};
 pub use services::graph_sync::sync_ast_to_graph;
