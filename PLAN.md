@@ -113,6 +113,10 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] OAuth con Google/GitHub via `ferrum add auth-oauth`
   - [ ] Refresh tokens y sesiones via JWT/Redis
   - [ ] Roles y permisos en DSL
+    - [ ] Integración con `Role` extraído del JWT
+    - [ ] Hook `useCurrentUserRoles()` para evaluación real de policies
+    - [ ] Mostrar/ocultar NavItem o Button con `<PolicyGate policy="...">`
+    - [ ] Ruta `/api/policies/:name` que devuelva `bool` para tests de políticas
 
 - [ ] Documentación:
   - [ ] Storybook generado desde DSL (`*.stories.tsx`)
