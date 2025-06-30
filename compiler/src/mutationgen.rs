@@ -32,7 +32,7 @@ pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result
     let policy_check = mutation
         .policy
         .as_ref()
-        .map(|p| format!("    if !crate::policies::{}() {{\n        // TODO: unauthorized handling\n    }}\n", p.to_snake_case()))
+        .map(|p| format!("    if !crate::policies::evaluate_policy(\"{p}\") {{\n        // TODO: unauthorized handling\n    }}\n", p = p))
         .unwrap_or_default();
 
     let rust_content = format!(
