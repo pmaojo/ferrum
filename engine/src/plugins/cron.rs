@@ -32,6 +32,14 @@ impl Plugin for CronPlugin {
         if !dsl.app.features.contains(&"cron".to_string()) {
             dsl.app.features.push("cron".to_string());
         }
+        if !dsl.jobs.iter().any(|j| j.name == "example_job") {
+            dsl.jobs.push(ferrum_shared_models::DslJob {
+                name: "example_job".to_string(),
+                schedule: "0 0 * * *".to_string(),
+                handler: "example_job".to_string(),
+                policy: None,
+            });
+        }
         Ok(())
     }
 }

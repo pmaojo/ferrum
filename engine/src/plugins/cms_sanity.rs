@@ -30,6 +30,17 @@ impl Plugin for CmsSanityPlugin {
         if !dsl.app.features.contains(&"cms-sanity".to_string()) {
             dsl.app.features.push("cms-sanity".to_string());
         }
+        if !dsl.resources.iter().any(|r| r.name == "SanityClient") {
+            use std::collections::BTreeMap;
+            let mut config = BTreeMap::new();
+            config.insert("project_id".to_string(), "".to_string());
+            config.insert("dataset".to_string(), "production".to_string());
+            dsl.resources.push(ferrum_shared_models::DslResource {
+                name: "SanityClient".to_string(),
+                resource_type: "cms-sanity".to_string(),
+                config,
+            });
+        }
         Ok(())
     }
 }

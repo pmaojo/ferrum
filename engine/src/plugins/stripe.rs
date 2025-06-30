@@ -30,6 +30,23 @@ impl Plugin for StripePlugin {
         if !dsl.app.features.contains(&"stripe".to_string()) {
             dsl.app.features.push("stripe".to_string());
         }
+        if !dsl.resources.iter().any(|r| r.name == "StripeClient") {
+            use std::collections::BTreeMap;
+            dsl.resources.push(ferrum_shared_models::DslResource {
+                name: "StripeClient".to_string(),
+                resource_type: "stripe".to_string(),
+                config: BTreeMap::new(),
+            });
+        }
+        if !dsl.routes.iter().any(|r| r.name == "stripeWebhook") {
+            dsl.routes.push(ferrum_shared_models::DslRoute {
+                name: "stripeWebhook".to_string(),
+                path: "/api/stripe/webhook".to_string(),
+                to: "handle_stripe_webhook".to_string(),
+                auth_required: false,
+                policy: None,
+            });
+        }
         Ok(())
     }
 }

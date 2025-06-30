@@ -221,6 +221,34 @@ Built-in plugins:
 - `graphql` – adds a default GraphQL schema file.
 - `auth` – injects authentication nodes into the DSL and scaffolds login resources.
 
+Plugins can also mutate the parsed DSL before code generation. Each plugin may
+implement:
+
+```rust
+fn extend_dsl(&self, dsl: &mut FerrumDsl) -> anyhow::Result<()>
+```
+
+This hook receives the `FerrumDsl` AST and can push additional jobs, routes,
+resources or policies. For example enabling the cron plugin:
+
+```yaml
+app:
+  name: demo
+features: [cron]
+```
+
+results in the DSL containing:
+
+```yaml
+jobs:
+  - name: example_job
+    schedule: "0 0 * * *"
+    handler: example_job
+```
+
+Use this mechanism to avoid repeating common structures and inject defaults
+automatically.
+
 ---
 
 ## 📦 Output Example
