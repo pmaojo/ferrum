@@ -3,7 +3,7 @@ from fastapi.concurrency import run_in_threadpool
 from .types import PromptRequest, YamlRequest, ChatRequest, ChatResponse
 from agents.generator import generate_yaml
 from agents.explainer import explain_yaml
-from agents.validator import validate_yaml
+from agents.validator import validate_yaml, validate_usecase_prompt
 from agents.component_designer import design_component
 from agents.usecase_designer import design_usecase
 from services.chat_agent import ChatAgent
@@ -39,6 +39,12 @@ async def explain_yaml_route(req: PromptRequest):
 @router.post("/validate/yaml")
 async def validate_yaml_route(req: YamlRequest):
     ok = await run_in_threadpool(validate_yaml, req.yaml)
+    return {"valid": ok}
+
+
+@router.post("/validate/usecase")
+async def validate_usecase_route(req: PromptRequest):
+    ok = await run_in_threadpool(validate_usecase_prompt, req.text, req.model)
     return {"valid": ok}
 
 

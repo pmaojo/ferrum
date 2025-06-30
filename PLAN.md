@@ -204,3 +204,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-06-30
 - Reviewed AST and Neo4j sync service for potential GraphRAG validation.
 - Planned new validator using graph context and integration with `design_usecase`.
+### Session 2025-06-30
+- Implemented GraphRAG validator using Neo4j context and integrated with design_usecase. Added /validate/usecase endpoint.
+
