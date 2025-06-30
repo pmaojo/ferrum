@@ -1,0 +1,9 @@
+use axum::{Router, routing::get};
+use crate::handlers::oauth::{google_login, github_login, oauth_callback};
+
+pub fn routes() -> Router {
+    Router::new()
+        .route("/auth/google", get(google_login))
+        .route("/auth/github", get(github_login))
+        .route("/auth/callback", get(oauth_callback))
+}
