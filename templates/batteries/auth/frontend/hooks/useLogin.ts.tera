@@ -1,4 +1,14 @@
-// useLogin hook
+// Hook that performs a login request
 export function useLogin() {
-    // TODO: implement login hook
+    return async (email: string, password: string) => {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+        if (!res.ok) {
+            throw new Error('Login failed');
+        }
+        return res.json();
+    };
 }

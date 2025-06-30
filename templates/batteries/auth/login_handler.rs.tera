@@ -1,4 +1,18 @@
-// Basic login handler placeholder
-pub async fn login() {
-    // TODO: implement authentication logic
+use axum::{extract::Json, http::StatusCode};
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+pub struct LoginPayload {
+    pub email: String,
+    pub password: String,
+}
+
+/// Simple login handler. In a real application you would verify the
+/// credentials against the database and return a JWT or session cookie.
+pub async fn login(Json(payload): Json<LoginPayload>) -> StatusCode {
+    if payload.email.is_empty() || payload.password.is_empty() {
+        return StatusCode::BAD_REQUEST;
+    }
+
+    StatusCode::OK
 }
