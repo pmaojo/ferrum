@@ -201,3 +201,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Implemented `ferrum generate-usecase` command to scaffold YAML for new usecases.
 ### Session 2025-06-30
 - Added ferrum usecase command powered by AI to generate YAML.
+### Session 2025-06-30
+- Reviewed AST and Neo4j sync service for potential GraphRAG validation.
+- Planned new validator using graph context and integration with `design_usecase`.
