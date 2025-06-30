@@ -1,19 +1,58 @@
 version: '3.9'
 services:
-  cli:
-    build: .
-    ports:
-      - "3001:3001"
-    volumes:
-      - .:/app
-  ferrum-ai:
-    build: ./ai
-    ports:
-      - "8001:8000"
   studio:
     build: ./studio
     ports:
       - "5173:5173"
+    volumes:
+      - ./studio:/app
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://ferrum:password@db/ferrum
+
+  engine:
+    build: ./engine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./engine:/app
+      - ./shared-models:/shared-models
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: ferrum
+      POSTGRES_USER: ferrum
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+  graphdb:
+    image: neo4j:5
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password123
+    volumes:
+      - ./data/neo4j:/data
+
+  # Optional: AI backend
+  llm:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./data/ollama:/root/.ollama
+
+  ferrum-ai:
+    build: ./ai
+    ports:
+      - "8001:8000"
     environment:
       - VITE_AI_URL=http://ferrum-ai:8000
       - VITE_CLI_URL=http://cli:3001
