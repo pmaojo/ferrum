@@ -14,6 +14,28 @@ cargo install --path .
 cargo install typeshare-cli
 ```
 
+### 🐳 Docker
+
+You can build the CLI into a container instead of installing Rust locally:
+
+```bash
+docker build -t ferrum .
+docker run --rm ferrum --help
+```
+
+To start the development environment from the container, mount the host Docker
+socket:
+
+```bash
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock ferrum dev
+```
+
+You can also use **Docker Compose** to start the development environment:
+
+```bash
+docker compose up
+```
+
 ### ⚙️ Usage
 
 #### 1. Initialize a new project

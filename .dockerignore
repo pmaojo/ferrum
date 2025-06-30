@@ -1,0 +1,6 @@
+# Ignore git and build artifacts
+.git
+**/target
+# Local data and generated projects
+/data
+/projects
