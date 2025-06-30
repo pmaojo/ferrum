@@ -1,0 +1,8 @@
+// File upload handler placeholder
+use axum::extract::Multipart;
+use axum::response::IntoResponse;
+
+pub async fn upload(mut _multipart: Multipart) -> impl IntoResponse {
+    // TODO: handle saving file to disk or S3
+    "ok"
+}

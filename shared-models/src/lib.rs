@@ -14,6 +14,7 @@ pub enum NodeType {
     Schema,
     Form,
     Validation,
+    Upload,
 }
 
 #[typeshare]
@@ -159,6 +160,14 @@ pub struct DslValidation {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslUpload {
+    pub name: String,
+    #[serde(default)]
+    pub path: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslForm {
     #[serde(default)]
     pub fields: Vec<String>,
@@ -227,4 +236,6 @@ pub struct FerrumDsl {
     pub forms: Vec<DslStandaloneForm>,
     #[serde(default)]
     pub validations: Vec<DslValidation>,
+    #[serde(default)]
+    pub uploads: Vec<DslUpload>,
 }

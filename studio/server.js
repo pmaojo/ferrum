@@ -57,7 +57,7 @@ app.post('/prompt', async (req, res) => {
 });
 
 app.post('/init', async (req, res) => {
-  const { name, with_graph, with_ai, with_db, with_auth, with_jobs } = req.body;
+  const { name, with_graph, with_ai, with_db, with_auth, with_jobs, with_uploads } = req.body;
   if (!name) return res.status(400).json({ error: 'Missing name' });
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ferrum-'));
   const projectDir = path.join(tmpDir, name);
@@ -69,6 +69,7 @@ app.post('/init', async (req, res) => {
     with_db ? '--with-db' : '',
     with_auth ? '--with-auth' : '',
     with_jobs ? '--with-jobs' : '',
+    with_uploads ? '--with-uploads' : '',
   ]
     .filter(Boolean)
     .join(' ');

@@ -105,6 +105,10 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] Validación declarativa con Zod generada desde Rust
   - [ ] Hooks de validación en backend y frontend
 
+- [ ] File uploads:
+  - [ ] Endpoint Axum + multipart handler
+  - [ ] React dropzone component
+
 - [ ] Auth avanzada:
   - [ ] OAuth con Google/GitHub via `ferrum add auth-oauth`
   - [ ] Refresh tokens y sesiones via JWT/Redis

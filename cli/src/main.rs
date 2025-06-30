@@ -30,7 +30,8 @@ fn main() -> Result<()> {
             with_db,
             with_auth,
             with_jobs,
-        } => ferrum_cli::commands::init(name, with_graph, with_ai, with_db, with_auth, with_jobs),
+            with_uploads,
+        } => ferrum_cli::commands::init(name, with_graph, with_ai, with_db, with_auth, with_jobs, with_uploads),
         Commands::Sync {
             file,
             uri,

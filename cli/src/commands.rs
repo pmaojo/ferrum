@@ -74,6 +74,10 @@ pub enum Commands {
         /// Include background job templates
         #[arg(long)]
         with_jobs: bool,
+
+        /// Include file upload templates
+        #[arg(long)]
+        with_uploads: bool,
     },
 
     /// Sync a grafo.yaml file to Neo4j
@@ -222,6 +226,7 @@ pub fn init(
     with_db: bool,
     with_auth: bool,
     with_jobs: bool,
+    with_uploads: bool,
 ) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
@@ -353,6 +358,27 @@ pub fn init(
             include_str!("../../templates/batteries/jobs/example_job.rs.tera"),
         )?;
         println!("📄 Added job templates");
+    }
+
+    if with_uploads {
+        fs::create_dir_all(project_dir.join("templates/batteries/uploads"))?;
+        fs::write(
+            project_dir.join("templates/batteries/uploads/backend/handlers/upload.rs.tera"),
+            include_str!("../../templates/batteries/uploads/backend/handlers/upload.rs.tera"),
+        )?;
+        fs::write(
+            project_dir.join("templates/batteries/uploads/backend/routes/uploads.rs.tera"),
+            include_str!("../../templates/batteries/uploads/backend/routes/uploads.rs.tera"),
+        )?;
+        fs::write(
+            project_dir.join("templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
+            include_str!("../../templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
+        )?;
+        fs::write(
+            project_dir.join("templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
+            include_str!("../../templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
+        )?;
+        println!("📄 Added upload templates");
     }
 
     // Create docker-compose.yml
