@@ -107,6 +107,10 @@ pub enum Commands {
         #[arg(value_name = "PLUGIN")]
         plugin: String,
     },
+    Remove {
+        #[arg(value_name = "PLUGIN")]
+        plugin: String,
+    },
     List {},
 }
 
@@ -601,6 +605,35 @@ pub fn add_plugin(plugin: String) -> Result<()> {
     Ok(())
 }
 
+/// Remove a plugin from the .ferrum/plugins list.
+pub fn remove_plugin(plugin: String) -> Result<()> {
+    use std::fs;
+
+    let file_path = PathBuf::from(".ferrum/plugins.txt");
+    if !file_path.exists() {
+        println!("No plugins installed.");
+        return Ok(());
+    }
+
+    let mut plugins: Vec<String> = fs::read_to_string(&file_path)?
+        .lines()
+        .map(|s| s.to_string())
+        .collect();
+
+    if let Some(pos) = plugins.iter().position(|p| p == &plugin) {
+        plugins.remove(pos);
+        if plugins.is_empty() {
+            fs::remove_file(&file_path)?;
+        } else {
+            fs::write(&file_path, plugins.join("\n"))?;
+        }
+        println!("✅ Removed plugin: {}", plugin);
+    } else {
+        println!("Plugin '{}' not found", plugin);
+    }
+    Ok(())
+}
+
 /// List installed plugins from .ferrum/plugins.
 pub fn list_plugins() -> Result<()> {
     use std::fs;
@@ -632,6 +665,9 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                 "graphql" => manager.register(ferrum_engine::plugins::GraphQLPlugin),
                 "auth" => manager.register(ferrum_engine::plugins::AuthPlugin),
                 "auth-oauth" => manager.register(ferrum_engine::plugins::AuthOAuthPlugin),
+                "stripe" => manager.register(ferrum_engine::plugins::StripePlugin),
+                "cron" => manager.register(ferrum_engine::plugins::CronPlugin),
+                "cms-sanity" => manager.register(ferrum_engine::plugins::CmsSanityPlugin),
                 other if !other.is_empty() => println!("⚠️ Unknown plugin '{}'", other),
                 _ => {}
             }
