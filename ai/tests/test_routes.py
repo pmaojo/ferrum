@@ -28,7 +28,15 @@ sys.modules['agents.validator'].validate_usecase_prompt = lambda *a, **k: True
 sys.modules['agents.component_designer'].design_component = lambda *a, **k: ""
 sys.modules['agents.usecase_designer'].design_usecase = lambda *a, **k: ""
 sys.modules['agents.filler'].fill_code = lambda *a, **k: ""
-sys.modules['agents.coordinator'].Coordinator = type('C', (), {'chat': lambda self, m, model=None: ""})
+sys.modules['agents.filler'].fetch_context = lambda *a, **k: ""
+class _C:
+    def __init__(self, tools=None):
+        pass
+
+    def chat(self, messages, model=None):
+        return ""
+
+sys.modules['agents.coordinator'].Coordinator = _C
 sys.modules['agents.team'].BackendExpert = object
 sys.modules['agents.team'].FrontendExpert = object
 sys.modules['agents.team'].UXDesigner = object
