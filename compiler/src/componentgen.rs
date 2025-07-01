@@ -34,7 +34,7 @@ pub fn generate_component(comp: &SharedComponent, paths: &ProjectPaths) -> Resul
         .join(", ");
 
     let content = format!(
-        "{props_interface}export function {name}({{{params}}}: {name}Props) {{\n    return (\n        <div className=\"{name}\">\n            {{/* TODO: implement */}}\n        </div>\n    );\n}}\n",
+        "{props_interface}export function {name}({{{params}}}: {name}Props) {{\n    return (\n        <div className=\"p-4 border rounded-lg bg-white shadow-sm {name}\">\n            <h2 className=\"text-xl font-semibold mb-2\">{name}</h2>\n            <div className=\"space-y-2\">\n                {/* Component content */}\n            </div>\n        </div>\n    );\n}}\n",
         props_interface = props_interface,
         name = comp.name,
         params = params
