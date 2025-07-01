@@ -15,10 +15,11 @@ from agents.usecase_designer import design_usecase
 from agents.filler import fill_code
 from services.chat_agent import ChatAgent
 from agents.coordinator import Coordinator
+from .toolset import Toolset
 
 router = APIRouter()
 agent = ChatAgent()
-coordinator = Coordinator()
+coordinator = Coordinator(Toolset())
 
 @router.post("/generate/yaml")
 @router.post("/generate-yaml")

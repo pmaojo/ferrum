@@ -5,13 +5,15 @@ from .generator import generate_yaml
 from .validator import validate_yaml
 from .filler import fill_code
 from .team import BackendExpert, FrontendExpert, UXDesigner
+from ..toolset import Toolset
 
 
 class Coordinator:
-    def __init__(self) -> None:
-        self.backend = BackendExpert()
-        self.frontend = FrontendExpert()
-        self.ux = UXDesigner()
+    def __init__(self, tools: Toolset | None = None) -> None:
+        self.tools = tools or Toolset()
+        self.backend = BackendExpert(self.tools)
+        self.frontend = FrontendExpert(self.tools)
+        self.ux = UXDesigner(self.tools)
 
     def chat(self, messages: List[Dict[str, str]], model: str | None = None) -> str:
         """Respond to a user message by delegating to specialized agents."""

@@ -285,3 +285,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Introduced coordinator agent delegating to backend, frontend and UX experts.
 - Added `/ai-team` route and `ferrum ai-team` CLI command using it.
 - Documented workflow in README.
+### Session 2025-07-19
+- Introduced Toolset class and injected it into AI team agents for shared graph analysis and validation.
