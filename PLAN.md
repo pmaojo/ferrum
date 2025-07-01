@@ -259,3 +259,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-10
 - Fixed invalid format string in compiler when generating React components.
+
+### Session 2025-07-11
+- Reconfigured Tailwind for Studio using @tailwindcss/postcss plugin and new globals.css.
