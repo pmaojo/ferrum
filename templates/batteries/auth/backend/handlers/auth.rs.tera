@@ -1,5 +1,14 @@
-use axum::{extract::Json, http::StatusCode};
-use serde::Deserialize;
+use axum::{extract::{Json, Extension, TypedHeader}, http::{StatusCode, HeaderMap, header}, response::IntoResponse};
+use serde::{Deserialize, Serialize};
+use jsonwebtoken::{encode, EncodingKey, Header};
+use diesel::prelude::*;
+use chrono::{Utc, Duration};
+use headers::Cookie;
+
+use crate::db::{DbPool};
+use crate::db::models::Usuario;
+use crate::db::schema::usuarios::dsl::*;
+use crate::sessions::{create_session, consume_session, redis_client};
 
 #[derive(Deserialize)]
 pub struct LoginPayload {
@@ -7,11 +16,68 @@ pub struct LoginPayload {
     pub password: String,
 }
 
-/// Authenticate a user and return `200 OK` on success.
-pub async fn login(Json(payload): Json<LoginPayload>) -> StatusCode {
+#[derive(Serialize)]
+struct Claims {
+    sub: String,
+    roles: Vec<String>,
+    exp: usize,
+}
+
+pub async fn login(
+    Extension(pool): Extension<DbPool>,
+    Json(payload): Json<LoginPayload>,
+) -> impl IntoResponse {
     if payload.email.is_empty() || payload.password.is_empty() {
-        return StatusCode::BAD_REQUEST;
+        return StatusCode::BAD_REQUEST.into_response();
     }
 
-    StatusCode::OK
+    let mut conn = pool.get().unwrap();
+    let user = usuarios
+        .filter(email.eq(&payload.email))
+        .first::<Usuario>(&mut conn)
+        .optional()
+        .unwrap();
+
+    if user.is_none() {
+        return StatusCode::UNAUTHORIZED.into_response();
+    }
+
+    let claims = Claims {
+        sub: payload.email.clone(),
+        roles: vec!["user".into()],
+        exp: (Utc::now() + Duration::minutes(15)).timestamp() as usize,
+    };
+    let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+    let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+
+    let redis = redis_client();
+    let refresh = create_session(&redis, &payload.email).await.unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert(header::SET_COOKIE, format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap());
+    headers.append(header::SET_COOKIE, format!("refresh_token={}; HttpOnly; Path=/", refresh).parse().unwrap());
+    (StatusCode::OK, headers).into_response()
+}
+
+pub async fn refresh(
+    TypedHeader(cookies): TypedHeader<Cookie>,
+) -> impl IntoResponse {
+    let redis = redis_client();
+    if let Some(token) = cookies.get("refresh_token") {
+        if let Ok(Some(user_id)) = consume_session(&redis, token).await {
+            let claims = Claims {
+                sub: user_id.clone(),
+                roles: vec!["user".into()],
+                exp: (Utc::now() + Duration::minutes(15)).timestamp() as usize,
+            };
+            let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+            let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+            let new_refresh = create_session(&redis, &user_id).await.unwrap();
+            let mut headers = HeaderMap::new();
+            headers.insert(header::SET_COOKIE, format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap());
+            headers.append(header::SET_COOKIE, format!("refresh_token={}; HttpOnly; Path=/", new_refresh).parse().unwrap());
+            return (StatusCode::OK, headers).into_response();
+        }
+    }
+    StatusCode::UNAUTHORIZED.into_response()
 }

@@ -1,6 +1,7 @@
 # Auth OAuth Plugin
 
 This plugin scaffolds Google and GitHub OAuth login flows.
+It also generates helpers for refresh tokens stored in Redis.
 
 ## Usage
 
@@ -13,6 +14,7 @@ After adding the plugin, configure the following keys in your `.env`:
 
 ```
 JWT_SECRET=your-secret
+REDIS_URL=redis://localhost:6379
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 GITHUB_CLIENT_ID=...
