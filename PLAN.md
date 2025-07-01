@@ -269,3 +269,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-01
 - Added layer classification and JSON analyzer output.
 - Integrated structural lint button in Studio and /analyze API.
+
+### Session 2025-07-15
+- Added layer visualization with color-coded nodes in Studio.
+- Bottleneck threshold configurable from UI and passed to CLI.
+- Save action now triggers compile and automatic lint with alerts.
+
