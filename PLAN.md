@@ -248,3 +248,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-07
 - Added IoT code generator and cross-compilation command.
+
+### Session 2025-07-08
+- Reviewed Wasp open-source repository for inspiration.
+- Noted features like DSL-driven config, AI project generator, and full-stack type safety.
+- Documented ideas for integrating similar capabilities into Ferrus.
