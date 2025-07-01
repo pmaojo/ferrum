@@ -278,3 +278,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-16
 - Added feature expansion for cron, realtime_sse and uploads in compiler.
 - Updated tests accordingly.
+### Session 2025-07-17
+- Updated AI router to align with schemas and added route tests.
