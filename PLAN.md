@@ -248,3 +248,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-07
 - Added IoT code generator and cross-compilation command.
+
+### Session 2025-07-08
+- Documented IoT expose feature and added bullet in README.
