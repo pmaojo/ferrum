@@ -57,10 +57,11 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
         .unwrap_or_else(|| "serde_json::Value".into());
 
     let rust_content = format!(
-        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>) -> Json<Vec<{ret_ty}>> {{\n    // TODO: implementar lógica real\n    Json(vec![])\n}}\n",
+        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>) -> Json<Vec<{ret_ty}>> {{\n    // ⛳️ AI_FILL[query_logic] --context=query:{orig}\n    Json(vec![])\n}}\n",
         imports = imports,
         func_name = func_name,
         ret_ty = ret_ty,
+        orig = query.name,
     );
     fs::write(backend_dir.join(format!("{}.rs", func_name)), rust_content)?;
 

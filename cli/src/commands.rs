@@ -193,6 +193,13 @@ pub enum Commands {
         )]
         output: PathBuf,
     },
+
+    /// Fill AI markers in generated code using GraphRAG
+    FillTodos {
+        /// Directory to process
+        #[arg(value_name = "DIR", default_value = "gen")]
+        dir: PathBuf,
+    },
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
@@ -1283,6 +1290,48 @@ pub fn generate_graph(file: PathBuf, output: PathBuf) -> Result<()> {
     dot.push_str("}\n");
     fs::write(&output, dot)?;
     println!("✅ Graph written to {}", output.display());
+    Ok(())
+}
+
+/// Fill AI markers like `⛳️ AI_FILL[...]` by calling the AI service.
+pub fn fill_todos(dir: PathBuf) -> Result<()> {
+    use regex::Regex;
+    use reqwest::blocking::Client;
+    use walkdir::WalkDir;
+    use std::fs;
+    use serde_json::json;
+
+    let re = Regex::new(r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)").unwrap();
+    let client = Client::new();
+
+    for entry in WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
+        let path = entry.path();
+        if path.is_file() {
+            if let Ok(contents) = fs::read_to_string(path) {
+                if contents.contains("AI_FILL") {
+                    let replaced = re.replace_all(&contents, |caps: &regex::Captures| {
+                        let resp = client
+                            .post("http://localhost:8000/fill-todo")
+                            .json(&json!({
+                                "task": &caps["task"],
+                                "context": &caps["context"],
+                            }))
+                            .send()
+                            .and_then(|r| r.json::<serde_json::Value>())
+                            .ok();
+                        let code_str = resp
+                            .as_ref()
+                            .and_then(|v| v.get("code"))
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("// failed to fill");
+                        code_str.to_string()
+                    });
+                    fs::write(path, replaced.as_bytes())?;
+                    println!("Filled markers in {}", path.display());
+                }
+            }
+        }
+    }
     Ok(())
 }
 

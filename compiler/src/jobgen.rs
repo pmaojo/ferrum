@@ -16,10 +16,11 @@ pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
         .map(|p| format!("    if !crate::policies::evaluate_policy(\"{p}\") {{\n        // TODO: unauthorized handling\n        return;\n    }}\n", p = p))
         .unwrap_or_default();
     let content = format!(
-        "// Scheduled: {}\n\npub async fn {}() {{\n{policy_check}    // TODO implement\n}}\n",
+        "// Scheduled: {}\n\npub async fn {}() {{\n{policy_check}    // ⛳️ AI_FILL[job_logic] --context=job:{orig}\n}}\n",
         job.schedule,
         func_name,
-        policy_check = policy_check
+        policy_check = policy_check,
+        orig = job.name,
     );
     fs::write(backend_dir.join(format!("{}.rs", func_name)), content)?;
     Ok(())
