@@ -64,6 +64,8 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
 
 - [x] Registry de plugins:
   - [x] Buscar y añadir desde GitHub o fuente remota (`ferrum add user/plugin-name`)
+  - [ ] Documentar detalladamente el sistema de plugins y su carga dinámica
+  - [ ] Añadir hooks de extensión posgeneración para facilitar integraciones
 
 ---
 
@@ -87,6 +89,9 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] Recarga fuera de Docker (`cargo-watch`, `vite dev`)
   - [ ] Logs combinados en terminal
   - [ ] Test templates generados automáticamente (`*.test.ts`, `*_test.rs`)
+  - [ ] Mensajes de error descriptivos y logging en todos los comandos
+  - [ ] Opción `--dry-run` y barra de progreso en `ferrum fill-todos`
+  - [ ] Formateo automático con `rustfmt` y linters tras la generación
 
 - [ ] Deploy:
   - [ ] `ferrum build` para producción
@@ -124,6 +129,16 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en 
   - [ ] Storybook generado desde DSL (`*.stories.tsx`)
   - [ ] Documentación por módulo (`docs/modules/user.md` generados)
   - [ ] Web de documentación pública (`ferrum docs`)
+
+- [ ] Calidad de código y pruebas:
+  - [ ] Cobertura de tests para generadores (jobs, forms, validaciones)
+  - [ ] Tests de integración de `ferrum fill-todos` con servicio AI simulado
+  - [ ] Refactorizar generadores para reutilizar lógica común
+  - [ ] Modularizar el compilador en crates (parser, generadores, validaciones)
+  - [ ] Usar motor de plantillas para separar código y vistas
+  - [ ] Concurrencia y optimización de I/O en `fill-todos`
+  - [ ] Abstraer la comunicación con el servicio de IA en un módulo configurable
+  - [ ] Añadir docstrings y ejemplos en README/Wiki para uso de GraphRAG
 
 ---
 
@@ -222,4 +237,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-04
 - Integrated initial GraphRAG TODO filler.
 - Added CLI command `ferrum fill-todos` and AI service endpoint `/fill-todo`.
+
+### Session 2025-07-05
+- Updated plan with recommendations sobre calidad de código, arquitectura
+  modular y mejoras de UX.
 
