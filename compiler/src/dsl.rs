@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 ///
 /// This provides a bridge between the higher level YAML DSL and the existing
 /// code generation pipeline which operates on `Module` instances.
-pub fn project_to_modules(project: &FerrumDsl) -> Vec<Module> {
+pub fn project_to_modules(project: &mut FerrumDsl) -> Vec<Module> {
     // Collect entity definitions for derive resolution
     let mut entity_defs: BTreeMap<String, (Option<String>, BTreeMap<String, String>)> =
         BTreeMap::new();

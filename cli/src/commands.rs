@@ -233,7 +233,7 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
     // Try new DSL format first, fall back to legacy format
     if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(&file) {
         plugins.extend_dsl_all(&mut project)?;
-        let modules = ferrum_compiler::project_to_modules(&project);
+        let modules = ferrum_compiler::project_to_modules(&mut project);
         ferrum_compiler::validate_modules(&modules)?;
         ferrum_compiler::validate_features(&project, &modules)?;
         ferrum_compiler::validate_validations(&project, &modules)?;
@@ -1337,8 +1337,8 @@ pub fn generate_graph(file: PathBuf, output: PathBuf) -> Result<()> {
 
 /// Analyze a DSL YAML architecture for cycles and bottlenecks
 pub fn analyze(file: PathBuf, json: bool, bottleneck: usize) -> Result<()> {
-    let dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
-    let modules = ferrum_compiler::project_to_modules(&dsl);
+    let mut dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
+    let modules = ferrum_compiler::project_to_modules(&mut dsl);
     let graph = ferrum_compiler::build_graph(&modules);
     let layers = ferrum_compiler::classify_layers(&modules);
     let cycles = ferrum_compiler::find_cycles(&graph);

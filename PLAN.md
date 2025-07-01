@@ -275,3 +275,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Bottleneck threshold configurable from UI and passed to CLI.
 - Save action now triggers compile and automatic lint with alerts.
 
+### Session 2025-07-16
+- Added feature expansion for cron, realtime_sse and uploads in compiler.
+- Updated tests accordingly.
