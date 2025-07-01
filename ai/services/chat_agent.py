@@ -14,10 +14,12 @@ class ChatAgent:
             "Eres un asistente que responde sobre Ferrus y su grafo.yaml",
         )
 
-    def chat(self, message: str, model: str | None = None) -> str:
-        self.history.append({"role": "user", "content": message})
-        # Combine history into a single prompt for simplicity
-        prompt = "\n".join([h["content"] for h in self.history if h["role"] == "user"])
+    def chat(self, messages: List[Dict[str, str]], model: str | None = None) -> str:
+        """Chat with memory of previous turns."""
+        self.history.extend(messages)
+        prompt = "\n".join(
+            [h["content"] for h in self.history if h.get("role") == "user"]
+        )
         reply = call_llm(prompt, self.system_prompt, model)
         self.history.append({"role": "assistant", "content": reply})
         return reply

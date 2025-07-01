@@ -287,3 +287,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Documented workflow in README.
 ### Session 2025-07-19
 - Introduced Toolset class and injected it into AI team agents for shared graph analysis and validation.
+### Session 2025-07-20
+- Added YAML stdin support for `ferrum ai-team`.
+- Extended Toolset with refactor, AST and flow simulation helpers.
+- Coordinator and ChatAgent now keep conversation history for multi-turn chats.
+- Added AI Team tab in Studio with segmented role responses.
