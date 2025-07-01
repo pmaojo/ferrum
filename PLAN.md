@@ -256,3 +256,4 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Fixed AI service import error by ensuring router is imported correctly and adding `__init__.py`.
 ### Session 2025-07-01
 - Fixed Tailwind build in Studio by using 'tailwindcss' PostCSS plugin.
+### Session 2025-07-01 (runtime) - Updated PostCSS config to use `@tailwindcss/postcss` plugin.
