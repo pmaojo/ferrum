@@ -1,0 +1,23 @@
+use redis::{AsyncCommands, Client};
+use uuid::Uuid;
+
+pub fn redis_client() -> Client {
+    let url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".into());
+    Client::open(url).expect("invalid REDIS_URL")
+}
+
+pub async fn create_session(client: &Client, user_id: &str) -> redis::RedisResult<String> {
+    let token = Uuid::new_v4().to_string();
+    let mut conn = client.get_async_connection().await?;
+    conn.set_ex::<_, _, ()>(&token, user_id, 60 * 60 * 24 * 7).await?;
+    Ok(token)
+}
+
+pub async fn consume_session(client: &Client, token: &str) -> redis::RedisResult<Option<String>> {
+    let mut conn = client.get_async_connection().await?;
+    let user: Option<String> = conn.get(token).await?;
+    if user.is_some() {
+        let _: () = conn.del(token).await?;
+    }
+    Ok(user)
+}

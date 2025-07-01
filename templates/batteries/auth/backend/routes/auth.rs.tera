@@ -1,7 +1,9 @@
 use axum::{Router, routing::post};
-use crate::handlers::auth::login;
+use crate::handlers::auth::{login, refresh};
 
 /// Routes related to authentication
 pub fn routes() -> Router {
-    Router::new().route("/login", post(login))
+    Router::new()
+        .route("/login", post(login))
+        .route("/refresh", post(refresh))
 }

@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Extension, Query},
+    extract::{Extension, Query, TypedHeader},
     http::{header, HeaderMap, StatusCode},
     response::{IntoResponse, Redirect, Response},
 };
@@ -10,9 +10,11 @@ use serde::Deserialize;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::Serialize;
 use std::env;
+use crate::sessions::{create_session, consume_session, redis_client};
 use diesel::prelude::*;
 use uuid::Uuid;
 use chrono::Utc;
+use headers::Cookie;
 
 use crate::db::{DbPool};
 use crate::db::models::Usuario;
@@ -100,15 +102,46 @@ pub async fn oauth_callback(
     let claims = Claims {
         sub: email_val.to_string(),
         roles: vec!["user".into()],
-        exp: chrono::Utc::now().timestamp() as usize + 3600,
+        exp: chrono::Utc::now().timestamp() as usize + 900,
     };
     let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
     let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+
+    let redis = redis_client();
+    let refresh = create_session(&redis, email_val);
+    let refresh = refresh.await.unwrap();
 
     let mut headers = HeaderMap::new();
     headers.insert(
         header::SET_COOKIE,
         format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap(),
     );
+    headers.append(
+        header::SET_COOKIE,
+        format!("refresh_token={}; HttpOnly; Path=/", refresh).parse().unwrap(),
+    );
     (StatusCode::FOUND, headers, Redirect::temporary("/")).into_response()
+}
+
+pub async fn refresh(
+    TypedHeader(cookies): TypedHeader<Cookie>,
+) -> impl IntoResponse {
+    let redis = redis_client();
+    if let Some(token) = cookies.get("refresh_token") {
+        if let Ok(Some(user_id)) = crate::sessions::consume_session(&redis, token).await {
+            let claims = Claims {
+                sub: user_id.clone(),
+                roles: vec!["user".into()],
+                exp: chrono::Utc::now().timestamp() as usize + 900,
+            };
+            let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+            let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+            let new_refresh = create_session(&redis, &user_id).await.unwrap();
+            let mut headers = HeaderMap::new();
+            headers.insert(header::SET_COOKIE, format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap());
+            headers.append(header::SET_COOKIE, format!("refresh_token={}; HttpOnly; Path=/", new_refresh).parse().unwrap());
+            return (StatusCode::OK, headers).into_response();
+        }
+    }
+    StatusCode::UNAUTHORIZED.into_response()
 }
