@@ -80,6 +80,10 @@ pub enum Commands {
         /// Output machine readable JSON
         #[arg(long)]
         json: bool,
+
+        /// Threshold for bottleneck detection
+        #[arg(long, value_name = "N", default_value_t = 3)]
+        bottleneck: usize,
     },
 
     /// Start development environment
@@ -1332,14 +1336,13 @@ pub fn generate_graph(file: PathBuf, output: PathBuf) -> Result<()> {
 }
 
 /// Analyze a DSL YAML architecture for cycles and bottlenecks
-pub fn analyze(file: PathBuf, json: bool) -> Result<()> {
-    use serde_json::json;
+pub fn analyze(file: PathBuf, json: bool, bottleneck: usize) -> Result<()> {
     let dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
     let modules = ferrum_compiler::project_to_modules(&dsl);
     let graph = ferrum_compiler::build_graph(&modules);
     let layers = ferrum_compiler::classify_layers(&modules);
     let cycles = ferrum_compiler::find_cycles(&graph);
-    let bottlenecks = ferrum_compiler::find_bottlenecks(&graph, 3);
+    let bottlenecks = ferrum_compiler::find_bottlenecks(&graph, bottleneck);
     if json {
         let out = serde_json::json!({
             "cycles": cycles,

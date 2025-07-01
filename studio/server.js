@@ -42,13 +42,13 @@ app.post('/compile', async (req, res) => {
 });
 
 app.post('/analyze', async (req, res) => {
-  const { yaml } = req.body;
+  const { yaml, bottleneck } = req.body;
   if (!yaml) return res.status(400).json({ error: 'Missing yaml' });
   try {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ferrum-'));
     const yamlPath = path.join(tmpDir, 'grafo.yaml');
     fs.writeFileSync(yamlPath, yaml);
-    const cmd = `cargo run --quiet -- analyze ${yamlPath} --json`;
+    const cmd = `cargo run --quiet -- analyze ${yamlPath} --json --bottleneck ${bottleneck || 3}`;
     const out = await runCommand(cmd, path.resolve(__dirname, '..'));
     res.json(JSON.parse(out));
   } catch (err) {
@@ -137,14 +137,16 @@ app.post('/sync', async (req, res) => {
 });
 
 app.post('/save', async (req, res) => {
-  const { yaml } = req.body || {};
+  const { yaml, bottleneck } = req.body || {};
   if (!yaml) return res.status(400).json({ error: 'Missing yaml' });
   const filePath = path.resolve(__dirname, 'grafo.yaml');
   try {
     fs.writeFileSync(filePath, yaml);
     const cmd = `cargo run --quiet -- compile ${filePath}`;
     await runCommand(cmd, path.resolve(__dirname, '..'));
-    res.json({ ok: true });
+    const analyzeCmd = `cargo run --quiet -- analyze ${filePath} --json --bottleneck ${bottleneck || 3}`;
+    const out = await runCommand(analyzeCmd, path.resolve(__dirname, '..'));
+    res.json({ ok: true, analysis: JSON.parse(out) });
   } catch (err) {
     res.status(500).json({ error: String(err) });
   }

@@ -10,6 +10,25 @@ import * as jsYaml from "js-yaml";
 import { FeatureSidebar } from "./FeatureSidebar";
 import { NodeEditModal } from "./NodeEditModal";
 
+const typeColors: Record<string, string> = {
+  usecase: "#fef9c3",
+  adapter: "#c7d2fe",
+  port: "#a5b4fc",
+  entity: "#bbf7d0",
+  component: "#bae6fd",
+  hook: "#fdba74",
+  schema: "#f3e8ff",
+  form: "#ddd6fe",
+  validation: "#fde68a",
+  resource: "#fecaca",
+  policy: "#fed7aa",
+  upload: "#fca5a5",
+};
+
+function colorFor(type: string): string {
+  return typeColors[type] || "#e5e7eb";
+}
+
 interface Props {
   /** Source `grafo.yaml` text */
   yaml: string;
@@ -34,6 +53,7 @@ export function VisualEditor({ yaml, onChange }: Props) {
           output: n.output ?? "",
         },
         position: { x: 0, y: idx * 80 },
+        style: { background: colorFor(n.type) },
       }));
       const edges: Edge[] = [];
       yamlNodes.forEach((n: any) => {
@@ -59,10 +79,35 @@ export function VisualEditor({ yaml, onChange }: Props) {
     auth: false,
     jobs: false,
   });
+  const [bottleneck, setBottleneck] = useState(3);
+  const [analysis, setAnalysis] = useState<any | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [rfInstance, setRfInstance] = useState<any>(null);
   const [editing, setEditing] = useState<Node | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (!analysis) return;
+    const cycleSet = new Set<string>(
+      analysis.cycles.flat().map((id: string) => id.split(".").pop())
+    );
+    const bottleneckSet = new Set<string>(
+      analysis.bottlenecks.map((id: string) => id.split(".").pop())
+    );
+    setNodes((nds) =>
+      nds.map((n) => ({
+        ...n,
+        style: {
+          background: colorFor(n.data.type),
+          border: bottleneckSet.has(n.id)
+            ? "2px solid red"
+            : cycleSet.has(n.id)
+            ? "2px dashed orange"
+            : "1px solid #777",
+        },
+      }))
+    );
+  }, [analysis, setNodes]);
 
   const buildYaml = () => {
     const yamlNodes = nodes.map((n) => {
@@ -127,6 +172,7 @@ export function VisualEditor({ yaml, onChange }: Props) {
             output: "",
           },
           position,
+          style: { background: colorFor(type) },
         }),
       );
     }
@@ -135,11 +181,30 @@ export function VisualEditor({ yaml, onChange }: Props) {
   const onSave = async () => {
     const newYaml = buildYaml();
     onChange(newYaml);
-    await fetch("http://localhost:3001/save", {
+    const res = await fetch("http://localhost:3001/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ yaml: newYaml }),
+      body: JSON.stringify({ yaml: newYaml, bottleneck }),
     });
+    const data = await res.json();
+    if (data.analysis) {
+      setAnalysis(data.analysis);
+      const cycleMsg =
+        data.analysis.cycles && data.analysis.cycles.length
+          ? `Cycles: ${data.analysis.cycles
+              .map((c: string[]) => c.join(" -> "))
+              .join("; ")}`
+          : "";
+      const bottleneckMsg =
+        data.analysis.bottlenecks && data.analysis.bottlenecks.length
+          ? `Bottlenecks: ${data.analysis.bottlenecks
+              .map((b: string) => b.split(".").pop())
+              .join(", ")}`
+          : "";
+      if (cycleMsg || bottleneckMsg) {
+        alert(`${cycleMsg}\n${bottleneckMsg}`.trim());
+      }
+    }
   };
 
   return (
@@ -188,6 +253,15 @@ export function VisualEditor({ yaml, onChange }: Props) {
           >
             Export
           </button>
+          <label className="text-xs">
+            Bottleneck
+            <input
+              type="number"
+              className="border ml-1 w-14 px-1"
+              value={bottleneck}
+              onChange={(e) => setBottleneck(parseInt(e.target.value))}
+            />
+          </label>
           <button
             className="bg-blue-600 text-white px-3 py-1 rounded"
             onClick={onSave}
@@ -205,7 +279,9 @@ export function VisualEditor({ yaml, onChange }: Props) {
               const oldId = editing.id;
               setNodes((nds) =>
                 nds.map((n) =>
-                  n.id === oldId ? { ...updated } : { ...n, id: n.id },
+                  n.id === oldId
+                    ? { ...updated, style: { background: colorFor(updated.data.type) } }
+                    : { ...n, id: n.id },
                 ),
               );
               setEdges((eds) => {

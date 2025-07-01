@@ -69,7 +69,9 @@ fn main() -> Result<()> {
         Commands::I18n { dir, output } => ferrum_cli::commands::extract_i18n(dir, output),
         Commands::Graph { file, output } => generate_graph(file, output),
         Commands::FillTodos { dir } => fill_todos(dir),
-        Commands::Analyze { file, json } => ferrum_cli::commands::analyze(file, json),
+        Commands::Analyze { file, json, bottleneck } => {
+            ferrum_cli::commands::analyze(file, json, bottleneck)
+        }
         Commands::Build { target } => ferrum_cli::commands::build(target),
     }
 }
