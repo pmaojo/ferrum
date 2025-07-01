@@ -214,3 +214,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
  
 ### Session 2025-07-01
 - Added useSession hook and re
+
+### Session 2025-07-03
+- Added interactive mode to `ferrum init` using dialoguer.
+- Introduced `ferrum graph` command to generate GraphViz DOT files.
