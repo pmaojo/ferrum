@@ -57,11 +57,11 @@ async def validate_usecase_route(req: PromptRequest):
 
 @router.post("/fill-todo")
 async def fill_todo_route(req: FillRequest):
-    code = await run_in_threadpool(fill_code, req.task, req.context, req.model)
+    code = await run_in_threadpool(fill_code, req.instructions, req.code, None)
     return {"code": code}
 
 
 @router.post("/chat")
 async def chat_route(req: ChatRequest) -> ChatResponse:
-    reply = await run_in_threadpool(agent.chat, req.message, None)
-    return ChatResponse(reply=reply)
+    reply = await run_in_threadpool(agent.chat, req.messages, req.model)
+    return ChatResponse(message=reply)
