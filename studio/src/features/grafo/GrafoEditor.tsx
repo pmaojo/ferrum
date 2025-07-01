@@ -12,6 +12,7 @@ interface Props {
 
 export function GrafoEditor({ value, onChange }: Props) {
   const [loading, setLoading] = useState(false);
+  const [lint, setLint] = useState<string | null>(null);
 
   const compile = async () => {
     setLoading(true);
@@ -56,6 +57,21 @@ export function GrafoEditor({ value, onChange }: Props) {
     }
   };
 
+  const structuralLint = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3001/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yaml: value }),
+      });
+      const data = await res.json();
+      setLint(JSON.stringify(data, null, 2));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Editor
@@ -73,6 +89,13 @@ export function GrafoEditor({ value, onChange }: Props) {
           {loading ? "Validating..." : "Validate"}
         </button>
         <button
+          className="bg-purple-500 text-white px-4 py-2 rounded"
+          onClick={structuralLint}
+          disabled={loading}
+        >
+          {loading ? "Linting..." : "Lint estructural"}
+        </button>
+        <button
           className="bg-green-500 text-white px-4 py-2 rounded"
           onClick={compile}
           disabled={loading}
@@ -80,6 +103,11 @@ export function GrafoEditor({ value, onChange }: Props) {
           {loading ? "Compiling..." : "Compile"}
         </button>
       </div>
+      {lint && (
+        <pre className="bg-gray-800 text-green-300 p-2 whitespace-pre-wrap mt-2">
+          {lint}
+        </pre>
+      )}
     </div>
   );
 }

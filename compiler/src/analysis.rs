@@ -1,9 +1,15 @@
-use ferrum_shared_models::Module;
+use ferrum_shared_models::{Module, NodeType};
 use petgraph::graph::{DiGraph, NodeIndex};
 use petgraph::Direction;
 use std::collections::HashMap;
 
-pub type ModuleGraph = DiGraph<String, ()>;
+#[derive(Debug, Clone)]
+pub struct NodeInfo {
+    pub id: String,
+    pub layer: NodeType,
+}
+
+pub type ModuleGraph = DiGraph<NodeInfo, ()>;
 
 /// Build a directed graph from modules where each node is identified by
 /// `module.node` and edges represent `depends_on` relationships.
@@ -15,7 +21,11 @@ pub fn build_graph(modules: &[Module]) -> ModuleGraph {
     for m in modules {
         for n in &m.nodes {
             let id = format!("{}.{}", m.name, n.id);
-            let idx = graph.add_node(id.clone());
+            let info = NodeInfo {
+                id: id.clone(),
+                layer: n.node_type.clone(),
+            };
+            let idx = graph.add_node(info);
             map.insert(id, idx);
         }
     }
@@ -47,7 +57,11 @@ pub fn find_cycles(graph: &ModuleGraph) -> Vec<Vec<String>> {
     petgraph::algo::tarjan_scc(graph)
         .into_iter()
         .filter(|scc| scc.len() > 1)
-        .map(|scc| scc.into_iter().map(|idx| graph[idx].clone()).collect())
+        .map(|scc| {
+            scc.into_iter()
+                .map(|idx| graph[idx].id.clone())
+                .collect()
+        })
         .collect()
 }
 
@@ -57,6 +71,19 @@ pub fn find_bottlenecks(graph: &ModuleGraph, threshold: usize) -> Vec<String> {
     graph
         .node_indices()
         .filter(|&idx| graph.neighbors_directed(idx, Direction::Incoming).count() > threshold)
-        .map(|idx| graph[idx].clone())
+        .map(|idx| graph[idx].id.clone())
         .collect()
+}
+
+/// Classify nodes by their architectural layer.
+pub fn classify_layers(modules: &[Module]) -> HashMap<NodeType, Vec<String>> {
+    let mut map: HashMap<NodeType, Vec<String>> = HashMap::new();
+    for m in modules {
+        for n in &m.nodes {
+            map.entry(n.node_type.clone())
+                .or_default()
+                .push(format!("{}.{}", m.name, n.id));
+        }
+    }
+    map
 }

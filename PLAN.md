@@ -265,3 +265,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-12
 - Added dependency graph analysis using petgraph and new `ferrum analyze` CLI command.
+
+### Session 2025-07-01
+- Added layer classification and JSON analyzer output.
+- Integrated structural lint button in Studio and /analyze API.
