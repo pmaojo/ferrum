@@ -242,3 +242,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated plan with recommendations sobre calidad de código, arquitectura
   modular y mejoras de UX.
 
+
+### Session 2025-07-06
+- Documented GraphRAG usage and added docstrings for filler agent.

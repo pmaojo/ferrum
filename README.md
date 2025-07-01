@@ -107,6 +107,16 @@ ferrum usecase "crear post con título y cuerpo"
 
 This produces a structured `usecase` YAML file ready to be compiled.
 
+#### 8. Fill TODO markers with GraphRAG
+
+```bash
+ferrum fill-todos gen
+```
+
+Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and run the
+command above to let Ferrus ask the AI service for code based on your graph
+context.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to
