@@ -5,7 +5,7 @@ pub mod components;
 pub use components::SharedComponent;
 
 #[typeshare]
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum NodeType {
     UseCase,

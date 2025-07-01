@@ -41,6 +41,21 @@ app.post('/compile', async (req, res) => {
   }
 });
 
+app.post('/analyze', async (req, res) => {
+  const { yaml } = req.body;
+  if (!yaml) return res.status(400).json({ error: 'Missing yaml' });
+  try {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ferrum-'));
+    const yamlPath = path.join(tmpDir, 'grafo.yaml');
+    fs.writeFileSync(yamlPath, yaml);
+    const cmd = `cargo run --quiet -- analyze ${yamlPath} --json`;
+    const out = await runCommand(cmd, path.resolve(__dirname, '..'));
+    res.json(JSON.parse(out));
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
 app.post('/prompt', async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'Missing text' });
