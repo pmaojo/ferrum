@@ -109,6 +109,8 @@ pub fn compile_dsl(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     crate::resourcegen::compile_resources(dsl, paths)?;
     // Components
     crate::componentgen::compile_components(dsl, paths)?;
+    // IoT code
+    crate::iotgen::compile_iot(dsl, paths)?;
     Ok(())
 }
 

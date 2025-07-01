@@ -245,3 +245,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-06
 - Documented GraphRAG usage and added docstrings for filler agent.
+
+### Session 2025-07-07
+- Added IoT code generator and cross-compilation command.

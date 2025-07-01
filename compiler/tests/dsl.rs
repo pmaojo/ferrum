@@ -99,3 +99,20 @@ uploads:
         .iter()
         .any(|n| matches!(n.node_type, ferrum_compiler::NodeType::Upload)));
 }
+
+#[test]
+fn iot_section_parsed() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: sensor
+    code: |
+      fn read() {}
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let project = parse_dsl_yaml(&file).unwrap();
+    assert_eq!(project.iot.len(), 1);
+    assert_eq!(project.iot[0].name, "sensor");
+}
