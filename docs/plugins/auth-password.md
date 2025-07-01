@@ -1,8 +1,9 @@
 # Auth Password Plugin
 
 This plugin adds basic password-based authentication scaffolding.
-Refresh tokens are issued and persisted in Redis automatically.
+Refresh tokens
 It exposes a `/api/auth/refresh` endpoint and a `useSession()` hook for renewing JWTs.
+
 
 ## Usage
 
