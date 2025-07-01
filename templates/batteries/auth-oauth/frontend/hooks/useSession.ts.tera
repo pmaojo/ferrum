@@ -1,0 +1,13 @@
+// Refresh JWT using a stored session cookie
+export function useSession() {
+    return async () => {
+        const res = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!res.ok) {
+            throw new Error('Session refresh failed');
+        }
+        return res.ok;
+    };
+}

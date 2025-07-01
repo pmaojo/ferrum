@@ -63,6 +63,10 @@ fn ensure_templates() -> Result<()> {
         "frontend/src/hooks/useLogin.ts",
     )?;
     copy_if_missing(
+        include_str!("../../../templates/batteries/auth/frontend/hooks/useSession.ts.tera"),
+        "frontend/src/hooks/useSession.ts",
+    )?;
+    copy_if_missing(
         include_str!("../../../templates/batteries/auth/frontend/components/LoginForm.tsx.tera"),
         "frontend/src/components/LoginForm.tsx",
     )?;

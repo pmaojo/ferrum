@@ -1,7 +1,9 @@
 # Auth OAuth Plugin
 
 This plugin scaffolds Google and GitHub OAuth login flows.
-It also generates helpers for refresh tokens stored in Redis.
+ 
+It also generates helpers for refresh tokens stored in Redis and exposes a `/api/auth/refresh` endpoint.
+
 
 ## Usage
 

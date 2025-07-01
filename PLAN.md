@@ -211,3 +211,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added `--api-only` flag to `ferrum init` for backend-only projects; dev and docker-compose skip frontend when used.
 ### Session 2025-06-30
 - Added refresh token and session support via Redis for generated auth templates.
+ 
+### Session 2025-07-01
+- Added useSession hook and re

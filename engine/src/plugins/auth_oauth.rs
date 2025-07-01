@@ -72,6 +72,12 @@ fn ensure_templates() -> Result<()> {
     )?;
     copy_if_missing(
         include_str!(
+            "../../../templates/batteries/auth-oauth/frontend/hooks/useSession.ts.tera"
+        ),
+        "frontend/src/hooks/useSession.ts",
+    )?;
+    copy_if_missing(
+        include_str!(
             "../../../templates/batteries/auth-oauth/frontend/hooks/useCurrentUserRoles.ts.tera"
         ),
         "frontend/src/hooks/useCurrentUserRoles.ts",
