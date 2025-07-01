@@ -251,3 +251,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-08
 - Documented IoT expose feature and added bullet in README.
+
+### Session 2025-07-09
+- Fixed AI service import error by ensuring router is imported correctly and adding `__init__.py`.
