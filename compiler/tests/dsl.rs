@@ -30,8 +30,8 @@ validations:
     let dir = tempfile::tempdir().unwrap();
     let file = dir.path().join("dsl.yaml");
     fs::write(&file, yaml).unwrap();
-    let project = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&project);
+    let mut project = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&mut project);
     assert_eq!(modules.len(), 3);
     let m = &modules[0];
     assert_eq!(m.name, "user");
@@ -67,8 +67,8 @@ validations:
     let dir = tempfile::tempdir().unwrap();
     let file = dir.path().join("dsl.yaml");
     fs::write(&file, yaml).unwrap();
-    let project = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&project);
+    let mut project = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&mut project);
     assert!(modules.iter().any(|m| m.name == "forms"));
     assert!(modules.iter().any(|m| m.name == "validations"));
     let all_nodes: Vec<_> = modules.iter().flat_map(|m| &m.nodes).collect();
@@ -91,8 +91,8 @@ uploads:
     let dir = tempfile::tempdir().unwrap();
     let file = dir.path().join("dsl.yaml");
     fs::write(&file, yaml).unwrap();
-    let project = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&project);
+    let mut project = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&mut project);
     assert!(modules.iter().any(|m| m.name == "uploads"));
     let all_nodes: Vec<_> = modules.iter().flat_map(|m| &m.nodes).collect();
     assert!(all_nodes
