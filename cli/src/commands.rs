@@ -216,6 +216,13 @@ pub enum Commands {
         dir: PathBuf,
     },
 
+    /// Chat with the AI coordinator team
+    AiTeam {
+        /// Prompt text
+        #[arg(value_name = "TEXT")]
+        text: String,
+    },
+
     /// Build the backend for a specific target
     Build {
         /// Target triple (e.g. x86_64-unknown-linux-gnu)
@@ -1413,6 +1420,36 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
             }
         }
     }
+    Ok(())
+}
+
+/// Send a prompt to the coordinator AI team.
+pub fn ai_team(text: String) -> Result<()> {
+    use crate::config::LlmConfig;
+    use reqwest::blocking::Client;
+
+    let cfg_model = LlmConfig::load().and_then(|c| c.model);
+    let model = std::env::var("MODEL")
+        .ok()
+        .or(cfg_model)
+        .unwrap_or_else(|| "openai".to_string());
+
+    let client = Client::new();
+    let resp = client
+        .post("http://localhost:8000/ai-team")
+        .json(&serde_json::json!({
+            "messages": [{"role": "user", "content": text}],
+            "model": model,
+        }))
+        .send()?;
+
+    let value = resp.json::<serde_json::Value>()?;
+    let reply = value
+        .get("message")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    println!("{}", reply);
     Ok(())
 }
 
