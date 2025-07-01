@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 interface Props {
   features: Record<string, boolean>;
   onToggle: (k: string, v: boolean) => void;
