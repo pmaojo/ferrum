@@ -15,12 +15,14 @@ impl Plugin for AuthPlugin {
 
     fn on_init(&self) -> Result<()> {
         ensure_templates()?;
-        ensure_env()
+        ensure_env()?;
+        ensure_dependencies()
     }
 
     fn on_compile(&self) -> Result<()> {
         ensure_templates()?;
-        ensure_env()
+        ensure_env()?;
+        ensure_dependencies()
     }
 
     fn extend_dsl(&self, dsl: &mut FerrumDsl) -> Result<()> {
@@ -43,6 +45,7 @@ impl Plugin for AuthPlugin {
 fn ensure_env() -> Result<()> {
     ensure_env_var("JWT_SECRET", "change_me")?;
     ensure_env_var("AUTH_REDIRECT", "/login")?;
+    ensure_env_var("REDIS_URL", "redis://localhost:6379")?;
     Ok(())
 }
 
@@ -60,8 +63,36 @@ fn ensure_templates() -> Result<()> {
         "frontend/src/hooks/useLogin.ts",
     )?;
     copy_if_missing(
+        include_str!("../../../templates/batteries/auth/frontend/hooks/useSession.ts.tera"),
+        "frontend/src/hooks/useSession.ts",
+    )?;
+    copy_if_missing(
         include_str!("../../../templates/batteries/auth/frontend/components/LoginForm.tsx.tera"),
         "frontend/src/components/LoginForm.tsx",
     )?;
+    copy_if_missing(
+        include_str!("../../../templates/batteries/auth/backend/sessions.rs.tera"),
+        "backend/sessions.rs",
+    )?;
+    Ok(())
+}
+
+fn ensure_dependencies() -> Result<()> {
+    ensure_dep("redis", "0.23")
+}
+
+fn ensure_dep(dep: &str, version: &str) -> Result<()> {
+    use std::fs::{self, OpenOptions};
+    use std::io::Write;
+    use std::path::Path;
+    let path = Path::new("backend/Cargo.toml");
+    if !path.exists() {
+        return Ok(());
+    }
+    let contents = fs::read_to_string(path)?;
+    if !contents.contains(dep) {
+        let mut f = OpenOptions::new().append(true).open(path)?;
+        writeln!(f, "{dep} = \"{version}\"")?;
+    }
     Ok(())
 }
