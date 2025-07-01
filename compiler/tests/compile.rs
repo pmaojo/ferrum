@@ -112,3 +112,22 @@ components:
     assert!(out.path().join("frontend/components/Card.tsx").exists());
     assert!(out.path().join("frontend/components/index.ts").exists());
 }
+
+#[test]
+fn compile_iot_creates_files() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: blink
+    code: |
+      fn blink() {}
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/blink.rs").exists());
+}

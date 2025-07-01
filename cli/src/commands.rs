@@ -200,6 +200,13 @@ pub enum Commands {
         #[arg(value_name = "DIR", default_value = "gen")]
         dir: PathBuf,
     },
+
+    /// Build the backend for a specific target
+    Build {
+        /// Target triple (e.g. x86_64-unknown-linux-gnu)
+        #[arg(short, long, value_name = "TRIPLE")]
+        target: Option<String>,
+    },
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
@@ -401,7 +408,6 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
     println!("🚀 Starting Ferrum development environment");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-
     let frontend_exists = Path::new("frontend").exists();
 
     if !docker {
@@ -517,13 +523,34 @@ pub fn init(
 
     if interactive {
         use dialoguer::Confirm;
-        with_graph = Confirm::new().with_prompt("Include graph database support?").default(with_graph).interact()?;
-        with_ai = Confirm::new().with_prompt("Include AI/LLM integration?").default(with_ai).interact()?;
-        with_db = Confirm::new().with_prompt("Include Diesel ORM setup?").default(with_db).interact()?;
-        with_auth = Confirm::new().with_prompt("Include authentication templates?").default(with_auth).interact()?;
-        with_jobs = Confirm::new().with_prompt("Include background job templates?").default(with_jobs).interact()?;
-        with_uploads = Confirm::new().with_prompt("Include file upload templates?").default(with_uploads).interact()?;
-        api_only = Confirm::new().with_prompt("Backend only project (no frontend)?").default(api_only).interact()?;
+        with_graph = Confirm::new()
+            .with_prompt("Include graph database support?")
+            .default(with_graph)
+            .interact()?;
+        with_ai = Confirm::new()
+            .with_prompt("Include AI/LLM integration?")
+            .default(with_ai)
+            .interact()?;
+        with_db = Confirm::new()
+            .with_prompt("Include Diesel ORM setup?")
+            .default(with_db)
+            .interact()?;
+        with_auth = Confirm::new()
+            .with_prompt("Include authentication templates?")
+            .default(with_auth)
+            .interact()?;
+        with_jobs = Confirm::new()
+            .with_prompt("Include background job templates?")
+            .default(with_jobs)
+            .interact()?;
+        with_uploads = Confirm::new()
+            .with_prompt("Include file upload templates?")
+            .default(with_uploads)
+            .interact()?;
+        api_only = Confirm::new()
+            .with_prompt("Backend only project (no frontend)?")
+            .default(api_only)
+            .interact()?;
         println!();
     }
 
@@ -1297,11 +1324,13 @@ pub fn generate_graph(file: PathBuf, output: PathBuf) -> Result<()> {
 pub fn fill_todos(dir: PathBuf) -> Result<()> {
     use regex::Regex;
     use reqwest::blocking::Client;
-    use walkdir::WalkDir;
-    use std::fs;
     use serde_json::json;
+    use std::fs;
+    use walkdir::WalkDir;
 
-    let re = Regex::new(r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)").unwrap();
+    let re =
+        Regex::new(r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)")
+            .unwrap();
     let client = Client::new();
 
     for entry in WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
@@ -1332,6 +1361,25 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
             }
         }
     }
+    Ok(())
+}
+
+/// Build the backend using Cargo with optional target triple.
+pub fn build(target: Option<String>) -> Result<()> {
+    use std::process::Command;
+
+    let mut cmd = Command::new("cargo");
+    cmd.arg("build")
+        .arg("--manifest-path")
+        .arg("backend/Cargo.toml");
+    if let Some(t) = target {
+        cmd.arg("--target").arg(t);
+    }
+    let status = cmd.status()?;
+    if !status.success() {
+        anyhow::bail!("Cargo build failed");
+    }
+    println!("✅ Build finished");
     Ok(())
 }
 

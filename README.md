@@ -117,6 +117,14 @@ Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and r
 command above to let Ferrus ask the AI service for code based on your graph
 context.
 
+#### 9. Cross-compile the backend
+
+```bash
+ferrum build --target wasm32-unknown-unknown
+```
+
+Use the `--target` flag to pass any supported Rust target triple.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to
@@ -192,6 +200,15 @@ resources:
 policies:
   - name: isAdmin
     guard: check_admin
+
+iot:
+  - name: blinkLed
+    code: |
+      use rppal::gpio::Gpio;
+      pub fn blink_led() {
+          let pin = Gpio::new().unwrap().get(17).unwrap().into_output();
+          pin.set_high();
+      }
 ```
 
 ### 🧠 Node Field Reference

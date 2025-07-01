@@ -213,6 +213,13 @@ pub struct DslResource {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslIot {
+    pub name: String,
+    pub code: String,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslForm {
     #[serde(default)]
     pub fields: Vec<String>,
@@ -304,4 +311,7 @@ pub struct FerrumDsl {
     pub policies: Vec<DslPolicy>,
     #[serde(default)]
     pub resources: Vec<DslResource>,
+
+    #[serde(default)]
+    pub iot: Vec<DslIot>,
 }
