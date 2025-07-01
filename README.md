@@ -125,6 +125,15 @@ ferrum build --target wasm32-unknown-unknown
 
 Use the `--target` flag to pass any supported Rust target triple.
 
+#### 10. Collaborate with the AI team
+
+```bash
+ferrum ai-team "How should I structure the payment module?"
+```
+
+This command sends your question to a coordinator agent that consults
+backend, frontend and UX experts and prints their combined advice.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to

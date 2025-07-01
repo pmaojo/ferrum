@@ -280,3 +280,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated tests accordingly.
 ### Session 2025-07-17
 - Updated AI router to align with schemas and added route tests.
+
+### Session 2025-07-18
+- Introduced coordinator agent delegating to backend, frontend and UX experts.
+- Added `/ai-team` route and `ferrum ai-team` CLI command using it.
+- Documented workflow in README.

@@ -7,6 +7,7 @@ from .validator import (
 from .component_designer import design_component
 from .usecase_designer import design_usecase
 from .filler import fill_code
+from .coordinator import Coordinator
 
 __all__ = [
     "generate_yaml",
@@ -16,4 +17,5 @@ __all__ = [
     "design_component",
     "design_usecase",
     "fill_code",
+    "Coordinator",
 ]
