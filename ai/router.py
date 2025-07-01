@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi.concurrency import run_in_threadpool
-from .types import (
+from .schemas import (
     PromptRequest,
     YamlRequest,
     ChatRequest,
