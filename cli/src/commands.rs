@@ -119,6 +119,21 @@ pub enum Commands {
         /// Backend only project without frontend
         #[arg(long)]
         api_only: bool,
+
+        /// Interactive mode
+        #[arg(short, long)]
+        interactive: bool,
+    },
+
+    /// Generate a DOT graph visualization from a DSL file
+    Graph {
+        /// Path to the grafo.yaml file
+        #[arg(value_name = "FILE")]
+        file: PathBuf,
+
+        /// Output dot file path
+        #[arg(short, long, value_name = "FILE", default_value = "graph.dot")]
+        output: PathBuf,
     },
 
     /// Sync a grafo.yaml file to Neo4j
@@ -379,6 +394,7 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
     println!("🚀 Starting Ferrum development environment");
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
+
     let frontend_exists = Path::new("frontend").exists();
 
     if !docker {
@@ -477,19 +493,32 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
 /// Scaffold a new Ferrum project on disk.
 pub fn init(
     name: String,
-    with_graph: bool,
-    with_ai: bool,
-    with_db: bool,
-    with_auth: bool,
-    with_jobs: bool,
-    with_uploads: bool,
-    api_only: bool,
+    mut with_graph: bool,
+    mut with_ai: bool,
+    mut with_db: bool,
+    mut with_auth: bool,
+    mut with_jobs: bool,
+    mut with_uploads: bool,
+    mut api_only: bool,
+    interactive: bool,
 ) -> Result<()> {
     use std::fs::{self, OpenOptions};
     use std::io::Write;
 
     println!("🏗️  Initializing new Ferrum project: {}", name);
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+    if interactive {
+        use dialoguer::Confirm;
+        with_graph = Confirm::new().with_prompt("Include graph database support?").default(with_graph).interact()?;
+        with_ai = Confirm::new().with_prompt("Include AI/LLM integration?").default(with_ai).interact()?;
+        with_db = Confirm::new().with_prompt("Include Diesel ORM setup?").default(with_db).interact()?;
+        with_auth = Confirm::new().with_prompt("Include authentication templates?").default(with_auth).interact()?;
+        with_jobs = Confirm::new().with_prompt("Include background job templates?").default(with_jobs).interact()?;
+        with_uploads = Confirm::new().with_prompt("Include file upload templates?").default(with_uploads).interact()?;
+        api_only = Confirm::new().with_prompt("Backend only project (no frontend)?").default(api_only).interact()?;
+        println!();
+    }
 
     // Create project directory
     let project_dir = PathBuf::from(&name);
@@ -1233,6 +1262,27 @@ pub fn extract_i18n(dir: PathBuf, output: PathBuf) -> Result<()> {
         messages.len(),
         output.display()
     );
+    Ok(())
+}
+
+/// Generate a simple GraphViz DOT file from a DSL YAML architecture.
+pub fn generate_graph(file: PathBuf, output: PathBuf) -> Result<()> {
+    use std::fs;
+
+    let module = ferrum_compiler::parse_yaml(&file)?;
+    let mut dot = String::from("digraph Ferrum {\n");
+    for node in &module.nodes {
+        dot.push_str(&format!(
+            "    {} [label=\"{} ({:?})\"];\n",
+            node.id, node.id, node.node_type
+        ));
+        for dep in &node.depends_on {
+            dot.push_str(&format!("    {} -> {};\n", node.id, dep));
+        }
+    }
+    dot.push_str("}\n");
+    fs::write(&output, dot)?;
+    println!("✅ Graph written to {}", output.display());
     Ok(())
 }
 
