@@ -262,3 +262,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-11
 - Reconfigured Tailwind for Studio using @tailwindcss/postcss plugin and new globals.css.
+
+### Session 2025-07-12
+- Added dependency graph analysis using petgraph and new `ferrum analyze` CLI command.
