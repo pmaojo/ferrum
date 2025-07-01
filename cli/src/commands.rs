@@ -1427,6 +1427,8 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
 pub fn ai_team(text: String) -> Result<()> {
     use crate::config::LlmConfig;
     use reqwest::blocking::Client;
+    use std::io::{self, Read};
+    use atty::Stream;
 
     let cfg_model = LlmConfig::load().and_then(|c| c.model);
     let model = std::env::var("MODEL")
@@ -1434,11 +1436,21 @@ pub fn ai_team(text: String) -> Result<()> {
         .or(cfg_model)
         .unwrap_or_else(|| "openai".to_string());
 
+    let mut prompt = text;
+    if !atty::is(Stream::Stdin) {
+        let mut buf = String::new();
+        io::stdin().read_to_string(&mut buf)?;
+        if !buf.trim().is_empty() {
+            prompt.push_str("\n");
+            prompt.push_str(&buf);
+        }
+    }
+
     let client = Client::new();
     let resp = client
         .post("http://localhost:8000/ai-team")
         .json(&serde_json::json!({
-            "messages": [{"role": "user", "content": text}],
+            "messages": [{"role": "user", "content": prompt}],
             "model": model,
         }))
         .send()?;

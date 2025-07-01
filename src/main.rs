@@ -72,6 +72,7 @@ fn main() -> Result<()> {
         Commands::Analyze { file, json, bottleneck } => {
             analyze(file, json, bottleneck)
         }
+        Commands::AiTeam { text } => ferrum_cli::commands::ai_team(text),
         Commands::Build { target } => ferrum_cli::commands::build(target),
     }
 }

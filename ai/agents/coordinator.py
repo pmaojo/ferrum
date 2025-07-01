@@ -14,11 +14,13 @@ class Coordinator:
         self.backend = BackendExpert(self.tools)
         self.frontend = FrontendExpert(self.tools)
         self.ux = UXDesigner(self.tools)
+        self.history: List[Dict[str, str]] = []
 
     def chat(self, messages: List[Dict[str, str]], model: str | None = None) -> str:
         """Respond to a user message by delegating to specialized agents."""
         if not messages:
             return ""
+        self.history.extend(messages)
         text = messages[-1].get("content", "")
 
         if text.startswith("generate "):
@@ -33,9 +35,12 @@ class Coordinator:
             if len(parts) == 3:
                 return fill_code(parts[1], parts[2], model)
 
-        back = self.backend.respond(text, model)
-        front = self.frontend.respond(text, model)
-        ux = self.ux.respond(text, model)
+        convo = "\n".join(
+            [m["content"] for m in self.history if m.get("role") == "user"]
+        )
+        back = self.backend.respond(convo, model)
+        front = self.frontend.respond(convo, model)
+        ux = self.ux.respond(convo, model)
         return "\n\n".join([
             "Backend Expert:\n" + back,
             "Frontend Expert:\n" + front,
