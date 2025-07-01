@@ -7,7 +7,7 @@ export const useGenerateYaml = () => {
   const generate = async (text: string) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/ai/generate", {
+      const res = await fetch("/generate/yaml", {
         method: "POST",
         body: JSON.stringify({ text }),
       });

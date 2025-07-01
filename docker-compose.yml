@@ -12,16 +12,24 @@ services:
       - db
 
   studio:
-    build: ./studio
+    build: 
+      context: ./studio
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     volumes:
-      - ./studio:/app
+      - ./studio/package.json:/app/package.json
+      - ./studio/package-lock.json:/app/package-lock.json
+      - ./studio/src:/app/src
+      - ./studio/public:/app/public
+      - /app/node_modules
+    working_dir: /app
     depends_on:
       - engine
       - db
       - ferrum-ai
     environment:
+      - NODE_ENV=development
       - DATABASE_URL=postgres://ferrum:password@db/ferrum
       - VITE_AI_URL=http://ferrum-ai:8000
       - VITE_ENGINE_URL=http://engine:3000
@@ -48,23 +56,13 @@ services:
     volumes:
       - ./data/neo4j:/data
 
-  llm:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./data/ollama:/root/.ollama
-
   ferrum-ai:
     build: ./ai
     ports:
       - "8001:8000"
-
-    depends_on:
-      - llm
     environment:
       - VITE_AI_URL=http://ferrum-ai:8000
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=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
     volumes:
       - ./ai:/app
 

@@ -1,23 +1,20 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 
 class PromptRequest(BaseModel):
     text: str
-    model: Optional[str] = None
+    model: Optional[str] = "gpt-4"
 
 class YamlRequest(BaseModel):
     yaml: str
 
-
 class ChatRequest(BaseModel):
-    message: str
-
+    messages: List[dict]
+    model: Optional[str] = "gpt-4"
 
 class ChatResponse(BaseModel):
-    reply: str
-
+    message: str
 
 class FillRequest(BaseModel):
-    task: str
-    context: str
-    model: Optional[str] = None
+    code: str
+    instructions: str

@@ -2,13 +2,18 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies and ensure binaries are in PATH
-RUN npm install --legacy-peer-deps && \
-    npm install -g vite && \
-    ln -s /app/node_modules/.bin/vite /usr/local/bin/vite
+# Install dependencies
+RUN npm install --legacy-peer-deps
 
 # Copy application code
 COPY . .
