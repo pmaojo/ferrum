@@ -1,11 +1,18 @@
 from fastapi import APIRouter
 from fastapi.concurrency import run_in_threadpool
-from .types import PromptRequest, YamlRequest, ChatRequest, ChatResponse
+from .types import (
+    PromptRequest,
+    YamlRequest,
+    ChatRequest,
+    ChatResponse,
+    FillRequest,
+)
 from agents.generator import generate_yaml
 from agents.explainer import explain_yaml
 from agents.validator import validate_yaml, validate_usecase_prompt
 from agents.component_designer import design_component
 from agents.usecase_designer import design_usecase
+from agents.filler import fill_code
 from services.chat_agent import ChatAgent
 
 router = APIRouter()
@@ -46,6 +53,12 @@ async def validate_yaml_route(req: YamlRequest):
 async def validate_usecase_route(req: PromptRequest):
     ok = await run_in_threadpool(validate_usecase_prompt, req.text, req.model)
     return {"valid": ok}
+
+
+@router.post("/fill-todo")
+async def fill_todo_route(req: FillRequest):
+    code = await run_in_threadpool(fill_code, req.task, req.context, req.model)
+    return {"code": code}
 
 
 @router.post("/chat")

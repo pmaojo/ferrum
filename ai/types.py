@@ -15,3 +15,9 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+
+
+class FillRequest(BaseModel):
+    task: str
+    context: str
+    model: Optional[str] = None

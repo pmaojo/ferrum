@@ -36,11 +36,12 @@ pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result
         .unwrap_or_default();
 
     let rust_content = format!(
-        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>, Json(_input): Json<{ret_ty}>) -> Json<{ret_ty}> {{\n{policy_check}    // TODO: implementar lógica real\n    Json(_input)\n}}\n",
+        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>, Json(_input): Json<{ret_ty}>) -> Json<{ret_ty}> {{\n{policy_check}    // ⛳️ AI_FILL[mutation_logic] --context=mutation:{orig}\n    Json(_input)\n}}\n",
         imports = imports,
         func_name = func_name,
         ret_ty = ret_ty,
         policy_check = policy_check,
+        orig = mutation.name,
     );
     fs::write(backend_dir.join(format!("{}.rs", func_name)), rust_content)?;
 

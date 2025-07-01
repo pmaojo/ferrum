@@ -218,3 +218,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-03
 - Added interactive mode to `ferrum init` using dialoguer.
 - Introduced `ferrum graph` command to generate GraphViz DOT files.
+
+### Session 2025-07-04
+- Integrated initial GraphRAG TODO filler.
+- Added CLI command `ferrum fill-todos` and AI service endpoint `/fill-todo`.
+

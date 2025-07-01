@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
     add_plugin, compile, component_prompt, explain, generate_graph, list_plugins, migrate,
-    plugin_docs, prompt, remove_plugin, sync, usecase_prompt, Cli, Commands,
+    plugin_docs, prompt, remove_plugin, sync, usecase_prompt, fill_todos, Cli, Commands,
 };
 use tracing::Level;
 
@@ -68,5 +68,6 @@ fn main() -> Result<()> {
         Commands::Docs { plugin } => plugin_docs(plugin),
         Commands::I18n { dir, output } => ferrum_cli::commands::extract_i18n(dir, output),
         Commands::Graph { file, output } => generate_graph(file, output),
+        Commands::FillTodos { dir } => fill_todos(dir),
     }
 }
