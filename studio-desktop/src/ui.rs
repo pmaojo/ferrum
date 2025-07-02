@@ -3,8 +3,23 @@ use crate::graph::{GraphData, GraphTask, Node, NodePositions};
 use crate::runtime::AsyncRuntime;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
+use egui_extras::RetainedImage;
 use serde_yaml;
 use std::collections::VecDeque;
+
+#[derive(Resource)]
+pub struct Icons {
+    pub iot: RetainedImage,
+}
+
+impl Default for Icons {
+    fn default() -> Self {
+        Self {
+            iot: RetainedImage::from_svg_bytes("iot", include_bytes!("../assets/iot.svg"))
+                .expect("invalid iot.svg"),
+        }
+    }
+}
 
 #[derive(Resource)]
 pub struct UiState {
@@ -91,6 +106,7 @@ pub fn graph_viewer(
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
     mut node_task: ResMut<NodeInfoTask>,
+    icons: Res<Icons>,
 ) {
     let ctx = contexts.ctx_mut();
     if let Some(rx) = &ai_task.0 {
@@ -154,12 +170,8 @@ pub fn graph_viewer(
         }
         // Draw nodes
         for node in &data.nodes {
-            let pos = center
-                + *node_positions
-                    .0
-                    .get(&node.name)
-                    .unwrap_or(&Vec2::ZERO)
-                    * viewport.zoom;
+            let pos =
+                center + *node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
             if resp.drag_started() {
@@ -173,6 +185,12 @@ pub fn graph_viewer(
                 egui::Color32::from_rgb(100, 150, 250)
             };
             painter.circle_filled(pos, 20.0, color);
+            if node.node_type.as_deref() == Some("iot") {
+                let size = icons.iot.size_vec2() * 0.5;
+                let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
+                egui::Image::from_texture((icons.iot.texture_id(ui.ctx()), size))
+                    .paint_at(ui, icon_rect);
+            }
             painter.text(
                 pos,
                 egui::Align2::CENTER_CENTER,
@@ -220,7 +238,11 @@ pub fn graph_viewer(
                 if ui.button("Validate").clicked() {
                     if let Some(yaml) = subgraph_yaml(&data, &node.name) {
                         if let Ok(ok) = api::validate_yaml(&yaml) {
-                            state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
+                            state.popup = Some(if ok {
+                                "YAML válido".into()
+                            } else {
+                                "YAML inválido".into()
+                            });
                         }
                     }
                 }

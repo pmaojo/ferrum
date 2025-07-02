@@ -370,6 +370,8 @@ Built-in plugins:
 
 - [cron](docs/plugins/cron.md) – adds an example scheduled job and cron support.
 
+- [iot-basic](docs/plugins/iot-basic.md) – scaffolds temperature/humidity drivers and a telemetry resource.
+
 Plugins can also mutate the parsed DSL before code generation. Each plugin may
 implement:
 
