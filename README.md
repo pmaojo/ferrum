@@ -81,6 +81,19 @@ service. When using the **Studio** UI, set the environment variable
 `VITE_AI_URL` to the base URL (default `http://localhost:8001`). A
 dropdown allows choosing the backend at runtime.
 
+### 🖥 Desktop Studio
+
+Ferrum also provides a native desktop version of the Studio built with Bevy.
+Start it with:
+
+```bash
+cargo run -p studio-desktop
+```
+
+The application automatically launches the Python backend, so you don't need
+to run `make ai-dev` beforehand. See
+[studio-desktop/README.md](studio-desktop/README.md) for details.
+
 #### 5. Design a shared component from a prompt
 
 ```bash
