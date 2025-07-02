@@ -17,7 +17,7 @@ def _get_graph_driver():
 
 
 def fetch_context(anchor: str) -> str:
-    """Return a YAML snippet with node info and dependencies."""
+    """Return a YAML snippet with node info (name, description, story) and dependencies."""
 
     driver = _get_graph_driver()
     if driver is None:
