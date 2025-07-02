@@ -141,10 +141,19 @@ for next time. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 #### 9. Cross-compile the backend
 
 ```bash
+# WebAssembly
 ferrum build --target wasm32-unknown-unknown
+
+# Raspberry Pi
+ferrum build --target rpi
+
+# Cortex-M microcontrollers
+ferrum build --target thumbv7em
 ```
 
-Use the `--target` flag to pass any supported Rust target triple.
+Use the `--target` flag to pass any supported Rust target triple. Ferrum
+automatically installs the required target with `rustup` when using the
+`rpi` or `thumbv7em` aliases.
 
 #### 10. Collaborate with the AI team
 
