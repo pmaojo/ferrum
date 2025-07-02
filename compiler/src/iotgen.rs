@@ -49,6 +49,18 @@ fn generate_ethercat(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     Ok(())
 }
 
+fn generate_simulator(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
+    let dir = paths.backend.join("iot/sim");
+    fs::create_dir_all(&dir)?;
+    let content = format!(
+        "pub fn {name}_sim() {{\n    println!(\"[SIM] {orig} driver\");\n}}\n",
+        name = iot.name.to_snake_case(),
+        orig = iot.name
+    );
+    fs::write(dir.join(format!("{}_sim.rs", iot.name.to_snake_case())), content)?;
+    Ok(())
+}
+
 pub fn generate_iot(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("iot");
     fs::create_dir_all(&dir)?;
@@ -154,6 +166,9 @@ fn generate_exposed(iot: &DslIot, expose: &DslIotExpose, paths: &ProjectPaths) -
 pub fn compile_iot(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     for i in &dsl.iot {
         generate_iot(i, paths)?;
+        if i.simulate {
+            generate_simulator(i, paths)?;
+        }
     }
     Ok(())
 }
@@ -273,5 +288,21 @@ mod tests {
         };
         generate_iot(&iot, &paths).unwrap();
         assert!(dir.path().join("backend/iot/robot_ethercat.rs").exists());
+    }
+
+    #[test]
+    fn generate_simulator_creates_file() {
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+        let iot = DslIot {
+            name: "Blink".into(),
+            code: "fn blink() {}".into(),
+            protocol: None,
+            driver: None,
+            simulate: true,
+            expose: None,
+        };
+        generate_simulator(&iot, &paths).unwrap();
+        assert!(dir.path().join("backend/iot/sim/blink_sim.rs").exists());
     }
 }

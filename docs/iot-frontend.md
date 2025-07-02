@@ -6,6 +6,10 @@ Ferrum lets you declare hardware drivers under the `iot:` section of
 also support optional `protocol`, `driver` and `simulate` fields to
 control how the hardware is accessed.
 
+Setting `simulate: true` will also generate a simple module under
+`backend/iot/sim` that logs calls to stdout so you can test drivers
+without physical hardware.
+
 ## Basic declaration
 
 ```yaml

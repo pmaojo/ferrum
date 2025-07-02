@@ -133,6 +133,7 @@ iot:
     let paths = ProjectPaths::new(out.path());
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/iot/blink.rs").exists());
+    assert!(out.path().join("backend/iot/sim/blink_sim.rs").exists());
 }
 
 #[test]

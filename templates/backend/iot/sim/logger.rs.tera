@@ -1,0 +1,4 @@
+pub fn simulated_action() {
+    println!("[SIM] Performing simulated action");
+    // ⚙ AI_FILL[iot_simulated]
+}

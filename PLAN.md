@@ -446,3 +446,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added IoT sample modules using embedded-hal, rppal, rumqttc and ethercat-rs.
 - Cargo template now includes optional features for these crates.
 - Documented enabling them via cargo ...
+
+### Session 2025-07-14
+- Added simulator support in `iotgen` generating log-based drivers when `simulate` is true.
+- Created sample simulator modules under `templates/backend/iot/sim`.
+- Documented the `simulate` flag in `docs/iot-frontend.md`.
