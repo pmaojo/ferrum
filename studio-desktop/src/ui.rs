@@ -1,5 +1,6 @@
 use crate::api;
-use crate::graph::{GraphData, Node, NodePositions};
+use crate::graph::{GraphData, GraphTask, Node, NodePositions};
+use crate::runtime::AsyncRuntime;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use serde_yaml;
@@ -12,6 +13,7 @@ pub struct UiState {
     pub dragging: Option<String>,
     pub edit: Option<EditData>,
     pub query: String,
+    pub loading: bool,
 }
 
 #[derive(Resource, Default)]
@@ -25,6 +27,7 @@ impl Default for UiState {
             dragging: None,
             edit: None,
             query: "project overview".to_string(),
+            loading: false,
         }
     }
 }
@@ -38,14 +41,53 @@ pub struct EditData {
     pub used_by: String,
 }
 
+#[derive(Resource, Default)]
+pub struct AiTask(pub Option<std::sync::mpsc::Receiver<reqwest::Result<String>>>);
+
+pub struct NodeUpdate {
+    pub name: String,
+    pub description: Option<String>,
+    pub story: Option<String>,
+    pub calls: Option<Vec<String>>,
+    pub used_by: Option<Vec<String>>,
+}
+
+#[derive(Resource, Default)]
+pub struct NodeInfoTask(pub Option<(NodeUpdate, std::sync::mpsc::Receiver<reqwest::Result<()>>)>);
+
 pub fn graph_viewer(
     mut contexts: EguiContexts,
     mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
     mut viewport: ResMut<crate::graph::Viewport>,
     mut positions: ResMut<NodePositions>,
+    runtime: Res<AsyncRuntime>,
+    mut graph_task: ResMut<GraphTask>,
+    mut ai_task: ResMut<AiTask>,
+    mut node_task: ResMut<NodeInfoTask>,
 ) {
     let ctx = contexts.ctx_mut();
+    if let Some(rx) = &ai_task.0 {
+        if let Ok(res) = rx.try_recv() {
+            ai_task.0 = None;
+            if let Ok(text) = res {
+                state.ai_reply = Some(text);
+            }
+        }
+    }
+    if let Some(pending) = &mut node_task.0 {
+        if let Ok(res) = pending.1.try_recv() {
+            if res.is_ok() {
+                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == pending.0.name) {
+                    node.description = pending.0.description.clone();
+                    node.story = pending.0.story.clone();
+                    node.calls = pending.0.calls.clone();
+                    node.used_by = pending.0.used_by.clone();
+                }
+            }
+            node_task.0 = None;
+        }
+    }
     let (zoom_delta, pointer_delta, pointer_down) =
         ctx.input(|i| (i.zoom_delta(), i.pointer.delta(), i.pointer.primary_down()));
     if zoom_delta != 1.0 {
@@ -144,22 +186,13 @@ pub fn graph_viewer(
         ui.label("Question");
         ui.text_edit_singleline(&mut state.query);
         if ui.button("Regenerate").clicked() {
-            if let Ok(g) = api::fetch_graph_blocking(&state.query) {
-                if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
-                    positions.0.clear();
-                    let n = nodes.len().max(1) as f32;
-                    let radius = 200.0;
-                    for (i, node) in nodes.iter().enumerate() {
-                        let angle = i as f32 * std::f32::consts::TAU / n;
-                        positions.0.insert(
-                            node.name.clone(),
-                            Vec2::new(angle.cos() * radius, angle.sin() * radius),
-                        );
-                    }
-                    data.nodes = nodes;
-                }
-            }
+            let rx = crate::graph::spawn_graph_request(&runtime, state.query.clone());
+            graph_task.0 = Some(rx);
             state.selected = None;
+            state.loading = true;
+        }
+        if state.loading {
+            ui.add(egui::Spinner::new());
         }
         ui.separator();
         if let Some(name) = &state.selected {
@@ -171,9 +204,14 @@ pub fn graph_viewer(
                     });
                 }
                 if ui.button("Ask AI Team").clicked() {
-                    if let Ok(reply) = api::ask_ai_team(&format!("What affects {}?", name)) {
-                        state.ai_reply = Some(reply);
-                    }
+                    let question = format!("What affects {}?", name);
+                    let (tx, rx) = std::sync::mpsc::channel();
+                    let rt = runtime.0.clone();
+                    std::thread::spawn(move || {
+                        let res = rt.block_on(api::ask_ai_team(&question));
+                        let _ = tx.send(res);
+                    });
+                    ai_task.0 = Some(rx);
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();
@@ -195,7 +233,7 @@ pub fn graph_viewer(
                 ui.label("Used by (comma separated)");
                 ui.text_edit_singleline(&mut edit.used_by);
                 if ui.button("Save").clicked() {
-                    if let Some(node) = data.nodes.iter_mut().find(|n| n.name == edit.name) {
+                    if let Some(node) = data.nodes.iter().find(|n| n.name == edit.name) {
                         let desc = if edit.description.trim().is_empty() {
                             None
                         } else {
@@ -206,12 +244,11 @@ pub fn graph_viewer(
                         } else {
                             Some(edit.story.clone())
                         };
-                        if api::store_node_info(&node.name, desc.as_deref(), story.as_deref())
-                            .is_ok()
-                        {
-                            node.description = desc;
-                            node.story = story;
-                            node.calls = if edit.calls.trim().is_empty() {
+                        let update = NodeUpdate {
+                            name: node.name.clone(),
+                            description: desc.clone(),
+                            story: story.clone(),
+                            calls: if edit.calls.trim().is_empty() {
                                 None
                             } else {
                                 Some(
@@ -220,8 +257,8 @@ pub fn graph_viewer(
                                         .map(|s| s.trim().to_string())
                                         .collect(),
                                 )
-                            };
-                            node.used_by = if edit.used_by.trim().is_empty() {
+                            },
+                            used_by: if edit.used_by.trim().is_empty() {
                                 None
                             } else {
                                 Some(
@@ -230,8 +267,22 @@ pub fn graph_viewer(
                                         .map(|s| s.trim().to_string())
                                         .collect(),
                                 )
-                            };
-                        }
+                            },
+                        };
+                        let (tx, rx) = std::sync::mpsc::channel();
+                        let rt = runtime.0.clone();
+                        let name = update.name.clone();
+                        let desc_clone = update.description.clone();
+                        let story_clone = update.story.clone();
+                        std::thread::spawn(move || {
+                            let _ = rt.block_on(api::store_node_info(
+                                &name,
+                                desc_clone.as_deref(),
+                                story_clone.as_deref(),
+                            ));
+                            let _ = tx.send(Ok(()));
+                        });
+                        node_task.0 = Some((update, rx));
                     }
                     state.edit = None;
                 }
