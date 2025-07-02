@@ -320,3 +320,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-24
 - Added GraphRAG documentation and linked it in README.
+
+### Session 2025-07-25
+- Deduplicated copy_if_missing and ensure_dep helpers by moving them to engine/src/plugins/utils.rs. Updated all plugins to import these shared functions.

@@ -1,11 +1,10 @@
 use anyhow::Result;
 use std::fs;
-use std::fs::OpenOptions;
-use std::io::Write;
 use std::path::Path;
 
 use ferrum_shared_models::FerrumDsl;
 
+use super::utils::ensure_dep;
 use super::Plugin;
 
 /// Plugin that provides basic GraphQL support.
@@ -46,17 +45,4 @@ fn copy_schema_template<P: AsRef<Path>>(dest: P) -> Result<()> {
 
 fn ensure_dependencies() -> Result<()> {
     ensure_dep("async-graphql", "7")
-}
-
-fn ensure_dep(dep: &str, version: &str) -> Result<()> {
-    let path = Path::new("backend/Cargo.toml");
-    if !path.exists() {
-        return Ok(());
-    }
-    let contents = fs::read_to_string(path)?;
-    if !contents.contains(dep) {
-        let mut f = OpenOptions::new().append(true).open(path)?;
-        writeln!(f, "{dep} = \"{version}\"")?;
-    }
-    Ok(())
 }
