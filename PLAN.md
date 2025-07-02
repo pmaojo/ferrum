@@ -468,3 +468,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Missing targets are installed automatically via rustup.
 - Documented the new flags in README under cross-compilation.
 
+### Session 2025-07-19
+- Documented driver options in `docs/iot-frontend.md` with a table and YAML examples.
+- Linked the new section from the root README.
+

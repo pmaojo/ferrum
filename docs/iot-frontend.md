@@ -79,3 +79,46 @@ app:
   name: demo
   features: [mqtt]
 ```
+
+## Protocol, driver and simulate
+
+These optional fields let you pick the underlying interface and whether to
+generate a logging stub for tests.
+
+| Field      | Type   | Description                                                                 |
+| ---------- | ------ | --------------------------------------------------------------------------- |
+| `protocol` | string | Interface to use (`gpio`, `mqtt`, `ethercat`, ...).                          |
+| `driver`   | string | Name of the Rust crate or module that implements the protocol.              |
+| `simulate` | bool   | Generate an extra module under `backend/iot/sim` that logs each invocation. |
+
+Example declaration:
+
+```yaml
+iot:
+  - name: blink_led
+    protocol: gpio
+    driver: rppal
+    simulate: true
+    code: |
+      pub fn blink_led() {
+          // ... real GPIO calls
+      }
+
+  - name: publish_data
+    protocol: mqtt
+    driver: rumqttc
+    simulate: false
+    code: |
+      pub fn publish_data(topic: &str, payload: &[u8]) {
+          // ... publish over MQTT
+      }
+
+  - name: move_motor
+    protocol: ethercat
+    driver: ethercat_rs
+    simulate: true
+    code: |
+      pub fn move_motor(position: i32) {
+          // ... drive motor via EtherCAT
+      }
+```
