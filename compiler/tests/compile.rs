@@ -131,3 +131,50 @@ iot:
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/iot/blink.rs").exists());
 }
+
+#[test]
+fn compile_iot_expose_http_creates_files() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: blink
+    code: |
+      fn blink() {}
+    expose:
+      method: POST
+      generateHook: true
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/blink_handler.rs").exists());
+    assert!(out.path().join("frontend/hooks/useBlink.ts").exists());
+}
+
+#[test]
+fn compile_iot_expose_mqtt_creates_files() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: sensor
+    code: |
+      fn read() {}
+    expose:
+      protocol: mqtt
+      path: sensors/temp
+      generateHook: true
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/sensor_mqtt.rs").exists());
+    assert!(out.path().join("frontend/hooks/useSensor.ts").exists());
+}
