@@ -458,3 +458,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-16
 - Added MQTT and CoAP service wrappers behind optional features. Updated README and docs on using `features: [mqtt]`.
+
+### Session 2025-07-17
+- Added IoT demo example with grafo.yaml for GPIO, MQTT and EtherCAT.
+- Generated minimal backend and frontend code.
+- Documented build and run steps in examples/iot-demo/README.md.
