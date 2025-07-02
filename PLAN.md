@@ -491,3 +491,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
  
  
  
+### Session 2025-07-23
+- Updated Dockerfile to run studio-desktop via cargo.
+- Removed obsolete npm install and server commands.
+

@@ -1,17 +1,12 @@
-FROM node:18-slim
+FROM rust:1.75-slim
 
-# Install Rust
-RUN apt-get update && apt-get install -y curl build-essential pkg-config libssl-dev \
-    && curl https://sh.rustup.rs -sSf | bash -s -- -y \
-    && rm -rf /var/lib/apt/lists/*
-ENV PATH="/root/.cargo/bin:${PATH}"
+# Install build dependencies for the desktop app
+RUN apt-get update && apt-get install -y pkg-config libssl-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY . .
 
-# Install frontend dependencies
-RUN npm --prefix studio install
-
-EXPOSE 3001
-CMD ["npm", "run", "--prefix", "studio", "server"]
+# Launch the Bevy desktop studio
+CMD ["cargo", "run", "-p", "studio-desktop"]
