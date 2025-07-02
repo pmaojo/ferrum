@@ -427,3 +427,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-10
 - Added optional `expose` field to IoT DSL models and updated tests.
+### Session 2025-07-11
+- Generated Axum handlers and React hooks for IoT expose entries.
+- Added MQTT endpoint template and tests covering file creation.
