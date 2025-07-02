@@ -359,3 +359,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-29
 - Created `studio-desktop` Bevy crate launching the Python backend before the app.
 - Implemented minimal graph viewer calling `/graph-rag`.
+
+### Session 2025-07-30
+- Parsed GraphRAG YAML into nodes and edges for the desktop studio.
+- Rendered nodes and edges using egui with tooltips and selection panel.
+- Added AI Team query button and upgraded `bevy_egui` to 0.26.
