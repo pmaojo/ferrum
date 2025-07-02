@@ -185,6 +185,23 @@ fetching its dependency context. See [docs/graph-rag.md](docs/graph-rag.md) for 
 cargo run -p studio-desktop
 ```
 
+#### 13. Deploy to production
+
+```bash
+# Fly.io
+ferrum deploy fly
+
+# Railway
+ferrum deploy railway
+
+# Render
+ferrum deploy render
+```
+
+This command builds the backend and pushes the container image or code
+to the selected provider. Make sure the corresponding CLI tool is
+installed and you are authenticated.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to

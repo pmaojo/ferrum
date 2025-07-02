@@ -503,7 +503,14 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-02
 - Added MIT LICENSE file at project root.
 
+ 
+### Session 2025-07-24
+- Added Deploy subcommand and deploy() function.
+- Included Dockerfile and compose.prod.yaml templates during init.
+- Documented deployment in README.
+
 ### Session 2025-07-30
 - Migrated all Cargo.toml files to `edition = "2024"`.
 - Updated CLI templates to generate edition 2024 backends.
 - Verified workspace builds on nightly channel.
+
