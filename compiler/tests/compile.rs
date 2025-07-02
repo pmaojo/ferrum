@@ -121,6 +121,9 @@ iot:
   - name: blink
     code: |
       fn blink() {}
+    protocol: http
+    driver: gpio
+    simulate: true
 "#;
     let dir = tempfile::tempdir().unwrap();
     let file = dir.path().join("dsl.yaml");
@@ -140,6 +143,9 @@ iot:
   - name: blink
     code: |
       fn blink() {}
+    protocol: http
+    driver: gpio
+    simulate: false
     expose:
       method: POST
       generateHook: true
@@ -163,6 +169,9 @@ iot:
   - name: sensor
     code: |
       fn read() {}
+    protocol: mqtt
+    driver: serial
+    simulate: false
     expose:
       protocol: mqtt
       path: sensors/temp

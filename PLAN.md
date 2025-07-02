@@ -430,3 +430,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-11
 - Generated Axum handlers and React hooks for IoT expose entries.
 - Added MQTT endpoint template and tests covering file creation.
+
+### Session 2025-07-02
+- Added protocol, driver and simulate fields to IoT models. Regenerated TypeScript types and updated tests.

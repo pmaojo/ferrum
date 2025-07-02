@@ -232,6 +232,12 @@ pub struct DslIot {
     pub name: String,
     pub code: String,
     #[serde(default)]
+    pub protocol: Option<String>,
+    #[serde(default)]
+    pub driver: Option<String>,
+    #[serde(default)]
+    pub simulate: bool,
+    #[serde(default)]
     pub expose: Option<DslIotExpose>,
 }
 
@@ -243,7 +249,6 @@ pub struct DslForm {
     pub action: String,
 }
 
-#[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DslStep {

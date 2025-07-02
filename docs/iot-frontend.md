@@ -2,7 +2,9 @@
 
 Ferrum lets you declare hardware drivers under the `iot:` section of
 `grafo.yaml`. Each item provides Rust code that will be copied into
-`backend/iot/` and can optionally be exposed to the frontend.
+`backend/iot/` and can optionally be exposed to the frontend. Entries
+also support optional `protocol`, `driver` and `simulate` fields to
+control how the hardware is accessed.
 
 ## Basic declaration
 
