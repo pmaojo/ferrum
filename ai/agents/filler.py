@@ -17,7 +17,7 @@ def _get_graph_driver():
 
 
 def fetch_context(anchor: str) -> str:
-    """Return a YAML snippet with outgoing and incoming dependencies."""
+    """Return a YAML snippet with node info and dependencies."""
 
     driver = _get_graph_driver()
     if driver is None:
@@ -30,13 +30,18 @@ def fetch_context(anchor: str) -> str:
                 OPTIONAL MATCH (n)-[:DEPENDS_ON]->(m)
                 WITH n, collect(DISTINCT m.id) AS calls
                 OPTIONAL MATCH (p)-[:DEPENDS_ON]->(n)
-                RETURN n.id AS n, calls, collect(DISTINCT p.id) AS used_by
+                RETURN n.id AS n, n.description AS description, n.story AS story,
+                       calls, collect(DISTINCT p.id) AS used_by
                 """,
                 id=anchor,
             )
             record = result.single()
             if record:
                 lines = [f"- name: {record['n']}"]
+                if record.get("description"):
+                    lines.append(f"  description: {record['description']}")
+                if record.get("story"):
+                    lines.append(f"  story: {record['story']}")
                 calls = [c for c in record["calls"] if c]
                 used_by = [u for u in record["used_by"] if u]
                 if calls:
