@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use crate::api;
+use crate::graph::GraphData;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use crate::graph::GraphData;
-use crate::api;
+use std::collections::HashMap;
 
 #[derive(Resource, Default)]
 pub struct UiState {
@@ -14,14 +14,25 @@ pub fn graph_viewer(
     mut contexts: EguiContexts,
     data: Res<GraphData>,
     mut state: ResMut<UiState>,
+    mut viewport: ResMut<crate::graph::Viewport>,
 ) {
-    egui::CentralPanel::default().show(contexts.ctx_mut(), |ui| {
+    let ctx = contexts.ctx_mut();
+    let (zoom_delta, pointer_delta, dragging) =
+        ctx.input(|i| (i.zoom_delta(), i.pointer.delta(), i.pointer.primary_down()));
+    if zoom_delta != 1.0 {
+        viewport.zoom = (viewport.zoom * zoom_delta).clamp(0.2, 5.0);
+    }
+    if dragging {
+        viewport.offset += pointer_delta;
+    }
+
+    egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
         let n = data.nodes.len().max(1) as f32;
-        let center = rect.center();
-        let radius = rect.width().min(rect.height()) * 0.4;
+        let center = rect.center() + viewport.offset;
+        let radius = rect.width().min(rect.height()) * 0.4 * viewport.zoom;
         let mut positions: HashMap<&str, egui::Pos2> = HashMap::new();
         for (i, node) in data.nodes.iter().enumerate() {
             let angle = i as f32 * std::f32::consts::TAU / n;
@@ -32,8 +43,14 @@ pub fn graph_viewer(
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
                 for target in calls {
-                    if let (Some(&a), Some(&b)) = (positions.get(node.name.as_str()), positions.get(target.as_str())) {
-                        painter.line_segment([a, b], egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY));
+                    if let (Some(&a), Some(&b)) = (
+                        positions.get(node.name.as_str()),
+                        positions.get(target.as_str()),
+                    ) {
+                        painter.line_segment(
+                            [a, b],
+                            egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
+                        );
                     }
                 }
             }
@@ -49,12 +66,22 @@ pub fn graph_viewer(
                 egui::Color32::from_rgb(100, 150, 250)
             };
             painter.circle_filled(pos, 20.0, color);
-            painter.text(pos, egui::Align2::CENTER_CENTER, &node.name, egui::FontId::proportional(14.0), egui::Color32::BLACK);
+            painter.text(
+                pos,
+                egui::Align2::CENTER_CENTER,
+                &node.name,
+                egui::FontId::proportional(14.0),
+                egui::Color32::BLACK,
+            );
             if resp.hovered() {
                 if let Some(desc) = &node.description {
-                    egui::show_tooltip_at_pointer(ui.ctx(), egui::Id::new(format!("tip_{}", node.name)), |ui| {
-                        ui.label(desc);
-                    });
+                    egui::show_tooltip_at_pointer(
+                        ui.ctx(),
+                        egui::Id::new(format!("tip_{}", node.name)),
+                        |ui| {
+                            ui.label(desc);
+                        },
+                    );
                 }
             }
             if resp.clicked() {
