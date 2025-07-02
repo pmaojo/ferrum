@@ -26,7 +26,7 @@ def _get_model():
         return None
 
 
-def search_node(question: str, collection: str = "ferrus-nodes") -> Optional[str]:
+def search_node(question: str, collection: str = "ferrum-nodes") -> Optional[str]:
     """Return the closest node id for a question using vector search."""
     model = _get_model()
     if model is None:

@@ -9,7 +9,7 @@ It follows **Hexagonal Architecture** and **SOLID principles** to produce clean,
 
 ### 🛠 Installation
 
-Ferrus requires the nightly Rust toolchain. Install it and set the override:
+Ferrum requires the nightly Rust toolchain. Install it and set the override:
 
 ```bash
 rustup toolchain install nightly
@@ -143,7 +143,7 @@ ferrum fill-todos gen
 ```
 
 Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and run the
-command above to let Ferrus ask the AI service for code based on your graph
+command above to let Ferrum ask the AI service for code based on your graph
 context. If the answer is empty you'll be prompted for a short description of
 `NODE_ID`. The information is sent back to the AI service and stored in Neo4j
 for next time. See [docs/graph-rag.md](docs/graph-rag.md) for more details.

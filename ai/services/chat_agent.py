@@ -11,7 +11,7 @@ class ChatAgent:
         self.history: List[Dict[str, str]] = []
         self.system_prompt = os.environ.get(
             "AGENT_SYSTEM",
-            "Eres un asistente que responde sobre Ferrus y su grafo.yaml",
+            "Eres un asistente que responde sobre Ferrum y su grafo.yaml",
         )
 
     def chat(self, messages: List[Dict[str, str]], model: str | None = None) -> str:

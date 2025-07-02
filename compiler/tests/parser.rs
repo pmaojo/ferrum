@@ -62,8 +62,8 @@ modules:
 #[test]
 fn parse_extended_format() {
     let yaml = r#"app:
-  name: ferrusBlog
-  title: "Blog Ferrus"
+  name: ferrumBlog
+  title: "Blog Ferrum"
   version: "0.7.0"
   auth:
     userEntity: User
@@ -90,7 +90,7 @@ entities:
     let file = dir.path().join("ext.yaml");
     fs::write(&file, yaml).unwrap();
     let project = parse_dsl_yaml(&file).unwrap();
-    assert_eq!(project.app.title.as_deref(), Some("Blog Ferrus"));
+    assert_eq!(project.app.title.as_deref(), Some("Blog Ferrum"));
     assert_eq!(project.routes.len(), 1);
     assert_eq!(project.pages.len(), 1);
     assert_eq!(project.queries.len(), 1);

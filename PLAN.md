@@ -1,6 +1,6 @@
-# Ferrus · Plan de evolución para superar a Wasp 🚀
+# Ferrum · Plan de evolución para superar a Wasp 🚀
 
-Este plan detalla las fases de desarrollo necesarias para convertir a Ferrus en el framework full-stack más potente del ecosistema Rust/React, superando a Wasp tanto en experiencia de desarrollo como en arquitectura, extensibilidad y automatización.
+Este plan detalla las fases de desarrollo necesarias para convertir a Ferrum en el framework full-stack más potente del ecosistema Rust/React, superando a Wasp tanto en experiencia de desarrollo como en arquitectura, extensibilidad y automatización.
 
 ---
 
@@ -177,7 +177,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ---
 
 **"La arquitectura no debe escribirse... debe declararse, compilarse y entenderse."**  
-— *Ferrus Manifesto, 2025*
+— *Ferrum Manifesto, 2025*
 
 ### Session 2024-05-04
 - Added initial cms-notion plugin implementation and tests.
@@ -540,3 +540,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-17
 - Added Leptos frontend option with Trunk support and docs.
+
+### Session 2025-08-18
+- Standardized Ferrum naming across README, docs, tests and configs.
+- Updated plugin template metadata to use the Ferrum prefix.
