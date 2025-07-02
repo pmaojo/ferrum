@@ -82,3 +82,53 @@ pub fn store_node_info(
     let _data: NodeInfoResponse = res.json()?;
     Ok(())
 }
+
+#[derive(Serialize)]
+struct YamlRequest<'a> {
+    yaml: &'a str,
+}
+
+#[derive(Deserialize)]
+struct TextResponse {
+    text: String,
+}
+
+#[derive(Deserialize)]
+struct YamlResponse {
+    yaml: String,
+}
+
+#[derive(Deserialize)]
+struct ValidateResponse {
+    valid: bool,
+}
+
+pub fn simulate_flow(yaml: &str) -> reqwest::Result<String> {
+    let client = reqwest::blocking::Client::new();
+    let res = client
+        .post("http://localhost:8001/simulate/flow")
+        .json(&YamlRequest { yaml })
+        .send()?;
+    let data: TextResponse = res.json()?;
+    Ok(data.text)
+}
+
+pub fn generate_component(prompt: &str) -> reqwest::Result<String> {
+    let client = reqwest::blocking::Client::new();
+    let res = client
+        .post("http://localhost:8001/generate/component")
+        .json(&PromptRequest { text: prompt })
+        .send()?;
+    let data: YamlResponse = res.json()?;
+    Ok(data.yaml)
+}
+
+pub fn validate_yaml(yaml: &str) -> reqwest::Result<bool> {
+    let client = reqwest::blocking::Client::new();
+    let res = client
+        .post("http://localhost:8001/validate/yaml")
+        .json(&YamlRequest { yaml })
+        .send()?;
+    let data: ValidateResponse = res.json()?;
+    Ok(data.valid)
+}

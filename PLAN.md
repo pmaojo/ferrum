@@ -391,3 +391,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Saving descriptions or stories now updates GraphData only after the request succeeds.
 - Documented this persistence in `docs/graph-rag.md`.
 
+### Session 2025-07-02
+- Added API helpers for `/simulate/flow`, `/generate/component` and `/validate/yaml` in the desktop studio.
+- Extended the node context menu with **Simulate**, **Generate** and **Validate** options showing results in a popup.
+- Documented these new actions in the README.
+
