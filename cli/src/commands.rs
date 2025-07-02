@@ -284,6 +284,31 @@ pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf
 
     println!("✅ Successfully compiled {}", file.display());
     plugins.compile_all()?;
+
+    use std::process::Command;
+
+    // Format Rust code with cargo fmt if available
+    match Command::new("cargo")
+        .arg("fmt")
+        .current_dir(&output_dir)
+        .status()
+    {
+        Ok(status) if status.success() => {},
+        Ok(_) => println!("⚠️  'cargo fmt' failed to format generated code"),
+        Err(_) => println!("⚠️  'cargo fmt' not found; skipping Rust formatting"),
+    }
+
+    // Format TypeScript/JS code with prettier if available
+    match Command::new("prettier")
+        .arg("--write")
+        .arg(output_dir.join("frontend"))
+        .status()
+    {
+        Ok(status) if status.success() => {},
+        Ok(_) => println!("⚠️  'prettier' failed to format TypeScript files"),
+        Err(_) => println!("⚠️  'prettier' not found; skipping TypeScript formatting"),
+    }
+
     Ok(())
 }
 

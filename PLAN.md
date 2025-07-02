@@ -514,3 +514,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated CLI templates to generate edition 2024 backends.
 - Verified workspace builds on nightly channel.
 
+
+### Session 2025-07-24
+- Added automatic formatting step after compilation running cargo fmt and Prettier.
