@@ -505,7 +505,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
  
 ### Session 2025-07-24
-- Added Deploy subcommand and deploy() function.
+- Added Deploy sucommand and deploy() function.
 - Included Dockerfile and compose.prod.yaml templates during init.
 - Documented deployment in README.
 
@@ -523,5 +523,12 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added `compile_project` API and UI button to build from the desktop app.
 - Build logs now stream to the log panel and the generated frontend opens in a browser.
 
+ 
+### Session 2025-08-15
+- CLI `compile` now accepts multiple YAML paths or globs.
+- Python router aggregates compile results per file.
+- Updated tests to cover new behavior.
+
 ### Session 2025-08-02
-- CLI now opens `frontend/index.html` after a successful compile for instant preview.
+- CLI now  `frontend/index.html` after a successful compile for instant preview.
+

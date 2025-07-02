@@ -18,10 +18,10 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Compile {
-            file,
+            files,
             output,
             templates,
-        } => compile(file, output, templates),
+        } => compile(files, output, templates),
         Commands::Prompt { text, output } => prompt(text, output),
         Commands::Component { text, output } => component_prompt(text, output),
         Commands::Usecase { text, output } => usecase_prompt(text, output),

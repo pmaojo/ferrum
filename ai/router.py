@@ -28,29 +28,44 @@ coordinator = Coordinator(tools)
 
 
 class CompileRequest(BaseModel):
-    file: str = "grafo.yaml"
+    files: list[str] | None = None
     output: str | None = None
 
 
-def _run_compile(file: str, output: str | None = None):
-    cmd = [
-        "cargo",
-        "run",
-        "--quiet",
-        "--",
-        "compile",
-        file,
-    ]
-    if output:
-        cmd.extend(["--output", output])
-    proc = subprocess.Popen(
-        cmd,
-        cwd=Path(__file__).resolve().parents[1],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-    )
-    out, _ = proc.communicate()
-    return {"ok": proc.returncode == 0, "logs": out.decode()}
+def _run_compile(files: list[str] | None = None, output: str | None = None):
+    from glob import glob as pyglob
+
+    patterns = files or ["grafo.yaml"]
+    expanded: list[str] = []
+    for pat in patterns:
+        matches = pyglob(pat)
+        if matches:
+            expanded.extend(matches)
+        else:
+            expanded.append(pat)
+
+    results = []
+    for file in expanded:
+        cmd = [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "compile",
+            file,
+        ]
+        if output:
+            cmd.extend(["--output", output])
+        proc = subprocess.Popen(
+            cmd,
+            cwd=Path(__file__).resolve().parents[1],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        out, _ = proc.communicate()
+        results.append({"file": file, "ok": proc.returncode == 0, "logs": out.decode()})
+
+    return {"results": results}
 
 @router.post("/generate/yaml")
 @router.post("/generate-yaml")
@@ -133,5 +148,5 @@ async def ai_team_route(req: ChatRequest) -> ChatResponse:
 
 @router.post("/compile")
 async def compile_route(req: CompileRequest):
-    result = await run_in_threadpool(_run_compile, req.file, req.output)
+    result = await run_in_threadpool(_run_compile, req.files, req.output)
     return result

@@ -127,14 +127,14 @@ def test_node_info_route(monkeypatch):
 
 
 def test_compile_route(monkeypatch):
-    def fake_run(file, output=None):
-        assert file == 'grafo.yaml'
+    def fake_run(files=None, output=None):
+        assert files == ['grafo.yaml']
         assert output is None
-        return {'ok': True, 'logs': 'build ok'}
+        return {'results': [{'file': 'grafo.yaml', 'ok': True, 'logs': 'build ok'}]}
 
     monkeypatch.setattr(router, '_run_compile', fake_run)
 
-    resp = client.post('/compile', json={'file': 'grafo.yaml'})
+    resp = client.post('/compile', json={'files': ['grafo.yaml']})
     assert resp.status_code == 200
-    assert resp.json() == {'ok': True, 'logs': 'build ok'}
+    assert resp.json() == {'results': [{'file': 'grafo.yaml', 'ok': True, 'logs': 'build ok'}]}
 
