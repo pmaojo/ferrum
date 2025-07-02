@@ -339,3 +339,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-26
 - Added CLI flow command using AI toolset to simulate YAML execution.
 
+
+### Session 2025-07-27
+- Added test for Toolset.graph_rag mocking fetch_context.
