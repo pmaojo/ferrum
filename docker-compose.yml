@@ -75,3 +75,13 @@ services:
       - "6333:6333"
     volumes:
       - ./data/vector:/qdrant/storage
+
+  desktop:
+    image: rust:1.75-slim
+    working_dir: /workspace
+    command: cargo run -p studio-desktop
+    volumes:
+      - .:/workspace
+    depends_on:
+      - engine
+      - ferrum-ai

@@ -1,5 +1,5 @@
 .PHONY: build install run fmt clean typeshare-studio typeshare-project
-.PHONY: ai-setup ai-dev
+.PHONY: ai-setup ai-dev studio-desktop
 
 build:
 	cargo build
@@ -27,3 +27,6 @@ ai-setup:
 
 ai-dev:
         cd ai && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+studio-desktop:
+        cargo run -p studio-desktop
