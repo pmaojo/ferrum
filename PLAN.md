@@ -463,3 +463,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added IoT demo example with grafo.yaml for GPIO, MQTT and EtherCAT.
 - Generated minimal backend and frontend code.
 - Documented build and run steps in examples/iot-demo/README.md.
+\n### Session 2025-07-18
+- Build command maps `--target rpi` and `--target thumbv7em` to their Rust triples.
+- Missing targets are installed automatically via rustup.
+- Documented the new flags in README under cross-compilation.
+
