@@ -376,3 +376,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated graph viewer to use mouse wheel and drag controls.
 - Documented controls in studio-desktop/README.md.
 
+### Session 2025-07-03
+- Implemented node position storage and dragging in the desktop viewer.
+- Added context menu to edit calls, used_by, description and story.
+- Persisted description and story via new `/node-info` API using `store_node_info`.
+- Updated graph viewer to keep relationships in memory when saving or regenerating.
+

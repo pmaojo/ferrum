@@ -50,3 +50,29 @@ pub fn ask_ai_team(question: &str) -> reqwest::Result<String> {
     let data: ChatResponse = res.json()?;
     Ok(data.message)
 }
+
+#[derive(Serialize)]
+struct NodeInfoRequest<'a> {
+    id: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    description: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    story: Option<&'a str>,
+}
+
+pub fn store_node_info(
+    id: &str,
+    description: Option<&str>,
+    story: Option<&str>,
+) -> reqwest::Result<()> {
+    let client = reqwest::blocking::Client::new();
+    let _ = client
+        .post("http://localhost:8001/node-info")
+        .json(&NodeInfoRequest {
+            id,
+            description,
+            story,
+        })
+        .send()?;
+    Ok(())
+}
