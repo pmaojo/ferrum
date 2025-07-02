@@ -4,7 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslResource, FerrumDsl};
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 pub fn generate_resource(res: &DslResource, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("resources");

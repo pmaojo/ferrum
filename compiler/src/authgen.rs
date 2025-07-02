@@ -3,7 +3,7 @@ use std::fs;
 
 use ferrum_shared_models::FerrumDsl;
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 pub fn generate_auth(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     if dsl.app.auth.is_none() {

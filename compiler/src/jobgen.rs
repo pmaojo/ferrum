@@ -4,7 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslJob, FerrumDsl};
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
     let func_name = job.name.to_snake_case();

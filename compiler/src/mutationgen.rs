@@ -5,7 +5,7 @@ use std::fs;
 use ferrum_shared_models::DslMutation;
 use ferrum_shared_models::FerrumDsl;
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 /// Generate source files for a DSL mutation entry.
 pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result<()> {

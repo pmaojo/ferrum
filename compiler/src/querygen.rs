@@ -1,37 +1,9 @@
+use crate::utils::{write_file, ProjectPaths};
 use anyhow::Result;
 use inflector::Inflector;
-use std::fs;
-use std::path::{Path, PathBuf};
 
 use ferrum_shared_models::DslQuery;
 use ferrum_shared_models::FerrumDsl;
-
-#[derive(Debug, Clone)]
-pub struct ProjectPaths {
-    pub root: PathBuf,
-    pub backend: PathBuf,
-    pub frontend: PathBuf,
-}
-
-impl ProjectPaths {
-    pub fn new<P: AsRef<Path>>(root: P) -> Self {
-        let root = root.as_ref().to_path_buf();
-        Self {
-            backend: root.join("backend"),
-            frontend: root.join("frontend"),
-            root,
-        }
-    }
-}
-
-/// Capitalize the first letter of a string.
-pub fn capitalize(s: &str) -> String {
-    let mut chars = s.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-    }
-}
 
 /// Generate source files for a DSL query entry.
 pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
@@ -39,8 +11,6 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
     let hook_name = query.name.to_pascal_case();
     let backend_dir = paths.backend.join("queries");
     let frontend_dir = paths.frontend.join("hooks");
-    fs::create_dir_all(&backend_dir)?;
-    fs::create_dir_all(&frontend_dir)?;
 
     let mut imports = String::new();
     for ent in &query.entities {
@@ -63,7 +33,7 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
         ret_ty = ret_ty,
         orig = query.name,
     );
-    fs::write(backend_dir.join(format!("{}.rs", func_name)), rust_content)?;
+    write_file(backend_dir.join(format!("{}.rs", func_name)), &rust_content)?;
 
     let ts_import = query
         .entities
@@ -82,7 +52,10 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
         ts_ret = ts_ret,
         orig = query.name
     );
-    fs::write(frontend_dir.join(format!("use{hook_name}.ts")), ts_content)?;
+    write_file(
+        frontend_dir.join(format!("use{hook_name}.ts")),
+        &ts_content,
+    )?;
 
     Ok(())
 }

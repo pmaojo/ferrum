@@ -12,6 +12,7 @@ pub mod policygen;
 pub mod querygen;
 pub mod resourcegen;
 pub mod routegen;
+pub mod utils;
 pub mod validator;
 
 pub use analysis::*;
@@ -29,4 +30,5 @@ pub use policygen::*;
 pub use querygen::*;
 pub use resourcegen::*;
 pub use routegen::*;
+pub use utils::*;
 pub use validator::*;
