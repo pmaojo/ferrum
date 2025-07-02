@@ -398,3 +398,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added log viewer in desktop studio capturing backend logs.
 - Forwarded Python and API logs to UI via LogBuffer.
 
+### Session 2025-07-02
+- Migrated studio-desktop API calls to async reqwest on a shared Tokio runtime.
+- Spawned network requests on background threads and updated UI with a loading spinner.
+

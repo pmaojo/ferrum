@@ -40,20 +40,21 @@ struct ChatResponse {
     message: String,
 }
 
-pub fn fetch_graph_blocking(question: &str) -> reqwest::Result<String> {
+pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
     log(format!("[API] POST /graph-rag {question}"));
-    let client = reqwest::blocking::Client::new();
+    let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/graph-rag")
         .json(&PromptRequest { text: question })
-        .send()?;
-    let data: GraphResponse = res.json()?;
+        .send()
+        .await?;
+    let data: GraphResponse = res.json().await?;
     Ok(data.graph)
 }
 
-pub fn ask_ai_team(question: &str) -> reqwest::Result<String> {
+pub async fn ask_ai_team(question: &str) -> reqwest::Result<String> {
     log(format!("[API] POST /ai-team {question}"));
-    let client = reqwest::blocking::Client::new();
+    let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/ai-team")
         .json(&ChatRequest {
@@ -62,8 +63,9 @@ pub fn ask_ai_team(question: &str) -> reqwest::Result<String> {
                 content: question,
             }],
         })
-        .send()?;
-    let data: ChatResponse = res.json()?;
+        .send()
+        .await?;
+    let data: ChatResponse = res.json().await?;
     Ok(data.message)
 }
 
@@ -81,13 +83,13 @@ struct NodeInfoResponse {
     ok: bool,
 }
 
-pub fn store_node_info(
+pub async fn store_node_info(
     id: &str,
     description: Option<&str>,
     story: Option<&str>,
 ) -> reqwest::Result<()> {
     log(format!("[API] POST /node-info {id}"));
-    let client = reqwest::blocking::Client::new();
+    let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/node-info")
         .json(&NodeInfoRequest {
@@ -95,8 +97,9 @@ pub fn store_node_info(
             description,
             story,
         })
-        .send()?;
-    let _data: NodeInfoResponse = res.json()?;
+        .send()
+        .await?;
+    let _data: NodeInfoResponse = res.json().await?;
     Ok(())
 }
 
