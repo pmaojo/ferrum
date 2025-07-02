@@ -402,3 +402,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Migrated studio-desktop API calls to async reqwest on a shared Tokio runtime.
 - Spawned network requests on background threads and updated UI with a loading spinner.
 
+
+### Session 2025-07-05
+- Documented NodePositions resource initialization and purpose.
