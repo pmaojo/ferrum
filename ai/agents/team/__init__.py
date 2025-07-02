@@ -11,6 +11,9 @@ class BackendExpert:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are a senior Rust backend engineer for Ferrum"
+        context = self.tools.graph_rag(question)
+        if context:
+            question = f"{question}\nGraph context:\n{context}"
         if any(key in question for key in ("bottleneck", "yaml", "grafo")):
             try:
                 result = self.tools.analyze_graph(question)
@@ -28,6 +31,9 @@ class FrontendExpert:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are an expert React/TypeScript developer for Ferrum"
+        context = self.tools.graph_rag(question)
+        if context:
+            question = f"{question}\nGraph context:\n{context}"
         if any(key in question for key in ("yaml", "grafo")):
             try:
                 result = self.tools.analyze_graph(question)
@@ -45,6 +51,9 @@ class UXDesigner:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are a UX designer focused on usability"
+        context = self.tools.graph_rag(question)
+        if context:
+            question = f"{question}\nGraph context:\n{context}"
         if any(key in question for key in ("yaml", "grafo")):
             try:
                 result = self.tools.analyze_graph(question)
@@ -65,6 +74,9 @@ class Coach:
         system = (
             "You are a technical coach for Ferrum. Detect mistakes and suggest fixes"
         )
+        context = self.tools.graph_rag(question)
+        if context:
+            question = f"{question}\nGraph context:\n{context}"
         try:
             result = self.tools.analyze_graph(question)
             analysis = json.dumps(result)

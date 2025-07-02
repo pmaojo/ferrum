@@ -301,4 +301,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-21
 - Documented Stripe payments plugin.
+
+### Session 2025-07-22
+- Added `graph_rag` helper in Toolset returning YAML subgraphs from Neo4j.
+- Experts now include graph context automatically using this method.
+- Documented the feature in README.
  
