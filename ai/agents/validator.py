@@ -31,6 +31,9 @@ def validate_yaml_with_graph(text: str) -> bool:
         return False
 
     data = yaml.safe_load(text)
+    if not isinstance(data, dict):
+        return False
+
     nodes = data.get("nodes", [])
 
     try:
@@ -46,8 +49,7 @@ def validate_yaml_with_graph(text: str) -> bool:
                 for dep in node.get("depends_on", []):
                     dep_result = session.run(
                         "MATCH (a {id: $from})-[:DEPENDS_ON]->(b {id: $to}) RETURN b",
-                        from=node_id,
-                        to=dep,
+                        **{"from": node_id, "to": dep},
                     )
                     if dep_result.single() is None:
                         return False
