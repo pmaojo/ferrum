@@ -474,3 +474,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-20
 - Updated CI workflow to use actions/upload-artifact@v4.
+
+### Session 2025-07-21
+- Added unit tests for MQTT and CoAP services using mock servers.
