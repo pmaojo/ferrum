@@ -292,3 +292,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Extended Toolset with refactor, AST and flow simulation helpers.
 - Coordinator and ChatAgent now keep conversation history for multi-turn chats.
 - Added AI Team tab in Studio with segmented role responses.
+
+### Session 2025-07-21
+- Documented Stripe payments plugin.
