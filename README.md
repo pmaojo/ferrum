@@ -134,6 +134,15 @@ ferrum ai-team "How should I structure the payment module?"
 This command sends your question to a coordinator agent that consults
 backend, frontend and UX experts and prints their combined advice.
 
+#### 11. Query the graph with GraphRAG
+
+```bash
+ferrum ai-team "What affects the node `saveOrder`?"
+```
+
+The experts now call `graph_rag` automatically and include a small YAML subgraph
+with the dependencies related to your question.
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to

@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -55,3 +56,27 @@ class Toolset:
         """Simulate execution flow for a given YAML."""
         prompt = f"Simula el flujo de ejecución para este YAML:\n{yaml}"
         return call_llm(prompt, "Eres un simulador de flujos Ferrum", model)
+
+    def graph_rag(self, question: str) -> str:
+        """Return a small YAML subgraph relevant to the question."""
+
+        match = re.search(r"`([^`]+)`", question)
+        anchor = match.group(1) if match else None
+        if anchor is None:
+            m = re.search(r"(?:node|m[óo]dulo|module)\s+([\w:.-]+)", question, re.IGNORECASE)
+            if m:
+                anchor = m.group(1)
+        if not anchor:
+            return ""
+
+        context = fetch_context(anchor)
+        if not context:
+            return ""
+
+        node, _, deps = context.partition("->")
+        deps_list = [d.strip() for d in deps.split(",") if d.strip()]
+
+        lines = [f"- name: {node.strip()}"]
+        if deps_list:
+            lines.append(f"  calls: [{', '.join(deps_list)}]")
+        return "\n".join(lines)
