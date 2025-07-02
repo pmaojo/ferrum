@@ -293,7 +293,7 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `jobs` → creates scheduled tasks in `backend/jobs/`
 - `uploads` → file upload endpoint and React hook
 - `resources` → integrate external services like APIs or queues
-- `iot` → backend drivers and React hooks via `expose` ([spec](docs/iot-frontend.md)).
+- `iot` → backend drivers and React hooks via `expose` ([spec](docs/iot-frontend.md#protocol-driver-and-simulate)).
 Sample modules under `templates/backend/iot` show how to use `embedded-hal`, `rppal`, `rumqttc` and `ethercat-rs`. Enable them with:
 
 ```bash
