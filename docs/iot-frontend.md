@@ -1,6 +1,10 @@
-# Propuesta de Soporte IoT en Frontend
+# IoT Section
 
-Se propone extender la seccion `iot:` del `grafo.yaml` con un campo opcional `expose` que genere endpoints en el backend y hooks o componentes para el frontend.
+Ferrum lets you declare hardware drivers under the `iot:` section of
+`grafo.yaml`. Each item provides Rust code that will be copied into
+`backend/iot/` and can optionally be exposed to the frontend.
+
+## Basic declaration
 
 ```yaml
 iot:
@@ -8,33 +12,43 @@ iot:
     code: |
       pub fn blink_led() { /* ... */ }
     expose: true
-    endpoint: /iot/blink
 ```
 
-Al compilar con `expose: true`, Ferrus crearia:
+With `expose: true` Ferrum generates:
 
-- Un handler en Axum que mapea `POST /iot/blink` a `blink_led()`.
-- Un hook de React `useBlinkLed` y un componente opcional reutilizable.
-
-Ejemplo de uso en React:
+- An Axum handler mapped to `POST /iot/blinkLed`.
+- A React hook `useBlinkLed` and a reusable component `<BlinkLed />`.
 
 ```tsx
 const { mutate, isLoading } = useBlinkLed();
-return <Button onClick={() => mutate()}>Parpadear LED</Button>;
+return <Button onClick={() => mutate()} disabled={isLoading}>Blink</Button>;
 ```
 
-Como extension opcional, `expose` puede ser un objeto mas detallado:
+## Detailed `expose` object
+
+Instead of a boolean, you can pass an object with these fields:
+
+| Field               | Type   | Description |
+| ------------------- | ------ | ------------------------------------------------------------- |
+| `method`            | string | HTTP method to expose (`GET`, `POST`, ...). |
+| `path`              | string | Custom endpoint path. Defaults to `/iot/<name>`. |
+| `protocol`          | string | `http` (default) or `ws` for a WebSocket endpoint. |
+| `generateHook`      | bool   | Create a React hook `use<Name>`. |
+| `generateComponent` | bool   | Scaffold a React component `<Name />`. |
+
+Example:
 
 ```yaml
 iot:
-  - name: blinkLed
+  - name: readTemperature
     code: |
-      pub fn blink_led() { /* ... */ }
+      pub fn read_temperature() -> f32 { /* ... */ }
     expose:
-      method: POST
-      path: /iot/blink
+      method: GET
+      path: /sensors/temp
+      protocol: http
       generateHook: true
-      generateComponent: true
+      generateComponent: false
 ```
 
-Esto permitiria declarar el metodo y la ruta, ademas de elegir si se generan hook o componente.
+When compiled this exposes `GET /sensors/temp` and generates a `useReadTemperature` hook for your React app.

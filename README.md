@@ -284,7 +284,7 @@ Ferrum's DSL supports high level declarations beyond modules. You can define:
 - `jobs` → creates scheduled tasks in `backend/jobs/`
 - `uploads` → file upload endpoint and React hook
 - `resources` → integrate external services like APIs or queues
-- `iot` → backend drivers and React hooks via `expose`
+- `iot` → backend drivers and React hooks via `expose` ([spec](docs/iot-frontend.md))
 - `policies` → authorization guards reusable across routes
 - standalone `entities`
 - `forms` → declarative form specification
