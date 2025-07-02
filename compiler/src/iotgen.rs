@@ -6,11 +6,86 @@ use ferrum_shared_models::{DslIot, DslIotExpose, FerrumDsl};
 
 use crate::ProjectPaths;
 
+fn generate_gpio(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
+    let dir = paths.backend.join("iot");
+    fs::create_dir_all(&dir)?;
+    let content = format!(
+        "use rppal::gpio::Gpio;\n\npub fn {name}_gpio() -> Gpio {{\n    // \u{26F3} AI_FILL[iot_gpio] --context=iot:{orig}\n    Gpio::new().unwrap()\n}}\n",
+        name = iot.name.to_snake_case(),
+        orig = iot.name
+    );
+    fs::write(dir.join(format!("{}_gpio.rs", iot.name.to_snake_case())), content)?;
+    Ok(())
+}
+
+fn generate_mqtt(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
+    let dir = paths.backend.join("iot");
+    fs::create_dir_all(&dir)?;
+    let content = format!(
+        "use rumqttc::{{MqttOptions, Client}};\n\npub fn {name}_mqtt_client() -> Client {{\n    let options = MqttOptions::new(\"{client}\", \"localhost\", 1883);\n    // \u{26F3} AI_FILL[iot_mqtt_client] --context=iot:{orig}\n    Client::new(options, 10)\n}}\n",
+        name = iot.name.to_snake_case(),
+        client = iot.name.to_snake_case(),
+        orig = iot.name
+    );
+    fs::write(
+        dir.join(format!("{}_mqtt_client.rs", iot.name.to_snake_case())),
+        content,
+    )?;
+    Ok(())
+}
+
+fn generate_ethercat(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
+    let dir = paths.backend.join("iot");
+    fs::create_dir_all(&dir)?;
+    let content = format!(
+        "use ethercat_rs::Master;\n\npub fn {name}_master() -> Master {{\n    // \u{26F3} AI_FILL[iot_ethercat] --context=iot:{orig}\n    unimplemented!()\n}}\n",
+        name = iot.name.to_snake_case(),
+        orig = iot.name
+    );
+    fs::write(
+        dir.join(format!("{}_ethercat.rs", iot.name.to_snake_case())),
+        content,
+    )?;
+    Ok(())
+}
+
 pub fn generate_iot(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("iot");
     fs::create_dir_all(&dir)?;
     let file = dir.join(format!("{}.rs", iot.name.to_snake_case()));
     fs::write(&file, &iot.code)?;
+
+    if iot
+        .protocol
+        .as_deref()
+        .map(|p| p.eq_ignore_ascii_case("gpio"))
+        .unwrap_or(false)
+        && iot
+            .driver
+            .as_deref()
+            .map(|d| d.eq_ignore_ascii_case("rppal"))
+            .unwrap_or(false)
+    {
+        generate_gpio(iot, paths)?;
+    }
+
+    if iot
+        .protocol
+        .as_deref()
+        .map(|p| p.eq_ignore_ascii_case("mqtt"))
+        .unwrap_or(false)
+    {
+        generate_mqtt(iot, paths)?;
+    }
+
+    if iot
+        .protocol
+        .as_deref()
+        .map(|p| p.eq_ignore_ascii_case("ethercat"))
+        .unwrap_or(false)
+    {
+        generate_ethercat(iot, paths)?;
+    }
 
     if let Some(expose) = &iot.expose {
         generate_exposed(iot, expose, paths)?;
@@ -150,5 +225,53 @@ mod tests {
         assert!(dir.path().join("backend/iot/sensor.rs").exists());
         assert!(dir.path().join("backend/iot/sensor_mqtt.rs").exists());
         assert!(dir.path().join("frontend/hooks/useSensor.ts").exists());
+    }
+
+    #[test]
+    fn generate_iot_gpio_rppal_stub() {
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+        let iot = DslIot {
+            name: "Blink".into(),
+            code: "fn blink() {}".into(),
+            protocol: Some("gpio".into()),
+            driver: Some("rppal".into()),
+            simulate: false,
+            expose: None,
+        };
+        generate_iot(&iot, &paths).unwrap();
+        assert!(dir.path().join("backend/iot/blink_gpio.rs").exists());
+    }
+
+    #[test]
+    fn generate_iot_mqtt_stub() {
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+        let iot = DslIot {
+            name: "Telem".into(),
+            code: "fn run() {}".into(),
+            protocol: Some("mqtt".into()),
+            driver: None,
+            simulate: false,
+            expose: None,
+        };
+        generate_iot(&iot, &paths).unwrap();
+        assert!(dir.path().join("backend/iot/telem_mqtt_client.rs").exists());
+    }
+
+    #[test]
+    fn generate_iot_ethercat_stub() {
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+        let iot = DslIot {
+            name: "Robot".into(),
+            code: "fn run() {}".into(),
+            protocol: Some("ethercat".into()),
+            driver: None,
+            simulate: false,
+            expose: None,
+        };
+        generate_iot(&iot, &paths).unwrap();
+        assert!(dir.path().join("backend/iot/robot_ethercat.rs").exists());
     }
 }
