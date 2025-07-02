@@ -438,7 +438,11 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated compile tests to verify protocol stubs are generated.
 
 ### Session 2025-07-13
+- Removed old Vite-based Studio web UI in favor of the desktop version.
+- Deleted studio directory, compose service and Makefile target.
+- Cleaned docs and configs accordingly; desktop studio is now the sole frontend.
+
+### Session 2025-07-13
 - Added IoT sample modules using embedded-hal, rppal, rumqttc and ethercat-rs.
 - Cargo template now includes optional features for these crates.
-- Documented enabling them via cargo build.
-
+- Documented enabling them via cargo ...
