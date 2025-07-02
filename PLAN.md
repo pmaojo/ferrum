@@ -294,4 +294,11 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added AI Team tab in Studio with segmented role responses.
 
 ### Session 2025-07-21
+- Integrated graph analysis into expert replies.
+- Added Coach agent for pattern detection and tips.
+- New UI actions: "Refactorizar YAML" and "Simular flujo".
+
+
+### Session 2025-07-21
 - Documented Stripe payments plugin.
+ 

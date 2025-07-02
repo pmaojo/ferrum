@@ -11,8 +11,7 @@ class BackendExpert:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are a senior Rust backend engineer for Ferrum"
-        # Example of using additional tools when the question mentions bottlenecks
-        if "bottleneck" in question:
+        if any(key in question for key in ("bottleneck", "yaml", "grafo")):
             try:
                 result = self.tools.analyze_graph(question)
                 analysis = json.dumps(result)
@@ -29,6 +28,13 @@ class FrontendExpert:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are an expert React/TypeScript developer for Ferrum"
+        if any(key in question for key in ("yaml", "grafo")):
+            try:
+                result = self.tools.analyze_graph(question)
+                analysis = json.dumps(result)
+                question = f"{question}\nGraph analysis: {analysis}"
+            except Exception:
+                pass
         return self.tools.call_llm(question, system, model)
 
 class UXDesigner:
@@ -39,6 +45,32 @@ class UXDesigner:
 
     def respond(self, question: str, model: str | None = None) -> str:
         system = "You are a UX designer focused on usability"
+        if any(key in question for key in ("yaml", "grafo")):
+            try:
+                result = self.tools.analyze_graph(question)
+                analysis = json.dumps(result)
+                question = f"{question}\nGraph analysis: {analysis}"
+            except Exception:
+                pass
         return self.tools.call_llm(question, system, model)
 
-__all__ = ["BackendExpert", "FrontendExpert", "UXDesigner"]
+
+class Coach:
+    """Detects incorrect patterns and suggests solutions."""
+
+    def __init__(self, tools: Toolset) -> None:
+        self.tools = tools
+
+    def respond(self, question: str, model: str | None = None) -> str:
+        system = (
+            "You are a technical coach for Ferrum. Detect mistakes and suggest fixes"
+        )
+        try:
+            result = self.tools.analyze_graph(question)
+            analysis = json.dumps(result)
+            question = f"{question}\nGraph analysis: {analysis}"
+        except Exception:
+            pass
+        return self.tools.call_llm(question, system, model)
+
+__all__ = ["BackendExpert", "FrontendExpert", "UXDesigner", "Coach"]

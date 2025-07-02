@@ -40,6 +40,7 @@ sys.modules['agents.coordinator'].Coordinator = _C
 sys.modules['agents.team'].BackendExpert = object
 sys.modules['agents.team'].FrontendExpert = object
 sys.modules['agents.team'].UXDesigner = object
+sys.modules['agents.team'].Coach = object
 
 from fastapi.testclient import TestClient
 from ai.main import app
@@ -84,4 +85,28 @@ def test_ai_team_route(monkeypatch):
     resp = client.post('/ai-team', json={'messages': [{'role': 'user', 'content': 'plan'}], 'model': 'gpt-4'})
     assert resp.status_code == 200
     assert resp.json() == {'message': 'team reply'}
+
+
+def test_refactor_route(monkeypatch):
+    def fake_refactor(yaml, model=None):
+        assert yaml == 'foo: bar'
+        return 'refactored'
+
+    monkeypatch.setattr(router.tools, 'suggest_refactor', fake_refactor)
+
+    resp = client.post('/refactor/yaml', json={'yaml': 'foo: bar'})
+    assert resp.status_code == 200
+    assert resp.json() == {'text': 'refactored'}
+
+
+def test_simulate_route(monkeypatch):
+    def fake_simulate(yaml, model=None):
+        assert yaml == 'foo: bar'
+        return 'flow'
+
+    monkeypatch.setattr(router.tools, 'simulate_flow', fake_simulate)
+
+    resp = client.post('/simulate/flow', json={'yaml': 'foo: bar'})
+    assert resp.status_code == 200
+    assert resp.json() == {'text': 'flow'}
 
