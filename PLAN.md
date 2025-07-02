@@ -405,3 +405,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-05
 - Documented NodePositions resource initialization and purpose.
+
+### Session 2025-07-06
+- Refactored `graph_viewer` to use `NodePositions` for both nodes and edges.
+- Removed the temporary positions map so edges react to dragging.
+- Updated variable names and comments for clarity.
