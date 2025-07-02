@@ -1,12 +1,12 @@
 use crate::api;
 use bevy::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
 
 use crate::runtime::AsyncRuntime;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Node {
     pub name: String,
     #[serde(default)]

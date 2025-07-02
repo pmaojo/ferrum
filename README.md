@@ -93,6 +93,9 @@ cargo run -p studio-desktop
 The application automatically launches the Python backend, so you don't need
 to run `make ai-dev` beforehand. The side panel now includes a text field and
 a **Regenerate** button to fetch a fresh graph from your question.
+Right-click any node to open the context menu. Besides editing its info you can
+**Simulate** the flow of the surrounding subgraph, **Generate** a component YAML
+and **Validate** the selection. Results from these actions appear in a popup.
 See [studio-desktop/README.md](studio-desktop/README.md) for details.
 
 #### 5. Design a shared component from a prompt

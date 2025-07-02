@@ -14,6 +14,7 @@ pub struct UiState {
     pub edit: Option<EditData>,
     pub query: String,
     pub loading: bool,
+    pub popup: Option<String>,
 }
 
 #[derive(Resource, Default)]
@@ -28,6 +29,7 @@ impl Default for UiState {
             edit: None,
             query: "project overview".to_string(),
             loading: false,
+            popup: None,
         }
     }
 }
@@ -54,6 +56,30 @@ pub struct NodeUpdate {
 
 #[derive(Resource, Default)]
 pub struct NodeInfoTask(pub Option<(NodeUpdate, std::sync::mpsc::Receiver<reqwest::Result<()>>)>);
+
+fn subgraph_yaml(data: &GraphData, name: &str) -> Option<String> {
+    use std::collections::HashSet;
+    let mut names = HashSet::new();
+    let node = data.nodes.iter().find(|n| n.name == name)?;
+    names.insert(name.to_string());
+    if let Some(calls) = &node.calls {
+        for c in calls {
+            names.insert(c.clone());
+        }
+    }
+    if let Some(used_by) = &node.used_by {
+        for u in used_by {
+            names.insert(u.clone());
+        }
+    }
+    let nodes: Vec<Node> = data
+        .nodes
+        .iter()
+        .filter(|n| names.contains(&n.name))
+        .cloned()
+        .collect();
+    serde_yaml::to_string(&nodes).ok()
+}
 
 pub fn graph_viewer(
     mut contexts: EguiContexts,
@@ -170,15 +196,36 @@ pub fn graph_viewer(
                 state.selected = Some(node.name.clone());
                 state.ai_reply = None;
             }
-            if resp.secondary_clicked() {
-                state.edit = Some(EditData {
-                    name: node.name.clone(),
-                    description: node.description.clone().unwrap_or_default(),
-                    story: node.story.clone().unwrap_or_default(),
-                    calls: node.calls.clone().unwrap_or_default().join(", "),
-                    used_by: node.used_by.clone().unwrap_or_default().join(", "),
-                });
-            }
+            resp.context_menu(|ui| {
+                if ui.button("Edit info").clicked() {
+                    state.edit = Some(EditData {
+                        name: node.name.clone(),
+                        description: node.description.clone().unwrap_or_default(),
+                        story: node.story.clone().unwrap_or_default(),
+                        calls: node.calls.clone().unwrap_or_default().join(", "),
+                        used_by: node.used_by.clone().unwrap_or_default().join(", "),
+                    });
+                }
+                if ui.button("Simulate").clicked() {
+                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
+                        if let Ok(text) = api::simulate_flow(&yaml) {
+                            state.popup = Some(text);
+                        }
+                    }
+                }
+                if ui.button("Generate").clicked() {
+                    if let Ok(yaml) = api::generate_component(&node.name) {
+                        state.popup = Some(yaml);
+                    }
+                }
+                if ui.button("Validate").clicked() {
+                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
+                        if let Ok(ok) = api::validate_yaml(&yaml) {
+                            state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
+                        }
+                    }
+                }
+            });
         }
     });
     egui::SidePanel::right("side_panel").show(ctx, |ui| {
@@ -220,6 +267,14 @@ pub fn graph_viewer(
             }
         }
     });
+    if let Some(text) = &mut state.popup {
+        egui::Window::new("Result").show(ctx, |ui| {
+            ui.label(text);
+            if ui.button("Close").clicked() {
+                state.popup = None;
+            }
+        });
+    }
     if let Some(edit) = &mut state.edit {
         egui::Window::new(format!("Edit {}", edit.name))
             .collapsible(false)
