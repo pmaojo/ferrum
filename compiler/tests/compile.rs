@@ -187,3 +187,64 @@ iot:
     assert!(out.path().join("backend/iot/sensor_mqtt.rs").exists());
     assert!(out.path().join("frontend/hooks/useSensor.ts").exists());
 }
+
+#[test]
+fn compile_iot_gpio_rppal_creates_stub() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: blink
+    code: |
+      fn blink() {}
+    protocol: gpio
+    driver: rppal
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/blink_gpio.rs").exists());
+}
+
+#[test]
+fn compile_iot_mqtt_creates_client_stub() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: telem
+    code: |
+      fn run() {}
+    protocol: mqtt
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/telem_mqtt_client.rs").exists());
+}
+
+#[test]
+fn compile_iot_ethercat_creates_master() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: robot
+    code: |
+      fn run() {}
+    protocol: ethercat
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    assert!(out.path().join("backend/iot/robot_ethercat.rs").exists());
+}

@@ -433,3 +433,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-02
 - Added protocol, driver and simulate fields to IoT models. Regenerated TypeScript types and updated tests.
+### Session 2025-07-12
+- Added GPIO, MQTT and EtherCAT helpers in compiler iotgen.
+- Updated compile tests to verify protocol stubs are generated.
+
