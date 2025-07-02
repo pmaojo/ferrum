@@ -77,9 +77,9 @@ make ai-dev
 
 By default it uses OpenAI, but you can select another backend (e.g.
 `local` or `anthropic`) by hitting the `/generate-yaml` endpoint of the
-service. When using the **Studio** UI, set the environment variable
-`VITE_AI_URL` to the base URL (default `http://localhost:8001`). A
-dropdown allows choosing the backend at runtime.
+service. The **desktop studio** starts the Python backend automatically,
+so no extra environment variables are needed. A dropdown allows choosing
+the AI provider at runtime.
 
 ### 🖥 Desktop Studio
 
@@ -307,8 +307,7 @@ ferrum/
 ├── compiler/       # Parser, AST and codegen
 ├── templates/      # Tera-based code templates
 ├── shared-models/  # Rust models exported to TypeScript
-├── studio/         # Visual editor UI
-├── studio-desktop/ # Bevy desktop application
+├── studio-desktop/ # Bevy desktop application (sole UI)
 ├── templates/docker-compose.yml  # Docker template copied to new projects
 ├── Makefile
 └── Cargo.toml

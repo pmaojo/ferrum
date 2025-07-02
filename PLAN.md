@@ -437,3 +437,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added GPIO, MQTT and EtherCAT helpers in compiler iotgen.
 - Updated compile tests to verify protocol stubs are generated.
 
+
+### Session 2025-07-13
+- Removed old Vite-based Studio web UI in favor of the desktop version.
+- Deleted studio directory, compose service and Makefile target.
+- Cleaned docs and configs accordingly; desktop studio is now the sole frontend.
