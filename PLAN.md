@@ -386,3 +386,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added text field and **Regenerate** button to the desktop graph viewer.
 - Reloading now fetches a fresh graph from the question and clears any selection.
 
+### Session 2025-07-02
+- Implemented `store_node_info` to persist node details via `/node-info`.
+- Saving descriptions or stories now updates GraphData only after the request succeeds.
+- Documented this persistence in `docs/graph-rag.md`.
+

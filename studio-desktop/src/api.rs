@@ -60,13 +60,18 @@ struct NodeInfoRequest<'a> {
     story: Option<&'a str>,
 }
 
+#[derive(Deserialize)]
+struct NodeInfoResponse {
+    ok: bool,
+}
+
 pub fn store_node_info(
     id: &str,
     description: Option<&str>,
     story: Option<&str>,
 ) -> reqwest::Result<()> {
     let client = reqwest::blocking::Client::new();
-    let _ = client
+    let res = client
         .post("http://localhost:8001/node-info")
         .json(&NodeInfoRequest {
             id,
@@ -74,5 +79,6 @@ pub fn store_node_info(
             story,
         })
         .send()?;
+    let _data: NodeInfoResponse = res.json()?;
     Ok(())
 }
