@@ -3,7 +3,7 @@ use anyhow::Result;
 use ferrum_shared_models::FerrumDsl;
 
 use super::Plugin;
-use super::utils::{copy_if_missing, ensure_env_var}; // Updated import
+use super::utils::{copy_if_missing, ensure_dep, ensure_env_var};
 
 /// Plugin that scaffolds password-based authentication support.
 pub struct AuthPasswordPlugin;
@@ -79,20 +79,4 @@ fn ensure_templates() -> Result<()> {
 
 fn ensure_dependencies() -> Result<()> {
     ensure_dep("redis", "0.23")
-}
-
-fn ensure_dep(dep: &str, version: &str) -> Result<()> {
-    use std::fs::{self, OpenOptions};
-    use std::io::Write;
-    use std::path::Path;
-    let path = Path::new("backend/Cargo.toml");
-    if !path.exists() {
-        return Ok(());
-    }
-    let contents = fs::read_to_string(path)?;
-    if !contents.contains(dep) {
-        let mut f = OpenOptions::new().append(true).open(path)?;
-        writeln!(f, "{dep} = \"{version}\"")?;
-    }
-    Ok(())
 }

@@ -23,3 +23,19 @@ pub fn ensure_env_var(var_name: &str, var_value: &str) -> Result<()> {
     }
     Ok(())
 }
+
+pub fn ensure_dep(dep: &str, version: &str) -> Result<()> {
+    use std::fs::OpenOptions;
+    use std::io::Write;
+
+    let path = Path::new("backend/Cargo.toml");
+    if !path.exists() {
+        return Ok(());
+    }
+    let contents = fs::read_to_string(path)?;
+    if !contents.contains(dep) {
+        let mut f = OpenOptions::new().append(true).open(path)?;
+        writeln!(f, "{dep} = \"{version}\"")?;
+    }
+    Ok(())
+}
