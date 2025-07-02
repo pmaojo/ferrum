@@ -2,7 +2,8 @@ use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
     add_plugin, ai_team, compile, component_prompt, explain, fill_todos, generate_graph,
-    list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync, usecase_prompt, Cli, Commands,
+    list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync, usecase_prompt,
+    Cli, Commands,
 };
 use tracing::Level;
 
@@ -70,6 +71,7 @@ fn main() -> Result<()> {
         Commands::Graph { file, output } => generate_graph(file, output),
         Commands::FillTodos { dir } => fill_todos(dir),
         Commands::AiTeam { text } => ai_team(text),
+        Commands::Flow { file } => ferrum_cli::commands::flow_report(file),
         Commands::Analyze { file, json, bottleneck } => {
             ferrum_cli::commands::analyze(file, json, bottleneck)
         }
