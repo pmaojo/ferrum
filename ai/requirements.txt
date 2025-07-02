@@ -5,4 +5,5 @@ anthropic
 requests
 pyyaml
 qdrant-client
+sentence-transformers
 neo4j

@@ -8,6 +8,7 @@ from typing import Any, Dict
 from services.llm_client import call_llm
 from agents.validator import validate_yaml
 from agents.filler import fetch_context
+from services.vector_search import search_node
 
 
 class Toolset:
@@ -66,6 +67,8 @@ class Toolset:
             m = re.search(r"(?:node|m[óo]dulo|module)\s+([\w:.-]+)", question, re.IGNORECASE)
             if m:
                 anchor = m.group(1)
+        if anchor is None:
+            anchor = search_node(question)
         if not anchor:
             return ""
 
@@ -73,10 +76,4 @@ class Toolset:
         if not context:
             return ""
 
-        node, _, deps = context.partition("->")
-        deps_list = [d.strip() for d in deps.split(",") if d.strip()]
-
-        lines = [f"- name: {node.strip()}"]
-        if deps_list:
-            lines.append(f"  calls: [{', '.join(deps_list)}]")
-        return "\n".join(lines)
+        return context
