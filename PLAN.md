@@ -522,3 +522,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Exposed `/compile` endpoint in the Python backend running the Rust compiler.
 - Added `compile_project` API and UI button to build from the desktop app.
 - Build logs now stream to the log panel and the generated frontend opens in a browser.
+
+### Session 2025-08-02
+- CLI now opens `frontend/index.html` after a successful compile for instant preview.
