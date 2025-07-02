@@ -477,6 +477,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-21
  
+- Added unit tests for MQTT and CoAP services using mock servers.
+
+ 
 - Added `iot.svg` icon under `studio-desktop/assets` and loaded it via `egui_extras`.
 - Graph viewer now shows the icon next to IoT nodes.
 
@@ -485,5 +488,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-02
 - Documented optional coap feature and basic usage in docs/iot-frontend
+ 
  
  
