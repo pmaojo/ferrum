@@ -517,3 +517,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-24
 - Added automatic formatting step after compilation running cargo fmt and Prettier.
+
+### Session 2025-08-01
+- Exposed `/compile` endpoint in the Python backend running the Rust compiler.
+- Added `compile_project` API and UI button to build from the desktop app.
+- Build logs now stream to the log panel and the generated frontend opens in a browser.
