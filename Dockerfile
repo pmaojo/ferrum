@@ -1,12 +1,9 @@
-FROM rust:1.75-slim
+FROM rustlang/rust:nightly-slim
 
 # Install build dependencies for the desktop app
 RUN apt-get update && apt-get install -y pkg-config libssl-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN cargo build -p studio-desktop
 
-WORKDIR /app
 
-COPY . .
-
-# Launch the Bevy desktop studio
 CMD ["cargo", "run", "-p", "studio-desktop"]

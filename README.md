@@ -200,6 +200,18 @@ ollama:
 
 You can still override the model with the `MODEL` environment variable.
 
+#### Environment variables
+
+The AI service expects an `OPENAI_API_KEY` when using the OpenAI backend.
+Create a `.env` file (see `.env.example`) and set your key:
+
+```bash
+OPENAI_API_KEY=sk-...
+```
+
+`docker-compose` automatically loads this variable so the AI service can
+authenticate with OpenAI.
+
 
 ---
 
@@ -442,8 +454,7 @@ my-crm-app/backend/ports.rs               # Port traits
 
 > Ferrum is not just a scaffolder — it's an architectural compiler for modern full-stack systems, designed to evolve with AI-first engineering practices.
 
-
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 

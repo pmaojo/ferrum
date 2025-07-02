@@ -493,6 +493,10 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added `.rust-toolchain.toml` setting the nightly channel.
 - Updated README installation steps to require nightly Rust.
 - Switched Docker and CI images to `rustlang/rust:nightly`.
+
+### Session 2025-07-23
+- Reviewed repository for build errors related to `edition2024`.
+- Planned cleanup of Dockerfile and docker-compose credentials.
  
  
  
