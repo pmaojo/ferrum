@@ -4,7 +4,7 @@ use crate::runtime::AsyncRuntime;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use serde_yaml;
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 
 #[derive(Resource)]
 pub struct UiState {
@@ -86,7 +86,7 @@ pub fn graph_viewer(
     mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
     mut viewport: ResMut<crate::graph::Viewport>,
-    mut positions: ResMut<NodePositions>,
+    mut node_positions: ResMut<NodePositions>,
     runtime: Res<AsyncRuntime>,
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
@@ -121,7 +121,7 @@ pub fn graph_viewer(
     }
     if pointer_down {
         if let Some(name) = &state.dragging {
-            if let Some(p) = positions.0.get_mut(name) {
+            if let Some(p) = node_positions.0.get_mut(name) {
                 *p += pointer_delta / viewport.zoom;
             }
         } else {
@@ -135,25 +135,17 @@ pub fn graph_viewer(
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
-        let n = data.nodes.len().max(1) as f32;
         let center = rect.center() + viewport.offset;
-        let radius = rect.width().min(rect.height()) * 0.4 * viewport.zoom;
-        let mut positions: HashMap<&str, egui::Pos2> = HashMap::new();
-        for (i, node) in data.nodes.iter().enumerate() {
-            let angle = i as f32 * std::f32::consts::TAU / n;
-            let pos = center + egui::vec2(angle.cos(), angle.sin()) * radius;
-            positions.insert(node.name.as_str(), pos);
-        }
-        // Draw edges
+        // Draw edges using stored node positions
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
                 for target in calls {
-                    if let (Some(&a), Some(&b)) = (
-                        positions.get(node.name.as_str()),
-                        positions.get(target.as_str()),
+                    if let (Some(a), Some(b)) = (
+                        node_positions.0.get(&node.name),
+                        node_positions.0.get(target),
                     ) {
                         painter.line_segment(
-                            [a, b],
+                            [center + *a * viewport.zoom, center + *b * viewport.zoom],
                             egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
                         );
                     }
@@ -162,7 +154,12 @@ pub fn graph_viewer(
         }
         // Draw nodes
         for node in &data.nodes {
-            let pos = center + *positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
+            let pos = center
+                + *node_positions
+                    .0
+                    .get(&node.name)
+                    .unwrap_or(&Vec2::ZERO)
+                    * viewport.zoom;
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
             if resp.drag_started() {
