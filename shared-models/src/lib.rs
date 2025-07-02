@@ -213,9 +213,26 @@ pub struct DslResource {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslIotExpose {
+    #[serde(default)]
+    pub method: Option<String>,
+    #[serde(default)]
+    pub path: Option<String>,
+    #[serde(default)]
+    pub protocol: Option<String>,
+    #[serde(default, rename = "generateHook")]
+    pub generate_hook: bool,
+    #[serde(default, rename = "generateComponent")]
+    pub generate_component: bool,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslIot {
     pub name: String,
     pub code: String,
+    #[serde(default)]
+    pub expose: Option<DslIotExpose>,
 }
 
 #[typeshare]

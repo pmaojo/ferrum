@@ -424,3 +424,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-09
 - Documented IoT expose fields and linked the page from README.
+
+### Session 2025-07-10
+- Added optional `expose` field to IoT DSL models and updated tests.
