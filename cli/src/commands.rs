@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
+use webbrowser;
 
 #[derive(Parser)]
 #[command(name = "ferrum")]
@@ -321,6 +322,11 @@ pub fn compile(files: Vec<String>, output: Option<PathBuf>, templates: Option<Pa
         Ok(status) if status.success() => {},
         Ok(_) => println!("⚠️  'prettier' failed to format TypeScript files"),
         Err(_) => println!("⚠️  'prettier' not found; skipping TypeScript formatting"),
+    }
+
+    let index = output_dir.join("frontend/index.html");
+    if index.exists() {
+        let _ = webbrowser::open(index.to_str().unwrap_or(""));
     }
 
     Ok(())
