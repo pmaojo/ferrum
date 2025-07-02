@@ -34,3 +34,8 @@ NEO4J_PASSWORD=your_password
 
 The Docker compose file already exposes a Neo4j container. Make sure it is
 running before using any GraphRAG-powered commands.
+
+When you edit a node's description or story from the Studio context menu, the
+changes are sent to the `/node-info` endpoint. The backend persists these
+details in Neo4j so subsequent GraphRAG queries and tooltips reflect the latest
+information.

@@ -194,41 +194,40 @@ pub fn graph_viewer(
                 ui.text_edit_singleline(&mut edit.used_by);
                 if ui.button("Save").clicked() {
                     if let Some(node) = data.nodes.iter_mut().find(|n| n.name == edit.name) {
-                        node.description = if edit.description.trim().is_empty() {
+                        let desc = if edit.description.trim().is_empty() {
                             None
                         } else {
                             Some(edit.description.clone())
                         };
-                        node.story = if edit.story.trim().is_empty() {
+                        let story = if edit.story.trim().is_empty() {
                             None
                         } else {
                             Some(edit.story.clone())
                         };
-                        node.calls = if edit.calls.trim().is_empty() {
-                            None
-                        } else {
-                            Some(
-                                edit.calls
-                                    .split(',')
-                                    .map(|s| s.trim().to_string())
-                                    .collect(),
-                            )
-                        };
-                        node.used_by = if edit.used_by.trim().is_empty() {
-                            None
-                        } else {
-                            Some(
-                                edit.used_by
-                                    .split(',')
-                                    .map(|s| s.trim().to_string())
-                                    .collect(),
-                            )
-                        };
-                        let _ = api::store_node_info(
-                            &node.name,
-                            node.description.as_deref(),
-                            node.story.as_deref(),
-                        );
+                        if api::store_node_info(&node.name, desc.as_deref(), story.as_deref()).is_ok() {
+                            node.description = desc;
+                            node.story = story;
+                            node.calls = if edit.calls.trim().is_empty() {
+                                None
+                            } else {
+                                Some(
+                                    edit.calls
+                                        .split(',')
+                                        .map(|s| s.trim().to_string())
+                                        .collect(),
+                                )
+                            };
+                            node.used_by = if edit.used_by.trim().is_empty() {
+                                None
+                            } else {
+                                Some(
+                                    edit.used_by
+                                        .split(',')
+                                        .map(|s| s.trim().to_string())
+                                        .collect(),
+                                )
+                            };
+                        }
                     }
                     state.edit = None;
                 }
