@@ -314,3 +314,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-22
 - Improved YAML validator to ensure parsed documents are dictionaries before processing.
 - Added unit test covering invalid structures.
+### Session 2025-07-23
+- Extended fetch_context to include description and story fields from Neo4j.
+- Updated filler to return enriched context and added tests.
