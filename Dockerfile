@@ -1,17 +1,9 @@
-FROM node:18-slim
-
-# Install Rust
-RUN apt-get update && apt-get install -y curl build-essential pkg-config libssl-dev \
-    && curl https://sh.rustup.rs -sSf | bash -s -- -y \
-    && rm -rf /var/lib/apt/lists/*
-ENV PATH="/root/.cargo/bin:${PATH}"
+FROM rustlang/rust:nightly-slim
 
 WORKDIR /app
 
 COPY . .
 
-# Install frontend dependencies
-RUN npm --prefix studio install
+RUN cargo build -p studio-desktop
 
-EXPOSE 3001
-CMD ["npm", "run", "--prefix", "studio", "server"]
+CMD ["cargo", "run", "-p", "studio-desktop"]

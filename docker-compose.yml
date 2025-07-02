@@ -39,7 +39,7 @@ services:
     ports:
       - "8001:8000"
     environment:
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
       - ./ai:/app
 
