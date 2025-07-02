@@ -1,0 +1,9 @@
+use rppal::gpio::Gpio;
+
+pub fn toggle_rppal(pin_num: u8) {
+    let gpio = Gpio::new().unwrap();
+    let mut pin = gpio.get(pin_num).unwrap().into_output();
+    pin.set_high();
+    // ⚙ AI_FILL[iot_rppal]
+    pin.set_low();
+}

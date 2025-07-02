@@ -636,6 +636,17 @@ edition = "2021"
 axum = "0.7"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
+embedded-hal = { version = "1", optional = true }
+rppal = { version = "0.18", optional = true }
+rumqttc = { version = "0.22", optional = true }
+ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
+
+[features]
+default = []
+hal = ["embedded-hal"]
+rppal = ["rppal"]
+mqtt = ["rumqttc"]
+ethercat = ["ethercat-rs"]
 "#,
     )?;
 

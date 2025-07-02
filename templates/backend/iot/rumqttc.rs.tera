@@ -1,0 +1,7 @@
+use rumqttc::{MqttOptions, Client};
+
+pub fn example_client() -> Client {
+    let options = MqttOptions::new("example", "localhost", 1883);
+    // ⚙ AI_FILL[iot_rumqttc]
+    Client::new(options, 10)
+}
