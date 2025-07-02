@@ -70,10 +70,7 @@ fn generate_exposed(iot: &DslIot, expose: &DslIotExpose, paths: &ProjectPaths) -
             )
         };
 
-        fs::write(
-            hook_dir.join(format!("use{hook_name}.ts", hook_name)),
-            content,
-        )?;
+        fs::write(hook_dir.join(format!("use{hook_name}.ts")), content)?;
     }
 
     Ok(())
@@ -98,6 +95,9 @@ mod tests {
         let iot = DslIot {
             name: "Blink".into(),
             code: "fn blink() {}".into(),
+            protocol: None,
+            driver: None,
+            simulate: false,
             expose: None,
         };
         generate_iot(&iot, &paths).unwrap();
@@ -111,6 +111,9 @@ mod tests {
         let iot = DslIot {
             name: "Blink".into(),
             code: "fn blink() {}".into(),
+            protocol: None,
+            driver: None,
+            simulate: false,
             expose: Some(DslIotExpose {
                 method: Some("POST".into()),
                 path: None,
@@ -132,6 +135,9 @@ mod tests {
         let iot = DslIot {
             name: "Sensor".into(),
             code: "fn read() {}".into(),
+            protocol: None,
+            driver: None,
+            simulate: false,
             expose: Some(DslIotExpose {
                 method: None,
                 path: Some("sensors/temp".into()),

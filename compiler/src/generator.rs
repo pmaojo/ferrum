@@ -578,7 +578,7 @@ impl Generator {
         let types_output_dir = self.output_dir.join("frontend/src/types");
         let typeshare_status = Command::new("typeshare")
             .arg("--lang=typescript")
-            .arg("--output-dir")
+            .arg("--output-folder")
             .arg(&types_output_dir)
             .arg(self.output_dir.join("shared-models"))
             .status();
