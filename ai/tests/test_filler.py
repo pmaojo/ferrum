@@ -64,3 +64,29 @@ def test_fetch_context_returns_extra_fields(monkeypatch):
         "  used_by: [baz]"
     )
     assert context == expected
+
+
+def test_fill_code_includes_enriched_context(monkeypatch):
+    """Ensure fill_code passes description and story to the LLM."""
+
+    def fake_fetch_context(anchor: str) -> str:
+        assert anchor == "foo"
+        return "- name: foo\n  description: desc\n  story: test"
+
+    captured = {}
+
+    def fake_call_llm(prompt: str, system: str, model: str | None = None) -> str:
+        captured["prompt"] = prompt
+        captured["system"] = system
+        captured["model"] = model
+        return "code"
+
+    monkeypatch.setattr(filler, "fetch_context", fake_fetch_context)
+    monkeypatch.setattr(filler, "call_llm", fake_call_llm)
+
+    result = filler.fill_code("do it", "foo", model="gpt-4")
+
+    assert result == "code"
+    assert "description: desc" in captured["prompt"]
+    assert "story: test" in captured["prompt"]
+    assert captured["model"] == "gpt-4"
