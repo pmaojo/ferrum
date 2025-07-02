@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
 #[derive(Parser)]
@@ -8,6 +8,13 @@ use std::path::PathBuf;
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+}
+
+#[derive(ValueEnum, Clone)]
+pub enum DeployProvider {
+    Fly,
+    Railway,
+    Render,
 }
 
 #[derive(Subcommand)]
@@ -235,6 +242,13 @@ pub enum Commands {
         /// Target triple (e.g. x86_64-unknown-linux-gnu)
         #[arg(short, long, value_name = "TRIPLE")]
         target: Option<String>,
+    },
+
+    /// Deploy the application to a provider
+    Deploy {
+        /// Deployment target provider
+        #[arg(value_enum)]
+        provider: DeployProvider,
     },
 }
 
@@ -898,6 +912,18 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     docker_compose.write_all(docker_compose_content.as_bytes())?;
     println!("📄 Created docker-compose.yml");
 
+    fs::write(
+        project_dir.join("Dockerfile"),
+        include_str!("../../templates/Dockerfile"),
+    )?;
+    println!("📄 Created Dockerfile");
+
+    fs::write(
+        project_dir.join("compose.prod.yaml"),
+        include_str!("../../templates/compose.prod.yaml"),
+    )?;
+    println!("📄 Created compose.prod.yaml");
+
     if with_db {
         let dockerfile_path = project_dir.join("backend/Dockerfile");
         fs::create_dir_all(project_dir.join("backend"))?;
@@ -1556,6 +1582,26 @@ pub fn build(target: Option<String>) -> Result<()> {
         anyhow::bail!("Cargo build failed");
     }
     println!("✅ Build finished");
+    Ok(())
+}
+
+/// Build the backend and deploy to a provider.
+pub fn deploy(provider: DeployProvider) -> Result<()> {
+    use std::process::Command;
+
+    build(None)?;
+
+    let status = match provider {
+        DeployProvider::Fly => Command::new("flyctl").arg("deploy").status()?,
+        DeployProvider::Railway => Command::new("railway").arg("up").status()?,
+        DeployProvider::Render => Command::new("render").args(["services", "deploy"]).status()?,
+    };
+
+    if !status.success() {
+        anyhow::bail!("Deployment failed");
+    }
+
+    println!("✅ Deployment finished");
     Ok(())
 }
 

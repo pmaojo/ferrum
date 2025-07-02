@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
-    add_plugin, ai_team, compile, component_prompt, explain, fill_todos, generate_graph,
+    add_plugin, ai_team, compile, component_prompt, deploy, explain, fill_todos, generate_graph,
     list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync, usecase_prompt,
     Cli, Commands,
 };
@@ -76,5 +76,6 @@ fn main() -> Result<()> {
             ferrum_cli::commands::analyze(file, json, bottleneck)
         }
         Commands::Build { target } => ferrum_cli::commands::build(target),
+        Commands::Deploy { provider } => ferrum_cli::commands::deploy(provider),
     }
 }
