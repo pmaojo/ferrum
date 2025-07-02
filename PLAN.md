@@ -478,3 +478,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-21
 - Created `iot-basic` plugin scaffolding sample sensors and telemetry setup.
 - Documented it under `docs/plugins/iot-basic.md` and linked from README.
+
+### Session 2025-07-02
+- Documented optional coap feature and basic usage in docs/iot-frontend
