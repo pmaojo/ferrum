@@ -50,20 +50,23 @@ pub fn graph_viewer(
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
+        let n = data.nodes.len().max(1) as f32;
         let center = rect.center() + viewport.offset;
-        let mut screen_pos: HashMap<&str, egui::Pos2> = HashMap::new();
-        for node in &data.nodes {
-            let local = positions.0.entry(node.name.clone()).or_insert(Vec2::ZERO);
-            let pos = center + *local * viewport.zoom;
-            screen_pos.insert(node.name.as_str(), pos);
+        let radius = rect.width().min(rect.height()) * 0.4 * viewport.zoom;
+        let mut positions: HashMap<&str, egui::Pos2> = HashMap::new();
+        for (i, node) in data.nodes.iter().enumerate() {
+            let angle = i as f32 * std::f32::consts::TAU / n;
+            let pos = center + egui::vec2(angle.cos(), angle.sin()) * radius;
+            positions.insert(node.name.as_str(), pos);
         }
         // Draw edges
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
                 for target in calls {
                     if let (Some(&a), Some(&b)) = (
-                        screen_pos.get(node.name.as_str()),
-                        screen_pos.get(target.as_str()),
+                        positions.get(node.name.as_str()),
+                        positions.get(target.as_str()),
+
                     ) {
                         painter.line_segment(
                             [a, b],
@@ -75,7 +78,7 @@ pub fn graph_viewer(
         }
         // Draw nodes
         for node in &data.nodes {
-            let pos = screen_pos[&node.name.as_str()];
+            let pos = center + *positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
             if resp.drag_started() {

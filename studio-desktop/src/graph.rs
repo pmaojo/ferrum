@@ -21,8 +21,9 @@ pub struct GraphData {
     pub nodes: Vec<Node>,
 }
 
-#[derive(Resource, Default, Clone)]
+
 pub struct NodePositions(pub HashMap<String, Vec2>);
+
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -38,6 +39,7 @@ impl Default for Viewport {
         }
     }
 }
+
 
 pub fn load_graph(mut data: ResMut<GraphData>, mut pos: ResMut<NodePositions>) {
     if let Ok(g) = api::fetch_graph_blocking("project overview") {
