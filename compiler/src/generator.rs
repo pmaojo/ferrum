@@ -334,15 +334,28 @@ impl Generator {
         context.insert("node", node);
         context.insert("module_name", &module.name);
 
-        let component_content = self
-            .templates
-            .render("frontend/component.tera", &context)
-            .context("Failed to render component template")?;
-        let component_path = self
-            .output_dir
-            .join("frontend/src/components")
-            .join(format!("{}.tsx", capitalize(&node.id)));
-        self.write_file(&component_path, &component_content)
+        let frontend_leptos = self.output_dir.join("frontend_leptos").exists();
+        if frontend_leptos {
+            let content = self
+                .templates
+                .render("frontend_leptos/component.rs.tera", &context)
+                .context("Failed to render component template")?;
+            let path = self
+                .output_dir
+                .join("frontend_leptos/src/components")
+                .join(format!("{}.rs", capitalize(&node.id)));
+            self.write_file(&path, &content)
+        } else {
+            let component_content = self
+                .templates
+                .render("frontend/component.tera", &context)
+                .context("Failed to render component template")?;
+            let component_path = self
+                .output_dir
+                .join("frontend/src/components")
+                .join(format!("{}.tsx", capitalize(&node.id)));
+            self.write_file(&component_path, &component_content)
+        }
     }
 
     fn generate_hook(&self, module: &Module, node: &Node) -> Result<()> {

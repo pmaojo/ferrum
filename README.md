@@ -37,12 +37,16 @@ ferrum init my-project --with-ai
 
 # API-only backend (skip frontend)
 ferrum init my-project --api-only
+# Use Leptos instead of React
+ferrum init my-project --frontend leptos
+# Skip starter templates
+ferrum init my-project --nostarter
 ```
 
-Running `ferrum init` now creates a minimal Axum server and Vite
-React frontend so you can `cd` into the new directory and start the
-dev environment immediately. Use `--api-only` if you only need the
-backend.
+Running `ferrum init` now creates a minimal Axum server and frontend
+(React by default or Leptos with `--frontend leptos`) so you can `cd`
+into the new directory and start the dev environment immediately. Use
+`--api-only` if you only need the backend.
 
 #### 2. Start the development environment
 
@@ -143,6 +147,7 @@ command above to let Ferrus ask the AI service for code based on your graph
 context. If the answer is empty you'll be prompted for a short description of
 `NODE_ID`. The information is sent back to the AI service and stored in Neo4j
 for next time. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
+For Leptos setup with Trunk see [docs/leptos.md](docs/leptos.md).
 
 #### 9. Cross-compile the backend
 
@@ -241,7 +246,7 @@ Ferrum comes with a pre-configured Docker environment that includes:
 | Service | Purpose |
 |---------|----------|
 | **backend** | Rust (Axum) server with hot reload |
-| **frontend** | Vite + React frontend with shared types (omit with `--api-only`) |
+| **frontend** | React (Vite) or Leptos (Trunk) frontend (omit with `--api-only`) |
 | **db** | PostgreSQL database |
 | **graphdb** (optional) | Neo4j for graph modeling |
 | **llm** (optional) | Ollama for local AI inference |

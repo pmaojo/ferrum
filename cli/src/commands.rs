@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use webbrowser;
 
 #[derive(Parser)]
@@ -16,6 +16,12 @@ pub enum DeployProvider {
     Fly,
     Railway,
     Render,
+}
+
+#[derive(ValueEnum, Clone)]
+pub enum Frontend {
+    React,
+    Leptos,
 }
 
 #[derive(Subcommand)]
@@ -146,6 +152,14 @@ pub enum Commands {
         /// Include file upload templates
         #[arg(long)]
         with_uploads: bool,
+
+        /// Choose frontend framework
+        #[arg(long, value_enum, default_value_t = Frontend::React)]
+        frontend: Frontend,
+
+        /// Skip starter templates
+        #[arg(long)]
+        nostarter: bool,
 
         /// Backend only project without frontend
         #[arg(long)]
@@ -536,6 +550,7 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     let frontend_exists = Path::new("frontend").exists();
+    let leptos_exists = Path::new("frontend_leptos").exists();
 
     if !docker {
         // Run local cargo and vite processes in parallel
@@ -559,6 +574,15 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
             Some(
                 Command::new("npm")
                     .args(["run", "dev", "--prefix", "frontend"])
+                    .stdout(Stdio::inherit())
+                    .stderr(Stdio::inherit())
+                    .spawn()?,
+            )
+        } else if leptos_exists {
+            Some(
+                Command::new("trunk")
+                    .args(["serve", "--open"])
+                    .current_dir("frontend_leptos")
                     .stdout(Stdio::inherit())
                     .stderr(Stdio::inherit())
                     .spawn()?,
@@ -593,6 +617,8 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
     let mut services = vec!["backend", "db"];
     if frontend_exists {
         services.insert(1, "frontend");
+    } else if leptos_exists {
+        services.insert(1, "frontend_leptos");
     }
 
     if with_graph {
@@ -639,6 +665,8 @@ pub fn init(
     mut with_auth: bool,
     mut with_jobs: bool,
     mut with_uploads: bool,
+    mut frontend: Frontend,
+    mut nostarter: bool,
     mut api_only: bool,
     interactive: bool,
 ) -> Result<()> {
@@ -674,6 +702,23 @@ pub fn init(
             .with_prompt("Include file upload templates?")
             .default(with_uploads)
             .interact()?;
+        use dialoguer::{Select};
+        frontend = match Select::new()
+            .with_prompt("Frontend framework")
+            .default(match frontend {
+                Frontend::React => 0,
+                Frontend::Leptos => 1,
+            })
+            .items(&["React", "Leptos"])
+            .interact()?
+        {
+            1 => Frontend::Leptos,
+            _ => Frontend::React,
+        };
+        nostarter = Confirm::new()
+            .with_prompt("Skip starter templates?")
+            .default(nostarter)
+            .interact()?;
         api_only = Confirm::new()
             .with_prompt("Backend only project (no frontend)?")
             .default(api_only)
@@ -695,8 +740,17 @@ pub fn init(
         "data/postgres",
     ];
     if !api_only {
-        dirs.push("frontend/src");
-        dirs.push("templates/frontend");
+        match frontend {
+            Frontend::React => {
+                dirs.push("frontend/src");
+                dirs.push("templates/frontend");
+            }
+            Frontend::Leptos => {
+                dirs.push("frontend_leptos/src");
+                dirs.push("frontend_leptos/src/pages");
+                dirs.push("templates/frontend_leptos");
+            }
+        }
     }
 
     for dir in dirs.iter() {
@@ -748,92 +802,18 @@ ethercat = ["ethercat-rs"]
 "#,
     )?;
 
-    if !api_only {
-        // Basic frontend skeleton using Vite + React
+    if let Frontend::Leptos = frontend {
         fs::write(
-            project_dir.join("frontend/package.json"),
-            r#"{
-  "name": "frontend",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^3.0.0",
-    "typescript": "^5.0.0",
-    "vite": "^5.0.0"
-  }
-}
-"#,
+            project_dir.join("Cargo.toml"),
+            "[workspace]\nmembers = [\"backend\", \"frontend_leptos\"]\n",
         )?;
-        fs::write(
-            project_dir.join("frontend/tsconfig.json"),
-            r#"{
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "strict": true,
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true
-  },
-  "include": ["src"]
-}
-"#,
-        )?;
-        fs::write(
-            project_dir.join("frontend/vite.config.ts"),
-            r#"import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+    }
 
-export default defineConfig({
-  plugins: [react()],
-});
-"#,
-        )?;
-        fs::write(
-            project_dir.join("frontend/index.html"),
-            r#"<!doctype html>
-<html lang=\"en\">
-  <head>
-    <meta charset=\"UTF-8\" />
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-    <title>Ferrum App</title>
-  </head>
-  <body>
-    <div id=\"root\"></div>
-    <script type=\"module\" src=\"/src/main.tsx\"></script>
-  </body>
-</html>
-"#,
-        )?;
-        fs::write(project_dir.join("frontend/src/index.css"), "")?;
-        fs::write(
-            project_dir.join("frontend/src/App.tsx"),
-            "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n",
-        )?;
-        fs::write(
-            project_dir.join("frontend/src/main.tsx"),
-            r#"import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './index.css';
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-"#,
-        )?;
+    if !api_only && !nostarter {
+        match frontend {
+            Frontend::React => write_react_starter(&project_dir)?,
+            Frontend::Leptos => copy_leptos_starter(&project_dir)?,
+        }
     }
 
     // Create additional directories based on flags
@@ -1107,6 +1087,36 @@ psql $DATABASE_URL -f backend/seeds/usuarios.sql
     println!("  2. ferrum compile gen/example.yaml");
     println!("  3. ferrum dev");
 
+    Ok(())
+}
+
+fn write_react_starter(dir: &Path) -> Result<()> {
+    use std::fs;
+    fs::write(dir.join("frontend/package.json"), include_str!("../../templates/frontend/package.json"))?;
+    fs::write(dir.join("frontend/tsconfig.json"), include_str!("../../templates/frontend/tsconfig.json"))?;
+    fs::write(dir.join("frontend/vite.config.ts"), include_str!("../../templates/frontend/vite.config.ts"))?;
+    fs::write(dir.join("frontend/index.html"), include_str!("../../templates/frontend/index.html"))?;
+    fs::write(dir.join("frontend/src/index.css"), "")?;
+    fs::write(dir.join("frontend/src/App.tsx"), "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n")?;
+    fs::write(dir.join("frontend/src/main.tsx"), include_str!("../../templates/frontend/main.tsx"))?;
+    Ok(())
+}
+
+fn copy_leptos_starter(dir: &Path) -> Result<()> {
+    use std::fs;
+    use walkdir::WalkDir;
+    let template_dir = PathBuf::from("templates/frontend_leptos");
+    for entry in WalkDir::new(&template_dir) {
+        let entry = entry?;
+        if entry.file_type().is_file() {
+            let rel = entry.path().strip_prefix(&template_dir)?;
+            let dest = dir.join("frontend_leptos").join(rel);
+            if let Some(parent) = dest.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::copy(entry.path(), dest)?;
+        }
+    }
     Ok(())
 }
 
@@ -1644,6 +1654,7 @@ pub fn flow_report(file: PathBuf) -> Result<()> {
 /// Build the backend using Cargo with optional target triple.
 pub fn build(target: Option<String>) -> Result<()> {
     use std::process::Command;
+    use std::path::Path;
 
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
@@ -1664,6 +1675,15 @@ pub fn build(target: Option<String>) -> Result<()> {
     let status = cmd.status()?;
     if !status.success() {
         anyhow::bail!("Cargo build failed");
+    }
+    if Path::new("frontend_leptos").exists() {
+        let status = Command::new("trunk")
+            .args(["build", "--release"])
+            .current_dir("frontend_leptos")
+            .status()?;
+        if !status.success() {
+            anyhow::bail!("Trunk build failed");
+        }
     }
     println!("✅ Build finished");
     Ok(())

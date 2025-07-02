@@ -537,3 +537,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - CLI `compile` gained `--module` and `--graph` options for targeted builds.
 - Studio UI now includes buttons to compile the selected module or subgraph.
 
+
+### Session 2025-08-17
+- Added Leptos frontend option with Trunk support and docs.
