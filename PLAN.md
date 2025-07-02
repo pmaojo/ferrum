@@ -382,3 +382,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Persisted description and story via new `/node-info` API using `store_node_info`.
 - Updated graph viewer to keep relationships in memory when saving or regenerating.
 
+### Session 2025-07-04
+- Added text field and **Regenerate** button to the desktop graph viewer.
+- Reloading now fetches a fresh graph from the question and clears any selection.
+
