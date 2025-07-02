@@ -1,6 +1,6 @@
+use crate::api;
 use bevy::prelude::*;
 use serde::Deserialize;
-use crate::api;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Node {
@@ -18,6 +18,21 @@ pub struct Node {
 #[derive(Resource, Default, Clone)]
 pub struct GraphData {
     pub nodes: Vec<Node>,
+}
+
+#[derive(Resource, Clone)]
+pub struct Viewport {
+    pub zoom: f32,
+    pub offset: Vec2,
+}
+
+impl Default for Viewport {
+    fn default() -> Self {
+        Self {
+            zoom: 1.0,
+            offset: Vec2::ZERO,
+        }
+    }
 }
 
 pub fn load_graph(mut data: ResMut<GraphData>) {

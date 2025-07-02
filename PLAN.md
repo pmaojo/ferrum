@@ -370,3 +370,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added Makefile target and compose service to run the desktop studio with `cargo run -p studio-desktop`.
 - Documented the command in README and new `docs/studio-desktop.md` page.
 - CI workflow now builds the `studio-desktop` crate.
+
+### Session 2025-07-02
+- Added viewport resource with zoom and pan.
+- Updated graph viewer to use mouse wheel and drag controls.
+- Documented controls in studio-desktop/README.md.
+
