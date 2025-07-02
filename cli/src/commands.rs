@@ -19,11 +19,11 @@ pub enum DeployProvider {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Compile a grafo.yaml file into code
+    /// Compile one or more YAML DSL files into code
     Compile {
-        /// Path to the grafo.yaml file
-        #[arg(value_name = "FILE")]
-        file: PathBuf,
+        /// Path(s) or glob(s) to the DSL YAML files
+        #[arg(value_name = "FILE", required = true, num_args=1..)]
+        files: Vec<String>,
 
         /// Output directory for generated code
         #[arg(short, long, value_name = "DIR")]
@@ -253,37 +253,51 @@ pub enum Commands {
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
-pub fn compile(file: PathBuf, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
+pub fn compile(files: Vec<String>, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
+    use glob::glob;
+
     let output_dir = output.unwrap_or_else(|| PathBuf::from("."));
     let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
     let plugins = load_plugins()?;
 
-    // Try new DSL format first, fall back to legacy format
-    if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(&file) {
-        plugins.extend_dsl_all(&mut project)?;
-        let modules = ferrum_compiler::project_to_modules(&mut project);
-        ferrum_compiler::validate_modules(&modules)?;
-        ferrum_compiler::validate_features(&project, &modules)?;
-        ferrum_compiler::validate_validations(&project, &modules)?;
-        let mut generator =
-            ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
-        generator.set_modules(modules.clone());
-        for m in &modules {
-            ferrum_compiler::validate_module(m)?;
-            generator.generate(m)?;
+    let mut paths = Vec::new();
+    for pattern in files {
+        for entry in glob(&pattern)? {
+            match entry {
+                Ok(p) => paths.push(p),
+                Err(e) => println!("⚠️ glob error: {}", e),
+            }
         }
-        let paths = ferrum_compiler::ProjectPaths::new(&output_dir);
-        ferrum_compiler::compile_dsl(&project, &paths)?;
-    } else {
-        let module = ferrum_compiler::parse_yaml(&file)?;
-        ferrum_compiler::validate_module(&module)?;
-
-        let generator = ferrum_compiler::Generator::new(templates_dir, output_dir.clone())?;
-        generator.generate(&module)?;
     }
 
-    println!("✅ Successfully compiled {}", file.display());
-    plugins.compile_all()?;
+    for file in &paths {
+        // Try new DSL format first, fall back to legacy format
+        if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(file) {
+            plugins.extend_dsl_all(&mut project)?;
+            let modules = ferrum_compiler::project_to_modules(&mut project);
+            ferrum_compiler::validate_modules(&modules)?;
+            ferrum_compiler::validate_features(&project, &modules)?;
+            ferrum_compiler::validate_validations(&project, &modules)?;
+            let mut generator =
+                ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+            generator.set_modules(modules.clone());
+            for m in &modules {
+                ferrum_compiler::validate_module(m)?;
+                generator.generate(m)?;
+            }
+            let paths = ferrum_compiler::ProjectPaths::new(&output_dir);
+            ferrum_compiler::compile_dsl(&project, &paths)?;
+        } else {
+            let module = ferrum_compiler::parse_yaml(file)?;
+            ferrum_compiler::validate_module(&module)?;
+
+            let generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+            generator.generate(&module)?;
+        }
+
+        println!("✅ Successfully compiled {}", file.display());
+        plugins.compile_all()?;
+    }
 
     use std::process::Command;
 
