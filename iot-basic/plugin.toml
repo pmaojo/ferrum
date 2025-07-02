@@ -1,0 +1,3 @@
+name = "iot-basic"
+version = "0.1.0"
+library = "target/release/libiot_basic.so"

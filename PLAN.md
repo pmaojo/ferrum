@@ -474,3 +474,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-20
 - Updated CI workflow to use actions/upload-artifact@v4.
+
+### Session 2025-07-21
+- Created `iot-basic` plugin scaffolding sample sensors and telemetry setup.
+- Documented it under `docs/plugins/iot-basic.md` and linked from README.
