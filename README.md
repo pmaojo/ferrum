@@ -442,3 +442,8 @@ my-crm-app/backend/ports.rs               # Port traits
 
 > Ferrum is not just a scaffolder — it's an architectural compiler for modern full-stack systems, designed to evolve with AI-first engineering practices.
 
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
