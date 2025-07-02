@@ -4,7 +4,7 @@ from typing import List, Dict
 from .generator import generate_yaml
 from .validator import validate_yaml
 from .filler import fill_code
-from .team import BackendExpert, FrontendExpert, UXDesigner
+from .team import BackendExpert, FrontendExpert, UXDesigner, Coach
 from ..toolset import Toolset
 
 
@@ -14,6 +14,7 @@ class Coordinator:
         self.backend = BackendExpert(self.tools)
         self.frontend = FrontendExpert(self.tools)
         self.ux = UXDesigner(self.tools)
+        self.coach = Coach(self.tools)
         self.history: List[Dict[str, str]] = []
 
     def chat(self, messages: List[Dict[str, str]], model: str | None = None) -> str:
@@ -41,9 +42,11 @@ class Coordinator:
         back = self.backend.respond(convo, model)
         front = self.frontend.respond(convo, model)
         ux = self.ux.respond(convo, model)
+        coach = self.coach.respond(convo, model)
         return "\n\n".join([
             "Backend Expert:\n" + back,
             "Frontend Expert:\n" + front,
             "UX Designer:\n" + ux,
+            "Coach:\n" + coach,
         ])
 

@@ -72,6 +72,40 @@ export function GrafoEditor({ value, onChange }: Props) {
     }
   };
 
+  const refactorYaml = async () => {
+    setLoading(true);
+    try {
+      const endpoint = import.meta.env.VITE_AI_URL ?? "http://localhost:8001";
+      const res = await fetch(`${endpoint}/refactor/yaml`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yaml: value }),
+      });
+      const data = await res.json();
+      if (data.text) {
+        onChange(data.text);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const simulateFlow = async () => {
+    setLoading(true);
+    try {
+      const endpoint = import.meta.env.VITE_AI_URL ?? "http://localhost:8001";
+      const res = await fetch(`${endpoint}/simulate/flow`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ yaml: value }),
+      });
+      const data = await res.json();
+      setLint(data.text ?? "");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <Editor
@@ -101,6 +135,20 @@ export function GrafoEditor({ value, onChange }: Props) {
           disabled={loading}
         >
           {loading ? "Compiling..." : "Compile"}
+        </button>
+        <button
+          className="bg-yellow-600 text-white px-4 py-2 rounded"
+          onClick={refactorYaml}
+          disabled={loading}
+        >
+          {loading ? "Refactoring..." : "Refactorizar YAML"}
+        </button>
+        <button
+          className="bg-gray-600 text-white px-4 py-2 rounded"
+          onClick={simulateFlow}
+          disabled={loading}
+        >
+          {loading ? "Simulating..." : "Simular flujo"}
         </button>
       </div>
       {lint && (

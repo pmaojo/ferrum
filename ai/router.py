@@ -19,7 +19,8 @@ from .toolset import Toolset
 
 router = APIRouter()
 agent = ChatAgent()
-coordinator = Coordinator(Toolset())
+tools = Toolset()
+coordinator = Coordinator(tools)
 
 @router.post("/generate/yaml")
 @router.post("/generate-yaml")
@@ -62,6 +63,18 @@ async def validate_usecase_route(req: PromptRequest):
 async def fill_todo_route(req: FillRequest):
     code = await run_in_threadpool(fill_code, req.instructions, req.code, None)
     return {"code": code}
+
+
+@router.post("/refactor/yaml")
+async def refactor_yaml_route(req: YamlRequest):
+    text = await run_in_threadpool(tools.suggest_refactor, req.yaml, None)
+    return {"text": text}
+
+
+@router.post("/simulate/flow")
+async def simulate_flow_route(req: YamlRequest):
+    text = await run_in_threadpool(tools.simulate_flow, req.yaml, None)
+    return {"text": text}
 
 
 @router.post("/chat")
