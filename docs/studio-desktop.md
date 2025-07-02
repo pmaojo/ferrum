@@ -16,3 +16,9 @@ Run the application with:
 cargo run -p studio-desktop
 ```
 
+### NodePositions resource
+
+The viewer keeps the coordinates of each graph node in a Bevy resource named
+`NodePositions`. It maps node names to `Vec2` values and is initialized on
+startup so UI systems can read and modify the layout.
+
