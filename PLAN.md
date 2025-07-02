@@ -488,6 +488,11 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-02
 - Documented optional coap feature and basic usage in docs/iot-frontend
+
+### Session 2025-07-22
+- Added `.rust-toolchain.toml` setting the nightly channel.
+- Updated README installation steps to require nightly Rust.
+- Switched Docker and CI images to `rustlang/rust:nightly`.
  
  
  
