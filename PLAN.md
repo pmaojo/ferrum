@@ -342,3 +342,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-27
 - Added test for Toolset.graph_rag mocking fetch_context.
+
+### Session 2025-07-28
+- Improved `ferrum fill-todos` with interactive prompts when the filler service
+  returns empty code.
+- New `/node-info` API route stores the provided description or story in Neo4j.
+- Updated docs and README to explain the new flow.

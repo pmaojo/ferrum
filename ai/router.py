@@ -6,13 +6,14 @@ from .schemas import (
     ChatRequest,
     ChatResponse,
     FillRequest,
+    NodeInfoRequest,
 )
 from agents.generator import generate_yaml
 from agents.explainer import explain_yaml
 from agents.validator import validate_yaml, validate_usecase_prompt
 from agents.component_designer import design_component
 from agents.usecase_designer import design_usecase
-from agents.filler import fill_code
+from agents.filler import fill_code, store_details
 from services.chat_agent import ChatAgent
 from agents.coordinator import Coordinator
 from .toolset import Toolset
@@ -63,6 +64,12 @@ async def validate_usecase_route(req: PromptRequest):
 async def fill_todo_route(req: FillRequest):
     code = await run_in_threadpool(fill_code, req.instructions, req.code, None)
     return {"code": code}
+
+
+@router.post("/node-info")
+async def node_info_route(req: NodeInfoRequest):
+    await run_in_threadpool(store_details, req.id, req.description, req.story)
+    return {"ok": True}
 
 
 @router.post("/refactor/yaml")
