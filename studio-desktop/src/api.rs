@@ -1,4 +1,18 @@
+use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
+use std::sync::mpsc::Sender;
+
+static LOG_SENDER: OnceCell<Sender<String>> = OnceCell::new();
+
+pub fn set_log_sender(sender: Sender<String>) {
+    let _ = LOG_SENDER.set(sender);
+}
+
+fn log(msg: String) {
+    if let Some(tx) = LOG_SENDER.get() {
+        let _ = tx.send(msg);
+    }
+}
 
 #[derive(Serialize)]
 struct PromptRequest<'a> {
@@ -27,6 +41,7 @@ struct ChatResponse {
 }
 
 pub fn fetch_graph_blocking(question: &str) -> reqwest::Result<String> {
+    log(format!("[API] POST /graph-rag {question}"));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/graph-rag")
@@ -37,6 +52,7 @@ pub fn fetch_graph_blocking(question: &str) -> reqwest::Result<String> {
 }
 
 pub fn ask_ai_team(question: &str) -> reqwest::Result<String> {
+    log(format!("[API] POST /ai-team {question}"));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/ai-team")
@@ -70,6 +86,7 @@ pub fn store_node_info(
     description: Option<&str>,
     story: Option<&str>,
 ) -> reqwest::Result<()> {
+    log(format!("[API] POST /node-info {id}"));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/node-info")

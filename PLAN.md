@@ -395,4 +395,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added API helpers for `/simulate/flow`, `/generate/component` and `/validate/yaml` in the desktop studio.
 - Extended the node context menu with **Simulate**, **Generate** and **Validate** options showing results in a popup.
 - Documented these new actions in the README.
+- Added log viewer in desktop studio capturing backend logs.
+- Forwarded Python and API logs to UI via LogBuffer.
 

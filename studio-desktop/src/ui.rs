@@ -3,7 +3,7 @@ use crate::graph::{GraphData, Node, NodePositions};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use serde_yaml;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 #[derive(Resource)]
 pub struct UiState {
@@ -14,6 +14,9 @@ pub struct UiState {
     pub query: String,
     pub popup: Option<String>,
 }
+
+#[derive(Resource, Default)]
+pub struct LogBuffer(pub VecDeque<String>);
 
 impl Default for UiState {
     fn default() -> Self {
@@ -106,7 +109,6 @@ pub fn graph_viewer(
                     if let (Some(&a), Some(&b)) = (
                         positions.get(node.name.as_str()),
                         positions.get(target.as_str()),
-
                     ) {
                         painter.line_segment(
                             [a, b],
@@ -259,7 +261,9 @@ pub fn graph_viewer(
                         } else {
                             Some(edit.story.clone())
                         };
-                        if api::store_node_info(&node.name, desc.as_deref(), story.as_deref()).is_ok() {
+                        if api::store_node_info(&node.name, desc.as_deref(), story.as_deref())
+                            .is_ok()
+                        {
                             node.description = desc;
                             node.story = story;
                             node.calls = if edit.calls.trim().is_empty() {
@@ -292,4 +296,18 @@ pub fn graph_viewer(
                 }
             });
     }
+}
+
+pub fn log_panel(mut contexts: EguiContexts, logs: Res<LogBuffer>) {
+    let ctx = contexts.ctx_mut();
+    egui::TopBottomPanel::bottom("logs")
+        .default_height(150.0)
+        .show(ctx, |ui| {
+            ui.heading("Logs");
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for line in logs.0.iter() {
+                    ui.label(line);
+                }
+            });
+        });
 }
