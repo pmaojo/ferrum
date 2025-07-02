@@ -324,6 +324,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-25
 - Deduplicated copy_if_missing and ensure_dep helpers by moving them to engine/src/plugins/utils.rs. Updated all plugins to import these shared functions.
 
+### Session 2025-07-02
+- Added full-demo example demonstrating multiple plugins and GraphRAG flows.
 ### Session 2025-07-26
 - Documented Cron plugin and linked it from README.
 
