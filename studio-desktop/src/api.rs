@@ -176,6 +176,16 @@ struct CompileRequest<'a> {
     file: &'a str,
 }
 
+#[derive(Serialize)]
+struct ModuleCompileRequest<'a> {
+    file: &'a str,
+}
+
+#[derive(Serialize)]
+struct GraphCompileRequest<'a> {
+    yaml: &'a str,
+}
+
 #[derive(Deserialize)]
 struct CompileResponse {
     ok: bool,
@@ -188,6 +198,30 @@ pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
     let res = client
         .post("http://localhost:8001/compile")
         .json(&CompileRequest { file })
+        .send()
+        .await?;
+    let data: CompileResponse = res.json().await?;
+    Ok((data.ok, data.logs))
+}
+
+pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, String)> {
+    log(format!("[API] POST /compile/module/{name}"));
+    let client = reqwest::Client::new();
+    let res = client
+        .post(&format!("http://localhost:8001/compile/module/{name}"))
+        .json(&ModuleCompileRequest { file })
+        .send()
+        .await?;
+    let data: CompileResponse = res.json().await?;
+    Ok((data.ok, data.logs))
+}
+
+pub async fn compile_graph(yaml: &str) -> reqwest::Result<(bool, String)> {
+    log("[API] POST /compile/graph".to_string());
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://localhost:8001/compile/graph")
+        .json(&GraphCompileRequest { yaml })
         .send()
         .await?;
     let data: CompileResponse = res.json().await?;

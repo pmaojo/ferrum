@@ -30,9 +30,26 @@ coordinator = Coordinator(tools)
 class CompileRequest(BaseModel):
     files: list[str] | None = None
     output: str | None = None
+    module: str | None = None
+    graph: bool | None = None
 
 
-def _run_compile(files: list[str] | None = None, output: str | None = None):
+class GraphCompileRequest(BaseModel):
+    yaml: str
+    output: str | None = None
+
+
+class ModuleCompileRequest(BaseModel):
+    file: str
+    output: str | None = None
+
+
+def _run_compile(
+    files: list[str] | None = None,
+    output: str | None = None,
+    module: str | None = None,
+    graph: bool | None = None,
+):
     from glob import glob as pyglob
 
     patterns = files or ["grafo.yaml"]
@@ -56,6 +73,10 @@ def _run_compile(files: list[str] | None = None, output: str | None = None):
         ]
         if output:
             cmd.extend(["--output", output])
+        if module:
+            cmd.extend(["--module", module])
+        if graph:
+            cmd.append("--graph")
         proc = subprocess.Popen(
             cmd,
             cwd=Path(__file__).resolve().parents[1],
@@ -148,5 +169,43 @@ async def ai_team_route(req: ChatRequest) -> ChatResponse:
 
 @router.post("/compile")
 async def compile_route(req: CompileRequest):
-    result = await run_in_threadpool(_run_compile, req.files, req.output)
+    result = await run_in_threadpool(
+        _run_compile,
+        req.files,
+        req.output,
+        req.module,
+        req.graph,
+    )
     return result
+
+
+@router.post("/compile/graph")
+async def compile_graph_route(req: GraphCompileRequest):
+    import tempfile
+    path = tempfile.NamedTemporaryFile(delete=False, suffix=".yaml")
+    path.write(req.yaml.encode())
+    path.flush()
+    res = await run_in_threadpool(
+        _run_compile,
+        [path.name],
+        req.output,
+        None,
+        True,
+    )
+    path.close()
+    Path(path.name).unlink(missing_ok=True)
+    r = res["results"][0]
+    return {"ok": r["ok"], "logs": r["logs"]}
+
+
+@router.post("/compile/module/{name}")
+async def compile_module_route(name: str, req: ModuleCompileRequest):
+    res = await run_in_threadpool(
+        _run_compile,
+        [req.file],
+        req.output,
+        name,
+        None,
+    )
+    r = res["results"][0]
+    return {"ok": r["ok"], "logs": r["logs"]}

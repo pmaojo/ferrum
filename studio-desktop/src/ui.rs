@@ -283,6 +283,37 @@ pub fn graph_viewer(
                 }
             });
         }
+        if let Some(name) = &state.selected {
+            if ui.button("Compile Module").clicked() {
+                let n = name.clone();
+                let rt = runtime.0.clone();
+                std::thread::spawn(move || {
+                    if let Ok((ok, logs)) = rt.block_on(api::compile_module(&n, "grafo.yaml")) {
+                        for line in logs.lines() {
+                            api::push_log(format!("[BUILD] {}", line));
+                        }
+                        if ok {
+                            let _ = webbrowser::open("gen/frontend/index.html");
+                        }
+                    }
+                });
+            }
+            if ui.button("Compile Subgraph").clicked() {
+                if let Some(yaml) = subgraph_yaml(&data, name) {
+                    let rt = runtime.0.clone();
+                    std::thread::spawn(move || {
+                        if let Ok((ok, logs)) = rt.block_on(api::compile_graph(&yaml)) {
+                            for line in logs.lines() {
+                                api::push_log(format!("[BUILD] {}", line));
+                            }
+                            if ok {
+                                let _ = webbrowser::open("gen/frontend/index.html");
+                            }
+                        }
+                    });
+                }
+            }
+        }
         if state.loading {
             ui.add(egui::Spinner::new());
         }
