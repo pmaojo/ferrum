@@ -1388,6 +1388,7 @@ pub fn analyze(file: PathBuf, json: bool, bottleneck: usize) -> Result<()> {
 
 /// Fill AI markers like `⛳️ AI_FILL[...]` by calling the AI service.
 pub fn fill_todos(dir: PathBuf) -> Result<()> {
+    use dialoguer::Input;
     use regex::Regex;
     use reqwest::blocking::Client;
     use serde_json::json;
@@ -1405,21 +1406,52 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
             if let Ok(contents) = fs::read_to_string(path) {
                 if contents.contains("AI_FILL") {
                     let replaced = re.replace_all(&contents, |caps: &regex::Captures| {
-                        let resp = client
+                        let task = &caps["task"];
+                        let node = &caps["context"];
+                        let mut code = client
                             .post("http://localhost:8000/fill-todo")
-                            .json(&json!({
-                                "task": &caps["task"],
-                                "context": &caps["context"],
-                            }))
+                            .json(&json!({"code": node, "instructions": task}))
                             .send()
                             .and_then(|r| r.json::<serde_json::Value>())
-                            .ok();
-                        let code_str = resp
-                            .as_ref()
-                            .and_then(|v| v.get("code"))
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("// failed to fill");
-                        code_str.to_string()
+                            .ok()
+                            .and_then(|v| {
+                                v.get("code")
+                                    .and_then(|v| v.as_str())
+                                    .map(|s| s.to_string())
+                            })
+                            .unwrap_or_default();
+
+                        if code.trim().is_empty() || code.contains("failed to fill") {
+                            println!("⚠️  Need more context for {node}");
+                            let details: String = Input::new()
+                                .with_prompt(&format!("Describe {node}"))
+                                .allow_empty(false)
+                                .interact_text()
+                                .unwrap_or_default();
+
+                            code = client
+                                .post("http://localhost:8000/fill-todo")
+                                .json(&json!({
+                                    "code": node,
+                                    "instructions": format!("{}; {}", task, details),
+                                }))
+                                .send()
+                                .and_then(|r| r.json::<serde_json::Value>())
+                                .ok()
+                                .and_then(|v| {
+                                    v.get("code")
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string())
+                                })
+                                .unwrap_or_else(|| "// failed to fill".to_string());
+
+                            let _ = client
+                                .post("http://localhost:8000/node-info")
+                                .json(&json!({"id": node, "story": details}))
+                                .send();
+                        }
+
+                        code
                     });
                     fs::write(path, replaced.as_bytes())?;
                     println!("Filled markers in {}", path.display());
@@ -1433,9 +1465,9 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
 /// Send a prompt to the coordinator AI team.
 pub fn ai_team(text: String) -> Result<()> {
     use crate::config::LlmConfig;
+    use atty::Stream;
     use reqwest::blocking::Client;
     use std::io::{self, Read};
-    use atty::Stream;
 
     let cfg_model = LlmConfig::load().and_then(|c| c.model);
     let model = std::env::var("MODEL")
@@ -1463,10 +1495,7 @@ pub fn ai_team(text: String) -> Result<()> {
         .send()?;
 
     let value = resp.json::<serde_json::Value>()?;
-    let reply = value
-        .get("message")
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
+    let reply = value.get("message").and_then(|v| v.as_str()).unwrap_or("");
 
     println!("{}", reply);
     Ok(())
@@ -1485,10 +1514,7 @@ pub fn flow_report(file: PathBuf) -> Result<()> {
         .send()?;
 
     let value: serde_json::Value = resp.json()?;
-    let text = value
-        .get("text")
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
+    let text = value.get("text").and_then(|v| v.as_str()).unwrap_or("");
 
     println!("{}", text);
     Ok(())

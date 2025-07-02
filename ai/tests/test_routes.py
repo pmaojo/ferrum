@@ -110,3 +110,17 @@ def test_simulate_route(monkeypatch):
     assert resp.status_code == 200
     assert resp.json() == {'text': 'flow'}
 
+
+def test_node_info_route(monkeypatch):
+    called = {}
+
+    def fake_store(id, desc, story):
+        called['args'] = (id, desc, story)
+
+    monkeypatch.setattr(router, 'store_details', fake_store)
+
+    resp = client.post('/node-info', json={'id': 'node', 'description': 'd', 'story': 's'})
+    assert resp.status_code == 200
+    assert resp.json() == {'ok': True}
+    assert called['args'] == ('node', 'd', 's')
+
