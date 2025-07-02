@@ -71,3 +71,11 @@ cargo build -p backend --features hal,rppal,mqtt,ethercat
 
 This pulls in `embedded-hal`, `rppal`, `rumqttc` and `ethercat-rs` so
 you can use the provided module templates.
+
+MQTT helpers are optional as well. Activate them in your `grafo.yaml`:
+
+```yaml
+app:
+  name: demo
+  features: [mqtt]
+```

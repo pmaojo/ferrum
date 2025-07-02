@@ -6,5 +6,9 @@
 pub mod plugins;
 pub mod services;
 
-pub use plugins::{AuthPlugin, AuthPasswordPlugin, GraphQLPlugin, Plugin, PluginManager};
+pub use plugins::{AuthPasswordPlugin, AuthPlugin, GraphQLPlugin, Plugin, PluginManager};
+#[cfg(feature = "coap")]
+pub use services::coap;
 pub use services::graph_sync::sync_ast_to_graph;
+#[cfg(feature = "mqtt")]
+pub use services::mqtt;

@@ -377,6 +377,14 @@ app:
 features: [cron]
 ```
 
+To enable the built-in MQTT helpers, declare:
+
+```yaml
+app:
+  name: demo
+  features: [mqtt]
+```
+
 results in the DSL containing:
 
 ```yaml

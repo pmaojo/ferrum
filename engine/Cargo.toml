@@ -15,8 +15,16 @@ chrono = { version = "0.4", features=["serde"] }
 serde = { version = "1.0", features=["derive"] }
 toml = "0.7"
 libloading = "0.8"
+rumqttc = { version = "0.24", optional = true }
+coap = { version = "0.22", optional = true }
+tokio = { version = "1", features = ["full"], optional = true }
 
 [dev-dependencies]
 serde_yaml = "0.9"
 tempfile = "3"
 ferrum-compiler = { path = "../compiler" }
+
+[features]
+default = []
+mqtt = ["dep:rumqttc", "dep:tokio"]
+coap = ["dep:coap", "dep:tokio"]

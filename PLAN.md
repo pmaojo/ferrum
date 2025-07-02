@@ -455,3 +455,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-15
 - Styled IoT nodes in the desktop graph viewer and added buttons to trigger REST/MQTT calls.
 - Handlers now call simulator stubs when `simulate` is enabled.
+
+### Session 2025-07-16
+- Added MQTT and CoAP service wrappers behind optional features. Updated README and docs on using `features: [mqtt]`.
