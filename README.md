@@ -115,7 +115,7 @@ ferrum fill-todos gen
 
 Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and run the
 command above to let Ferrus ask the AI service for code based on your graph
-context.
+context. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 
 #### 9. Cross-compile the backend
 
@@ -143,7 +143,7 @@ ferrum ai-team "What affects the node `saveOrder`?"
 The experts now call `graph_rag` automatically and include a small YAML subgraph
 with the dependencies related to your question. When your question is vague,
 Ferrum uses Qdrant vector search to locate the most relevant node before
-fetching its dependency context.
+fetching its dependency context. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 
 ### LLM configuration
 
