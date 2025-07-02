@@ -1,0 +1,23 @@
+app:
+  name: iotdemo
+  features: [mqtt]
+iot:
+  - name: blink
+    code: |
+      pub fn blink() {}
+    protocol: gpio
+    driver: rppal
+    expose:
+      method: POST
+  - name: telem
+    code: |
+      pub fn send() {}
+    protocol: mqtt
+    expose:
+      protocol: mqtt
+      path: telem/data
+      generateHook: true
+  - name: robot
+    code: |
+      pub fn run() {}
+    protocol: ethercat
