@@ -326,3 +326,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-26
 - Documented Cron plugin and linked it from README.
+
+- Added GitHub workflow to run Rust and Python tests with dependency caching.
+
+### Session 2025-07-26
+- Added CLI flow command using AI toolset to simulate YAML execution.
+
