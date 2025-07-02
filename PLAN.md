@@ -355,3 +355,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
   returns empty code.
 - New `/node-info` API route stores the provided description or story in Neo4j.
 - Updated docs and README to explain the new flow.
+
+### Session 2025-07-29
+- Created `studio-desktop` Bevy crate launching the Python backend before the app.
+- Implemented minimal graph viewer calling `/graph-rag`.
