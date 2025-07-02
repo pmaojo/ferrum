@@ -364,3 +364,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Parsed GraphRAG YAML into nodes and edges for the desktop studio.
 - Rendered nodes and edges using egui with tooltips and selection panel.
 - Added AI Team query button and upgraded `bevy_egui` to 0.26.
+
+### Session 2025-07-31
+- Documented desktop studio in new README and linked it from the root README.
