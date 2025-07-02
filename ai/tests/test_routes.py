@@ -127,9 +127,11 @@ def test_node_info_route(monkeypatch):
 
 
 def test_compile_route(monkeypatch):
-    def fake_run(files=None, output=None):
+    def fake_run(files=None, output=None, module=None, graph=None):
         assert files == ['grafo.yaml']
         assert output is None
+        assert module is None
+        assert graph is None
         return {'results': [{'file': 'grafo.yaml', 'ok': True, 'logs': 'build ok'}]}
 
     monkeypatch.setattr(router, '_run_compile', fake_run)
@@ -137,4 +139,29 @@ def test_compile_route(monkeypatch):
     resp = client.post('/compile', json={'files': ['grafo.yaml']})
     assert resp.status_code == 200
     assert resp.json() == {'results': [{'file': 'grafo.yaml', 'ok': True, 'logs': 'build ok'}]}
+
+
+def test_compile_module_route(monkeypatch):
+    def fake_run(files=None, output=None, module=None, graph=None):
+        assert files == ['grafo.yaml']
+        assert module == 'user'
+        return {'results': [{'file': 'grafo.yaml', 'ok': True, 'logs': 'ok'}]}
+
+    monkeypatch.setattr(router, '_run_compile', fake_run)
+
+    resp = client.post('/compile/module/user', json={'file': 'grafo.yaml'})
+    assert resp.status_code == 200
+    assert resp.json() == {'ok': True, 'logs': 'ok'}
+
+
+def test_compile_graph_route(monkeypatch):
+    def fake_run(files=None, output=None, module=None, graph=None):
+        assert graph
+        return {'results': [{'file': 'tmp.yaml', 'ok': True, 'logs': 'ok'}]}
+
+    monkeypatch.setattr(router, '_run_compile', fake_run)
+
+    resp = client.post('/compile/graph', json={'yaml': '- id: a\n  type: usecase'})
+    assert resp.status_code == 200
+    assert resp.json() == {'ok': True, 'logs': 'ok'}
 

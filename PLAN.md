@@ -532,3 +532,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-08-02
 - CLI now  `frontend/index.html` after a successful compile for instant preview.
 
+### Session 2025-08-16
+- Added `/compile/graph` and `/compile/module` API routes.
+- CLI `compile` gained `--module` and `--graph` options for targeted builds.
+- Studio UI now includes buttons to compile the selected module or subgraph.
+

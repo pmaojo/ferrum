@@ -33,6 +33,14 @@ pub enum Commands {
         /// Templates directory
         #[arg(short, long, value_name = "DIR")]
         templates: Option<PathBuf>,
+
+        /// Compile only this module
+        #[arg(long, value_name = "NAME")]
+        module: Option<String>,
+
+        /// Treat the input YAML as a subgraph
+        #[arg(long)]
+        graph: bool,
     },
 
     /// Generate a grafo.yaml file from a prompt
@@ -254,7 +262,13 @@ pub enum Commands {
 }
 
 /// Compile a `grafo.yaml` architecture file into source code.
-pub fn compile(files: Vec<String>, output: Option<PathBuf>, templates: Option<PathBuf>) -> Result<()> {
+pub fn compile(
+    files: Vec<String>,
+    output: Option<PathBuf>,
+    templates: Option<PathBuf>,
+    module: Option<String>,
+    graph: bool,
+) -> Result<()> {
     use glob::glob;
 
     let output_dir = output.unwrap_or_else(|| PathBuf::from("."));
@@ -272,6 +286,22 @@ pub fn compile(files: Vec<String>, output: Option<PathBuf>, templates: Option<Pa
     }
 
     for file in &paths {
+        if graph {
+            let content = std::fs::read_to_string(file)?;
+            let nodes: Vec<ferrum_shared_models::Node> = serde_yaml::from_str(&content)?;
+            let module_name = module.clone().unwrap_or_else(|| "subgraph".to_string());
+            let graph_module = ferrum_shared_models::Module {
+                name: module_name,
+                nodes,
+            };
+            ferrum_compiler::validate_module(&graph_module)?;
+            let generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+            generator.generate(&graph_module)?;
+            println!("✅ Successfully compiled {}", file.display());
+            plugins.compile_all()?;
+            continue;
+        }
+
         // Try new DSL format first, fall back to legacy format
         if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(file) {
             plugins.extend_dsl_all(&mut project)?;
@@ -279,21 +309,30 @@ pub fn compile(files: Vec<String>, output: Option<PathBuf>, templates: Option<Pa
             ferrum_compiler::validate_modules(&modules)?;
             ferrum_compiler::validate_features(&project, &modules)?;
             ferrum_compiler::validate_validations(&project, &modules)?;
-            let mut generator =
-                ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
+            let mut generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
             generator.set_modules(modules.clone());
-            for m in &modules {
+            let target_modules: Vec<_> = if let Some(ref name) = module {
+                modules.into_iter().filter(|m| m.name == *name).collect()
+            } else {
+                modules
+            };
+            for m in &target_modules {
                 ferrum_compiler::validate_module(m)?;
                 generator.generate(m)?;
             }
-            let paths = ferrum_compiler::ProjectPaths::new(&output_dir);
-            ferrum_compiler::compile_dsl(&project, &paths)?;
+            if module.is_none() {
+                let paths = ferrum_compiler::ProjectPaths::new(&output_dir);
+                ferrum_compiler::compile_dsl(&project, &paths)?;
+            }
         } else {
-            let module = ferrum_compiler::parse_yaml(file)?;
-            ferrum_compiler::validate_module(&module)?;
+            let module_struct = ferrum_compiler::parse_yaml(file)?;
+            if module.as_deref().map(|n| n != module_struct.name).unwrap_or(false) {
+                continue;
+            }
+            ferrum_compiler::validate_module(&module_struct)?;
 
             let generator = ferrum_compiler::Generator::new(templates_dir.clone(), output_dir.clone())?;
-            generator.generate(&module)?;
+            generator.generate(&module_struct)?;
         }
 
         println!("✅ Successfully compiled {}", file.display());
@@ -504,7 +543,7 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
         if let Ok(entries) = std::fs::read_dir("gen") {
             for entry in entries.flatten() {
                 if entry.path().extension().and_then(|s| s.to_str()) == Some("yaml") {
-                    let _ = compile(entry.path(), None, None);
+                    let _ = compile(vec![entry.path().to_string_lossy().into()], None, None, None, false);
                 }
             }
         }
