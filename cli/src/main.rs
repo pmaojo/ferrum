@@ -43,6 +43,8 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            frontend,
+            nostarter,
             api_only,
             interactive,
         } => ferrum_cli::commands::init(
@@ -53,6 +55,8 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            frontend,
+            nostarter,
             api_only,
             interactive,
         ),

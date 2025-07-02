@@ -1,0 +1,6 @@
+use leptos::*;
+
+#[component]
+pub fn {{ node.id | capitalize }}View({% for input in node.input %}{{ input.name }}: String{% if not loop.last %}, {% endif %}{% endfor %}) -> impl IntoView {
+    view! { <div>{{ node.id }} component</div> }
+}
