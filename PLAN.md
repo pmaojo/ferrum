@@ -491,3 +491,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
  
  
  
+### Session 2025-07-02
+- Added MIT LICENSE file at project root.
+- Mentioned the license in README.
