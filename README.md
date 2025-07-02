@@ -160,6 +160,12 @@ with the dependencies related to your question. When your question is vague,
 Ferrum uses Qdrant vector search to locate the most relevant node before
 fetching its dependency context. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 
+#### 12. Run the desktop studio
+
+```bash
+cargo run -p studio-desktop
+```
+
 ### LLM configuration
 
 Ferrum reads an optional `llm-config.yaml` file to decide which model to
@@ -296,6 +302,7 @@ ferrum/
 ├── templates/      # Tera-based code templates
 ├── shared-models/  # Rust models exported to TypeScript
 ├── studio/         # Visual editor UI
+├── studio-desktop/ # Bevy desktop application
 ├── templates/docker-compose.yml  # Docker template copied to new projects
 ├── Makefile
 └── Cargo.toml
