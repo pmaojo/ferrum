@@ -366,6 +366,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added AI Team query button and upgraded `bevy_egui` to 0.26.
 
 ### Session 2025-07-31
+- Documented desktop studio in new README and linked it from the root README.
 - Added Makefile target and compose service to run the desktop studio with `cargo run -p studio-desktop`.
 - Documented the command in README and new `docs/studio-desktop.md` page.
 - CI workflow now builds the `studio-desktop` crate.
