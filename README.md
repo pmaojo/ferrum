@@ -327,6 +327,8 @@ Built-in plugins:
 
 - `auth` – injects authentication nodes into the DSL and scaffolds login resources.
 
+- [cron](docs/plugins/cron.md) – adds an example scheduled job and cron support.
+
 Plugins can also mutate the parsed DSL before code generation. Each plugin may
 implement:
 

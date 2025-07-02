@@ -223,6 +223,13 @@ pub enum Commands {
         text: String,
     },
 
+    /// Generate an execution flow report for a DSL file
+    Flow {
+        /// Path to the grafo.yaml file
+        #[arg(value_name = "FILE")]
+        file: PathBuf,
+    },
+
     /// Build the backend for a specific target
     Build {
         /// Target triple (e.g. x86_64-unknown-linux-gnu)
@@ -1462,6 +1469,28 @@ pub fn ai_team(text: String) -> Result<()> {
         .unwrap_or("");
 
     println!("{}", reply);
+    Ok(())
+}
+
+/// Generate an execution flow report for a DSL YAML file using the AI service.
+pub fn flow_report(file: PathBuf) -> Result<()> {
+    use reqwest::blocking::Client;
+    use std::fs;
+
+    let yaml = fs::read_to_string(&file)?;
+    let client = Client::new();
+    let resp = client
+        .post("http://localhost:8000/simulate/flow")
+        .json(&serde_json::json!({ "yaml": yaml }))
+        .send()?;
+
+    let value: serde_json::Value = resp.json()?;
+    let text = value
+        .get("text")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+
+    println!("{}", text);
     Ok(())
 }
 

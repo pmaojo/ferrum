@@ -326,3 +326,16 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-26
 - Added unit tests for ensure_dep and copy_if_missing.
 - Centralized ProjectPaths and file writing helpers under compiler/utils.
+
+
+### Session 2025-07-02
+- Added full-demo example demonstrating multiple plugins and GraphRAG flows.
+
+### Session 2025-07-26
+- Documented Cron plugin and linked it from README.
+
+- Added GitHub workflow to run Rust and Python tests with dependency caching.
+
+### Session 2025-07-26
+- Added CLI flow command using AI toolset to simulate YAML execution.
+

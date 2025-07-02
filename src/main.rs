@@ -3,7 +3,7 @@ use clap::Parser;
 use ferrum_cli::commands::{
     add_plugin, analyze, compile, component_prompt, dev, explain, fill_todos,
     generate_graph, init, list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync,
-    usecase_prompt, Cli, Commands,
+    usecase_prompt, flow_report, Cli, Commands,
 };
 
 fn main() -> Result<()> {
@@ -69,6 +69,7 @@ fn main() -> Result<()> {
         Commands::I18n { dir, output } => ferrum_cli::commands::extract_i18n(dir, output),
         Commands::Graph { file, output } => generate_graph(file, output),
         Commands::FillTodos { dir } => fill_todos(dir),
+        Commands::Flow { file } => flow_report(file),
         Commands::Analyze { file, json, bottleneck } => {
             analyze(file, json, bottleneck)
         }
