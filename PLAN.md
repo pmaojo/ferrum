@@ -500,3 +500,11 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
  
  
  
+### Session 2025-07-02
+- Added MIT LICENSE file at project root.
+- Mentioned the license in README.
+
+### Session 2025-07-23
+- Updated Dockerfile to run studio-desktop via cargo.
+- Removed obsolete npm install and server commands.
+
