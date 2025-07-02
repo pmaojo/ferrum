@@ -51,7 +51,7 @@ services:
       - ./data/vector:/qdrant/storage
 
   desktop:
-    image: rust:1.75-slim
+    image: rustlang/rust:nightly-slim
     working_dir: /workspace
     command: cargo run -p studio-desktop
     volumes:
