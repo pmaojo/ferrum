@@ -33,6 +33,7 @@ mod tests {
         let iot = DslIot {
             name: "Blink".into(),
             code: "fn blink() {}".into(),
+            expose: None,
         };
         generate_iot(&iot, &paths).unwrap();
         assert!(dir.path().join("backend/iot/blink.rs").exists());
