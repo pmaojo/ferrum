@@ -17,7 +17,7 @@ def _get_graph_driver():
 
 
 def fetch_context(anchor: str) -> str:
-    """Fetch dependency context for a node from Neo4j."""
+    """Return a YAML snippet with outgoing and incoming dependencies."""
 
     driver = _get_graph_driver()
     if driver is None:
@@ -25,13 +25,25 @@ def fetch_context(anchor: str) -> str:
     try:
         with driver.session() as session:
             result = session.run(
-                "MATCH (n {id: $id})-[:DEPENDS_ON]->(m) RETURN n.id as n, collect(m.id) as deps",
+                """
+                MATCH (n {id: $id})
+                OPTIONAL MATCH (n)-[:DEPENDS_ON]->(m)
+                WITH n, collect(DISTINCT m.id) AS calls
+                OPTIONAL MATCH (p)-[:DEPENDS_ON]->(n)
+                RETURN n.id AS n, calls, collect(DISTINCT p.id) AS used_by
+                """,
                 id=anchor,
             )
             record = result.single()
             if record:
-                deps = ", ".join(record["deps"]) if record["deps"] else ""
-                return f"{record['n']} -> {deps}"
+                lines = [f"- name: {record['n']}"]
+                calls = [c for c in record["calls"] if c]
+                used_by = [u for u in record["used_by"] if u]
+                if calls:
+                    lines.append(f"  calls: [{', '.join(calls)}]")
+                if used_by:
+                    lines.append(f"  used_by: [{', '.join(used_by)}]")
+                return "\n".join(lines)
     finally:
         driver.close()
     return ""

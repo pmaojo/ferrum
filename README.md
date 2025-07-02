@@ -141,7 +141,9 @@ ferrum ai-team "What affects the node `saveOrder`?"
 ```
 
 The experts now call `graph_rag` automatically and include a small YAML subgraph
-with the dependencies related to your question.
+with the dependencies related to your question. When your question is vague,
+Ferrum uses Qdrant vector search to locate the most relevant node before
+fetching its dependency context.
 
 ### LLM configuration
 

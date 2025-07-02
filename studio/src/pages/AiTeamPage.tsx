@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SubgraphView } from "../features/graphrag/SubgraphView";
 
 interface Entry {
   user: string;
@@ -45,21 +46,22 @@ export default function AiTeamPage() {
           <div key={idx} className="border p-2">
             <div className="font-bold mb-1">You:</div>
             <div className="mb-2">{h.user}</div>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <div className="font-bold">Backend</div>
-                <div>{h.backend}</div>
-              </div>
-              <div>
-                <div className="font-bold">Frontend</div>
-                <div>{h.frontend}</div>
-              </div>
-              <div>
-                <div className="font-bold">UX</div>
-                <div>{h.ux}</div>
-              </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <div className="font-bold">Backend</div>
+              <div>{h.backend}</div>
+            </div>
+            <div>
+              <div className="font-bold">Frontend</div>
+              <div>{h.frontend}</div>
+            </div>
+            <div>
+              <div className="font-bold">UX</div>
+              <div>{h.ux}</div>
             </div>
           </div>
+          <SubgraphView question={h.user} />
+        </div>
         ))}
       </div>
       <div className="flex gap-2">

@@ -77,6 +77,12 @@ async def simulate_flow_route(req: YamlRequest):
     return {"text": text}
 
 
+@router.post("/graph-rag")
+async def graph_rag_route(req: PromptRequest):
+    graph = await run_in_threadpool(tools.graph_rag, req.text)
+    return {"graph": graph}
+
+
 @router.post("/chat")
 async def chat_route(req: ChatRequest) -> ChatResponse:
     reply = await run_in_threadpool(agent.chat, req.messages, req.model)

@@ -307,3 +307,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Experts now include graph context automatically using this method.
 - Documented the feature in README.
  
+
+### Session 2025-07-22
+- Added Qdrant fuzzy search and expanded fetch_context with incoming relations.
+- New /graph-rag endpoint and Studio widget to visualize retrieved subgraph.
