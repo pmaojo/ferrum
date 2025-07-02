@@ -65,6 +65,8 @@ ferrum compile gen/users.yaml
 
 The compile command automatically runs `typeshare` to export any
 shared Rust models into TypeScript types.
+It will also format the generated Rust and TypeScript code using
+`cargo fmt` and `prettier` when those tools are available.
 
 #### 4. Generate architecture from a natural prompt
 

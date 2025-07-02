@@ -508,3 +508,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Updated Dockerfile to run studio-desktop via cargo.
 - Removed obsolete npm install and server commands.
 
+
+### Session 2025-07-24
+- Added automatic formatting step after compilation running cargo fmt and Prettier.
