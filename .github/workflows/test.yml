@@ -35,6 +35,9 @@ jobs:
       - name: Run cargo tests
         run: cargo test --workspace --all-features
 
+      - name: Build studio desktop
+        run: cargo build -p studio-desktop
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
