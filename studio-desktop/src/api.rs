@@ -8,6 +8,12 @@ pub fn set_log_sender(sender: Sender<String>) {
     let _ = LOG_SENDER.set(sender);
 }
 
+pub fn push_log<S: Into<String>>(msg: S) {
+    if let Some(tx) = LOG_SENDER.get() {
+        let _ = tx.send(msg.into());
+    }
+}
+
 fn log(msg: String) {
     if let Some(tx) = LOG_SENDER.get() {
         let _ = tx.send(msg);

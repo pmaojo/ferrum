@@ -22,3 +22,9 @@ The viewer keeps the coordinates of each graph node in a Bevy resource named
 `NodePositions`. It maps node names to `Vec2` values and is initialized on
 startup so UI systems can read and modify the layout.
 
+### Distribution
+
+The release zip for the desktop app bundles the `ai_service` binary built with
+PyInstaller under `ai/dist/`. This means the Python environment is no longer
+required on the target machine to run Ferrum Studio.
+

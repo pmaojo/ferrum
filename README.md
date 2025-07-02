@@ -91,7 +91,9 @@ cargo run -p studio-desktop
 ```
 
 The application automatically launches the Python backend, so you don't need
-to run `make ai-dev` beforehand. The side panel now includes a text field and
+to run `make ai-dev` beforehand. When building release packages the
+`ai_service` binary is bundled inside the final zip, so Python isn't required on
+the target machine. The side panel now includes a text field and
 a **Regenerate** button to fetch a fresh graph from your question.
 Right-click any node to open the context menu. Besides editing its info you can
 **Simulate** the flow of the surrounding subgraph, **Generate** a component YAML
