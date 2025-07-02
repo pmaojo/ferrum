@@ -122,3 +122,26 @@ iot:
           // ... drive motor via EtherCAT
       }
 ```
+
+## CoAP backend service
+
+Ferrum provides a lightweight CoAP client behind the optional `coap`
+feature. The `engine::services::coap` module exposes async `get` and
+`post` functions built on the [`coap`](https://crates.io/crates/coap)
+crate. Enable the helpers in your `grafo.yaml`:
+
+```yaml
+app:
+  name: demo
+  features: [coap]
+```
+
+You can then call the service from a driver or usecase:
+
+```rust
+use ferrum_engine::coap;
+
+async fn ping_sensor() -> anyhow::Result<Vec<u8>> {
+    coap::get("coap://[fe80::1]/ping").await
+}
+```
