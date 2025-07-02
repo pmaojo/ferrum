@@ -3,7 +3,7 @@ use std::fs;
 
 use ferrum_shared_models::{FerrumDsl, SharedComponent};
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 /// Map primitive field types from the DSL to TypeScript types.
 fn ts_type(field: &str) -> &str {

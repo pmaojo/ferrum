@@ -4,7 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslIot, FerrumDsl};
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 pub fn generate_iot(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("iot");

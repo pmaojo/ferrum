@@ -3,7 +3,7 @@ use std::fs;
 
 use ferrum_shared_models::FerrumDsl;
 
-use crate::querygen::ProjectPaths;
+use crate::ProjectPaths;
 
 /// Generate frontend routes.tsx based on DSL routes and pages.
 pub fn generate_routes(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
