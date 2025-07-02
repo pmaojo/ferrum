@@ -472,3 +472,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Documented driver options in `docs/iot-frontend.md` with a table and YAML examples.
 - Linked the new section from the root README.
 
+### Session 2025-07-20
+- Updated CI workflow to use actions/upload-artifact@v4.
