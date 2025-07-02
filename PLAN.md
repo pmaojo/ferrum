@@ -451,3 +451,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added simulator support in `iotgen` generating log-based drivers when `simulate` is true.
 - Created sample simulator modules under `templates/backend/iot/sim`.
 - Documented the `simulate` flag in `docs/iot-frontend.md`.
+
+### Session 2025-07-15
+- Styled IoT nodes in the desktop graph viewer and added buttons to trigger REST/MQTT calls.
+- Handlers now call simulator stubs when `simulate` is enabled.

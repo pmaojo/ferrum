@@ -27,6 +27,7 @@ pub async fn sync_ast_to_graph(module: &Module, graph: &Graph) -> Result<()> {
             NodeType::Form => "Form",
             NodeType::Validation => "Validation",
             NodeType::Upload => "Upload",
+            NodeType::Iot => "Iot",
             NodeType::Policy => "Policy",
             NodeType::Resource => "Resource",
         };

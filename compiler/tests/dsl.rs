@@ -116,3 +116,29 @@ iot:
     assert_eq!(project.iot.len(), 1);
     assert_eq!(project.iot[0].name, "sensor");
 }
+
+#[test]
+fn iot_nodes_in_modules() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: sensor
+    code: |
+      fn read() {}
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let mut project = parse_dsl_yaml(&file).unwrap();
+    let modules = project_to_modules(&mut project);
+    assert!(modules.iter().any(|m| m.name == "iot"));
+    let nodes: Vec<_> = modules
+        .iter()
+        .find(|m| m.name == "iot")
+        .unwrap()
+        .nodes
+        .clone();
+    assert!(nodes
+        .iter()
+        .any(|n| matches!(n.node_type, ferrum_compiler::NodeType::Iot)));
+}

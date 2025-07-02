@@ -18,6 +18,7 @@ pub enum NodeType {
     Form,
     Validation,
     Upload,
+    Iot,
     Policy,
     Resource,
 }

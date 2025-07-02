@@ -163,6 +163,31 @@ iot:
 }
 
 #[test]
+fn compile_iot_expose_http_simulate_calls_stub() {
+    let yaml = r#"app:
+  name: demo
+iot:
+  - name: blink
+    code: |
+      fn blink() {}
+    protocol: http
+    driver: gpio
+    simulate: true
+    expose:
+      method: POST
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let dsl = parse_dsl_yaml(&file).unwrap();
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    compile_dsl(&dsl, &paths).unwrap();
+    let handler = fs::read_to_string(out.path().join("backend/iot/blink_handler.rs")).unwrap();
+    assert!(handler.contains("blink_sim()"));
+}
+
+#[test]
 fn compile_iot_expose_mqtt_creates_files() {
     let yaml = r#"app:
   name: demo

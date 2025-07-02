@@ -10,6 +10,8 @@ use crate::runtime::AsyncRuntime;
 pub struct Node {
     pub name: String,
     #[serde(default)]
+    pub node_type: Option<String>,
+    #[serde(default)]
     pub description: Option<String>,
     #[serde(default)]
     pub story: Option<String>,

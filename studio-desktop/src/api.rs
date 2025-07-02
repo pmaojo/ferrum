@@ -158,3 +158,15 @@ pub fn validate_yaml(yaml: &str) -> reqwest::Result<bool> {
     let data: ValidateResponse = res.json()?;
     Ok(data.valid)
 }
+
+pub fn call_iot_http(path: &str) -> reqwest::Result<String> {
+    push_log(format!("[HTTP] POST {}", path));
+    let client = reqwest::blocking::Client::new();
+    let res = client.post(&format!("http://localhost:8000{}", path)).send()?;
+    Ok(res.text()?)
+}
+
+pub fn publish_mqtt(topic: &str, payload: &str) -> reqwest::Result<()> {
+    push_log(format!("[MQTT] {topic}: {payload}"));
+    Ok(())
+}

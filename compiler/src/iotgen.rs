@@ -116,24 +116,39 @@ fn generate_exposed(iot: &DslIot, expose: &DslIotExpose, paths: &ProjectPaths) -
     let protocol = expose.protocol.as_deref().unwrap_or("http");
 
     if protocol.eq_ignore_ascii_case("mqtt") {
-        let content = format!(
-            "// MQTT template for {name}\n// Topic: {path}\n// \u{26F3} AI_FILL[iot_mqtt] --context=iot:{name}\n",
-            name = iot.name,
-            path = path
-        );
+        let content = if iot.simulate {
+            format!(
+                "pub fn {name}_mqtt() {{\n    super::sim::{name}_sim();\n}}\n",
+                name = iot.name.to_snake_case()
+            )
+        } else {
+            format!(
+                "// MQTT template for {name}\n// Topic: {path}\n// \u{26F3} AI_FILL[iot_mqtt] --context=iot:{name}\n",
+                name = iot.name,
+                path = path
+            )
+        };
         fs::write(
             dir.join(format!("{}_mqtt.rs", iot.name.to_snake_case())),
             content,
         )?;
     } else {
         let handler_name = format!("{}_handler", iot.name.to_snake_case());
-        let content = format!(
-            "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    // Exposed via {method} {path}\n    // \u{26F3} AI_FILL[iot_http] --context=iot:{orig}\n    Json(())\n}}\n",
-            handler_name = handler_name,
-            method = method,
-            path = path,
-            orig = iot.name,
-        );
+        let content = if iot.simulate {
+            format!(
+                "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    super::sim::{sim_fn}();\n    Json(())\n}}\n",
+                handler_name = handler_name,
+                sim_fn = format!("{}_sim", iot.name.to_snake_case())
+            )
+        } else {
+            format!(
+                "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    // Exposed via {method} {path}\n    // \u{26F3} AI_FILL[iot_http] --context=iot:{orig}\n    Json(())\n}}\n",
+                handler_name = handler_name,
+                method = method,
+                path = path,
+                orig = iot.name,
+            )
+        };
         fs::write(dir.join(format!("{}.rs", handler_name)), content)?;
     }
 

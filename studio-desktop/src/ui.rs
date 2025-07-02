@@ -165,7 +165,9 @@ pub fn graph_viewer(
             if resp.drag_started() {
                 state.dragging = Some(node.name.clone());
             }
-            let color = if state.selected.as_deref() == Some(node.name.as_str()) {
+            let color = if node.node_type.as_deref() == Some("iot") {
+                egui::Color32::from_rgb(250, 180, 100)
+            } else if state.selected.as_deref() == Some(node.name.as_str()) {
                 egui::Color32::LIGHT_BLUE
             } else {
                 egui::Color32::from_rgb(100, 150, 250)
@@ -220,6 +222,16 @@ pub fn graph_viewer(
                         if let Ok(ok) = api::validate_yaml(&yaml) {
                             state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
                         }
+                    }
+                }
+                if node.node_type.as_deref() == Some("iot") {
+                    if ui.button("Call REST").clicked() {
+                        if let Ok(text) = api::call_iot_http(&format!("/iot/{}", node.name)) {
+                            state.popup = Some(text);
+                        }
+                    }
+                    if ui.button("Publish MQTT").clicked() {
+                        let _ = api::publish_mqtt(&format!("iot/{}", node.name), "ping");
                     }
                 }
             });
