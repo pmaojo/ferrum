@@ -474,3 +474,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-07-20
 - Updated CI workflow to use actions/upload-artifact@v4.
+
+### Session 2025-07-21
+- Added `iot.svg` icon under `studio-desktop/assets` and loaded it via `egui_extras`.
+- Graph viewer now shows the icon next to IoT nodes.

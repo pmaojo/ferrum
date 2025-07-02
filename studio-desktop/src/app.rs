@@ -5,7 +5,7 @@ use crate::api;
 use crate::graph;
 use crate::runtime::AsyncRuntime;
 use crate::ui;
-use crate::ui::{AiTask, LogBuffer, NodeInfoTask};
+use crate::ui::{AiTask, Icons, LogBuffer, NodeInfoTask};
 use std::sync::mpsc::Receiver;
 
 #[derive(Resource)]
@@ -19,6 +19,7 @@ pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
         .init_resource::<graph::NodePositions>()
         .init_resource::<graph::Viewport>()
         .init_resource::<ui::UiState>()
+        .init_resource::<ui::Icons>()
         .init_resource::<graph::GraphTask>()
         .insert_resource(AiTask::default())
         .insert_resource(NodeInfoTask::default())
