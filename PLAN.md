@@ -410,3 +410,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Refactored `graph_viewer` to use `NodePositions` for both nodes and edges.
 - Removed the temporary positions map so edges react to dragging.
 - Updated variable names and comments for clarity.
+
+### Session 2025-07-07
+- Added script `ai/build_binary.sh` to bundle the Python backend with PyInstaller.
+- Updated Makefile with `ai-build` target and updated .PHONY list.
+- Desktop studio now executes the bundled `ai_service` binary when present.
