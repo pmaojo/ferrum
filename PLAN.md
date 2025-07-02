@@ -317,3 +317,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 ### Session 2025-07-23
 - Extended fetch_context to include description and story fields from Neo4j.
 - Updated filler to return enriched context and added tests.
+
+### Session 2025-07-24
+- Added GraphRAG documentation and linked it in README.
