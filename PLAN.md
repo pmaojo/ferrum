@@ -415,3 +415,9 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added script `ai/build_binary.sh` to bundle the Python backend with PyInstaller.
 - Updated Makefile with `ai-build` target and updated .PHONY list.
 - Desktop studio now executes the bundled `ai_service` binary when present.
+
+### Session 2025-07-08
+- Added `--target-arch` and macOS bundle support in `ai/build_binary.sh`.
+- CI workflow builds the AI binary and stores it as an artifact.
+- AI service launch errors are now pushed to the desktop log buffer.
+- Documented that the final desktop zip includes the bundled `ai_service`.

@@ -60,3 +60,12 @@ jobs:
         run: |
           cd ai
           pytest -q
+
+      - name: Build AI service binary
+        run: make ai-build
+
+      - name: Upload AI binary
+        uses: actions/upload-artifact@v3
+        with:
+          name: ai_service
+          path: ai/dist/ai_service*
