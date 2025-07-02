@@ -179,6 +179,32 @@ pub fn project_to_modules(project: &mut FerrumDsl) -> Vec<Module> {
         });
     }
 
+    if !project.iot.is_empty() {
+        let iot_nodes: Vec<Node> = project
+            .iot
+            .iter()
+            .map(|i| Node {
+                id: i.name.clone(),
+                node_type: NodeType::Iot,
+                doc: None,
+                description: None,
+                story: None,
+                input: Vec::new(),
+                output: None,
+                depends_on: Vec::new(),
+                implements: None,
+                view: None,
+                schema: None,
+                api_name: None,
+                ref_node: None,
+            })
+            .collect();
+        modules.push(Module {
+            name: "iot".to_string(),
+            nodes: iot_nodes,
+        });
+    }
+
     expand_features(project, &mut modules);
     modules
 }

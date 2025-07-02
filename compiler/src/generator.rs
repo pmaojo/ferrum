@@ -64,6 +64,7 @@ impl Generator {
             NodeType::Form => self.generate_form(module, node),
             NodeType::Validation => self.generate_validation(module, node),
             NodeType::Upload => self.generate_upload(module, node),
+            NodeType::Iot => Ok(()),
             NodeType::Policy | NodeType::Resource => Ok(()),
         }
     }
