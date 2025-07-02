@@ -8,6 +8,9 @@ from .schemas import (
     FillRequest,
     NodeInfoRequest,
 )
+from pydantic import BaseModel
+import subprocess
+from pathlib import Path
 from agents.generator import generate_yaml
 from agents.explainer import explain_yaml
 from agents.validator import validate_yaml, validate_usecase_prompt
@@ -22,6 +25,32 @@ router = APIRouter()
 agent = ChatAgent()
 tools = Toolset()
 coordinator = Coordinator(tools)
+
+
+class CompileRequest(BaseModel):
+    file: str = "grafo.yaml"
+    output: str | None = None
+
+
+def _run_compile(file: str, output: str | None = None):
+    cmd = [
+        "cargo",
+        "run",
+        "--quiet",
+        "--",
+        "compile",
+        file,
+    ]
+    if output:
+        cmd.extend(["--output", output])
+    proc = subprocess.Popen(
+        cmd,
+        cwd=Path(__file__).resolve().parents[1],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    out, _ = proc.communicate()
+    return {"ok": proc.returncode == 0, "logs": out.decode()}
 
 @router.post("/generate/yaml")
 @router.post("/generate-yaml")
@@ -100,3 +129,9 @@ async def chat_route(req: ChatRequest) -> ChatResponse:
 async def ai_team_route(req: ChatRequest) -> ChatResponse:
     reply = await run_in_threadpool(coordinator.chat, req.messages, req.model)
     return ChatResponse(message=reply)
+
+
+@router.post("/compile")
+async def compile_route(req: CompileRequest):
+    result = await run_in_threadpool(_run_compile, req.file, req.output)
+    return result

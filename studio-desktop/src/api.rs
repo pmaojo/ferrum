@@ -170,3 +170,26 @@ pub fn publish_mqtt(topic: &str, payload: &str) -> reqwest::Result<()> {
     push_log(format!("[MQTT] {topic}: {payload}"));
     Ok(())
 }
+
+#[derive(Serialize)]
+struct CompileRequest<'a> {
+    file: &'a str,
+}
+
+#[derive(Deserialize)]
+struct CompileResponse {
+    ok: bool,
+    logs: String,
+}
+
+pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
+    log(format!("[API] POST /compile {file}"));
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://localhost:8001/compile")
+        .json(&CompileRequest { file })
+        .send()
+        .await?;
+    let data: CompileResponse = res.json().await?;
+    Ok((data.ok, data.logs))
+}

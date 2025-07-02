@@ -29,6 +29,7 @@ sys.modules['agents.component_designer'].design_component = lambda *a, **k: ""
 sys.modules['agents.usecase_designer'].design_usecase = lambda *a, **k: ""
 sys.modules['agents.filler'].fill_code = lambda *a, **k: ""
 sys.modules['agents.filler'].fetch_context = lambda *a, **k: ""
+sys.modules['agents.filler'].store_details = lambda *a, **k: None
 class _C:
     def __init__(self, tools=None):
         pass
@@ -123,4 +124,17 @@ def test_node_info_route(monkeypatch):
     assert resp.status_code == 200
     assert resp.json() == {'ok': True}
     assert called['args'] == ('node', 'd', 's')
+
+
+def test_compile_route(monkeypatch):
+    def fake_run(file, output=None):
+        assert file == 'grafo.yaml'
+        assert output is None
+        return {'ok': True, 'logs': 'build ok'}
+
+    monkeypatch.setattr(router, '_run_compile', fake_run)
+
+    resp = client.post('/compile', json={'file': 'grafo.yaml'})
+    assert resp.status_code == 200
+    assert resp.json() == {'ok': True, 'logs': 'build ok'}
 

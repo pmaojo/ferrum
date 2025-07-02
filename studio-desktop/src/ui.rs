@@ -6,6 +6,7 @@ use bevy_egui::{egui, EguiContexts};
 use egui_extras::RetainedImage;
 use serde_yaml;
 use std::collections::VecDeque;
+use webbrowser;
 
 #[derive(Resource)]
 pub struct Icons {
@@ -268,6 +269,19 @@ pub fn graph_viewer(
             graph_task.0 = Some(rx);
             state.selected = None;
             state.loading = true;
+        }
+        if ui.button("Compile").clicked() {
+            let rt = runtime.0.clone();
+            std::thread::spawn(move || {
+                if let Ok((ok, logs)) = rt.block_on(api::compile_project("grafo.yaml")) {
+                    for line in logs.lines() {
+                        api::push_log(format!("[BUILD] {}", line));
+                    }
+                    if ok {
+                        let _ = webbrowser::open("gen/frontend/index.html");
+                    }
+                }
+            });
         }
         if state.loading {
             ui.add(egui::Spinner::new());
