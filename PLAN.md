@@ -421,3 +421,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - CI workflow builds the AI binary and stores it as an artifact.
 - AI service launch errors are now pushed to the desktop log buffer.
 - Documented that the final desktop zip includes the bundled `ai_service`.
+
+### Session 2025-07-09
+- Documented IoT expose fields and linked the page from README.
