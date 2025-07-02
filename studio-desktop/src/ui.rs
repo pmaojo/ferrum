@@ -1,15 +1,29 @@
 use crate::api;
-use crate::graph::{GraphData, NodePositions};
+use crate::graph::{GraphData, Node, NodePositions};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
+use serde_yaml;
 use std::collections::HashMap;
 
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct UiState {
     pub selected: Option<String>,
     pub ai_reply: Option<String>,
     pub dragging: Option<String>,
     pub edit: Option<EditData>,
+    pub query: String,
+}
+
+impl Default for UiState {
+    fn default() -> Self {
+        Self {
+            selected: None,
+            ai_reply: None,
+            dragging: None,
+            edit: None,
+            query: "project overview".to_string(),
+        }
+    }
 }
 
 #[derive(Default)]
@@ -121,6 +135,29 @@ pub fn graph_viewer(
                     used_by: node.used_by.clone().unwrap_or_default().join(", "),
                 });
             }
+        }
+    });
+    egui::SidePanel::right("side_panel").show(ctx, |ui| {
+        ui.heading("Graph Controls");
+        ui.label("Question");
+        ui.text_edit_singleline(&mut state.query);
+        if ui.button("Regenerate").clicked() {
+            if let Ok(g) = api::fetch_graph_blocking(&state.query) {
+                if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
+                    positions.0.clear();
+                    let n = nodes.len().max(1) as f32;
+                    let radius = 200.0;
+                    for (i, node) in nodes.iter().enumerate() {
+                        let angle = i as f32 * std::f32::consts::TAU / n;
+                        positions.0.insert(
+                            node.name.clone(),
+                            Vec2::new(angle.cos() * radius, angle.sin() * radius),
+                        );
+                    }
+                    data.nodes = nodes;
+                }
+            }
+            state.selected = None;
         }
         ui.separator();
         if let Some(name) = &state.selected {
