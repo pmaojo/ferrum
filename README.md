@@ -115,7 +115,9 @@ ferrum fill-todos gen
 
 Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and run the
 command above to let Ferrus ask the AI service for code based on your graph
-context. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
+context. If the answer is empty you'll be prompted for a short description of
+`NODE_ID`. The information is sent back to the AI service and stored in Neo4j
+for next time. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 
 #### 9. Cross-compile the backend
 

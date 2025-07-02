@@ -13,6 +13,10 @@ ferrum fill-todos gen
 Fill code blocks marked with `// ⛳️ AI_FILL[task] --context NODE_ID` using
 GraphRAG to fetch dependencies for `NODE_ID`.
 
+If the filler service returns an empty snippet, Ferrum will now ask you for a
+short description or story about `NODE_ID`. The extra details are sent back to
+`/fill-todo` and also stored in Neo4j so future calls have richer context.
+
 ```bash
 ferrum ai-team "What affects the node `saveOrder`?"
 ```

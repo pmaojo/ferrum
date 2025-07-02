@@ -61,3 +61,21 @@ def fill_code(task: str, anchor: str, model: str | None = None) -> str:
     system = "You complete Rust and TypeScript TODO markers using graph context."
     prompt = f"Fill code for {task} in {anchor}. Context: {context}"
     return call_llm(prompt, system, model)
+
+
+def store_details(node_id: str, description: str | None = None, story: str | None = None) -> None:
+    """Persist extra node details in Neo4j."""
+
+    driver = _get_graph_driver()
+    if driver is None:
+        return
+    try:
+        with driver.session() as session:
+            session.run(
+                "MERGE (n {id: $id}) SET n.description = coalesce($desc, n.description), n.story = coalesce($story, n.story)",
+                id=node_id,
+                desc=description,
+                story=story,
+            )
+    finally:
+        driver.close()

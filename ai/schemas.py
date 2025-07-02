@@ -18,3 +18,9 @@ class ChatResponse(BaseModel):
 class FillRequest(BaseModel):
     code: str
     instructions: str
+
+
+class NodeInfoRequest(BaseModel):
+    id: str
+    description: Optional[str] = None
+    story: Optional[str] = None
