@@ -1,5 +1,5 @@
 use crate::api;
-use crate::graph::GraphData;
+use crate::graph::{GraphData, NodePositions};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use std::collections::HashMap;
@@ -8,22 +8,42 @@ use std::collections::HashMap;
 pub struct UiState {
     pub selected: Option<String>,
     pub ai_reply: Option<String>,
+    pub dragging: Option<String>,
+    pub edit: Option<EditData>,
+}
+
+#[derive(Default)]
+pub struct EditData {
+    pub name: String,
+    pub description: String,
+    pub story: String,
+    pub calls: String,
+    pub used_by: String,
 }
 
 pub fn graph_viewer(
     mut contexts: EguiContexts,
-    data: Res<GraphData>,
+    mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
     mut viewport: ResMut<crate::graph::Viewport>,
+    mut positions: ResMut<NodePositions>,
 ) {
     let ctx = contexts.ctx_mut();
-    let (zoom_delta, pointer_delta, dragging) =
+    let (zoom_delta, pointer_delta, pointer_down) =
         ctx.input(|i| (i.zoom_delta(), i.pointer.delta(), i.pointer.primary_down()));
     if zoom_delta != 1.0 {
         viewport.zoom = (viewport.zoom * zoom_delta).clamp(0.2, 5.0);
     }
-    if dragging {
-        viewport.offset += pointer_delta;
+    if pointer_down {
+        if let Some(name) = &state.dragging {
+            if let Some(p) = positions.0.get_mut(name) {
+                *p += pointer_delta / viewport.zoom;
+            }
+        } else {
+            viewport.offset += pointer_delta;
+        }
+    } else {
+        state.dragging = None;
     }
 
     egui::CentralPanel::default().show(ctx, |ui| {
@@ -46,6 +66,7 @@ pub fn graph_viewer(
                     if let (Some(&a), Some(&b)) = (
                         positions.get(node.name.as_str()),
                         positions.get(target.as_str()),
+
                     ) {
                         painter.line_segment(
                             [a, b],
@@ -57,9 +78,12 @@ pub fn graph_viewer(
         }
         // Draw nodes
         for node in &data.nodes {
-            let pos = positions[&node.name.as_str()];
+            let pos = center + *positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
-            let resp = ui.allocate_rect(rect, egui::Sense::click());
+            let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
+            if resp.drag_started() {
+                state.dragging = Some(node.name.clone());
+            }
             let color = if state.selected.as_deref() == Some(node.name.as_str()) {
                 egui::Color32::LIGHT_BLUE
             } else {
@@ -88,6 +112,15 @@ pub fn graph_viewer(
                 state.selected = Some(node.name.clone());
                 state.ai_reply = None;
             }
+            if resp.secondary_clicked() {
+                state.edit = Some(EditData {
+                    name: node.name.clone(),
+                    description: node.description.clone().unwrap_or_default(),
+                    story: node.story.clone().unwrap_or_default(),
+                    calls: node.calls.clone().unwrap_or_default().join(", "),
+                    used_by: node.used_by.clone().unwrap_or_default().join(", "),
+                });
+            }
         }
         ui.separator();
         if let Some(name) = &state.selected {
@@ -110,4 +143,62 @@ pub fn graph_viewer(
             }
         }
     });
+    if let Some(edit) = &mut state.edit {
+        egui::Window::new(format!("Edit {}", edit.name))
+            .collapsible(false)
+            .show(ctx, |ui| {
+                ui.label("Description");
+                ui.text_edit_singleline(&mut edit.description);
+                ui.label("Story");
+                ui.text_edit_multiline(&mut edit.story);
+                ui.label("Calls (comma separated)");
+                ui.text_edit_singleline(&mut edit.calls);
+                ui.label("Used by (comma separated)");
+                ui.text_edit_singleline(&mut edit.used_by);
+                if ui.button("Save").clicked() {
+                    if let Some(node) = data.nodes.iter_mut().find(|n| n.name == edit.name) {
+                        node.description = if edit.description.trim().is_empty() {
+                            None
+                        } else {
+                            Some(edit.description.clone())
+                        };
+                        node.story = if edit.story.trim().is_empty() {
+                            None
+                        } else {
+                            Some(edit.story.clone())
+                        };
+                        node.calls = if edit.calls.trim().is_empty() {
+                            None
+                        } else {
+                            Some(
+                                edit.calls
+                                    .split(',')
+                                    .map(|s| s.trim().to_string())
+                                    .collect(),
+                            )
+                        };
+                        node.used_by = if edit.used_by.trim().is_empty() {
+                            None
+                        } else {
+                            Some(
+                                edit.used_by
+                                    .split(',')
+                                    .map(|s| s.trim().to_string())
+                                    .collect(),
+                            )
+                        };
+                        let _ = api::store_node_info(
+                            &node.name,
+                            node.description.as_deref(),
+                            node.story.as_deref(),
+                        );
+                    }
+                    state.edit = None;
+                }
+                ui.same_line();
+                if ui.button("Cancel").clicked() {
+                    state.edit = None;
+                }
+            });
+    }
 }

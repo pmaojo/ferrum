@@ -1,6 +1,7 @@
 use crate::api;
 use bevy::prelude::*;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Node {
@@ -20,6 +21,10 @@ pub struct GraphData {
     pub nodes: Vec<Node>,
 }
 
+
+pub struct NodePositions(pub HashMap<String, Vec2>);
+
+
 #[derive(Resource, Clone)]
 pub struct Viewport {
     pub zoom: f32,
@@ -35,9 +40,20 @@ impl Default for Viewport {
     }
 }
 
-pub fn load_graph(mut data: ResMut<GraphData>) {
+
+pub fn load_graph(mut data: ResMut<GraphData>, mut pos: ResMut<NodePositions>) {
     if let Ok(g) = api::fetch_graph_blocking("project overview") {
         if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
+            pos.0.clear();
+            let n = nodes.len().max(1) as f32;
+            let radius = 200.0;
+            for (i, node) in nodes.iter().enumerate() {
+                let angle = i as f32 * std::f32::consts::TAU / n;
+                pos.0.insert(
+                    node.name.clone(),
+                    Vec2::new(angle.cos() * radius, angle.sin() * radius),
+                );
+            }
             data.nodes = nodes;
         }
     }

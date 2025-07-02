@@ -10,6 +10,7 @@ pub fn run_app() {
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
         .init_resource::<graph::GraphData>()
+        .init_resource::<graph::NodePositions>()
         .init_resource::<graph::Viewport>()
         .init_resource::<ui::UiState>()
         .add_systems(Startup, graph::load_graph)

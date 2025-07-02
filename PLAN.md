@@ -366,6 +366,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added AI Team query button and upgraded `bevy_egui` to 0.26.
 
 ### Session 2025-07-31
+- Documented desktop studio in new README and linked it from the root README.
 - Added Makefile target and compose service to run the desktop studio with `cargo run -p studio-desktop`.
 - Documented the command in README and new `docs/studio-desktop.md` page.
 - CI workflow now builds the `studio-desktop` crate.
@@ -374,4 +375,10 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added viewport resource with zoom and pan.
 - Updated graph viewer to use mouse wheel and drag controls.
 - Documented controls in studio-desktop/README.md.
+
+### Session 2025-07-03
+- Implemented node position storage and dragging in the desktop viewer.
+- Added context menu to edit calls, used_by, description and story.
+- Persisted description and story via new `/node-info` API using `store_node_info`.
+- Updated graph viewer to keep relationships in memory when saving or regenerating.
 
