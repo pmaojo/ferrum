@@ -54,3 +54,16 @@ iot:
 ```
 
 When compiled this exposes `GET /sensors/temp` and generates a `useReadTemperature` hook for your React app.
+
+## Enabling hardware crates
+
+The backend `Cargo.toml` declares optional features for common IoT
+libraries. To try the examples under `templates/backend/iot`, compile
+with:
+
+```bash
+cargo build -p backend --features hal,rppal,mqtt,ethercat
+```
+
+This pulls in `embedded-hal`, `rppal`, `rumqttc` and `ethercat-rs` so
+you can use the provided module templates.

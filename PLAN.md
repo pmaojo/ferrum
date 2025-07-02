@@ -437,3 +437,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added GPIO, MQTT and EtherCAT helpers in compiler iotgen.
 - Updated compile tests to verify protocol stubs are generated.
 
+### Session 2025-07-13
+- Added IoT sample modules using embedded-hal, rppal, rumqttc and ethercat-rs.
+- Cargo template now includes optional features for these crates.
+- Documented enabling them via cargo build.
+
