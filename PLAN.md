@@ -546,3 +546,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Standardized Ferrum naming across README, docs, tests and configs.
 - Updated plugin template metadata to use the Ferrum prefix.
 
+### Session 2025-07-03
+- Added CSR/SSR modes for Leptos frontends.
+- `ferrum dev` and `build` now pass the selected feature to Trunk.
+- Documentation and templates updated accordingly.
+

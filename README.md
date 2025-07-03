@@ -37,14 +37,16 @@ ferrum init my-project --with-ai
 
 # API-only backend (skip frontend)
 ferrum init my-project --api-only
-# Use Leptos instead of React
-ferrum init my-project --frontend leptos
+# Use Leptos CSR instead of React
+ferrum init my-project --frontend leptos-csr
+# Or enable server-side rendering
+ferrum init my-project --frontend leptos-ssr
 # Skip starter templates
 ferrum init my-project --nostarter
 ```
 
 Running `ferrum init` now creates a minimal Axum server and frontend
-(React by default or Leptos with `--frontend leptos`) so you can `cd`
+(React by default or Leptos with `--frontend leptos-csr`/`--frontend leptos-ssr`) so you can `cd`
 into the new directory and start the dev environment immediately. Use
 `--api-only` if you only need the backend.
 
@@ -246,7 +248,7 @@ Ferrum comes with a pre-configured Docker environment that includes:
 | Service | Purpose |
 |---------|----------|
 | **backend** | Rust (Axum) server with hot reload |
-| **frontend** | React (Vite) or Leptos (Trunk) frontend (omit with `--api-only`) |
+| **frontend** | React (Vite) or Leptos (Trunk, CSR or SSR) frontend (omit with `--api-only`) |
 | **db** | PostgreSQL database |
 | **graphdb** (optional) | Neo4j for graph modeling |
 | **llm** (optional) | Ollama for local AI inference |
