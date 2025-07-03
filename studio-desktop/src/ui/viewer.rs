@@ -18,6 +18,99 @@ fn to_egui(v: Vec2) -> egui::Vec2 {
     egui::Vec2::new(v.x, v.y)
 }
 
+/// Single onboarding step displayed in the tour overlay.
+pub struct TourStep {
+    pub title: &'static str,
+    pub body: &'static str,
+    pub anchor: egui::Align2,
+    pub offset: egui::Vec2,
+}
+
+/// Resource tracking onboarding progress.
+#[derive(Resource)]
+pub struct TourState {
+    steps: Vec<TourStep>,
+    current: usize,
+}
+
+impl Default for TourState {
+    fn default() -> Self {
+        Self {
+            steps: vec![
+                TourStep {
+                    title: "Welcome",
+                    body: "Use the controls on the right to generate a graph.",
+                    anchor: egui::Align2::RIGHT_TOP,
+                    offset: egui::vec2(-10.0, 10.0),
+                },
+                TourStep {
+                    title: "Nodes",
+                    body: "Click nodes in the graph to inspect them.",
+                    anchor: egui::Align2::CENTER_TOP,
+                    offset: egui::vec2(0.0, 10.0),
+                },
+                TourStep {
+                    title: "Logs",
+                    body: "Check the bottom panel for build logs and messages.",
+                    anchor: egui::Align2::CENTER_BOTTOM,
+                    offset: egui::vec2(0.0, -10.0),
+                },
+            ],
+            current: 0,
+        }
+    }
+}
+
+impl TourState {
+    pub fn current_step(&self) -> Option<&TourStep> {
+        self.steps.get(self.current)
+    }
+
+    pub fn advance(&mut self) {
+        if self.current < self.steps.len() {
+            self.current += 1;
+        }
+    }
+
+    pub fn index(&self) -> usize {
+        self.current
+    }
+}
+
+fn vibrant_visuals() -> egui::Visuals {
+    let mut visuals = egui::Visuals::dark();
+    visuals.widgets.active.bg_fill = egui::Color32::from_rgb(0, 150, 255);
+    visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(60, 60, 90);
+    visuals.widgets.hovered.glow = 10.0;
+    visuals.selection.bg_fill = egui::Color32::from_rgb(0, 255, 150);
+    visuals.window_fill = egui::Color32::from_rgb(20, 20, 30);
+    visuals
+}
+
+fn setup_visuals(mut contexts: EguiContexts) {
+    let ctx = contexts.ctx_mut();
+    ctx.set_visuals(vibrant_visuals());
+}
+
+fn show_tour_overlay(ctx: &egui::Context, tour: &mut TourState) {
+    if let Some(step) = tour.current_step() {
+        let mut advance = false;
+        egui::Window::new(step.title)
+            .anchor(step.anchor, step.offset)
+            .resizable(false)
+            .collapsible(false)
+            .show(ctx, |ui| {
+                ui.label(step.body);
+                if ui.button("Got it").clicked() {
+                    advance = true;
+                }
+            });
+        if advance {
+            tour.advance();
+        }
+    }
+}
+
 /// Generate YAML for a subgraph rooted at `name`.
 pub fn subgraph_yaml(data: &GraphData, name: &str) -> Option<String> {
     let mut names = HashSet::new();
@@ -340,6 +433,7 @@ pub fn draw_graph(
     factory: Res<BoxedFactory>,
     icons: Res<Icons>,
     svg_assets: Res<Assets<SvgImage>>,
+    mut tour: ResMut<TourState>,
 ) {
     let ctx = contexts.ctx_mut();
     poll_ai_task(&mut ai_task, &mut state);
@@ -368,6 +462,7 @@ pub fn draw_graph(
     });
     show_popup(ctx, &mut state);
     show_edit_window(ctx, &mut data, &mut state, &runtime, &mut node_task);
+    show_tour_overlay(ctx, &mut tour);
 }
 
 /// Update the side panel with controls.
@@ -474,12 +569,14 @@ impl Plugin for ViewerPlugin {
             .init_resource::<Viewport>()
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
+            .init_resource::<TourState>()
             .init_resource::<node_factory::BoxedFactory>()
             .init_resource::<BuildTask>()
             .insert_resource(AsyncRuntime::default())
             .insert_resource(AiTask::default())
             .insert_resource(NodeInfoTask::default())
             .insert_resource(LogBuffer::default())
+            .add_systems(Startup, setup_visuals)
             .add_systems(OnEnter(AppState::Loading), crate::graph::load_graph)
             .add_systems(Update, crate::graph::update_graph_task)
             .add_systems(
