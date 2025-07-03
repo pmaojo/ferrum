@@ -1,7 +1,41 @@
 use anyhow::Result;
 use std::{fs, path::Path};
 
+/// Recursively copy a directory of template files if they don't already exist.
+pub fn copy_dir_if_missing<P: AsRef<Path>, Q: AsRef<Path>>(src: P, dest: Q) -> Result<()> {
+    use walkdir::WalkDir;
+    let src = src.as_ref();
+    let dest = dest.as_ref();
+    for entry in WalkDir::new(src) {
+        let entry = entry?;
+        if entry.file_type().is_file() {
+            let rel = entry.path().strip_prefix(src)?;
+            let dest_path = dest.join(rel);
+            if dest_path.exists() {
+                continue;
+            }
+            if let Some(parent) = dest_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::copy(entry.path(), &dest_path)?;
+        }
+    }
+    Ok(())
+}
+
 pub fn copy_if_missing<P: AsRef<Path>>(contents: &str, dest: P) -> Result<()> {
+    let dest = dest.as_ref();
+    if dest.exists() {
+        return Ok(());
+    }
+    if let Some(parent) = dest.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::write(dest, contents)?;
+    Ok(())
+}
+
+pub fn copy_if_missing_bytes<P: AsRef<Path>>(contents: &[u8], dest: P) -> Result<()> {
     let dest = dest.as_ref();
     if dest.exists() {
         return Ok(());

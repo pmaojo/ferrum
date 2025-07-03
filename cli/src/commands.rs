@@ -580,10 +580,9 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
                     .spawn()?,
             )
         } else if leptos_exists {
-            let mode = detect_leptos_mode().unwrap_or_else(|| "csr".to_string());
             Some(
-                Command::new("trunk")
-                    .args(["serve", "--open", &format!("--features={}", mode)])
+                Command::new("cargo")
+                    .args(["leptos", "watch", "--open"])
                     .current_dir("frontend_leptos")
                     .stdout(Stdio::inherit())
                     .stderr(Stdio::inherit())
@@ -1124,29 +1123,13 @@ fn copy_leptos_starter(dir: &Path, mode: Frontend) -> Result<()> {
         if entry.file_type().is_file() {
             let rel = entry.path().strip_prefix(&template_dir)?;
             let dest = dir.join("frontend_leptos").join(rel);
-            if let Some(parent) = dest.parent() {
-                fs::create_dir_all(parent)?;
-            }
-            fs::copy(entry.path(), dest)?;
-        }
-    }
-
-    // Copy shared files outside the csr/ssr directories
-    let shared_dir = PathBuf::from("templates/frontend_leptos");
-    for entry in WalkDir::new(&shared_dir) {
-        let entry = entry?;
-        if entry.file_type().is_file() && !entry.path().starts_with(&template_dir) {
-            if entry.path().components().any(|c| c.as_os_str() == "csr") ||
-               entry.path().components().any(|c| c.as_os_str() == "ssr")
-            {
+            if dest.exists() {
                 continue;
             }
-            let rel = entry.path().strip_prefix(&shared_dir)?;
-            let dest = dir.join("frontend_leptos").join(rel);
             if let Some(parent) = dest.parent() {
                 fs::create_dir_all(parent)?;
             }
-            fs::copy(entry.path(), dest)?;
+            fs::copy(entry.path(), &dest)?;
         }
     }
 
@@ -1710,17 +1693,12 @@ pub fn build(target: Option<String>) -> Result<()> {
         anyhow::bail!("Cargo build failed");
     }
     if Path::new("frontend_leptos").exists() {
-        let mode = detect_leptos_mode().unwrap_or_else(|| "csr".to_string());
-        let status = Command::new("trunk")
-            .args([
-                "build",
-                "--release",
-                &format!("--features={}", mode),
-            ])
+        let status = Command::new("cargo")
+            .args(["leptos", "build", "--release"])
             .current_dir("frontend_leptos")
             .status()?;
         if !status.success() {
-            anyhow::bail!("Trunk build failed");
+            anyhow::bail!("cargo-leptos build failed");
         }
     }
     println!("✅ Build finished");
