@@ -70,7 +70,7 @@ pub fn handle_drop(
                         calls: None,
                         used_by: None,
                     });
-                    positions.0.insert(name, graph_pos);
+                    positions.0.insert(name, Vec2::new(graph_pos.x, graph_pos.y));
                 }
             }
             state.palette_dragging = None;
