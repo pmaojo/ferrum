@@ -1,6 +1,7 @@
 use crate::api;
 use bevy::prelude::*;
 use bevy_tokio_tasks::tokio::task::JoinHandle;
+use bevy::tasks::Task;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -34,7 +35,7 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<Task<reqwest::Result<String>>>);
+pub struct GraphTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -51,12 +52,8 @@ impl Default for Viewport {
     }
 }
 
-pub fn spawn_graph_request(
-    rt: &AsyncRuntime,
-    question: String,
-    mut writer: EventWriter<'_, crate::api::LogEvent>,
-) -> JoinHandle<reqwest::Result<String>> {
-    rt.spawn_background_task(move |_| async move { api::fetch_graph(&mut writer, &question).await })
+pub fn spawn_graph_request(rt: &AsyncRuntime, question: String) -> JoinHandle<reqwest::Result<String>> {
+    rt.spawn_background_task(move |_| async move { api::fetch_graph(&question).await })
 }
 
 pub fn load_graph(
@@ -65,9 +62,9 @@ pub fn load_graph(
     mut state: ResMut<crate::ui::UiState>,
     data: Res<GraphData>,
     mut pos: ResMut<NodePositions>,
-    mut writer: EventWriter<crate::api::LogEvent>,
+    _writer: EventWriter<crate::api::LogEvent>,
 ) {
-    let handle = spawn_graph_request(&rt, state.query.clone(), writer);
+    let handle = spawn_graph_request(&rt, state.query.clone());
     task.0 = Some(handle);
     state.loading = true;
 

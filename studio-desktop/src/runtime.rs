@@ -1,15 +1,10 @@
 use bevy::prelude::*;
-use bevy::tasks::{AsyncComputeTaskPool, Task};
+use bevy_tokio_tasks::{TokioTasksPlugin, TokioTasksRuntime};
 
-#[derive(Resource, Default)]
-pub struct AsyncRuntime;
+/// Type alias for the async runtime used by the application.
+pub type AsyncRuntime = TokioTasksRuntime;
 
-impl AsyncRuntime {
-    pub fn spawn<F, T>(&self, future: F) -> Task<T>
-    where
-        F: std::future::Future<Output = T> + Send + 'static,
-        T: Send + 'static,
-    {
-        AsyncComputeTaskPool::get().spawn(future)
-    }
+/// Returns the plugin that initializes the Tokio runtime.
+pub fn runtime_plugin() -> impl Plugin {
+    TokioTasksPlugin::default()
 }

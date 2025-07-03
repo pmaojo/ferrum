@@ -8,14 +8,14 @@ use crate::app_state::AppState;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use bevy_tokio_tasks::tokio::task::JoinHandle;
-use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
+use crate::runtime::AsyncRuntime;
+use crate::ui::SvgImage;
 use leafwing_input_manager::prelude::*;
 use serde_yaml;
 use std::collections::HashSet;
 use webbrowser;
 
-fn to_egui(v: Vec2) -> egui::Vec2 {
+pub(crate) fn to_egui(v: Vec2) -> egui::Vec2 {
     egui::Vec2::new(v.x, v.y)
 }
 
@@ -82,15 +82,15 @@ fn vibrant_visuals() -> egui::Visuals {
     let mut visuals = egui::Visuals::dark();
     visuals.widgets.active.bg_fill = egui::Color32::from_rgb(0, 150, 255);
     visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(60, 60, 90);
-    visuals.widgets.hovered.glow = 10.0;
     visuals.selection.bg_fill = egui::Color32::from_rgb(0, 255, 150);
     visuals.window_fill = egui::Color32::from_rgb(20, 20, 30);
     visuals
 }
 
 fn setup_visuals(mut contexts: EguiContexts) {
-    let ctx = contexts.ctx_mut();
-    ctx.set_visuals(vibrant_visuals());
+    if let Ok(ctx) = contexts.ctx_mut() {
+        ctx.set_visuals(vibrant_visuals());
+    }
 }
 
 fn show_tour_overlay(ctx: &egui::Context, tour: &mut TourState) {
@@ -144,8 +144,14 @@ pub fn handle_interaction(
     mut state: ResMut<UiState>,
     action_state_query: Query<&ActionState<crate::input::Action>>,
 ) {
-    let ctx = contexts.ctx_mut();
-    let action_state = action_state_query.single();
+    let ctx = match contexts.ctx_mut() {
+        Ok(ctx) => ctx,
+        Err(_) => return,
+    };
+    let action_state = match action_state_query.get_single() {
+        Ok(state) => state,
+        Err(_) => return,
+    };
     let pointer_delta = ctx.input(|i| i.pointer.delta());
     let zoom_delta = action_state.value(&crate::input::Action::Zoom);
     if zoom_delta != 0.0 {
@@ -436,15 +442,15 @@ pub fn draw_graph(
     svg_assets: Res<Assets<SvgImage>>,
     mut tour: ResMut<TourState>,
 ) {
-    let ctx = contexts.ctx_mut();
-    poll_ai_task(&mut ai_task, &mut state);
-    poll_node_task(&mut node_task, &mut data);
-    egui::CentralPanel::default().show(ctx, |ui| {
-        ui.heading("Graph View");
-        let rect = ui.max_rect();
-        let painter = ui.painter_at(rect);
-        let center = rect.center().to_vec2() + to_egui(viewport.offset);
-        draw_edges(&painter, &data.nodes, &node_positions, center, &viewport);
+    if let Ok(ctx) = contexts.ctx_mut() {
+        poll_ai_task(&mut ai_task, &mut state);
+        poll_node_task(&mut node_task, &mut data);
+        egui::CentralPanel::default().show(ctx, |ui| {
+            ui.heading("Graph View");
+            let rect = ui.max_rect();
+            let painter = ui.painter_at(rect);
+            let center = rect.center().to_vec2() + to_egui(viewport.offset);
+            draw_edges(&painter, &data.nodes, &node_positions, center, &viewport);
         draw_nodes(
             ui,
             &painter,
@@ -460,11 +466,12 @@ pub fn draw_graph(
             &runtime,
             &mut node_task,
         );
-        palette::handle_drop(ctx, rect, &viewport, &mut state, &mut data, &mut node_positions);
-    });
-    show_popup(ctx, &mut state);
-    show_edit_window(ctx, &mut data, &mut state, &runtime, &mut node_task);
-    show_tour_overlay(ctx, &mut tour);
+            palette::handle_drop(ctx, rect, &viewport, &mut state, &mut data, &mut node_positions);
+        });
+        show_popup(ctx, &mut state);
+        show_edit_window(ctx, &mut data, &mut state, &runtime, &mut node_task);
+        show_tour_overlay(ctx, &mut tour);
+    }
 }
 
 /// Update the side panel with controls.
@@ -479,33 +486,36 @@ pub fn update_side_panel(
     mut log_writer: EventWriter<crate::api::LogEvent>,
     mut build_task: ResMut<BuildTask>,
 ) {
-    let ctx = contexts.ctx_mut();
+    let ctx = match contexts.ctx_mut() {
+        Ok(ctx) => ctx,
+        Err(_) => return,
+    };
     let mut writer_opt = Some(log_writer);
     egui::SidePanel::right("side_panel").show(ctx, |ui| {
         ui.heading("Graph Controls");
         ui.label("Question");
         ui.text_edit_singleline(&mut state.query);
         if ui.button("Regenerate").clicked() {
-            let writer = writer_opt.take().unwrap();
-            let handle = crate::graph::spawn_graph_request(&runtime, state.query.clone(), writer);
+            let _writer = writer_opt.take().unwrap();
+            let handle = crate::graph::spawn_graph_request(&runtime, state.query.clone());
             graph_task.0 = Some(handle);
             state.selected = None;
             state.loading = true;
         }
         if ui.button("Compile").clicked() {
-            let handle = runtime.spawn(async move { api::compile_project("grafo.yaml").await });
+            let handle = runtime.spawn_background_task(move |_| async move { api::compile_project("grafo.yaml").await });
             build_task.0 = Some(handle);
         }
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
                 let handle =
-                    runtime.spawn(async move { api::compile_module(&n, "grafo.yaml").await });
+                    runtime.spawn_background_task(move |_| async move { api::compile_module(&n, "grafo.yaml").await });
                 build_task.0 = Some(handle);
             }
             if ui.button("Compile Subgraph").clicked() {
                 if let Some(yaml) = subgraph_yaml(&data, name) {
-                    let handle = runtime.spawn(async move { api::compile_graph(&yaml).await });
+                    let handle = runtime.spawn_background_task(move |_| async move { api::compile_graph(&yaml).await });
                     build_task.0 = Some(handle);
                 }
             }
@@ -524,13 +534,10 @@ pub fn update_side_panel(
                 }
                 if ui.button("Ask AI Team").clicked() {
                     let question = format!("What affects {}?", name);
-                    if let Some(writer) = writer_opt.take() {
-                        let handle = runtime.spawn_background_task(move |_| async move {
-                            let mut w = writer;
-                            api::ask_ai_team(&mut w, &question).await
-                        });
-                        ai_task.0 = Some(handle);
-                    }
+                    let handle = runtime.spawn_background_task(move |_| async move {
+                        api::ask_ai_team(&question).await
+                    });
+                    ai_task.0 = Some(handle);
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();
@@ -573,9 +580,9 @@ impl Plugin for ViewerPlugin {
             .init_resource::<UiState>()
             .init_resource::<TourState>()
             .init_resource::<NodeTemplates>()
-            .init_resource::<node_factory::BoxedFactory>()
+            .init_resource::<BoxedFactory>()
             .init_resource::<BuildTask>()
-            .insert_resource(AsyncRuntime::default())
+            .add_plugins(crate::runtime::runtime_plugin())
             .insert_resource(AiTask::default())
             .insert_resource(NodeInfoTask::default())
             .insert_resource(LogBuffer::default())
