@@ -139,10 +139,12 @@ pub fn graph_viewer(
     if pointer_down {
         if let Some(name) = &state.dragging {
             if let Some(p) = node_positions.0.get_mut(name) {
-                *p += pointer_delta / viewport.zoom;
+                let delta = Vec2::new(pointer_delta.x, pointer_delta.y);
+                *p += delta / viewport.zoom;
             }
         } else {
-            viewport.offset += pointer_delta;
+            let delta = Vec2::new(pointer_delta.x, pointer_delta.y);
+            viewport.offset += delta;
         }
     } else {
         state.dragging = None;
@@ -152,7 +154,7 @@ pub fn graph_viewer(
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
-        let center = rect.center() + viewport.offset;
+        let center = Vec2::new(rect.center().x, rect.center().y) + viewport.offset;
         // Draw edges using stored node positions
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
@@ -162,7 +164,16 @@ pub fn graph_viewer(
                         node_positions.0.get(target),
                     ) {
                         painter.line_segment(
-                            [center + *a * viewport.zoom, center + *b * viewport.zoom],
+                            [
+                                egui::pos2(
+                                    (center + *a * viewport.zoom).x,
+                                    (center + *a * viewport.zoom).y,
+                                ),
+                                egui::pos2(
+                                    (center + *b * viewport.zoom).x,
+                                    (center + *b * viewport.zoom).y,
+                                ),
+                            ],
                             egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
                         );
                     }
@@ -171,8 +182,9 @@ pub fn graph_viewer(
         }
         // Draw nodes
         for node in &data.nodes {
-            let pos =
+            let pos_vec =
                 center + *node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
+            let pos = egui::pos2(pos_vec.x, pos_vec.y);
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
             if resp.drag_started() {
