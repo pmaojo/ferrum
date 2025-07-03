@@ -1,0 +1,15 @@
+[package]
+name = "frontend_leptos"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+leptos = "0.6"
+leptos_axum = "0.6"
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = ["ssr"]
+csr = []
+ssr = []

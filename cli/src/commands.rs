@@ -21,7 +21,8 @@ pub enum DeployProvider {
 #[derive(ValueEnum, Clone)]
 pub enum Frontend {
     React,
-    Leptos,
+    LeptosCsr,
+    LeptosSsr,
 }
 
 #[derive(Subcommand)]
@@ -579,9 +580,10 @@ pub fn dev(docker: bool, with_graph: bool, with_ai: bool) -> Result<()> {
                     .spawn()?,
             )
         } else if leptos_exists {
+            let mode = detect_leptos_mode().unwrap_or_else(|| "csr".to_string());
             Some(
                 Command::new("trunk")
-                    .args(["serve", "--open"])
+                    .args(["serve", "--open", &format!("--features={}", mode)])
                     .current_dir("frontend_leptos")
                     .stdout(Stdio::inherit())
                     .stderr(Stdio::inherit())
@@ -707,12 +709,14 @@ pub fn init(
             .with_prompt("Frontend framework")
             .default(match frontend {
                 Frontend::React => 0,
-                Frontend::Leptos => 1,
+                Frontend::LeptosCsr => 1,
+                Frontend::LeptosSsr => 2,
             })
-            .items(&["React", "Leptos"])
+            .items(&["React", "Leptos CSR", "Leptos SSR"])
             .interact()?
         {
-            1 => Frontend::Leptos,
+            1 => Frontend::LeptosCsr,
+            2 => Frontend::LeptosSsr,
             _ => Frontend::React,
         };
         nostarter = Confirm::new()
@@ -745,7 +749,7 @@ pub fn init(
                 dirs.push("frontend/src");
                 dirs.push("templates/frontend");
             }
-            Frontend::Leptos => {
+            Frontend::LeptosCsr | Frontend::LeptosSsr => {
                 dirs.push("frontend_leptos/src");
                 dirs.push("frontend_leptos/src/pages");
                 dirs.push("templates/frontend_leptos");
@@ -802,7 +806,7 @@ ethercat = ["ethercat-rs"]
 "#,
     )?;
 
-    if let Frontend::Leptos = frontend {
+    if matches!(frontend, Frontend::LeptosCsr | Frontend::LeptosSsr) {
         fs::write(
             project_dir.join("Cargo.toml"),
             "[workspace]\nmembers = [\"backend\", \"frontend_leptos\"]\n",
@@ -812,7 +816,9 @@ ethercat = ["ethercat-rs"]
     if !api_only && !nostarter {
         match frontend {
             Frontend::React => write_react_starter(&project_dir)?,
-            Frontend::Leptos => copy_leptos_starter(&project_dir)?,
+            Frontend::LeptosCsr | Frontend::LeptosSsr => {
+                copy_leptos_starter(&project_dir, frontend)?
+            }
         }
     }
 
@@ -1102,10 +1108,17 @@ fn write_react_starter(dir: &Path) -> Result<()> {
     Ok(())
 }
 
-fn copy_leptos_starter(dir: &Path) -> Result<()> {
+fn copy_leptos_starter(dir: &Path, mode: Frontend) -> Result<()> {
     use std::fs;
     use walkdir::WalkDir;
-    let template_dir = PathBuf::from("templates/frontend_leptos");
+
+    let subdir = match mode {
+        Frontend::LeptosCsr => "csr",
+        Frontend::LeptosSsr => "ssr",
+        _ => unreachable!(),
+    };
+
+    let template_dir = PathBuf::from("templates/frontend_leptos").join(subdir);
     for entry in WalkDir::new(&template_dir) {
         let entry = entry?;
         if entry.file_type().is_file() {
@@ -1117,6 +1130,26 @@ fn copy_leptos_starter(dir: &Path) -> Result<()> {
             fs::copy(entry.path(), dest)?;
         }
     }
+
+    // Copy shared files outside the csr/ssr directories
+    let shared_dir = PathBuf::from("templates/frontend_leptos");
+    for entry in WalkDir::new(&shared_dir) {
+        let entry = entry?;
+        if entry.file_type().is_file() && !entry.path().starts_with(&template_dir) {
+            if entry.path().components().any(|c| c.as_os_str() == "csr") ||
+               entry.path().components().any(|c| c.as_os_str() == "ssr")
+            {
+                continue;
+            }
+            let rel = entry.path().strip_prefix(&shared_dir)?;
+            let dest = dir.join("frontend_leptos").join(rel);
+            if let Some(parent) = dest.parent() {
+                fs::create_dir_all(parent)?;
+            }
+            fs::copy(entry.path(), dest)?;
+        }
+    }
+
     Ok(())
 }
 
@@ -1677,8 +1710,13 @@ pub fn build(target: Option<String>) -> Result<()> {
         anyhow::bail!("Cargo build failed");
     }
     if Path::new("frontend_leptos").exists() {
+        let mode = detect_leptos_mode().unwrap_or_else(|| "csr".to_string());
         let status = Command::new("trunk")
-            .args(["build", "--release"])
+            .args([
+                "build",
+                "--release",
+                &format!("--features={}", mode),
+            ])
             .current_dir("frontend_leptos")
             .status()?;
         if !status.success() {
@@ -1776,4 +1814,18 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
         }
     }
     Ok(manager)
+}
+
+fn detect_leptos_mode() -> Option<String> {
+    use std::fs;
+    let path = std::path::Path::new("frontend_leptos/Cargo.toml");
+    if let Ok(contents) = fs::read_to_string(path) {
+        if contents.contains("default = [\"csr\"]") {
+            return Some("csr".to_string());
+        }
+        if contents.contains("default = [\"ssr\"]") {
+            return Some("ssr".to_string());
+        }
+    }
+    None
 }
