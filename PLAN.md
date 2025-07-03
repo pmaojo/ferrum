@@ -551,3 +551,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - `ferrum dev` and `build` now pass the selected feature to Trunk.
 - Documentation and templates updated accordingly.
 
+
+### Session 2025-08-19
+- Added Leptos route generation via `leptos_routegen`.
