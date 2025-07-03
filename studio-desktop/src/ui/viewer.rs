@@ -6,6 +6,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use bevy_tokio_tasks::tokio::task::JoinHandle;
 use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
+use leafwing_input_manager::prelude::*;
 use serde_yaml;
 use std::collections::HashSet;
 use webbrowser;
@@ -44,14 +45,16 @@ pub fn handle_interaction(
     mut viewport: ResMut<Viewport>,
     mut node_positions: ResMut<NodePositions>,
     mut state: ResMut<UiState>,
+    action_state_query: Query<&ActionState<crate::input::Action>>,
 ) {
     let ctx = contexts.ctx_mut();
-    let (zoom_delta, pointer_delta, pointer_down) =
-        ctx.input(|i| (i.zoom_delta(), i.pointer.delta(), i.pointer.primary_down()));
-    if zoom_delta != 1.0 {
-        viewport.zoom = (viewport.zoom * zoom_delta).clamp(0.2, 5.0);
+    let action_state = action_state_query.single();
+    let pointer_delta = ctx.input(|i| i.pointer.delta());
+    let zoom_delta = action_state.value(&crate::input::Action::Zoom);
+    if zoom_delta != 0.0 {
+        viewport.zoom = (viewport.zoom + zoom_delta * 0.1).clamp(0.2, 5.0);
     }
-    if pointer_down {
+    if action_state.pressed(&crate::input::Action::Pan) {
         if let Some(name) = &state.dragging {
             if let Some(p) = node_positions.0.get_mut(name) {
                 let delta = Vec2::new(pointer_delta.x, pointer_delta.y);
