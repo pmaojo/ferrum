@@ -8,7 +8,7 @@ use crate::app_state::AppState;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use crate::runtime::AsyncRuntime;
+use bevy_tokio_tasks::TokioTasksRuntime;
 use crate::ui::SvgImage;
 use leafwing_input_manager::prelude::*;
 use serde_yaml;
@@ -245,7 +245,7 @@ fn draw_nodes(
     icons: &Icons,
     svg_assets: &Assets<SvgImage>,
     mut log_writer: &mut EventWriter<crate::api::LogEvent>,
-    runtime: &AsyncRuntime,
+    runtime: &TokioTasksRuntime,
     node_task: &mut NodeInfoTask,
 ) {
     for node in &data.nodes {
@@ -342,7 +342,7 @@ fn show_edit_window(
     ctx: &egui::Context,
     data: &mut GraphData,
     state: &mut UiState,
-    runtime: &AsyncRuntime,
+    runtime: &TokioTasksRuntime,
     node_task: &mut NodeInfoTask,
 ) {
     if let Some(mut edit_data) = state.edit.take() {
@@ -401,7 +401,7 @@ fn show_edit_window(
                             let name = update.name.clone();
                             let desc_clone = update.description.clone();
                             let story_clone = update.story.clone();
-                            let handle = runtime.spawn(async move {
+                            let handle = runtime.runtime().spawn(async move {
                                 api::store_node_info(
                                     &name,
                                     desc_clone.as_deref(),
@@ -432,7 +432,7 @@ pub fn draw_graph(
     mut state: ResMut<UiState>,
     viewport: Res<Viewport>,
     mut node_positions: ResMut<NodePositions>,
-    runtime: Res<AsyncRuntime>,
+    runtime: Res<TokioTasksRuntime>,
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
     mut node_task: ResMut<NodeInfoTask>,
@@ -480,7 +480,7 @@ pub fn update_side_panel(
     mut contexts: EguiContexts,
     mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
-    runtime: Res<AsyncRuntime>,
+    runtime: Res<TokioTasksRuntime>,
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
