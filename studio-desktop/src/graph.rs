@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 
 use crate::layout::LayoutEngine;
-use crate::runtime::AsyncRuntime;
+use bevy_tokio_tasks::TokioTasksRuntime;
 use crate::app_state::AppState;
 use bevy::prelude::NextState;
 
@@ -52,12 +52,12 @@ impl Default for Viewport {
     }
 }
 
-pub fn spawn_graph_request(rt: &AsyncRuntime, question: String) -> JoinHandle<reqwest::Result<String>> {
+pub fn spawn_graph_request(rt: &TokioTasksRuntime, question: String) -> JoinHandle<reqwest::Result<String>> {
     rt.spawn_background_task(move |_| async move { api::fetch_graph(&question).await })
 }
 
 pub fn load_graph(
-    rt: Res<AsyncRuntime>,
+    rt: Res<TokioTasksRuntime>,
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
     data: Res<GraphData>,
