@@ -39,7 +39,7 @@ struct ChatResponse {
 }
 
 pub async fn fetch_graph(
-    writer: &mut EventWriter<LogEvent>,
+    writer: &mut EventWriter<'_, LogEvent>,
     question: &str,
 ) -> reqwest::Result<String> {
     log(writer, format!("[API] POST /graph-rag {question}"));
@@ -54,7 +54,7 @@ pub async fn fetch_graph(
 }
 
 pub async fn ask_ai_team(
-    writer: &mut EventWriter<LogEvent>,
+    writer: &mut EventWriter<'_, LogEvent>,
     question: &str,
 ) -> reqwest::Result<String> {
     log(writer, format!("[API] POST /ai-team {question}"));
