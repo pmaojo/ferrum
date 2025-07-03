@@ -1,10 +1,12 @@
+use crate::ui::{Icons, SvgImage, SvgImageLoader};
 use bevy::prelude::*;
+use bevy_asset_loader::prelude::*;
 use bevy_egui::EguiPlugin;
 
 use crate::api::LogEvent;
-use crate::ui::viewer::ViewerPlugin;
 use crate::app_state::AppState;
-use std::sync::{Arc, Mutex, mpsc::Receiver};
+use crate::ui::viewer::ViewerPlugin;
+use std::sync::{mpsc::Receiver, Arc, Mutex};
 
 #[derive(Resource)]
 struct LogReceiver(pub Arc<Mutex<Receiver<String>>>);
@@ -13,6 +15,13 @@ pub fn run_app(log_rx: Receiver<String>) {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
+        .init_asset::<SvgImage>()
+        .init_asset_loader::<SvgImageLoader>()
+        .add_loading_state(
+            LoadingState::new(AppState::Loading)
+                .continue_to_state(AppState::InGame)
+                .load_collection::<Icons>(),
+        )
         .add_plugins(EguiPlugin)
         .add_plugins(ViewerPlugin)
         .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))

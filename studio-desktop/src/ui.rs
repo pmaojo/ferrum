@@ -1,28 +1,59 @@
+use bevy::asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext};
 use bevy::prelude::*;
-use bevy_egui::{EguiContexts, egui};
+use bevy::reflect::TypePath;
 use bevy::tasks::Task;
+use bevy::utils::BoxedFuture;
+use bevy_asset_loader::prelude::*;
+use bevy_egui::{egui, EguiContexts};
 use egui_extras::RetainedImage;
 use std::collections::VecDeque;
+use thiserror::Error;
 
 pub mod viewer;
 
-#[derive(Resource)]
-pub struct Icons {
-    pub iot: RetainedImage,
+#[derive(Asset, TypePath)]
+pub struct SvgImage(pub RetainedImage);
+
+#[derive(Default)]
+pub struct SvgImageLoader;
+
+#[derive(Debug, Error)]
+pub enum SvgImageLoaderError {
+    #[error("Could not read file: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Invalid svg: {0}")]
+    Svg(String),
 }
 
-impl Default for Icons {
-    fn default() -> Self {
-        let iot = match RetainedImage::from_svg_bytes("iot", include_bytes!("../assets/iot.svg")) {
-            Ok(img) => img,
-            Err(err) => {
-                eprintln!("invalid iot.svg: {err}");
-                let placeholder = egui::ColorImage::new([1, 1], egui::Color32::WHITE);
-                RetainedImage::from_color_image("iot", placeholder)
-            }
-        };
-        Self { iot }
+impl AssetLoader for SvgImageLoader {
+    type Asset = SvgImage;
+    type Settings = ();
+    type Error = SvgImageLoaderError;
+
+    fn load<'a>(
+        &'a self,
+        reader: &'a mut Reader,
+        _settings: &'a Self::Settings,
+        load_context: &'a mut LoadContext,
+    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+        Box::pin(async move {
+            let mut bytes = Vec::new();
+            reader.read_to_end(&mut bytes).await?;
+            let img = RetainedImage::from_svg_bytes(load_context.path().to_string_lossy(), &bytes)
+                .map_err(SvgImageLoaderError::Svg)?;
+            Ok(SvgImage(img))
+        })
     }
+
+    fn extensions(&self) -> &[&str] {
+        &["svg"]
+    }
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct Icons {
+    #[asset(path = "iot.svg")]
+    pub iot: Handle<SvgImage>,
 }
 
 #[derive(Resource)]

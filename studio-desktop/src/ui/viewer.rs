@@ -1,6 +1,6 @@
-use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState, LogBuffer};
-use crate::app_state::AppState;
+use super::{AiTask, BuildTask, EditData, Icons, LogBuffer, NodeInfoTask, NodeUpdate, UiState};
 use crate::api;
+use crate::app_state::AppState;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
@@ -80,6 +80,7 @@ pub fn draw_graph(
     mut node_task: ResMut<NodeInfoTask>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
     icons: Res<Icons>,
+    svg_assets: Res<Assets<SvgImage>>,
 ) {
     let ctx = contexts.ctx_mut();
     if let Some(handle) = ai_task.0.as_mut() {
@@ -154,10 +155,13 @@ pub fn draw_graph(
             };
             painter.circle_filled(pos, 20.0, color);
             if node.node_type.as_deref() == Some("iot") {
-                let size = icons.iot.size_vec2() * 0.5;
-                let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                egui::Image::from_texture((icons.iot.texture_id(ui.ctx()), size))
-                    .paint_at(ui, icon_rect);
+                if let Some(icon) = svg_assets.get(&icons.iot) {
+                    let size = icon.0.size_vec2() * 0.5;
+                    let icon_rect =
+                        egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
+                    egui::Image::from_texture((icon.0.texture_id(ui.ctx()), size))
+                        .paint_at(ui, icon_rect);
+                }
             }
             painter.text(
                 pos,
@@ -216,12 +220,18 @@ pub fn draw_graph(
                 }
                 if node.node_type.as_deref() == Some("iot") {
                     if ui.button("Call REST").clicked() {
-                        if let Ok(text) = api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name)) {
+                        if let Ok(text) =
+                            api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name))
+                        {
                             state.popup = Some(text);
                         }
                     }
                     if ui.button("Publish MQTT").clicked() {
-                        let _ = api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.name), "ping");
+                        let _ = api::publish_mqtt(
+                            &mut log_writer,
+                            &format!("iot/{}", node.name),
+                            "ping",
+                        );
                     }
                 }
             });
@@ -350,16 +360,13 @@ pub fn update_side_panel(
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
-                let handle = runtime.spawn(async move {
-                    api::compile_module(&n, "grafo.yaml").await
-                });
+                let handle =
+                    runtime.spawn(async move { api::compile_module(&n, "grafo.yaml").await });
                 build_task.0 = Some(handle);
             }
             if ui.button("Compile Subgraph").clicked() {
                 if let Some(yaml) = subgraph_yaml(&data, name) {
-                    let handle = runtime.spawn(async move {
-                        api::compile_graph(&yaml).await
-                    });
+                    let handle = runtime.spawn(async move { api::compile_graph(&yaml).await });
                     build_task.0 = Some(handle);
                 }
             }
@@ -425,7 +432,6 @@ impl Plugin for ViewerPlugin {
             .init_resource::<Viewport>()
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
-            .init_resource::<Icons>()
             .init_resource::<BuildTask>()
             .insert_resource(AsyncRuntime::default())
             .insert_resource(AiTask::default())
