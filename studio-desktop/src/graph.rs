@@ -30,7 +30,7 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<Receiver<reqwest::Result<String>>>);
+pub struct GraphTask(pub Option<(Receiver<reqwest::Result<String>>,)>);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -66,7 +66,7 @@ pub fn load_graph(
     mut state: ResMut<crate::ui::UiState>,
 ) {
     let rx = spawn_graph_request(&rt, state.query.clone());
-    task.0 = Some(rx);
+    task.0 = Some((rx,));
     state.loading = true;
 }
 
@@ -77,7 +77,7 @@ pub fn update_graph_task(
     mut state: ResMut<crate::ui::UiState>,
 ) {
     if let Some(rx) = &task.0 {
-        if let Ok(res) = rx.try_recv() {
+        if let Ok(res) = rx.0.try_recv() {
             state.loading = false;
             task.0 = None;
             if let Ok(g) = res {

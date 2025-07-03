@@ -36,7 +36,7 @@ pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
 }
 
 fn collect_logs(rx: Res<LogReceiver>, mut buf: ResMut<LogBuffer>) {
-    while let Ok(line) = rx.try_recv() {
+    while let Ok(line) = rx.0.try_recv() {
         buf.0.push_back(line);
         if buf.0.len() > 200 {
             buf.0.pop_front();
