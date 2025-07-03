@@ -33,16 +33,17 @@ pub fn node_palette(
     templates: Res<NodeTemplates>,
     mut state: ResMut<UiState>,
 ) {
-    let ctx = contexts.ctx_mut();
-    egui::SidePanel::left("node_palette").show(ctx, |ui| {
-        ui.heading("Palette");
-        for temp in templates.0.iter() {
-            let resp = ui.label(&temp.label).sense(egui::Sense::drag());
-            if resp.drag_started() {
-                state.palette_dragging = Some(temp.clone());
+    if let Ok(ctx) = contexts.ctx_mut() {
+        egui::SidePanel::left("node_palette").show(ctx, |ui| {
+            ui.heading("Palette");
+            for temp in templates.0.iter() {
+                let resp = ui.add(egui::Label::new(&temp.label).sense(egui::Sense::drag()));
+                if resp.drag_started() {
+                    state.palette_dragging = Some(temp.clone());
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 pub fn handle_drop(
@@ -58,7 +59,8 @@ pub fn handle_drop(
             if let Some(pos) = ctx.input(|i| i.pointer.interact_pos()) {
                 if rect.contains(pos) {
                     let center = rect.center().to_vec2() + super::viewer::to_egui(viewport.offset);
-                    let graph_pos = (pos.to_vec2() - center) / viewport.zoom;
+                    let egui_pos = (pos.to_vec2() - center) / viewport.zoom;
+                    let graph_pos = Vec2::new(egui_pos.x, egui_pos.y);
                     let name = format!("{}{}", template.label, data.nodes.len() + 1);
                     data.nodes.push(Node {
                         name: name.clone(),

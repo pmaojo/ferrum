@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.13"
-bevy_egui = "0.26"
-egui_extras = { version = "0.26", features = ["svg"] }
+bevy = "0.16"
+bevy_egui = "0.35"
+egui_extras = { version = "0.31", features = ["svg"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 reqwest = { version = "0.11", features = ["json", "rustls-tls", "blocking"] }
@@ -16,6 +16,8 @@ webbrowser = "0.8"
 futures-lite = "2"
 bevy_asset_loader = "0.23"
 leafwing-input-manager = "0.17"
+bevy-tokio-tasks = "0.16"
+thiserror = "1"
 
 [dev-dependencies]
 mockito = "1"

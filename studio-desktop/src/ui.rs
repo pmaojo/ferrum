@@ -1,8 +1,6 @@
 use bevy::asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext};
 use bevy::prelude::*;
 use bevy::reflect::TypePath;
-use bevy::tasks::Task;
-use bevy::utils::BoxedFuture;
 use bevy_asset_loader::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use egui_extras::RetainedImage;
@@ -32,19 +30,19 @@ impl AssetLoader for SvgImageLoader {
     type Settings = ();
     type Error = SvgImageLoaderError;
 
-    fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader,
-        _settings: &'a Self::Settings,
-        load_context: &'a mut LoadContext,
-    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
-        Box::pin(async move {
+    fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _settings: &Self::Settings,
+        load_context: &mut LoadContext,
+    ) -> impl bevy::tasks::ConditionalSendFuture<Output = Result<Self::Asset, Self::Error>> + '_ {
+        async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
             let img = RetainedImage::from_svg_bytes(load_context.path().to_string_lossy(), &bytes)
                 .map_err(SvgImageLoaderError::Svg)?;
             Ok(SvgImage(img))
-        })
+        }
     }
 
     fn extensions(&self) -> &[&str] {
@@ -98,7 +96,7 @@ pub struct EditData {
 }
 
 #[derive(Resource, Default)]
-pub struct AiTask(pub Option<Task<reqwest::Result<String>>>);
+pub struct AiTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>);
 
 pub struct NodeUpdate {
     pub name: String,
@@ -109,10 +107,10 @@ pub struct NodeUpdate {
 }
 
 #[derive(Resource, Default)]
-pub struct NodeInfoTask(pub Option<(NodeUpdate, Task<reqwest::Result<()>>)>);
+pub struct NodeInfoTask(pub Option<(NodeUpdate, bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<()>>)>);
 
 #[derive(Resource, Default)]
-pub struct BuildTask(pub Option<Task<reqwest::Result<(bool, String)>>>);
+pub struct BuildTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<(bool, String)>>>);
 
 pub fn log_panel(
     mut contexts: EguiContexts,
@@ -126,10 +124,10 @@ pub fn log_panel(
         }
     }
 
-    let ctx = contexts.ctx_mut();
-    egui::TopBottomPanel::bottom("logs")
-        .default_height(150.0)
-        .show(ctx, |ui| {
+    if let Ok(ctx) = contexts.ctx_mut() {
+        egui::TopBottomPanel::bottom("logs")
+            .default_height(150.0)
+            .show(ctx, |ui| {
             ui.heading("Logs");
             egui::ScrollArea::vertical().show(ui, |ui| {
                 for line in logs.0.iter() {
@@ -137,4 +135,5 @@ pub fn log_panel(
                 }
             });
         });
+    }
 }
