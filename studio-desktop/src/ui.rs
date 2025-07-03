@@ -6,6 +6,7 @@ use bevy_egui::{egui, EguiContexts};
 use egui_extras::RetainedImage;
 use serde_yaml;
 use std::collections::VecDeque;
+use std::sync::{Arc, Mutex};
 use webbrowser;
 
 #[derive(Resource)]
@@ -60,7 +61,7 @@ pub struct EditData {
 }
 
 #[derive(Resource, Default)]
-pub struct AiTask(pub Option<(std::sync::mpsc::Receiver<reqwest::Result<String>>,)>);
+pub struct AiTask(pub Option<(Arc<Mutex<std::sync::mpsc::Receiver<reqwest::Result<String>>>>,)>);
 
 pub struct NodeUpdate {
     pub name: String,
@@ -71,7 +72,7 @@ pub struct NodeUpdate {
 }
 
 #[derive(Resource, Default)]
-pub struct NodeInfoTask(pub Option<(NodeUpdate, std::sync::mpsc::Receiver<reqwest::Result<()>>)>);
+pub struct NodeInfoTask(pub Option<(NodeUpdate, Arc<Mutex<std::sync::mpsc::Receiver<reqwest::Result<()>>>>)>);
 
 fn subgraph_yaml(data: &GraphData, name: &str) -> Option<String> {
     use std::collections::HashSet;
@@ -111,7 +112,7 @@ pub fn graph_viewer(
 ) {
     let ctx = contexts.ctx_mut();
     if let Some(rx) = &ai_task.0 {
-        if let Ok(res) = rx.0.try_recv() {
+        if let Ok(res) = rx.0.lock().unwrap().try_recv() {
             ai_task.0 = None;
             if let Ok(text) = res {
                 state.ai_reply = Some(text);
@@ -119,7 +120,7 @@ pub fn graph_viewer(
         }
     }
     if let Some(pending) = &mut node_task.0 {
-        if let Ok(res) = pending.1.try_recv() {
+        if let Ok(res) = pending.1.lock().unwrap().try_recv() {
             if res.is_ok() {
                 if let Some(node) = data.nodes.iter_mut().find(|n| n.name == pending.0.name) {
                     node.description = pending.0.description.clone();
@@ -346,7 +347,7 @@ pub fn graph_viewer(
                         let res = rt.block_on(api::ask_ai_team(&question));
                         let _ = tx.send(res);
                     });
-                    ai_task.0 = Some((rx,));
+                    ai_task.0 = Some((Arc::new(Mutex::new(rx)),));
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();
@@ -426,7 +427,7 @@ pub fn graph_viewer(
                                 ));
                                 let _ = tx.send(Ok(()));
                             });
-                            node_task.0 = Some((update, rx));
+                            node_task.0 = Some((update, Arc::new(Mutex::new(rx))));
                         }
                         state.edit = None;
                     }

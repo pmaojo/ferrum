@@ -6,10 +6,10 @@ use crate::graph;
 use crate::runtime::AsyncRuntime;
 use crate::ui;
 use crate::ui::{AiTask, Icons, LogBuffer, NodeInfoTask};
-use std::sync::mpsc::Receiver;
+use std::sync::{mpsc::Receiver, Arc, Mutex};
 
 #[derive(Resource)]
-struct LogReceiver(pub Receiver<String>);
+struct LogReceiver(pub Arc<Mutex<Receiver<String>>>);
 
 pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
     App::new()
@@ -24,7 +24,7 @@ pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
         .insert_resource(AiTask::default())
         .insert_resource(NodeInfoTask::default())
         .insert_resource(LogBuffer::default())
-        .insert_resource(LogReceiver(log_rx))
+        .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))
         .insert_resource(runtime)
         .add_systems(Update, collect_logs)
         .add_systems(Startup, graph::load_graph)
@@ -36,7 +36,8 @@ pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
 }
 
 fn collect_logs(rx: Res<LogReceiver>, mut buf: ResMut<LogBuffer>) {
-    while let Ok(line) = rx.0.try_recv() {
+    let mut guard = rx.0.lock().unwrap();
+    while let Ok(line) = guard.try_recv() {
         buf.0.push_back(line);
         if buf.0.len() > 200 {
             buf.0.pop_front();

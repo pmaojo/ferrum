@@ -2,7 +2,7 @@ use crate::api;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::mpsc::Receiver;
+use std::sync::{mpsc::Receiver, Arc, Mutex};
 
 use crate::runtime::AsyncRuntime;
 
@@ -30,7 +30,7 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<(Receiver<reqwest::Result<String>>,)>);
+pub struct GraphTask(pub Option<(Arc<Mutex<Receiver<reqwest::Result<String>>>>,)>);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -50,14 +50,14 @@ impl Default for Viewport {
 pub fn spawn_graph_request(
     rt: &AsyncRuntime,
     question: String,
-) -> Receiver<reqwest::Result<String>> {
+) -> Arc<Mutex<Receiver<reqwest::Result<String>>>> {
     let (tx, rx) = std::sync::mpsc::channel();
     let rt = rt.0.clone();
     std::thread::spawn(move || {
         let res = rt.block_on(api::fetch_graph(&question));
         let _ = tx.send(res);
     });
-    rx
+    Arc::new(Mutex::new(rx))
 }
 
 pub fn load_graph(
@@ -77,7 +77,7 @@ pub fn update_graph_task(
     mut state: ResMut<crate::ui::UiState>,
 ) {
     if let Some(rx) = &task.0 {
-        if let Ok(res) = rx.0.try_recv() {
+        if let Ok(res) = rx.0.lock().unwrap().try_recv() {
             state.loading = false;
             task.0 = None;
             if let Ok(g) = res {
