@@ -4,8 +4,9 @@ use bevy_tokio_tasks::tokio::task::JoinHandle;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+
 use crate::layout::LayoutEngine;
-use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
+use crate::runtime::AsyncRuntime;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Node {
@@ -31,7 +32,7 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<JoinHandle<reqwest::Result<String>>>);
+pub struct GraphTask(pub Option<Task<reqwest::Result<String>>>);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {

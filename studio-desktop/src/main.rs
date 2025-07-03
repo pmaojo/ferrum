@@ -3,6 +3,7 @@ mod app;
 mod graph;
 mod layout;
 mod python;
+mod runtime;
 
 mod ui;
 
@@ -39,7 +40,6 @@ fn main() -> std::io::Result<()> {
             }
         });
     }
-    api::set_log_sender(tx.clone());
     app::run_app(rx);
     let _ = child.kill();
     Ok(())

@@ -1,4 +1,4 @@
-use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState};
+use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState, LogBuffer};
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
@@ -77,6 +77,7 @@ pub fn draw_graph(
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
     mut node_task: ResMut<NodeInfoTask>,
+    mut log_writer: EventWriter<crate::api::LogEvent>,
     icons: Res<Icons>,
 ) {
     let ctx = contexts.ctx_mut();
@@ -191,19 +192,19 @@ pub fn draw_graph(
                 }
                 if ui.button("Simulate").clicked() {
                     if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(text) = api::simulate_flow(&yaml) {
+                        if let Ok(text) = api::simulate_flow(&mut log_writer, &yaml) {
                             state.popup = Some(text);
                         }
                     }
                 }
                 if ui.button("Generate").clicked() {
-                    if let Ok(yaml) = api::generate_component(&node.name) {
+                    if let Ok(yaml) = api::generate_component(&mut log_writer, &node.name) {
                         state.popup = Some(yaml);
                     }
                 }
                 if ui.button("Validate").clicked() {
                     if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(ok) = api::validate_yaml(&yaml) {
+                        if let Ok(ok) = api::validate_yaml(&mut log_writer, &yaml) {
                             state.popup = Some(if ok {
                                 "YAML válido".into()
                             } else {
@@ -214,12 +215,12 @@ pub fn draw_graph(
                 }
                 if node.node_type.as_deref() == Some("iot") {
                     if ui.button("Call REST").clicked() {
-                        if let Ok(text) = api::call_iot_http(&format!("/iot/{}", node.name)) {
+                        if let Ok(text) = api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name)) {
                             state.popup = Some(text);
                         }
                     }
                     if ui.button("Publish MQTT").clicked() {
-                        let _ = api::publish_mqtt(&format!("iot/{}", node.name), "ping");
+                        let _ = api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.name), "ping");
                     }
                 }
             });
@@ -293,7 +294,7 @@ pub fn draw_graph(
                             let name = update.name.clone();
                             let desc_clone = update.description.clone();
                             let story_clone = update.story.clone();
-                            let handle = runtime.spawn_background_task(move |_| async move {
+                            let handle = runtime.spawn(async move {
                                 api::store_node_info(
                                     &name,
                                     desc_clone.as_deref(),
@@ -342,21 +343,20 @@ pub fn update_side_panel(
             state.loading = true;
         }
         if ui.button("Compile").clicked() {
-            let handle = runtime
-                .spawn_background_task(|_| async move { api::compile_project("grafo.yaml").await });
+            let handle = runtime.spawn(async move { api::compile_project("grafo.yaml").await });
             build_task.0 = Some(handle);
         }
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
-                let handle = runtime.spawn_background_task(move |_| async move {
+                let handle = runtime.spawn(async move {
                     api::compile_module(&n, "grafo.yaml").await
                 });
                 build_task.0 = Some(handle);
             }
             if ui.button("Compile Subgraph").clicked() {
                 if let Some(yaml) = subgraph_yaml(&data, name) {
-                    let handle = runtime.spawn_background_task(move |_| async move {
+                    let handle = runtime.spawn(async move {
                         api::compile_graph(&yaml).await
                     });
                     build_task.0 = Some(handle);
@@ -426,6 +426,7 @@ impl Plugin for ViewerPlugin {
             .init_resource::<UiState>()
             .init_resource::<Icons>()
             .init_resource::<BuildTask>()
+            .insert_resource(AsyncRuntime::default())
             .insert_resource(AiTask::default())
             .insert_resource(NodeInfoTask::default())
             .insert_resource(LogBuffer::default())

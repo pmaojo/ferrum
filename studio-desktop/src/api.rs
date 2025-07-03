@@ -1,15 +1,35 @@
 use bevy::prelude::*;
+use once_cell::sync::OnceCell;
+use std::sync::{mpsc, Mutex};
 use serde::{Deserialize, Serialize};
+
+static LOG_SENDER: OnceCell<Mutex<mpsc::Sender<String>>> = OnceCell::new();
 
 #[derive(Event, Clone)]
 pub struct LogEvent(pub String);
 
+
 pub fn push_log<S: Into<String>>(writer: &mut EventWriter<LogEvent>, msg: S) {
-    writer.send(LogEvent(msg.into()));
+    let msg = msg.into();
+    send_log(msg.clone());
+    writer.send(LogEvent(msg));
 }
 
 fn log(writer: &mut EventWriter<LogEvent>, msg: String) {
+    send_log(msg.clone());
     writer.send(LogEvent(msg));
+}
+
+pub fn set_log_sender(sender: mpsc::Sender<String>) {
+    let _ = LOG_SENDER.set(Mutex::new(sender));
+}
+
+fn send_log(msg: String) {
+    if let Some(tx) = LOG_SENDER.get() {
+        if let Ok(lock) = tx.lock() {
+            let _ = lock.send(msg);
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -38,11 +58,8 @@ struct ChatResponse {
     message: String,
 }
 
-pub async fn fetch_graph(
-    writer: &mut EventWriter<'_, LogEvent>,
-    question: &str,
-) -> reqwest::Result<String> {
-    log(writer, format!("[API] POST /graph-rag {question}"));
+pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
+    println!("[API] POST /graph-rag {question}");
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/graph-rag")
@@ -53,11 +70,8 @@ pub async fn fetch_graph(
     Ok(data.graph)
 }
 
-pub async fn ask_ai_team(
-    writer: &mut EventWriter<'_, LogEvent>,
-    question: &str,
-) -> reqwest::Result<String> {
-    log(writer, format!("[API] POST /ai-team {question}"));
+pub async fn ask_ai_team(question: &str) -> reqwest::Result<String> {
+    println!("[API] POST /ai-team {question}");
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/ai-team")
@@ -92,6 +106,7 @@ pub async fn store_node_info(
     description: Option<&str>,
     story: Option<&str>,
 ) -> reqwest::Result<()> {
+    send_log(format!("[API] POST /node-info {id}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/node-info")
@@ -200,6 +215,7 @@ struct CompileResponse {
 }
 
 pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
+    send_log(format!("[API] POST /compile {file}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/compile")
@@ -211,6 +227,7 @@ pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
 }
 
 pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, String)> {
+    send_log(format!("[API] POST /compile/module/{name} {file}"));
     let client = reqwest::Client::new();
     let res = client
         .post(&format!("http://localhost:8001/compile/module/{name}"))
@@ -222,6 +239,7 @@ pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, St
 }
 
 pub async fn compile_graph(yaml: &str) -> reqwest::Result<(bool, String)> {
+    send_log("[API] POST /compile/graph".to_string());
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/compile/graph")

@@ -3,7 +3,6 @@ use bevy_egui::EguiPlugin;
 
 use crate::api::LogEvent;
 use crate::ui::viewer::ViewerPlugin;
-use bevy_tokio_tasks::TokioTasksPlugin;
 use std::sync::{Arc, Mutex, mpsc::Receiver};
 
 #[derive(Resource)]
@@ -13,7 +12,6 @@ pub fn run_app(log_rx: Receiver<String>) {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
-        .add_plugins(TokioTasksPlugin::default())
         .add_plugins(ViewerPlugin)
         .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))
         .add_systems(Update, collect_logs)
