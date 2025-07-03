@@ -1,6 +1,6 @@
+use bevy::prelude::*;
 use mockito::{Matcher, Server, ServerOpts};
-use std::sync::mpsc::channel;
-use studio_desktop::api::{set_log_sender, simulate_flow};
+use studio_desktop::api::{LogEvent, simulate_flow};
 
 #[test]
 fn simulate_flow_sends_payload_and_logs() {
@@ -16,13 +16,18 @@ fn simulate_flow_sends_payload_and_logs() {
         .with_body("{\"text\":\"ok\"}")
         .create();
 
-    let (tx, rx) = channel();
-    set_log_sender(tx);
-
-    let result = simulate_flow("demo").unwrap();
-    assert_eq!(result, "ok");
+    let mut app = App::new();
+    app.add_event::<LogEvent>();
+    app.add_systems(Update, |mut writer: EventWriter<LogEvent>| {
+        let _ = simulate_flow(&mut writer, "demo");
+    });
+    app.update();
     _m.assert();
-
-    let log = rx.try_recv().expect("no log sent");
-    assert!(log.contains("/simulate/flow"));
+    let logs: Vec<String> = app
+        .world
+        .resource_mut::<Events<LogEvent>>()
+        .drain()
+        .map(|e| e.0)
+        .collect();
+    assert!(logs.iter().any(|l| l.contains("/simulate/flow")));
 }

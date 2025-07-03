@@ -1,23 +1,15 @@
-use once_cell::sync::OnceCell;
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::sync::mpsc::Sender;
 
-static LOG_SENDER: OnceCell<Sender<String>> = OnceCell::new();
+#[derive(Event, Clone)]
+pub struct LogEvent(pub String);
 
-pub fn set_log_sender(sender: Sender<String>) {
-    let _ = LOG_SENDER.set(sender);
+pub fn push_log<S: Into<String>>(writer: &mut EventWriter<LogEvent>, msg: S) {
+    writer.send(LogEvent(msg.into()));
 }
 
-pub fn push_log<S: Into<String>>(msg: S) {
-    if let Some(tx) = LOG_SENDER.get() {
-        let _ = tx.send(msg.into());
-    }
-}
-
-fn log(msg: String) {
-    if let Some(tx) = LOG_SENDER.get() {
-        let _ = tx.send(msg);
-    }
+fn log(writer: &mut EventWriter<LogEvent>, msg: String) {
+    writer.send(LogEvent(msg));
 }
 
 #[derive(Serialize)]
@@ -46,8 +38,11 @@ struct ChatResponse {
     message: String,
 }
 
-pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
-    log(format!("[API] POST /graph-rag {question}"));
+pub async fn fetch_graph(
+    writer: &mut EventWriter<LogEvent>,
+    question: &str,
+) -> reqwest::Result<String> {
+    log(writer, format!("[API] POST /graph-rag {question}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/graph-rag")
@@ -58,8 +53,11 @@ pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
     Ok(data.graph)
 }
 
-pub async fn ask_ai_team(question: &str) -> reqwest::Result<String> {
-    log(format!("[API] POST /ai-team {question}"));
+pub async fn ask_ai_team(
+    writer: &mut EventWriter<LogEvent>,
+    question: &str,
+) -> reqwest::Result<String> {
+    log(writer, format!("[API] POST /ai-team {question}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/ai-team")
@@ -94,7 +92,6 @@ pub async fn store_node_info(
     description: Option<&str>,
     story: Option<&str>,
 ) -> reqwest::Result<()> {
-    log(format!("[API] POST /node-info {id}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/node-info")
@@ -129,8 +126,8 @@ struct ValidateResponse {
     valid: bool,
 }
 
-pub fn simulate_flow(yaml: &str) -> reqwest::Result<String> {
-    log(format!("[API] POST /simulate/flow {yaml}"));
+pub fn simulate_flow(writer: &mut EventWriter<LogEvent>, yaml: &str) -> reqwest::Result<String> {
+    log(writer, format!("[API] POST /simulate/flow {yaml}"));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/simulate/flow")
@@ -140,7 +137,10 @@ pub fn simulate_flow(yaml: &str) -> reqwest::Result<String> {
     Ok(data.text)
 }
 
-pub fn generate_component(prompt: &str) -> reqwest::Result<String> {
+pub fn generate_component(
+    _writer: &mut EventWriter<LogEvent>,
+    prompt: &str,
+) -> reqwest::Result<String> {
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/generate/component")
@@ -150,7 +150,7 @@ pub fn generate_component(prompt: &str) -> reqwest::Result<String> {
     Ok(data.yaml)
 }
 
-pub fn validate_yaml(yaml: &str) -> reqwest::Result<bool> {
+pub fn validate_yaml(_writer: &mut EventWriter<LogEvent>, yaml: &str) -> reqwest::Result<bool> {
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/validate/yaml")
@@ -160,8 +160,8 @@ pub fn validate_yaml(yaml: &str) -> reqwest::Result<bool> {
     Ok(data.valid)
 }
 
-pub fn call_iot_http(path: &str) -> reqwest::Result<String> {
-    push_log(format!("[HTTP] POST {}", path));
+pub fn call_iot_http(writer: &mut EventWriter<LogEvent>, path: &str) -> reqwest::Result<String> {
+    push_log(writer, format!("[HTTP] POST {}", path));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post(&format!("http://localhost:8000{}", path))
@@ -169,8 +169,12 @@ pub fn call_iot_http(path: &str) -> reqwest::Result<String> {
     Ok(res.text()?)
 }
 
-pub fn publish_mqtt(topic: &str, payload: &str) -> reqwest::Result<()> {
-    push_log(format!("[MQTT] {topic}: {payload}"));
+pub fn publish_mqtt(
+    writer: &mut EventWriter<LogEvent>,
+    topic: &str,
+    payload: &str,
+) -> reqwest::Result<()> {
+    push_log(writer, format!("[MQTT] {topic}: {payload}"));
     Ok(())
 }
 
@@ -196,7 +200,6 @@ struct CompileResponse {
 }
 
 pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
-    log(format!("[API] POST /compile {file}"));
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/compile")
@@ -208,7 +211,6 @@ pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
 }
 
 pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, String)> {
-    log(format!("[API] POST /compile/module/{name}"));
     let client = reqwest::Client::new();
     let res = client
         .post(&format!("http://localhost:8001/compile/module/{name}"))
@@ -220,7 +222,6 @@ pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, St
 }
 
 pub async fn compile_graph(yaml: &str) -> reqwest::Result<(bool, String)> {
-    log("[API] POST /compile/graph".to_string());
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/compile/graph")
