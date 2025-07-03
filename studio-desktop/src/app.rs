@@ -2,9 +2,11 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
 use crate::api::LogEvent;
-use crate::ui::viewer::ViewerPlugin;
 use crate::app_state::AppState;
-use std::sync::{Arc, Mutex, mpsc::Receiver};
+use crate::input::{spawn_input, Action};
+use crate::ui::viewer::ViewerPlugin;
+use leafwing_input_manager::prelude::*;
+use std::sync::{mpsc::Receiver, Arc, Mutex};
 
 #[derive(Resource)]
 struct LogReceiver(pub Arc<Mutex<Receiver<String>>>);
@@ -14,8 +16,10 @@ pub fn run_app(log_rx: Receiver<String>) {
         .add_plugins(DefaultPlugins)
         .init_state::<AppState>()
         .add_plugins(EguiPlugin)
+        .add_plugins(InputManagerPlugin::<Action>::default())
         .add_plugins(ViewerPlugin)
         .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))
+        .add_systems(Startup, spawn_input)
         .add_systems(Update, collect_logs)
         .run();
 }
