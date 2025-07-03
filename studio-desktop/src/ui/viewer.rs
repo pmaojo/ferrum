@@ -1,4 +1,5 @@
 use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState, LogBuffer};
+use crate::app_state::AppState;
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
@@ -430,17 +431,18 @@ impl Plugin for ViewerPlugin {
             .insert_resource(AiTask::default())
             .insert_resource(NodeInfoTask::default())
             .insert_resource(LogBuffer::default())
-            .add_systems(Startup, crate::graph::load_graph)
+            .add_systems(OnEnter(AppState::Loading), crate::graph::load_graph)
+            .add_systems(Update, crate::graph::update_graph_task)
             .add_systems(
                 Update,
                 (
-                    crate::graph::update_graph_task,
                     handle_interaction,
                     draw_graph,
                     update_side_panel,
                     update_build_task,
                     super::log_panel,
-                ),
+                )
+                    .run_if(in_state(AppState::InGame)),
             );
     }
 }

@@ -7,6 +7,8 @@ use std::collections::HashMap;
 
 use crate::layout::LayoutEngine;
 use crate::runtime::AsyncRuntime;
+use crate::app_state::AppState;
+use bevy::prelude::NextState;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Node {
@@ -80,6 +82,7 @@ pub fn update_graph_task(
     mut pos: ResMut<NodePositions>,
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     let maybe_res = if let Some(handle) = task.0.as_mut() {
         futures_lite::future::block_on(futures_lite::future::poll_once(handle))
@@ -95,6 +98,7 @@ pub fn update_graph_task(
                 let names: Vec<String> = nodes.iter().map(|n| n.name.clone()).collect();
                 pos.0 = LayoutEngine::circular_layout(&names, 200.0);
                 data.nodes = nodes;
+                next_state.set(AppState::InGame);
             }
         }
     }
