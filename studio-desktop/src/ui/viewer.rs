@@ -81,7 +81,9 @@ impl TourState {
 fn vibrant_visuals() -> egui::Visuals {
     let mut visuals = egui::Visuals::dark();
     visuals.widgets.active.bg_fill = egui::Color32::from_rgb(0, 150, 255);
-    visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(60, 60, 90);
+    // Brighter background and outline on hover to mimic the previous glow effect
+    visuals.widgets.hovered.bg_fill = egui::Color32::from_rgb(80, 80, 120);
+    visuals.widgets.hovered.fg_stroke = egui::Stroke::new(1.0, egui::Color32::WHITE);
     visuals.selection.bg_fill = egui::Color32::from_rgb(0, 255, 150);
     visuals.window_fill = egui::Color32::from_rgb(20, 20, 30);
     visuals
