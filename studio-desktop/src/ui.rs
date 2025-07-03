@@ -154,7 +154,7 @@ pub fn graph_viewer(
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
-        let center = Vec2::new(rect.center().x, rect.center().y) + viewport.offset;
+        let center = rect.center().to_vec2() + viewport.offset;
         // Draw edges using stored node positions
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
