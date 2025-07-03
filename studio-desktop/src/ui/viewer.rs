@@ -1,4 +1,7 @@
-use super::{AiTask, BuildTask, EditData, Icons, LogBuffer, NodeInfoTask, NodeUpdate, UiState};
+use super::{
+    node_factory::BoxedFactory, node_factory::NodeFactory, AiTask, BuildTask, EditData, Icons,
+    LogBuffer, NodeInfoTask, NodeUpdate, UiState,
+};
 use crate::api;
 use crate::app_state::AppState;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
@@ -69,23 +72,7 @@ pub fn handle_interaction(
     }
 }
 
-/// Draw nodes and edges of the graph.
-#[allow(clippy::too_many_arguments)]
-pub fn draw_graph(
-    mut contexts: EguiContexts,
-    mut data: ResMut<GraphData>,
-    mut state: ResMut<UiState>,
-    viewport: Res<Viewport>,
-    mut node_positions: ResMut<NodePositions>,
-    runtime: Res<AsyncRuntime>,
-    mut graph_task: ResMut<GraphTask>,
-    mut ai_task: ResMut<AiTask>,
-    mut node_task: ResMut<NodeInfoTask>,
-    mut log_writer: EventWriter<crate::api::LogEvent>,
-    icons: Res<Icons>,
-    svg_assets: Res<Assets<SvgImage>>,
-) {
-    let ctx = contexts.ctx_mut();
+fn poll_ai_task(ai_task: &mut AiTask, state: &mut UiState) {
     if let Some(handle) = ai_task.0.as_mut() {
         if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             ai_task.0 = None;
@@ -94,7 +81,9 @@ pub fn draw_graph(
             }
         }
     }
-    let mut clear = false;
+}
+
+fn poll_node_task(node_task: &mut NodeInfoTask, data: &mut GraphData) {
     if let Some((update, handle)) = node_task.0.as_mut() {
         if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             if res.is_ok() {
@@ -105,141 +94,135 @@ pub fn draw_graph(
                     node.used_by = update.used_by.clone();
                 }
             }
-            clear = true;
+            node_task.0 = None;
         }
     }
-    if clear {
-        node_task.0 = None;
-    }
-    egui::CentralPanel::default().show(ctx, |ui| {
-        ui.heading("Graph View");
-        let rect = ui.max_rect();
-        let painter = ui.painter_at(rect);
-        let center = rect.center().to_vec2() + to_egui(viewport.offset);
-        for node in &data.nodes {
-            if let Some(calls) = &node.calls {
-                for target in calls {
-                    if let (Some(a), Some(b)) = (
-                        node_positions.0.get(&node.name),
-                        node_positions.0.get(target),
-                    ) {
-                        painter.line_segment(
-                            [
-                                egui::pos2(
-                                    (center + to_egui(*a) * viewport.zoom).x,
-                                    (center + to_egui(*a) * viewport.zoom).y,
-                                ),
-                                egui::pos2(
-                                    (center + to_egui(*b) * viewport.zoom).x,
-                                    (center + to_egui(*b) * viewport.zoom).y,
-                                ),
-                            ],
-                            egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
-                        );
-                    }
-                }
-            }
-        }
-        for node in &data.nodes {
-            let pos_vec = center
-                + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
-            let pos = egui::pos2(pos_vec.x, pos_vec.y);
-            let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
-            let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
-            if resp.drag_started() {
-                state.dragging = Some(node.name.clone());
-            }
-            let color = if node.node_type.as_deref() == Some("iot") {
-                egui::Color32::from_rgb(250, 180, 100)
-            } else if state.selected.as_deref() == Some(node.name.as_str()) {
-                egui::Color32::LIGHT_BLUE
-            } else {
-                egui::Color32::from_rgb(100, 150, 250)
-            };
-            painter.circle_filled(pos, 20.0, color);
-            if node.node_type.as_deref() == Some("iot") {
-                if let Some(icon) = svg_assets.get(&icons.iot) {
-                    let size = icon.0.size_vec2() * 0.5;
-                    let icon_rect =
-                        egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                    egui::Image::from_texture((icon.0.texture_id(ui.ctx()), size))
-                        .paint_at(ui, icon_rect);
-                }
-            }
-            painter.text(
-                pos,
-                egui::Align2::CENTER_CENTER,
-                &node.name,
-                egui::FontId::proportional(14.0),
-                egui::Color32::BLACK,
-            );
-            if resp.hovered() {
-                if let Some(desc) = &node.description {
-                    egui::show_tooltip_at_pointer(
-                        ui.ctx(),
-                        egui::Id::new(format!("tip_{}", node.name)),
-                        |ui| {
-                            ui.label(desc);
-                        },
+}
+
+fn draw_edges(
+    painter: &egui::Painter,
+    nodes: &[Node],
+    node_positions: &NodePositions,
+    center: egui::Vec2,
+    viewport: &Viewport,
+) {
+    for node in nodes {
+        if let Some(calls) = &node.calls {
+            for target in calls {
+                if let (Some(a), Some(b)) = (
+                    node_positions.0.get(&node.name),
+                    node_positions.0.get(target),
+                ) {
+                    painter.line_segment(
+                        [
+                            egui::pos2(
+                                (center + to_egui(*a) * viewport.zoom).x,
+                                (center + to_egui(*a) * viewport.zoom).y,
+                            ),
+                            egui::pos2(
+                                (center + to_egui(*b) * viewport.zoom).x,
+                                (center + to_egui(*b) * viewport.zoom).y,
+                            ),
+                        ],
+                        egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
                     );
                 }
             }
-            if resp.clicked() {
-                state.selected = Some(node.name.clone());
-                state.ai_reply = None;
-            }
-            resp.context_menu(|ui| {
-                if ui.button("Edit info").clicked() {
-                    state.edit = Some(EditData {
-                        name: node.name.clone(),
-                        description: node.description.clone().unwrap_or_default(),
-                        story: node.story.clone().unwrap_or_default(),
-                        calls: node.calls.clone().unwrap_or_default().join(", "),
-                        used_by: node.used_by.clone().unwrap_or_default().join(", "),
-                    });
-                }
-                if ui.button("Simulate").clicked() {
-                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(text) = api::simulate_flow(&mut log_writer, &yaml) {
-                            state.popup = Some(text);
-                        }
-                    }
-                }
-                if ui.button("Generate").clicked() {
-                    if let Ok(yaml) = api::generate_component(&mut log_writer, &node.name) {
-                        state.popup = Some(yaml);
-                    }
-                }
-                if ui.button("Validate").clicked() {
-                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(ok) = api::validate_yaml(&mut log_writer, &yaml) {
-                            state.popup = Some(if ok {
-                                "YAML válido".into()
-                            } else {
-                                "YAML inválido".into()
-                            });
-                        }
-                    }
-                }
-                if node.node_type.as_deref() == Some("iot") {
-                    if ui.button("Call REST").clicked() {
-                        if let Ok(text) =
-                            api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name))
-                        {
-                            state.popup = Some(text);
-                        }
-                    }
-                    if ui.button("Publish MQTT").clicked() {
-                        let _ = api::publish_mqtt(
-                            &mut log_writer,
-                            &format!("iot/{}", node.name),
-                            "ping",
-                        );
-                    }
-                }
-            });
         }
-    });
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn draw_nodes(
+    ui: &mut egui::Ui,
+    painter: &egui::Painter,
+    data: &mut GraphData,
+    state: &mut UiState,
+    node_positions: &mut NodePositions,
+    center: egui::Vec2,
+    viewport: &Viewport,
+    factory: &dyn NodeFactory,
+    icons: &Icons,
+    svg_assets: &Assets<SvgImage>,
+    mut log_writer: &mut EventWriter<crate::api::LogEvent>,
+    runtime: &AsyncRuntime,
+    node_task: &mut NodeInfoTask,
+) {
+    for node in &data.nodes {
+        let pos_vec = center
+            + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
+        let pos = egui::pos2(pos_vec.x, pos_vec.y);
+        let selected = state.selected.as_deref() == Some(node.name.as_str());
+        let resp = factory.draw_node(ui, painter, node, pos, selected, icons, svg_assets);
+        if resp.drag_started() {
+            state.dragging = Some(node.name.clone());
+        }
+        if resp.hovered() {
+            if let Some(desc) = &node.description {
+                egui::show_tooltip_at_pointer(
+                    ui.ctx(),
+                    egui::Id::new(format!("tip_{}", node.name)),
+                    |ui| {
+                        ui.label(desc);
+                    },
+                );
+            }
+        }
+        if resp.clicked() {
+            state.selected = Some(node.name.clone());
+            state.ai_reply = None;
+        }
+        resp.context_menu(|ui| {
+            if ui.button("Edit info").clicked() {
+                state.edit = Some(EditData {
+                    name: node.name.clone(),
+                    description: node.description.clone().unwrap_or_default(),
+                    story: node.story.clone().unwrap_or_default(),
+                    calls: node.calls.clone().unwrap_or_default().join(", "),
+                    used_by: node.used_by.clone().unwrap_or_default().join(", "),
+                });
+            }
+            if ui.button("Simulate").clicked() {
+                if let Some(yaml) = subgraph_yaml(data, &node.name) {
+                    if let Ok(text) = api::simulate_flow(&mut log_writer, &yaml) {
+                        state.popup = Some(text);
+                    }
+                }
+            }
+            if ui.button("Generate").clicked() {
+                if let Ok(yaml) = api::generate_component(&mut log_writer, &node.name) {
+                    state.popup = Some(yaml);
+                }
+            }
+            if ui.button("Validate").clicked() {
+                if let Some(yaml) = subgraph_yaml(data, &node.name) {
+                    if let Ok(ok) = api::validate_yaml(&mut log_writer, &yaml) {
+                        state.popup = Some(if ok {
+                            "YAML válido".into()
+                        } else {
+                            "YAML inválido".into()
+                        });
+                    }
+                }
+            }
+            if node.node_type.as_deref() == Some("iot") {
+                if ui.button("Call REST").clicked() {
+                    if let Ok(text) =
+                        api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name))
+                    {
+                        state.popup = Some(text);
+                    }
+                }
+                if ui.button("Publish MQTT").clicked() {
+                    let _ =
+                        api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.name), "ping");
+                }
+            }
+        });
+    }
+}
+
+fn show_popup(ctx: &egui::Context, state: &mut UiState) {
     if let Some(text_val) = state.popup.clone() {
         let mut close = false;
         egui::Window::new("Result").show(ctx, |ui| {
@@ -252,6 +235,16 @@ pub fn draw_graph(
             state.popup = None;
         }
     }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn show_edit_window(
+    ctx: &egui::Context,
+    data: &mut GraphData,
+    state: &mut UiState,
+    runtime: &AsyncRuntime,
+    node_task: &mut NodeInfoTask,
+) {
     if let Some(mut edit_data) = state.edit.take() {
         let mut close = false;
         egui::Window::new(format!("Edit {}", edit_data.name))
@@ -329,6 +322,52 @@ pub fn draw_graph(
             state.edit = Some(edit_data);
         }
     }
+}
+
+/// Draw nodes and edges of the graph.
+#[allow(clippy::too_many_arguments)]
+pub fn draw_graph(
+    mut contexts: EguiContexts,
+    mut data: ResMut<GraphData>,
+    mut state: ResMut<UiState>,
+    viewport: Res<Viewport>,
+    mut node_positions: ResMut<NodePositions>,
+    runtime: Res<AsyncRuntime>,
+    mut graph_task: ResMut<GraphTask>,
+    mut ai_task: ResMut<AiTask>,
+    mut node_task: ResMut<NodeInfoTask>,
+    mut log_writer: EventWriter<crate::api::LogEvent>,
+    factory: Res<BoxedFactory>,
+    icons: Res<Icons>,
+    svg_assets: Res<Assets<SvgImage>>,
+) {
+    let ctx = contexts.ctx_mut();
+    poll_ai_task(&mut ai_task, &mut state);
+    poll_node_task(&mut node_task, &mut data);
+    egui::CentralPanel::default().show(ctx, |ui| {
+        ui.heading("Graph View");
+        let rect = ui.max_rect();
+        let painter = ui.painter_at(rect);
+        let center = rect.center().to_vec2() + to_egui(viewport.offset);
+        draw_edges(&painter, &data.nodes, &node_positions, center, &viewport);
+        draw_nodes(
+            ui,
+            &painter,
+            &mut data,
+            &mut state,
+            &mut node_positions,
+            center,
+            &viewport,
+            factory.0.as_ref(),
+            &icons,
+            &svg_assets,
+            &mut log_writer,
+            &runtime,
+            &mut node_task,
+        );
+    });
+    show_popup(ctx, &mut state);
+    show_edit_window(ctx, &mut data, &mut state, &runtime, &mut node_task);
 }
 
 /// Update the side panel with controls.
@@ -435,6 +474,7 @@ impl Plugin for ViewerPlugin {
             .init_resource::<Viewport>()
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
+            .init_resource::<node_factory::BoxedFactory>()
             .init_resource::<BuildTask>()
             .insert_resource(AsyncRuntime::default())
             .insert_resource(AiTask::default())
