@@ -11,6 +11,7 @@ use thiserror::Error;
 
 pub mod node_factory;
 pub mod viewer;
+pub mod palette;
 
 #[derive(Asset, TypePath)]
 pub struct SvgImage(pub RetainedImage);
@@ -62,6 +63,7 @@ pub struct UiState {
     pub selected: Option<String>,
     pub ai_reply: Option<String>,
     pub dragging: Option<String>,
+    pub palette_dragging: Option<palette::NodeTemplate>,
     pub edit: Option<EditData>,
     pub query: String,
     pub loading: bool,
@@ -77,6 +79,7 @@ impl Default for UiState {
             selected: None,
             ai_reply: None,
             dragging: None,
+            palette_dragging: None,
             edit: None,
             query: "project overview".to_string(),
             loading: false,
