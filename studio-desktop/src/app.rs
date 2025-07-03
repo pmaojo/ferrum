@@ -2,11 +2,8 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
 use crate::api::LogEvent;
-use crate::graph;
-use crate::ui;
-use crate::ui::{AiTask, BuildTask, Icons, LogBuffer, NodeInfoTask};
+use crate::ui::viewer::ViewerPlugin;
 use bevy_tokio_tasks::TokioTasksPlugin;
-use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
 use std::sync::{Arc, Mutex, mpsc::Receiver};
 
 #[derive(Resource)]
@@ -17,31 +14,9 @@ pub fn run_app(log_rx: Receiver<String>) {
         .add_plugins(DefaultPlugins)
         .add_plugins(EguiPlugin)
         .add_plugins(TokioTasksPlugin::default())
-        .add_event::<LogEvent>()
-        .init_resource::<graph::GraphData>()
-        .init_resource::<graph::NodePositions>()
-        .init_resource::<graph::Viewport>()
-        .init_resource::<ui::UiState>()
-        .init_resource::<ui::Icons>()
-        .init_resource::<graph::GraphTask>()
-        .init_resource::<ui::BuildTask>()
-        .insert_resource(AiTask::default())
-        .insert_resource(NodeInfoTask::default())
-        .insert_resource(LogBuffer::default())
+        .add_plugins(ViewerPlugin)
         .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))
         .add_systems(Update, collect_logs)
-        .add_systems(Startup, graph::load_graph)
-        .add_systems(
-            Update,
-            (
-                graph::update_graph_task,
-                ui::viewer::handle_interaction,
-                ui::viewer::draw_graph,
-                ui::viewer::update_side_panel,
-                ui::viewer::update_build_task,
-                ui::log_panel,
-            ),
-        )
         .run();
 }
 

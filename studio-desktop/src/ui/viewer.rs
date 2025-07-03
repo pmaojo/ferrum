@@ -407,3 +407,34 @@ pub fn update_build_task(
         }
     }
 }
+
+/// Bevy plugin bundling all graph viewer systems and resources.
+pub struct ViewerPlugin;
+
+impl Plugin for ViewerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_event::<crate::api::LogEvent>()
+            .init_resource::<GraphData>()
+            .init_resource::<NodePositions>()
+            .init_resource::<Viewport>()
+            .init_resource::<GraphTask>()
+            .init_resource::<UiState>()
+            .init_resource::<Icons>()
+            .init_resource::<BuildTask>()
+            .insert_resource(AiTask::default())
+            .insert_resource(NodeInfoTask::default())
+            .insert_resource(LogBuffer::default())
+            .add_systems(Startup, crate::graph::load_graph)
+            .add_systems(
+                Update,
+                (
+                    crate::graph::update_graph_task,
+                    handle_interaction,
+                    draw_graph,
+                    update_side_panel,
+                    update_build_task,
+                    super::log_panel,
+                ),
+            );
+    }
+}
