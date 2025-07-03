@@ -554,3 +554,16 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-19
 - Added Leptos route generation via `leptos_routegen`.
+
+### Session 2025-08-20
+- Switched Leptos templates to cargo-leptos starter workspace.
+- `ferrum dev` and `build` now invoke `cargo leptos`.
+- Docker images install cargo-leptos.
+
+### Session 2025-08-21
+- Added utility to recursively copy template directories.
+- Leptos plugin now copies the entire starter workspace.
+- Updated Leptos frontend templates with islands imports.
+
+### Session 2025-08-22
+- Removed binary favicon files from Leptos templates to avoid git errors.
