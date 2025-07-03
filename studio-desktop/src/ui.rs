@@ -9,6 +9,10 @@ use std::collections::VecDeque;
 use std::sync::{Arc, Mutex};
 use webbrowser;
 
+fn to_egui(v: Vec2) -> egui::Vec2 {
+    egui::Vec2::new(v.x, v.y)
+}
+
 #[derive(Resource)]
 pub struct Icons {
     pub iot: RetainedImage,
@@ -111,15 +115,18 @@ pub fn graph_viewer(
     icons: Res<Icons>,
 ) {
     let ctx = contexts.ctx_mut();
-    if let Some(rx) = &ai_task.0 {
-        if let Ok(res) = rx.0.lock().unwrap().try_recv() {
-            ai_task.0 = None;
-            if let Ok(text) = res {
-                state.ai_reply = Some(text);
-            }
+    if let Some(res) = ai_task
+        .0
+        .as_ref()
+        .and_then(|rx| rx.0.lock().unwrap().try_recv().ok())
+    {
+        ai_task.0 = None;
+        if let Ok(text) = res {
+            state.ai_reply = Some(text);
         }
     }
-    if let Some(pending) = &mut node_task.0 {
+    let mut clear = false;
+    if let Some(pending) = node_task.0.as_mut() {
         if let Ok(res) = pending.1.lock().unwrap().try_recv() {
             if res.is_ok() {
                 if let Some(node) = data.nodes.iter_mut().find(|n| n.name == pending.0.name) {
@@ -129,8 +136,11 @@ pub fn graph_viewer(
                     node.used_by = pending.0.used_by.clone();
                 }
             }
-            node_task.0 = None;
+            clear = true;
         }
+    }
+    if clear {
+        node_task.0 = None;
     }
     let (zoom_delta, pointer_delta, pointer_down) =
         ctx.input(|i| (i.zoom_delta(), i.pointer.delta(), i.pointer.primary_down()));
@@ -155,7 +165,7 @@ pub fn graph_viewer(
         ui.heading("Graph View");
         let rect = ui.max_rect();
         let painter = ui.painter_at(rect);
-        let center = rect.center().to_vec2() + viewport.offset;
+        let center = rect.center().to_vec2() + to_egui(viewport.offset);
         // Draw edges using stored node positions
         for node in &data.nodes {
             if let Some(calls) = &node.calls {
@@ -167,12 +177,12 @@ pub fn graph_viewer(
                         painter.line_segment(
                             [
                                 egui::pos2(
-                                    (center + *a * viewport.zoom).x,
-                                    (center + *a * viewport.zoom).y,
+                                    (center + to_egui(*a) * viewport.zoom).x,
+                                    (center + to_egui(*a) * viewport.zoom).y,
                                 ),
                                 egui::pos2(
-                                    (center + *b * viewport.zoom).x,
-                                    (center + *b * viewport.zoom).y,
+                                    (center + to_egui(*b) * viewport.zoom).x,
+                                    (center + to_egui(*b) * viewport.zoom).y,
                                 ),
                             ],
                             egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
@@ -184,7 +194,7 @@ pub fn graph_viewer(
         // Draw nodes
         for node in &data.nodes {
             let pos_vec =
-                center + *node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO) * viewport.zoom;
+                center + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
             let pos = egui::pos2(pos_vec.x, pos_vec.y);
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
@@ -356,58 +366,63 @@ pub fn graph_viewer(
             }
         }
     });
-    if let Some(text) = &mut state.popup {
+    if let Some(text_val) = state.popup.clone() {
+        let mut close = false;
         egui::Window::new("Result").show(ctx, |ui| {
-            ui.label(text.as_str());
+            ui.label(text_val.as_str());
             if ui.button("Close").clicked() {
-                state.popup = None;
+                close = true;
             }
         });
+        if close {
+            state.popup = None;
+        }
     }
-    if let Some(edit) = &mut state.edit {
-        egui::Window::new(format!("Edit {}", edit.name))
+    if let Some(mut edit_data) = state.edit.take() {
+        let mut close = false;
+        egui::Window::new(format!("Edit {}", edit_data.name))
             .collapsible(false)
             .show(ctx, |ui| {
                 ui.label("Description");
-                ui.text_edit_singleline(&mut edit.description);
+                ui.text_edit_singleline(&mut edit_data.description);
                 ui.label("Story");
-                ui.text_edit_multiline(&mut edit.story);
+                ui.text_edit_multiline(&mut edit_data.story);
                 ui.label("Calls (comma separated)");
-                ui.text_edit_singleline(&mut edit.calls);
+                ui.text_edit_singleline(&mut edit_data.calls);
                 ui.label("Used by (comma separated)");
-                ui.text_edit_singleline(&mut edit.used_by);
+                ui.text_edit_singleline(&mut edit_data.used_by);
                 ui.horizontal(|ui| {
                     if ui.button("Save").clicked() {
-                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit.name) {
-                            let desc = if edit.description.trim().is_empty() {
+                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit_data.name) {
+                            let desc = if edit_data.description.trim().is_empty() {
                                 None
                             } else {
-                                Some(edit.description.clone())
+                                Some(edit_data.description.clone())
                             };
-                            let story = if edit.story.trim().is_empty() {
+                            let story = if edit_data.story.trim().is_empty() {
                                 None
                             } else {
-                                Some(edit.story.clone())
+                                Some(edit_data.story.clone())
                             };
                             let update = NodeUpdate {
                                 name: node.name.clone(),
                                 description: desc.clone(),
                                 story: story.clone(),
-                                calls: if edit.calls.trim().is_empty() {
+                                calls: if edit_data.calls.trim().is_empty() {
                                     None
                                 } else {
                                     Some(
-                                        edit.calls
+                                        edit_data.calls
                                             .split(',')
                                             .map(|s| s.trim().to_string())
                                             .collect(),
                                     )
                                 },
-                                used_by: if edit.used_by.trim().is_empty() {
+                                used_by: if edit_data.used_by.trim().is_empty() {
                                     None
                                 } else {
                                     Some(
-                                        edit.used_by
+                                        edit_data.used_by
                                             .split(',')
                                             .map(|s| s.trim().to_string())
                                             .collect(),
@@ -429,13 +444,16 @@ pub fn graph_viewer(
                             });
                             node_task.0 = Some((update, Arc::new(Mutex::new(rx))));
                         }
-                        state.edit = None;
+                        close = true;
                     }
                     if ui.button("Cancel").clicked() {
-                        state.edit = None;
+                        close = true;
                     }
                 });
             });
+        if !close {
+            state.edit = Some(edit_data);
+        }
     }
 }
 
