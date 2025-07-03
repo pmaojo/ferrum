@@ -411,6 +411,7 @@ Built-in plugins:
 - [cron](docs/plugins/cron.md) – adds an example scheduled job and cron support.
 
 - [iot-basic](docs/plugins/iot-basic.md) – scaffolds temperature/humidity drivers and a telemetry resource.
+- [leptos](docs/plugins/leptos.md) – installs a Leptos frontend scaffold.
 
 Plugins can also mutate the parsed DSL before code generation. Each plugin may
 implement:

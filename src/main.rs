@@ -42,7 +42,9 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            frontend,
             api_only,
+            nostarter,
             interactive,
         } => init(
             name,
@@ -52,6 +54,8 @@ fn main() -> Result<()> {
             with_auth,
             with_jobs,
             with_uploads,
+            frontend,
+            nostarter,
             api_only,
             interactive,
         ),

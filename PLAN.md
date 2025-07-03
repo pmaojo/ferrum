@@ -540,3 +540,6 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-17
 - Added Leptos frontend option with Trunk support and docs.
+
+### Session 2025-08-18
+- Added Leptos plugin and templates.
