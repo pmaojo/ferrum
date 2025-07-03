@@ -9,6 +9,7 @@ use egui_extras::RetainedImage;
 use std::collections::VecDeque;
 use thiserror::Error;
 
+pub mod node_factory;
 pub mod viewer;
 
 #[derive(Asset, TypePath)]
