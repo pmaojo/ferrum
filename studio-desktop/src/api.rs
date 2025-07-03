@@ -8,6 +8,7 @@ static LOG_SENDER: OnceCell<Mutex<mpsc::Sender<String>>> = OnceCell::new();
 #[derive(Event, Clone)]
 pub struct LogEvent(pub String);
 
+
 pub fn push_log<S: Into<String>>(writer: &mut EventWriter<LogEvent>, msg: S) {
     let msg = msg.into();
     send_log(msg.clone());
