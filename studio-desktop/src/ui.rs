@@ -363,64 +363,65 @@ pub fn graph_viewer(
                 ui.text_edit_singleline(&mut edit.calls);
                 ui.label("Used by (comma separated)");
                 ui.text_edit_singleline(&mut edit.used_by);
-                if ui.button("Save").clicked() {
-                    if let Some(node) = data.nodes.iter().find(|n| n.name == edit.name) {
-                        let desc = if edit.description.trim().is_empty() {
-                            None
-                        } else {
-                            Some(edit.description.clone())
-                        };
-                        let story = if edit.story.trim().is_empty() {
-                            None
-                        } else {
-                            Some(edit.story.clone())
-                        };
-                        let update = NodeUpdate {
-                            name: node.name.clone(),
-                            description: desc.clone(),
-                            story: story.clone(),
-                            calls: if edit.calls.trim().is_empty() {
+                ui.horizontal(|ui| {
+                    if ui.button("Save").clicked() {
+                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit.name) {
+                            let desc = if edit.description.trim().is_empty() {
                                 None
                             } else {
-                                Some(
-                                    edit.calls
-                                        .split(',')
-                                        .map(|s| s.trim().to_string())
-                                        .collect(),
-                                )
-                            },
-                            used_by: if edit.used_by.trim().is_empty() {
+                                Some(edit.description.clone())
+                            };
+                            let story = if edit.story.trim().is_empty() {
                                 None
                             } else {
-                                Some(
-                                    edit.used_by
-                                        .split(',')
-                                        .map(|s| s.trim().to_string())
-                                        .collect(),
-                                )
-                            },
-                        };
-                        let (tx, rx) = std::sync::mpsc::channel();
-                        let rt = runtime.0.clone();
-                        let name = update.name.clone();
-                        let desc_clone = update.description.clone();
-                        let story_clone = update.story.clone();
-                        std::thread::spawn(move || {
-                            let _ = rt.block_on(api::store_node_info(
-                                &name,
-                                desc_clone.as_deref(),
-                                story_clone.as_deref(),
-                            ));
-                            let _ = tx.send(Ok(()));
-                        });
-                        node_task.0 = Some((update, rx));
+                                Some(edit.story.clone())
+                            };
+                            let update = NodeUpdate {
+                                name: node.name.clone(),
+                                description: desc.clone(),
+                                story: story.clone(),
+                                calls: if edit.calls.trim().is_empty() {
+                                    None
+                                } else {
+                                    Some(
+                                        edit.calls
+                                            .split(',')
+                                            .map(|s| s.trim().to_string())
+                                            .collect(),
+                                    )
+                                },
+                                used_by: if edit.used_by.trim().is_empty() {
+                                    None
+                                } else {
+                                    Some(
+                                        edit.used_by
+                                            .split(',')
+                                            .map(|s| s.trim().to_string())
+                                            .collect(),
+                                    )
+                                },
+                            };
+                            let (tx, rx) = std::sync::mpsc::channel();
+                            let rt = runtime.0.clone();
+                            let name = update.name.clone();
+                            let desc_clone = update.description.clone();
+                            let story_clone = update.story.clone();
+                            std::thread::spawn(move || {
+                                let _ = rt.block_on(api::store_node_info(
+                                    &name,
+                                    desc_clone.as_deref(),
+                                    story_clone.as_deref(),
+                                ));
+                                let _ = tx.send(Ok(()));
+                            });
+                            node_task.0 = Some((update, rx));
+                        }
+                        state.edit = None;
                     }
-                    state.edit = None;
-                }
-                ui.same_line();
-                if ui.button("Cancel").clicked() {
-                    state.edit = None;
-                }
+                    if ui.button("Cancel").clicked() {
+                        state.edit = None;
+                    }
+                });
             });
     }
 }
