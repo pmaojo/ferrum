@@ -23,3 +23,10 @@ fn input_map_contains_pan() {
     let map = Action::input_map();
     assert!(map.get(&Action::Pan).is_some());
 }
+
+#[test]
+fn input_map_contains_start_drag() {
+    let map = Action::input_map();
+    assert!(map.get(&Action::StartDrag).is_some());
+    assert!(map.get(&Action::Drop).is_some());
+}

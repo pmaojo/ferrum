@@ -9,6 +9,10 @@ pub enum Action {
     Zoom,
     #[actionlike(Button)]
     Select,
+    #[actionlike(Button)]
+    StartDrag,
+    #[actionlike(Button)]
+    Drop,
 }
 
 impl Action {
@@ -17,6 +21,8 @@ impl Action {
             .with(Action::Pan, MouseButton::Left)
             .with_axis(Action::Zoom, MouseScrollAxis::Y)
             .with(Action::Select, MouseButton::Left)
+            .with(Action::StartDrag, MouseButton::Left)
+            .with(Action::Drop, MouseButton::Left)
     }
 }
 
