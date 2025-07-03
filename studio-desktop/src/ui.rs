@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_egui::{EguiContexts, egui};
-use bevy_tokio_tasks::tokio::task::JoinHandle;
+use bevy::tasks::Task;
 use egui_extras::RetainedImage;
 use std::collections::VecDeque;
 
@@ -63,7 +63,7 @@ pub struct EditData {
 }
 
 #[derive(Resource, Default)]
-pub struct AiTask(pub Option<JoinHandle<reqwest::Result<String>>>);
+pub struct AiTask(pub Option<Task<reqwest::Result<String>>>);
 
 pub struct NodeUpdate {
     pub name: String,
@@ -74,10 +74,10 @@ pub struct NodeUpdate {
 }
 
 #[derive(Resource, Default)]
-pub struct NodeInfoTask(pub Option<(NodeUpdate, JoinHandle<reqwest::Result<()>>)>);
+pub struct NodeInfoTask(pub Option<(NodeUpdate, Task<reqwest::Result<()>>)>);
 
 #[derive(Resource, Default)]
-pub struct BuildTask(pub Option<JoinHandle<reqwest::Result<(bool, String)>>>);
+pub struct BuildTask(pub Option<Task<reqwest::Result<(bool, String)>>>);
 
 pub fn log_panel(
     mut contexts: EguiContexts,
