@@ -1,12 +1,12 @@
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
-use crate::runtime::AsyncRuntime;
+use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
+use bevy_tokio_tasks::tokio::task::JoinHandle;
 use super::{AiTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use serde_yaml;
 use std::collections::HashSet;
-use std::sync::{Arc, Mutex};
 use webbrowser;
 
 fn to_egui(v: Vec2) -> egui::Vec2 {
@@ -80,25 +80,23 @@ pub fn draw_graph(
     icons: Res<Icons>,
 ) {
     let ctx = contexts.ctx_mut();
-    if let Some(res) = ai_task
-        .0
-        .as_ref()
-        .and_then(|rx| rx.0.lock().unwrap().try_recv().ok())
-    {
-        ai_task.0 = None;
-        if let Ok(text) = res {
-            state.ai_reply = Some(text);
+    if let Some(handle) = ai_task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            ai_task.0 = None;
+            if let Ok(text) = res {
+                state.ai_reply = Some(text);
+            }
         }
     }
     let mut clear = false;
-    if let Some(pending) = node_task.0.as_mut() {
-        if let Ok(res) = pending.1.lock().unwrap().try_recv() {
+    if let Some((update, handle)) = node_task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             if res.is_ok() {
-                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == pending.0.name) {
-                    node.description = pending.0.description.clone();
-                    node.story = pending.0.story.clone();
-                    node.calls = pending.0.calls.clone();
-                    node.used_by = pending.0.used_by.clone();
+                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == update.name) {
+                    node.description = update.description.clone();
+                    node.story = update.story.clone();
+                    node.calls = update.calls.clone();
+                    node.used_by = update.used_by.clone();
                 }
             }
             clear = true;
@@ -287,16 +285,13 @@ pub fn draw_graph(
                                     )
                                 },
                             };
-                            let (tx, rx) = std::sync::mpsc::channel();
-                            let rt = runtime.0.clone();
                             let name = update.name.clone();
                             let desc_clone = update.description.clone();
                             let story_clone = update.story.clone();
-                            std::thread::spawn(move || {
-                                let _ = rt.block_on(api::store_node_info(&name, desc_clone.as_deref(), story_clone.as_deref()));
-                                let _ = tx.send(Ok(()));
+                            let handle = runtime.spawn_background_task(move |_| async move {
+                                api::store_node_info(&name, desc_clone.as_deref(), story_clone.as_deref()).await
                             });
-                            node_task.0 = Some((update, Arc::new(Mutex::new(rx))));
+                            node_task.0 = Some((update, handle));
                         }
                         close = true;
                     }
@@ -327,15 +322,14 @@ pub fn update_side_panel(
         ui.label("Question");
         ui.text_edit_singleline(&mut state.query);
         if ui.button("Regenerate").clicked() {
-            let rx = crate::graph::spawn_graph_request(&runtime, state.query.clone());
-            graph_task.0 = Some((rx,));
+            let handle = crate::graph::spawn_graph_request(&runtime, state.query.clone());
+            graph_task.0 = Some(handle);
             state.selected = None;
             state.loading = true;
         }
         if ui.button("Compile").clicked() {
-            let rt = runtime.0.clone();
-            std::thread::spawn(move || {
-                if let Ok((ok, logs)) = rt.block_on(api::compile_project("grafo.yaml")) {
+            runtime.spawn_background_task(|_| async move {
+                if let Ok((ok, logs)) = api::compile_project("grafo.yaml").await {
                     for line in logs.lines() {
                         api::push_log(format!("[BUILD] {}", line));
                     }
@@ -348,9 +342,8 @@ pub fn update_side_panel(
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
-                let rt = runtime.0.clone();
-                std::thread::spawn(move || {
-                    if let Ok((ok, logs)) = rt.block_on(api::compile_module(&n, "grafo.yaml")) {
+                runtime.spawn_background_task(move |_| async move {
+                    if let Ok((ok, logs)) = api::compile_module(&n, "grafo.yaml").await {
                         for line in logs.lines() {
                             api::push_log(format!("[BUILD] {}", line));
                         }
@@ -362,9 +355,8 @@ pub fn update_side_panel(
             }
             if ui.button("Compile Subgraph").clicked() {
                 if let Some(yaml) = subgraph_yaml(&data, name) {
-                    let rt = runtime.0.clone();
-                    std::thread::spawn(move || {
-                        if let Ok((ok, logs)) = rt.block_on(api::compile_graph(&yaml)) {
+                    runtime.spawn_background_task(move |_| async move {
+                        if let Ok((ok, logs)) = api::compile_graph(&yaml).await {
                             for line in logs.lines() {
                                 api::push_log(format!("[BUILD] {}", line));
                             }
@@ -390,13 +382,10 @@ pub fn update_side_panel(
                 }
                 if ui.button("Ask AI Team").clicked() {
                     let question = format!("What affects {}?", name);
-                    let (tx, rx) = std::sync::mpsc::channel();
-                    let rt = runtime.0.clone();
-                    std::thread::spawn(move || {
-                        let res = rt.block_on(api::ask_ai_team(&question));
-                        let _ = tx.send(res);
+                    let handle = runtime.spawn_background_task(move |_| async move {
+                        api::ask_ai_team(&question).await
                     });
-                    ai_task.0 = Some((Arc::new(Mutex::new(rx)),));
+                    ai_task.0 = Some(handle);
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();

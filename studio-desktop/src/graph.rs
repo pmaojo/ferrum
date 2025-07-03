@@ -2,10 +2,10 @@ use crate::api;
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::{mpsc::Receiver, Arc, Mutex};
+use bevy_tokio_tasks::tokio::task::JoinHandle;
 
 use crate::layout::LayoutEngine;
-use crate::runtime::AsyncRuntime;
+use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Node {
@@ -31,7 +31,7 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<(Arc<Mutex<Receiver<reqwest::Result<String>>>>,)>);
+pub struct GraphTask(pub Option<JoinHandle<reqwest::Result<String>>>);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -51,14 +51,8 @@ impl Default for Viewport {
 pub fn spawn_graph_request(
     rt: &AsyncRuntime,
     question: String,
-) -> Arc<Mutex<Receiver<reqwest::Result<String>>>> {
-    let (tx, rx) = std::sync::mpsc::channel();
-    let rt = rt.0.clone();
-    std::thread::spawn(move || {
-        let res = rt.block_on(api::fetch_graph(&question));
-        let _ = tx.send(res);
-    });
-    Arc::new(Mutex::new(rx))
+) -> JoinHandle<reqwest::Result<String>> {
+    rt.spawn_background_task(move |_| async move { api::fetch_graph(&question).await })
 }
 
 pub fn load_graph(
@@ -68,8 +62,8 @@ pub fn load_graph(
     data: Res<GraphData>,
     mut pos: ResMut<NodePositions>,
 ) {
-    let rx = spawn_graph_request(&rt, state.query.clone());
-    task.0 = Some((rx,));
+    let handle = spawn_graph_request(&rt, state.query.clone());
+    task.0 = Some(handle);
     state.loading = true;
 
     if !data.nodes.is_empty() {
@@ -84,10 +78,11 @@ pub fn update_graph_task(
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
 ) {
-    let maybe_res = task
-        .0
-        .as_ref()
-        .and_then(|rx| rx.0.lock().unwrap().try_recv().ok());
+    let maybe_res = if let Some(handle) = task.0.as_mut() {
+        futures_lite::future::block_on(futures_lite::future::poll_once(handle))
+    } else {
+        None
+    };
 
     if let Some(res) = maybe_res {
         state.loading = false;
