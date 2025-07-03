@@ -58,11 +58,8 @@ struct ChatResponse {
     message: String,
 }
 
-pub async fn fetch_graph(
-    writer: &mut EventWriter<'_, LogEvent>,
-    question: &str,
-) -> reqwest::Result<String> {
-    log(writer, format!("[API] POST /graph-rag {question}"));
+pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
+    println!("[API] POST /graph-rag {question}");
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/graph-rag")
@@ -73,11 +70,8 @@ pub async fn fetch_graph(
     Ok(data.graph)
 }
 
-pub async fn ask_ai_team(
-    writer: &mut EventWriter<'_, LogEvent>,
-    question: &str,
-) -> reqwest::Result<String> {
-    log(writer, format!("[API] POST /ai-team {question}"));
+pub async fn ask_ai_team(question: &str) -> reqwest::Result<String> {
+    println!("[API] POST /ai-team {question}");
     let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/ai-team")
