@@ -83,6 +83,7 @@ pub fn draw_graph(
     mut node_task: ResMut<NodeInfoTask>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
     icons: Res<Icons>,
+    svg_assets: Res<Assets<SvgImage>>,
 ) {
     let ctx = contexts.ctx_mut();
     if let Some(handle) = ai_task.0.as_mut() {
@@ -157,10 +158,13 @@ pub fn draw_graph(
             };
             painter.circle_filled(pos, 20.0, color);
             if node.node_type.as_deref() == Some("iot") {
-                let size = icons.iot.size_vec2() * 0.5;
-                let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                egui::Image::from_texture((icons.iot.texture_id(ui.ctx()), size))
-                    .paint_at(ui, icon_rect);
+                if let Some(icon) = svg_assets.get(&icons.iot) {
+                    let size = icon.0.size_vec2() * 0.5;
+                    let icon_rect =
+                        egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
+                    egui::Image::from_texture((icon.0.texture_id(ui.ctx()), size))
+                        .paint_at(ui, icon_rect);
+                }
             }
             painter.text(
                 pos,
@@ -431,7 +435,6 @@ impl Plugin for ViewerPlugin {
             .init_resource::<Viewport>()
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
-            .init_resource::<Icons>()
             .init_resource::<BuildTask>()
             .insert_resource(AsyncRuntime::default())
             .insert_resource(AiTask::default())
