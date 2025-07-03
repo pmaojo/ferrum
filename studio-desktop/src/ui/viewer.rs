@@ -2,9 +2,9 @@ use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiStat
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy::prelude::*;
-use bevy_egui::{EguiContexts, egui};
-use crate::runtime::AsyncRuntime;
-use bevy::tasks::Task;
+use bevy_egui::{egui, EguiContexts};
+use bevy_tokio_tasks::tokio::task::JoinHandle;
+use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
 use serde_yaml;
 use std::collections::HashSet;
 use webbrowser;
@@ -330,12 +330,14 @@ pub fn update_side_panel(
     mut build_task: ResMut<BuildTask>,
 ) {
     let ctx = contexts.ctx_mut();
+    let mut writer_opt = Some(log_writer);
     egui::SidePanel::right("side_panel").show(ctx, |ui| {
         ui.heading("Graph Controls");
         ui.label("Question");
         ui.text_edit_singleline(&mut state.query);
         if ui.button("Regenerate").clicked() {
-            let handle = crate::graph::spawn_graph_request(&runtime, state.query.clone());
+            let writer = writer_opt.take().unwrap();
+            let handle = crate::graph::spawn_graph_request(&runtime, state.query.clone(), writer);
             graph_task.0 = Some(handle);
             state.selected = None;
             state.loading = true;
@@ -375,10 +377,13 @@ pub fn update_side_panel(
                 }
                 if ui.button("Ask AI Team").clicked() {
                     let question = format!("What affects {}?", name);
-                    let handle = runtime.spawn(async move {
-                        api::ask_ai_team(&question).await
-                    });
-                    ai_task.0 = Some(handle);
+                    if let Some(writer) = writer_opt.take() {
+                        let handle = runtime.spawn_background_task(move |_| async move {
+                            let mut w = writer;
+                            api::ask_ai_team(&mut w, &question).await
+                        });
+                        ai_task.0 = Some(handle);
+                    }
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();

@@ -1,8 +1,9 @@
 use crate::api;
 use bevy::prelude::*;
+use bevy_tokio_tasks::tokio::task::JoinHandle;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use bevy::tasks::Task;
+
 
 use crate::layout::LayoutEngine;
 use crate::runtime::AsyncRuntime;
@@ -51,10 +52,9 @@ impl Default for Viewport {
 pub fn spawn_graph_request(
     rt: &AsyncRuntime,
     question: String,
-) -> Task<reqwest::Result<String>> {
-    rt.spawn(async move {
-        api::fetch_graph(&question).await
-    })
+    mut writer: EventWriter<'_, crate::api::LogEvent>,
+) -> JoinHandle<reqwest::Result<String>> {
+    rt.spawn_background_task(move |_| async move { api::fetch_graph(&mut writer, &question).await })
 }
 
 pub fn load_graph(
@@ -63,8 +63,9 @@ pub fn load_graph(
     mut state: ResMut<crate::ui::UiState>,
     data: Res<GraphData>,
     mut pos: ResMut<NodePositions>,
+    mut writer: EventWriter<crate::api::LogEvent>,
 ) {
-    let handle = spawn_graph_request(&rt, state.query.clone());
+    let handle = spawn_graph_request(&rt, state.query.clone(), writer);
     task.0 = Some(handle);
     state.loading = true;
 
