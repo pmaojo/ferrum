@@ -885,7 +885,7 @@ ethercat = ["ethercat-rs"]
         // Create .env with database URL
         fs::write(
             project_dir.join(".env"),
-            "DATABASE_URL=postgres://usuario:clave@localhost/ferrus_dev\n",
+            "DATABASE_URL=postgres://usuario:clave@localhost/ferrum_dev\n",
         )?;
 
         // Create diesel.toml for CLI configuration

@@ -1,4 +1,4 @@
-# Ferrus Plugin Template
+# Ferrum Plugin Template
 
 This directory provides a minimal starting point for creating Ferrum plugins.
 
@@ -10,4 +10,4 @@ This directory provides a minimal starting point for creating Ferrum plugins.
    cargo build --release
    ```
 3. Ensure `plugin.toml` points to the compiled library under `target/release`.
-4. Add the plugin to your project with `ferrum add path/to/ferrus-plugin-template`.
+4. Add the plugin to your project with `ferrum add path/to/ferrum-plugin-template`.
