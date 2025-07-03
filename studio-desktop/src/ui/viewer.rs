@@ -1,7 +1,6 @@
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
 use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
-use bevy_tokio_tasks::tokio::task::JoinHandle;
 use super::{AiTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
@@ -37,6 +36,17 @@ pub fn subgraph_yaml(data: &GraphData, name: &str) -> Option<String> {
     serde_yaml::to_string(&nodes).ok()
 }
 
+/// Actions triggered from a node context menu.
+#[derive(Event, Clone)]
+pub enum NodeAction {
+    Edit(String),
+    Simulate(String),
+    Generate(String),
+    Validate(String),
+    CallRest(String),
+    PublishMqtt(String),
+}
+
 /// Handle user input like dragging and zooming.
 pub fn handle_interaction(
     mut contexts: EguiContexts,
@@ -67,44 +77,16 @@ pub fn handle_interaction(
 
 /// Draw nodes and edges of the graph.
 #[allow(clippy::too_many_arguments)]
-pub fn draw_graph(
+pub fn render_nodes(
     mut contexts: EguiContexts,
     mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
     viewport: Res<Viewport>,
     mut node_positions: ResMut<NodePositions>,
-    runtime: Res<AsyncRuntime>,
-    mut graph_task: ResMut<GraphTask>,
-    mut ai_task: ResMut<AiTask>,
-    mut node_task: ResMut<NodeInfoTask>,
     icons: Res<Icons>,
+    mut actions: EventWriter<NodeAction>,
 ) {
     let ctx = contexts.ctx_mut();
-    if let Some(handle) = ai_task.0.as_mut() {
-        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
-            ai_task.0 = None;
-            if let Ok(text) = res {
-                state.ai_reply = Some(text);
-            }
-        }
-    }
-    let mut clear = false;
-    if let Some((update, handle)) = node_task.0.as_mut() {
-        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
-            if res.is_ok() {
-                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == update.name) {
-                    node.description = update.description.clone();
-                    node.story = update.story.clone();
-                    node.calls = update.calls.clone();
-                    node.used_by = update.used_by.clone();
-                }
-            }
-            clear = true;
-        }
-    }
-    if clear {
-        node_task.0 = None;
-    }
     egui::CentralPanel::default().show(ctx, |ui| {
         ui.heading("Graph View");
         let rect = ui.max_rect();
@@ -180,130 +162,28 @@ pub fn draw_graph(
             }
             resp.context_menu(|ui| {
                 if ui.button("Edit info").clicked() {
-                    state.edit = Some(EditData {
-                        name: node.name.clone(),
-                        description: node.description.clone().unwrap_or_default(),
-                        story: node.story.clone().unwrap_or_default(),
-                        calls: node.calls.clone().unwrap_or_default().join(", "),
-                        used_by: node.used_by.clone().unwrap_or_default().join(", "),
-                    });
+                    actions.send(NodeAction::Edit(node.name.clone()));
                 }
                 if ui.button("Simulate").clicked() {
-                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(text) = api::simulate_flow(&yaml) {
-                            state.popup = Some(text);
-                        }
-                    }
+                    actions.send(NodeAction::Simulate(node.name.clone()));
                 }
                 if ui.button("Generate").clicked() {
-                    if let Ok(yaml) = api::generate_component(&node.name) {
-                        state.popup = Some(yaml);
-                    }
+                    actions.send(NodeAction::Generate(node.name.clone()));
                 }
                 if ui.button("Validate").clicked() {
-                    if let Some(yaml) = subgraph_yaml(&data, &node.name) {
-                        if let Ok(ok) = api::validate_yaml(&yaml) {
-                            state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
-                        }
-                    }
+                    actions.send(NodeAction::Validate(node.name.clone()));
                 }
                 if node.node_type.as_deref() == Some("iot") {
                     if ui.button("Call REST").clicked() {
-                        if let Ok(text) = api::call_iot_http(&format!("/iot/{}", node.name)) {
-                            state.popup = Some(text);
-                        }
+                        actions.send(NodeAction::CallRest(node.name.clone()));
                     }
                     if ui.button("Publish MQTT").clicked() {
-                        let _ = api::publish_mqtt(&format!("iot/{}", node.name), "ping");
+                        actions.send(NodeAction::PublishMqtt(node.name.clone()));
                     }
                 }
             });
         }
     });
-    if let Some(text_val) = state.popup.clone() {
-        let mut close = false;
-        egui::Window::new("Result").show(ctx, |ui| {
-            ui.label(text_val.as_str());
-            if ui.button("Close").clicked() {
-                close = true;
-            }
-        });
-        if close {
-            state.popup = None;
-        }
-    }
-    if let Some(mut edit_data) = state.edit.take() {
-        let mut close = false;
-        egui::Window::new(format!("Edit {}", edit_data.name))
-            .collapsible(false)
-            .show(ctx, |ui| {
-                ui.label("Description");
-                ui.text_edit_singleline(&mut edit_data.description);
-                ui.label("Story");
-                ui.text_edit_multiline(&mut edit_data.story);
-                ui.label("Calls (comma separated)");
-                ui.text_edit_singleline(&mut edit_data.calls);
-                ui.label("Used by (comma separated)");
-                ui.text_edit_singleline(&mut edit_data.used_by);
-                ui.horizontal(|ui| {
-                    if ui.button("Save").clicked() {
-                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit_data.name) {
-                            let desc = if edit_data.description.trim().is_empty() {
-                                None
-                            } else {
-                                Some(edit_data.description.clone())
-                            };
-                            let story = if edit_data.story.trim().is_empty() {
-                                None
-                            } else {
-                                Some(edit_data.story.clone())
-                            };
-                            let update = NodeUpdate {
-                                name: node.name.clone(),
-                                description: desc.clone(),
-                                story: story.clone(),
-                                calls: if edit_data.calls.trim().is_empty() {
-                                    None
-                                } else {
-                                    Some(
-                                        edit_data
-                                            .calls
-                                            .split(',')
-                                            .map(|s| s.trim().to_string())
-                                            .collect(),
-                                    )
-                                },
-                                used_by: if edit_data.used_by.trim().is_empty() {
-                                    None
-                                } else {
-                                    Some(
-                                        edit_data
-                                            .used_by
-                                            .split(',')
-                                            .map(|s| s.trim().to_string())
-                                            .collect(),
-                                    )
-                                },
-                            };
-                            let name = update.name.clone();
-                            let desc_clone = update.description.clone();
-                            let story_clone = update.story.clone();
-                            let handle = runtime.spawn_background_task(move |_| async move {
-                                api::store_node_info(&name, desc_clone.as_deref(), story_clone.as_deref()).await
-                            });
-                            node_task.0 = Some((update, handle));
-                        }
-                        close = true;
-                    }
-                    if ui.button("Cancel").clicked() {
-                        close = true;
-                    }
-                });
-            });
-        if !close {
-            state.edit = Some(edit_data);
-        }
-    }
 }
 
 /// Update the side panel with controls.
@@ -394,4 +274,178 @@ pub fn update_side_panel(
             }
         }
     });
+}
+
+/// Process results from asynchronous tasks.
+pub fn process_async_results(
+    mut data: ResMut<GraphData>,
+    mut state: ResMut<UiState>,
+    mut ai_task: ResMut<AiTask>,
+    mut node_task: ResMut<NodeInfoTask>,
+) {
+    if let Some(handle) = ai_task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            ai_task.0 = None;
+            if let Ok(text) = res {
+                state.ai_reply = Some(text);
+            }
+        }
+    }
+    let mut clear = false;
+    if let Some((update, handle)) = node_task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            if res.is_ok() {
+                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == update.name) {
+                    node.description = update.description.clone();
+                    node.story = update.story.clone();
+                    node.calls = update.calls.clone();
+                    node.used_by = update.used_by.clone();
+                }
+            }
+            clear = true;
+        }
+    }
+    if clear {
+        node_task.0 = None;
+    }
+}
+
+/// Execute actions triggered from context menus and show popups.
+#[allow(clippy::too_many_arguments)]
+pub fn context_menu_actions(
+    mut contexts: EguiContexts,
+    mut data: ResMut<GraphData>,
+    mut state: ResMut<UiState>,
+    runtime: Res<AsyncRuntime>,
+    mut node_task: ResMut<NodeInfoTask>,
+    mut events: EventReader<NodeAction>,
+) {
+    let ctx = contexts.ctx_mut();
+    for action in events.read() {
+        match action {
+            NodeAction::Edit(name) => {
+                if let Some(node) = data.nodes.iter().find(|n| n.name == *name) {
+                    state.edit = Some(EditData {
+                        name: node.name.clone(),
+                        description: node.description.clone().unwrap_or_default(),
+                        story: node.story.clone().unwrap_or_default(),
+                        calls: node.calls.clone().unwrap_or_default().join(", "),
+                        used_by: node.used_by.clone().unwrap_or_default().join(", "),
+                    });
+                }
+            }
+            NodeAction::Simulate(name) => {
+                if let Some(yaml) = subgraph_yaml(&data, &name) {
+                    if let Ok(text) = api::simulate_flow(&yaml) {
+                        state.popup = Some(text);
+                    }
+                }
+            }
+            NodeAction::Generate(name) => {
+                if let Ok(yaml) = api::generate_component(&name) {
+                    state.popup = Some(yaml);
+                }
+            }
+            NodeAction::Validate(name) => {
+                if let Some(yaml) = subgraph_yaml(&data, &name) {
+                    if let Ok(ok) = api::validate_yaml(&yaml) {
+                        state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
+                    }
+                }
+            }
+            NodeAction::CallRest(name) => {
+                if let Ok(text) = api::call_iot_http(&format!("/iot/{}", name)) {
+                    state.popup = Some(text);
+                }
+            }
+            NodeAction::PublishMqtt(name) => {
+                let _ = api::publish_mqtt(&format!("iot/{}", name), "ping");
+            }
+        }
+    }
+
+    if let Some(text_val) = state.popup.clone() {
+        let mut close = false;
+        egui::Window::new("Result").show(ctx, |ui| {
+            ui.label(text_val.as_str());
+            if ui.button("Close").clicked() {
+                close = true;
+            }
+        });
+        if close {
+            state.popup = None;
+        }
+    }
+    if let Some(mut edit_data) = state.edit.take() {
+        let mut close = false;
+        egui::Window::new(format!("Edit {}", edit_data.name))
+            .collapsible(false)
+            .show(ctx, |ui| {
+                ui.label("Description");
+                ui.text_edit_singleline(&mut edit_data.description);
+                ui.label("Story");
+                ui.text_edit_multiline(&mut edit_data.story);
+                ui.label("Calls (comma separated)");
+                ui.text_edit_singleline(&mut edit_data.calls);
+                ui.label("Used by (comma separated)");
+                ui.text_edit_singleline(&mut edit_data.used_by);
+                ui.horizontal(|ui| {
+                    if ui.button("Save").clicked() {
+                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit_data.name) {
+                            let desc = if edit_data.description.trim().is_empty() {
+                                None
+                            } else {
+                                Some(edit_data.description.clone())
+                            };
+                            let story = if edit_data.story.trim().is_empty() {
+                                None
+                            } else {
+                                Some(edit_data.story.clone())
+                            };
+                            let update = NodeUpdate {
+                                name: node.name.clone(),
+                                description: desc.clone(),
+                                story: story.clone(),
+                                calls: if edit_data.calls.trim().is_empty() {
+                                    None
+                                } else {
+                                    Some(
+                                        edit_data
+                                            .calls
+                                            .split(',')
+                                            .map(|s| s.trim().to_string())
+                                            .collect(),
+                                    )
+                                },
+                                used_by: if edit_data.used_by.trim().is_empty() {
+                                    None
+                                } else {
+                                    Some(
+                                        edit_data
+                                            .used_by
+                                            .split(',')
+                                            .map(|s| s.trim().to_string())
+                                            .collect(),
+                                    )
+                                },
+                            };
+                            let name = update.name.clone();
+                            let desc_clone = update.description.clone();
+                            let story_clone = update.story.clone();
+                            let handle = runtime.spawn_background_task(move |_| async move {
+                                api::store_node_info(&name, desc_clone.as_deref(), story_clone.as_deref()).await
+                            });
+                            node_task.0 = Some((update, handle));
+                        }
+                        close = true;
+                    }
+                    if ui.button("Cancel").clicked() {
+                        close = true;
+                    }
+                });
+            });
+        if !close {
+            state.edit = Some(edit_data);
+        }
+    }
 }
