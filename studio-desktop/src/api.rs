@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Event, Clone)]
 pub struct LogEvent(pub String);
 
-pub fn push_log<S: Into<String>>(writer: &mut EventWriter<LogEvent>, msg: S) {
+pub fn push_log<S: Into<String>>(writer: &mut EventWriter<'_, LogEvent>, msg: S) {
     writer.send(LogEvent(msg.into()));
 }
 
-fn log(writer: &mut EventWriter<LogEvent>, msg: String) {
+fn log(writer: &mut EventWriter<'_, LogEvent>, msg: String) {
     writer.send(LogEvent(msg));
 }
 
