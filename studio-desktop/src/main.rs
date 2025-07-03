@@ -6,6 +6,7 @@ mod python;
 mod runtime;
 
 mod ui;
+mod app_state;
 
 use std::io::{BufRead, BufReader};
 use std::sync::mpsc;
