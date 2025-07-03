@@ -1,13 +1,23 @@
 from fastapi import APIRouter
 from fastapi.concurrency import run_in_threadpool
-from .schemas import (
-    PromptRequest,
-    YamlRequest,
-    ChatRequest,
-    ChatResponse,
-    FillRequest,
-    NodeInfoRequest,
-)
+try:  # Support execution as a script without package context
+    from .schemas import (
+        PromptRequest,
+        YamlRequest,
+        ChatRequest,
+        ChatResponse,
+        FillRequest,
+        NodeInfoRequest,
+    )
+except ImportError:  # pragma: no cover - fallback when run as a script
+    from schemas import (
+        PromptRequest,
+        YamlRequest,
+        ChatRequest,
+        ChatResponse,
+        FillRequest,
+        NodeInfoRequest,
+    )
 from pydantic import BaseModel
 import subprocess
 from pathlib import Path
@@ -19,7 +29,10 @@ from agents.usecase_designer import design_usecase
 from agents.filler import fill_code, store_details
 from services.chat_agent import ChatAgent
 from agents.coordinator import Coordinator
-from .toolset import Toolset
+try:  # Support execution as a script without package context
+    from .toolset import Toolset
+except ImportError:  # pragma: no cover - fallback when run as a script
+    from toolset import Toolset
 
 router = APIRouter()
 agent = ChatAgent()
