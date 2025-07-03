@@ -554,6 +554,8 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-19
 - Added Leptos route generation via `leptos_routegen`.
+### Session 2025-08-20
+- Added Leptos page generation via `leptos_pagegen`.
 
 ### Session 2025-08-20
 - Switched Leptos templates to cargo-leptos starter workspace.
@@ -570,3 +572,4 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-23
 - Added tests for LeptosPlugin verifying DSL extension and template copying.
+- Documented CSR vs SSR setups in docs/leptos.md and explained enabling SSR with `leptos_axum`.
