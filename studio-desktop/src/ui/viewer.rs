@@ -2,6 +2,7 @@ use super::{
     node_factory::BoxedFactory, node_factory::NodeFactory, AiTask, BuildTask, EditData, Icons,
     LogBuffer, NodeInfoTask, NodeUpdate, UiState,
 };
+use super::palette::{self, NodeTemplates};
 use crate::api;
 use crate::app_state::AppState;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
@@ -459,6 +460,7 @@ pub fn draw_graph(
             &runtime,
             &mut node_task,
         );
+        palette::handle_drop(ctx, rect, &viewport, &mut state, &mut data, &mut node_positions);
     });
     show_popup(ctx, &mut state);
     show_edit_window(ctx, &mut data, &mut state, &runtime, &mut node_task);
@@ -570,6 +572,7 @@ impl Plugin for ViewerPlugin {
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
             .init_resource::<TourState>()
+            .init_resource::<NodeTemplates>()
             .init_resource::<node_factory::BoxedFactory>()
             .init_resource::<BuildTask>()
             .insert_resource(AsyncRuntime::default())
@@ -584,6 +587,7 @@ impl Plugin for ViewerPlugin {
                 (
                     handle_interaction,
                     draw_graph,
+                    palette::node_palette,
                     update_side_panel,
                     update_build_task,
                     super::log_panel,
