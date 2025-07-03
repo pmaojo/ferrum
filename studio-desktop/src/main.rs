@@ -3,11 +3,11 @@ mod app;
 mod graph;
 mod layout;
 mod python;
-mod runtime;
+
 mod ui;
 
 use std::io::{BufRead, BufReader};
-use std::sync::{mpsc, Arc};
+use std::sync::mpsc;
 
 fn main() {
     let (tx, rx) = mpsc::channel::<String>();
@@ -34,7 +34,6 @@ fn main() {
         });
     }
     api::set_log_sender(tx.clone());
-    let rt = Arc::new(tokio::runtime::Runtime::new().expect("rt"));
-    app::run_app(rx, runtime::AsyncRuntime(rt.clone()));
+    app::run_app(rx);
     let _ = child.kill();
 }

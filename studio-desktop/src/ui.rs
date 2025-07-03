@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use egui_extras::RetainedImage;
 use std::collections::VecDeque;
-use std::sync::{Arc, Mutex};
+use bevy_tokio_tasks::tokio::task::JoinHandle;
 
 pub mod viewer;
 
@@ -58,7 +58,7 @@ pub struct EditData {
 }
 
 #[derive(Resource, Default)]
-pub struct AiTask(pub Option<(Arc<Mutex<std::sync::mpsc::Receiver<reqwest::Result<String>>>>,)>);
+pub struct AiTask(pub Option<JoinHandle<reqwest::Result<String>>>);
 
 pub struct NodeUpdate {
     pub name: String,
@@ -69,7 +69,7 @@ pub struct NodeUpdate {
 }
 
 #[derive(Resource, Default)]
-pub struct NodeInfoTask(pub Option<(NodeUpdate, Arc<Mutex<std::sync::mpsc::Receiver<reqwest::Result<()>>>>)>);
+pub struct NodeInfoTask(pub Option<(NodeUpdate, JoinHandle<reqwest::Result<()>>)>);
 
 
 pub fn log_panel(mut contexts: EguiContexts, logs: Res<LogBuffer>) {
