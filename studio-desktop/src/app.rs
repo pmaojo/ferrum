@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiPlugin};
+use bevy_egui::EguiPlugin;
 
-use crate::api;
 use crate::graph;
 use crate::runtime::AsyncRuntime;
 use crate::ui;
@@ -30,7 +29,13 @@ pub fn run_app(log_rx: Receiver<String>, runtime: AsyncRuntime) {
         .add_systems(Startup, graph::load_graph)
         .add_systems(
             Update,
-            (graph::update_graph_task, ui::graph_viewer, ui::log_panel),
+            (
+                graph::update_graph_task,
+                ui::viewer::handle_interaction,
+                ui::viewer::draw_graph,
+                ui::viewer::update_side_panel,
+                ui::log_panel,
+            ),
         )
         .run();
 }
