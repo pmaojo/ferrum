@@ -13,10 +13,15 @@ pub struct Icons {
 
 impl Default for Icons {
     fn default() -> Self {
-        Self {
-            iot: RetainedImage::from_svg_bytes("iot", include_bytes!("../assets/iot.svg"))
-                .expect("invalid iot.svg"),
-        }
+        let iot = match RetainedImage::from_svg_bytes("iot", include_bytes!("../assets/iot.svg")) {
+            Ok(img) => img,
+            Err(err) => {
+                eprintln!("invalid iot.svg: {err}");
+                let placeholder = egui::ColorImage::new([1, 1], egui::Color32::WHITE);
+                RetainedImage::from_color_image("iot", placeholder)
+            }
+        };
+        Self { iot }
     }
 }
 

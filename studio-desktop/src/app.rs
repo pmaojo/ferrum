@@ -46,7 +46,10 @@ pub fn run_app(log_rx: Receiver<String>) {
 }
 
 fn collect_logs(rx: Res<LogReceiver>, mut writer: EventWriter<LogEvent>) {
-    let mut guard = rx.0.lock().unwrap();
+    let Ok(mut guard) = rx.0.lock() else {
+        eprintln!("failed to lock log receiver");
+        return;
+    };
     while let Ok(line) = guard.try_recv() {
         writer.send(LogEvent(line));
     }
