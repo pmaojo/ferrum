@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{mpsc::Receiver, Arc, Mutex};
 
+use crate::layout::LayoutEngine;
 use crate::runtime::AsyncRuntime;
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -64,10 +65,17 @@ pub fn load_graph(
     rt: Res<AsyncRuntime>,
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
+    data: Res<GraphData>,
+    mut pos: ResMut<NodePositions>,
 ) {
     let rx = spawn_graph_request(&rt, state.query.clone());
     task.0 = Some((rx,));
     state.loading = true;
+
+    if !data.nodes.is_empty() {
+        let names: Vec<String> = data.nodes.iter().map(|n| n.name.clone()).collect();
+        pos.0 = LayoutEngine::circular_layout(&names, 200.0);
+    }
 }
 
 pub fn update_graph_task(
@@ -86,16 +94,8 @@ pub fn update_graph_task(
         task.0 = None;
         if let Ok(g) = res {
             if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
-                pos.0.clear();
-                let n = nodes.len().max(1) as f32;
-                let radius = 200.0;
-                for (i, node) in nodes.iter().enumerate() {
-                    let angle = i as f32 * std::f32::consts::TAU / n;
-                    pos.0.insert(
-                        node.name.clone(),
-                        Vec2::new(angle.cos() * radius, angle.sin() * radius),
-                    );
-                }
+                let names: Vec<String> = nodes.iter().map(|n| n.name.clone()).collect();
+                pos.0 = LayoutEngine::circular_layout(&names, 200.0);
                 data.nodes = nodes;
             }
         }
