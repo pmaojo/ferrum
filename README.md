@@ -9,11 +9,10 @@ It follows **Hexagonal Architecture** and **SOLID principles** to produce clean,
 
 ### 🛠 Installation
 
-Ferrum requires the nightly Rust toolchain. Install it and set the override:
+Ferrum builds with the stable Rust toolchain. Install it with:
 
 ```bash
-rustup toolchain install nightly
-rustup override set nightly
+rustup toolchain install stable
 cargo install --path .
 cargo install typeshare-cli
 ```
