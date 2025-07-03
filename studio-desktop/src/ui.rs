@@ -60,7 +60,7 @@ pub struct EditData {
 }
 
 #[derive(Resource, Default)]
-pub struct AiTask(pub Option<std::sync::mpsc::Receiver<reqwest::Result<String>>>);
+pub struct AiTask(pub Option<(std::sync::mpsc::Receiver<reqwest::Result<String>>,)>);
 
 pub struct NodeUpdate {
     pub name: String,
@@ -111,7 +111,7 @@ pub fn graph_viewer(
 ) {
     let ctx = contexts.ctx_mut();
     if let Some(rx) = &ai_task.0 {
-        if let Ok(res) = rx.try_recv() {
+        if let Ok(res) = rx.0.try_recv() {
             ai_task.0 = None;
             if let Ok(text) = res {
                 state.ai_reply = Some(text);
@@ -278,7 +278,7 @@ pub fn graph_viewer(
         ui.text_edit_singleline(&mut state.query);
         if ui.button("Regenerate").clicked() {
             let rx = crate::graph::spawn_graph_request(&runtime, state.query.clone());
-            graph_task.0 = Some(rx);
+            graph_task.0 = Some((rx,));
             state.selected = None;
             state.loading = true;
         }
@@ -346,7 +346,7 @@ pub fn graph_viewer(
                         let res = rt.block_on(api::ask_ai_team(&question));
                         let _ = tx.send(res);
                     });
-                    ai_task.0 = Some(rx);
+                    ai_task.0 = Some((rx,));
                 }
                 if let Some(reply) = &state.ai_reply {
                     ui.separator();
