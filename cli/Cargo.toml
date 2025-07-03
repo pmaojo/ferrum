@@ -29,3 +29,7 @@ glob = "0.3"
 atty = "0.2"
 webbrowser = "0.8"
 ferrum-shared-models = { path = "../shared-models" }
+
+[dev-dependencies]
+mockito = "1"
+tempfile = "3"
