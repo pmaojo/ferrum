@@ -9,9 +9,15 @@ mod ui;
 use std::io::{BufRead, BufReader};
 use std::sync::mpsc;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let (tx, rx) = mpsc::channel::<String>();
-    let mut child = python::start_python_service().expect("failed to start python service");
+    let mut child = match python::start_python_service() {
+        Ok(child) => child,
+        Err(e) => {
+            eprintln!("failed to start python service: {e}");
+            return Err(e);
+        }
+    };
 
     if let Some(out) = child.stdout.take() {
         let tx_clone = tx.clone();
@@ -36,4 +42,5 @@ fn main() {
     api::set_log_sender(tx.clone());
     app::run_app(rx);
     let _ = child.kill();
+    Ok(())
 }
