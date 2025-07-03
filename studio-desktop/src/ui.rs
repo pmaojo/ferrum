@@ -357,7 +357,7 @@ pub fn graph_viewer(
     });
     if let Some(text) = &mut state.popup {
         egui::Window::new("Result").show(ctx, |ui| {
-            ui.label(text);
+            ui.label(text.as_str());
             if ui.button("Close").clicked() {
                 state.popup = None;
             }
