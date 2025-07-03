@@ -571,4 +571,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Removed binary favicon files from Leptos templates to avoid git errors.
 
 ### Session 2025-08-23
+- Added tests for LeptosPlugin verifying DSL extension and template copying.
 - Documented CSR vs SSR setups in docs/leptos.md and explained enabling SSR with `leptos_axum`.
