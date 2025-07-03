@@ -76,24 +76,27 @@ pub fn update_graph_task(
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
 ) {
-    if let Some(rx) = &task.0 {
-        if let Ok(res) = rx.0.lock().unwrap().try_recv() {
-            state.loading = false;
-            task.0 = None;
-            if let Ok(g) = res {
-                if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
-                    pos.0.clear();
-                    let n = nodes.len().max(1) as f32;
-                    let radius = 200.0;
-                    for (i, node) in nodes.iter().enumerate() {
-                        let angle = i as f32 * std::f32::consts::TAU / n;
-                        pos.0.insert(
-                            node.name.clone(),
-                            Vec2::new(angle.cos() * radius, angle.sin() * radius),
-                        );
-                    }
-                    data.nodes = nodes;
+    let maybe_res = task
+        .0
+        .as_ref()
+        .and_then(|rx| rx.0.lock().unwrap().try_recv().ok());
+
+    if let Some(res) = maybe_res {
+        state.loading = false;
+        task.0 = None;
+        if let Ok(g) = res {
+            if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
+                pos.0.clear();
+                let n = nodes.len().max(1) as f32;
+                let radius = 200.0;
+                for (i, node) in nodes.iter().enumerate() {
+                    let angle = i as f32 * std::f32::consts::TAU / n;
+                    pos.0.insert(
+                        node.name.clone(),
+                        Vec2::new(angle.cos() * radius, angle.sin() * radius),
+                    );
                 }
+                data.nodes = nodes;
             }
         }
     }
