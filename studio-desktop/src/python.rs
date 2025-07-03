@@ -28,7 +28,7 @@ pub fn start_python_service() -> std::io::Result<Child> {
     match cmd.spawn() {
         Ok(child) => Ok(child),
         Err(e) => {
-            api::push_log(format!("[PY] failed to launch: {e}"));
+            eprintln!("[PY] failed to launch: {e}");
             Err(e)
         }
     }

@@ -1,10 +1,10 @@
+use super::{AiTask, BuildTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState};
 use crate::api;
 use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
+use bevy::prelude::*;
+use bevy_egui::{EguiContexts, egui};
 use bevy_tokio_tasks::TokioTasksRuntime as AsyncRuntime;
 use bevy_tokio_tasks::tokio::task::JoinHandle;
-use super::{AiTask, EditData, Icons, NodeInfoTask, NodeUpdate, UiState};
-use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
 use serde_yaml;
 use std::collections::HashSet;
 use webbrowser;
@@ -135,8 +135,8 @@ pub fn draw_graph(
             }
         }
         for node in &data.nodes {
-            let pos_vec =
-                center + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
+            let pos_vec = center
+                + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
             let pos = egui::pos2(pos_vec.x, pos_vec.y);
             let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
             let resp = ui.allocate_rect(rect, egui::Sense::click_and_drag());
@@ -154,7 +154,8 @@ pub fn draw_graph(
             if node.node_type.as_deref() == Some("iot") {
                 let size = icons.iot.size_vec2() * 0.5;
                 let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                egui::Image::from_texture((icons.iot.texture_id(ui.ctx()), size)).paint_at(ui, icon_rect);
+                egui::Image::from_texture((icons.iot.texture_id(ui.ctx()), size))
+                    .paint_at(ui, icon_rect);
             }
             painter.text(
                 pos,
@@ -203,7 +204,11 @@ pub fn draw_graph(
                 if ui.button("Validate").clicked() {
                     if let Some(yaml) = subgraph_yaml(&data, &node.name) {
                         if let Ok(ok) = api::validate_yaml(&yaml) {
-                            state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
+                            state.popup = Some(if ok {
+                                "YAML válido".into()
+                            } else {
+                                "YAML inválido".into()
+                            });
                         }
                     }
                 }
@@ -289,7 +294,12 @@ pub fn draw_graph(
                             let desc_clone = update.description.clone();
                             let story_clone = update.story.clone();
                             let handle = runtime.spawn_background_task(move |_| async move {
-                                api::store_node_info(&name, desc_clone.as_deref(), story_clone.as_deref()).await
+                                api::store_node_info(
+                                    &name,
+                                    desc_clone.as_deref(),
+                                    story_clone.as_deref(),
+                                )
+                                .await
                             });
                             node_task.0 = Some((update, handle));
                         }
@@ -315,6 +325,8 @@ pub fn update_side_panel(
     runtime: Res<AsyncRuntime>,
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
+    mut log_writer: EventWriter<crate::api::LogEvent>,
+    mut build_task: ResMut<BuildTask>,
 ) {
     let ctx = contexts.ctx_mut();
     egui::SidePanel::right("side_panel").show(ctx, |ui| {
@@ -328,43 +340,24 @@ pub fn update_side_panel(
             state.loading = true;
         }
         if ui.button("Compile").clicked() {
-            runtime.spawn_background_task(|_| async move {
-                if let Ok((ok, logs)) = api::compile_project("grafo.yaml").await {
-                    for line in logs.lines() {
-                        api::push_log(format!("[BUILD] {}", line));
-                    }
-                    if ok {
-                        let _ = webbrowser::open("gen/frontend/index.html");
-                    }
-                }
-            });
+            let handle = runtime
+                .spawn_background_task(|_| async move { api::compile_project("grafo.yaml").await });
+            build_task.0 = Some(handle);
         }
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
-                runtime.spawn_background_task(move |_| async move {
-                    if let Ok((ok, logs)) = api::compile_module(&n, "grafo.yaml").await {
-                        for line in logs.lines() {
-                            api::push_log(format!("[BUILD] {}", line));
-                        }
-                        if ok {
-                            let _ = webbrowser::open("gen/frontend/index.html");
-                        }
-                    }
+                let handle = runtime.spawn_background_task(move |_| async move {
+                    api::compile_module(&n, "grafo.yaml").await
                 });
+                build_task.0 = Some(handle);
             }
             if ui.button("Compile Subgraph").clicked() {
                 if let Some(yaml) = subgraph_yaml(&data, name) {
-                    runtime.spawn_background_task(move |_| async move {
-                        if let Ok((ok, logs)) = api::compile_graph(&yaml).await {
-                            for line in logs.lines() {
-                                api::push_log(format!("[BUILD] {}", line));
-                            }
-                            if ok {
-                                let _ = webbrowser::open("gen/frontend/index.html");
-                            }
-                        }
+                    let handle = runtime.spawn_background_task(move |_| async move {
+                        api::compile_graph(&yaml).await
                     });
+                    build_task.0 = Some(handle);
                 }
             }
         }
@@ -394,4 +387,23 @@ pub fn update_side_panel(
             }
         }
     });
+}
+
+pub fn update_build_task(
+    mut task: ResMut<BuildTask>,
+    mut writer: EventWriter<crate::api::LogEvent>,
+) {
+    if let Some(handle) = task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            task.0 = None;
+            if let Ok((ok, logs)) = res {
+                for line in logs.lines() {
+                    writer.send(crate::api::LogEvent(format!("[BUILD] {}", line)));
+                }
+                if ok {
+                    let _ = webbrowser::open("gen/frontend/index.html");
+                }
+            }
+        }
+    }
 }

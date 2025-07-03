@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{EguiContexts, egui};
+use bevy_tokio_tasks::tokio::task::JoinHandle;
 use egui_extras::RetainedImage;
 use std::collections::VecDeque;
-use bevy_tokio_tasks::tokio::task::JoinHandle;
 
 pub mod viewer;
 
@@ -71,8 +71,21 @@ pub struct NodeUpdate {
 #[derive(Resource, Default)]
 pub struct NodeInfoTask(pub Option<(NodeUpdate, JoinHandle<reqwest::Result<()>>)>);
 
+#[derive(Resource, Default)]
+pub struct BuildTask(pub Option<JoinHandle<reqwest::Result<(bool, String)>>>);
 
-pub fn log_panel(mut contexts: EguiContexts, logs: Res<LogBuffer>) {
+pub fn log_panel(
+    mut contexts: EguiContexts,
+    mut events: EventReader<crate::api::LogEvent>,
+    mut logs: ResMut<LogBuffer>,
+) {
+    for ev in events.read() {
+        logs.0.push_back(ev.0.clone());
+        if logs.0.len() > 200 {
+            logs.0.pop_front();
+        }
+    }
+
     let ctx = contexts.ctx_mut();
     egui::TopBottomPanel::bottom("logs")
         .default_height(150.0)
