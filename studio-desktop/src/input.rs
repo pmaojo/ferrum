@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 #[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect, FromReflect)]
-#[reflect(from_reflect = false)]
 pub enum Action {
     #[actionlike(Button)]
     Pan,
