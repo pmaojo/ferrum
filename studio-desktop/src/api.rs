@@ -130,6 +130,7 @@ struct ValidateResponse {
 }
 
 pub fn simulate_flow(yaml: &str) -> reqwest::Result<String> {
+    log(format!("[API] POST /simulate/flow {yaml}"));
     let client = reqwest::blocking::Client::new();
     let res = client
         .post("http://localhost:8001/simulate/flow")
@@ -162,7 +163,9 @@ pub fn validate_yaml(yaml: &str) -> reqwest::Result<bool> {
 pub fn call_iot_http(path: &str) -> reqwest::Result<String> {
     push_log(format!("[HTTP] POST {}", path));
     let client = reqwest::blocking::Client::new();
-    let res = client.post(&format!("http://localhost:8000{}", path)).send()?;
+    let res = client
+        .post(&format!("http://localhost:8000{}", path))
+        .send()?;
     Ok(res.text()?)
 }
 
