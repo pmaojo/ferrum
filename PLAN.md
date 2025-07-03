@@ -554,3 +554,5 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 
 ### Session 2025-08-19
 - Added Leptos route generation via `leptos_routegen`.
+### Session 2025-08-20
+- Added Leptos page generation via `leptos_pagegen`.

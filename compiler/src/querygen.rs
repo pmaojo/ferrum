@@ -74,6 +74,7 @@ pub fn compile_dsl(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     crate::routegen::generate_routes(dsl, paths)?;
     if paths.root.join("frontend_leptos").exists() {
         crate::leptos_routegen::generate_leptos_routes(dsl, paths)?;
+        crate::leptos_pagegen::generate_leptos_pages(dsl, paths)?;
     }
     // Authentication
     crate::authgen::generate_auth(dsl, paths)?;
