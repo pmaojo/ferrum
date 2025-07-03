@@ -1747,6 +1747,7 @@ fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                 "cms-sanity" => manager.register(ferrum_engine::plugins::CmsSanityPlugin),
                 "cms-notion" => manager.register(ferrum_engine::plugins::CmsNotionPlugin),
                 "realtime-sse" => manager.register(ferrum_engine::plugins::RealtimeSsePlugin),
+                "leptos" => manager.register(ferrum_engine::plugins::LeptosPlugin),
                 other => {
                     let path = PathBuf::from(other);
                     if path.exists() {

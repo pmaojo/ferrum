@@ -11,6 +11,7 @@ pub mod graphql;
 pub mod metadata;
 pub mod realtime_sse;
 pub mod stripe;
+pub mod leptos;
 
 /// Trait implemented by all Ferrum plugins.
 ///
@@ -89,3 +90,4 @@ pub use graphql::GraphQLPlugin;
 pub use metadata::PluginMetadata;
 pub use realtime_sse::RealtimeSsePlugin;
 pub use stripe::StripePlugin;
+pub use leptos::LeptosPlugin;

@@ -542,5 +542,7 @@ Construir el *framework del futuro*, donde el grafo semántico + IA generen sist
 - Added Leptos frontend option with Trunk support and docs.
 
 ### Session 2025-08-18
+- Added Leptos plugin and templates.
 - Standardized Ferrum naming across README, docs, tests and configs.
 - Updated plugin template metadata to use the Ferrum prefix.
+
