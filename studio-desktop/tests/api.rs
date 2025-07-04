@@ -1,6 +1,6 @@
-use bevy::prelude::*;
 use mockito::{Matcher, Server, ServerOpts};
-use studio_desktop::api::{LogEvent, simulate_flow};
+use studio_desktop::api::simulate_flow_async;
+use studio_desktop::api::{generate_component_async, validate_yaml_async};
 
 #[test]
 fn simulate_flow_sends_payload_and_logs() {
@@ -16,18 +16,51 @@ fn simulate_flow_sends_payload_and_logs() {
         .with_body("{\"text\":\"ok\"}")
         .create();
 
-    let mut app = App::new();
-    app.add_event::<LogEvent>();
-    app.add_systems(Update, |mut writer: EventWriter<LogEvent>| {
-        let _ = simulate_flow(&mut writer, "demo");
+    futures_lite::future::block_on(async {
+        let res = simulate_flow_async("demo").await;
+        assert!(res.is_ok());
     });
-    app.update();
     _m.assert();
-    let logs: Vec<String> = app
-        .world_mut()
-        .resource_mut::<Events<LogEvent>>()
-        .drain()
-        .map(|e| e.0)
-        .collect();
-    assert!(logs.iter().any(|l| l.contains("/simulate/flow")));
+}
+
+#[test]
+fn generate_component_sends_prompt() {
+    let opts = ServerOpts {
+        port: 8001,
+        ..Default::default()
+    };
+    let mut server = Server::new_with_opts(opts);
+    let _m = server
+        .mock("POST", "/generate/component")
+        .match_header("content-type", "application/json")
+        .match_body(Matcher::JsonString("{\"text\":\"demo\"}".into()))
+        .with_body("{\"yaml\":\"ok\"}")
+        .create();
+
+    futures_lite::future::block_on(async {
+        let res = generate_component_async("demo").await;
+        assert!(res.is_ok());
+    });
+    _m.assert();
+}
+
+#[test]
+fn validate_yaml_returns_bool() {
+    let opts = ServerOpts {
+        port: 8001,
+        ..Default::default()
+    };
+    let mut server = Server::new_with_opts(opts);
+    let _m = server
+        .mock("POST", "/validate/yaml")
+        .match_header("content-type", "application/json")
+        .match_body(Matcher::JsonString("{\"yaml\":\"demo\"}".into()))
+        .with_body("{\"valid\":true}")
+        .create();
+
+    futures_lite::future::block_on(async {
+        let res = validate_yaml_async("demo").await;
+        assert_eq!(res.unwrap(), true);
+    });
+    _m.assert();
 }

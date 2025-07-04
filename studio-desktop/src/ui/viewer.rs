@@ -1,6 +1,6 @@
 use super::{
     node_factory::BoxedFactory, node_factory::NodeFactory, AiTask, BuildTask, EditData, Icons,
-    LogBuffer, NodeInfoTask, NodeUpdate, UiState,
+    LogBuffer, NodeInfoTask, NodeUpdate, UiState, PopupTask, ValidateTask,
 };
 use super::palette::{self, NodeTemplates};
 use crate::api;
@@ -212,6 +212,28 @@ fn poll_node_task(node_task: &mut NodeInfoTask, data: &mut GraphData) {
     }
 }
 
+fn poll_popup_task(task: &mut PopupTask, state: &mut UiState) {
+    if let Some(handle) = task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            task.0 = None;
+            if let Ok(Ok(text)) = res {
+                state.popup = Some(text);
+            }
+        }
+    }
+}
+
+fn poll_validate_task(task: &mut ValidateTask, state: &mut UiState) {
+    if let Some(handle) = task.0.as_mut() {
+        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+            task.0 = None;
+            if let Ok(Ok(ok)) = res {
+                state.popup = Some(if ok { "YAML válido".into() } else { "YAML inválido".into() });
+            }
+        }
+    }
+}
+
 fn draw_edges(
     painter: &egui::Painter,
     nodes: &[GraphNode],
@@ -258,6 +280,8 @@ fn draw_nodes(
     mut log_writer: &mut EventWriter<crate::api::LogEvent>,
     runtime: &TokioTasksRuntime,
     node_task: &mut NodeInfoTask,
+    popup_task: &mut PopupTask,
+    validate_task: &mut ValidateTask,
 ) {
     for node in &data.nodes {
         let pos_vec = center
@@ -295,38 +319,32 @@ fn draw_nodes(
             }
             if ui.button("Simulate").clicked() {
                 if let Some(yaml) = subgraph_yaml(data, &node.id) {
-                    if let Ok(text) = api::simulate_flow(&mut log_writer, &yaml) {
-                        state.popup = Some(text);
-                    }
+                    popup_task.0 = Some(api::simulate_flow(&mut log_writer, runtime, &yaml));
                 }
             }
             if ui.button("Generate").clicked() {
-                if let Ok(yaml) = api::generate_component(&mut log_writer, &node.id) {
-                    state.popup = Some(yaml);
-                }
+                popup_task.0 = Some(api::generate_component(&mut log_writer, runtime, &node.id));
             }
             if ui.button("Validate").clicked() {
                 if let Some(yaml) = subgraph_yaml(data, &node.id) {
-                    if let Ok(ok) = api::validate_yaml(&mut log_writer, &yaml) {
-                        state.popup = Some(if ok {
-                            "YAML válido".into()
-                        } else {
-                            "YAML inválido".into()
-                        });
-                    }
+                    validate_task.0 = Some(api::validate_yaml(&mut log_writer, runtime, &yaml));
                 }
             }
             if node.node_type == NodeType::Iot {
                 if ui.button("Call REST").clicked() {
-                    if let Ok(text) =
-                        api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.id))
-                    {
-                        state.popup = Some(text);
-                    }
+                    popup_task.0 = Some(api::call_iot_http(
+                        &mut log_writer,
+                        runtime,
+                        &format!("/iot/{}", node.id),
+                    ));
                 }
                 if ui.button("Publish MQTT").clicked() {
-                    let _ =
-                        api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.id), "ping");
+                    let _ = api::publish_mqtt(
+                        &mut log_writer,
+                        runtime,
+                        &format!("iot/{}", node.id),
+                        "ping",
+                    );
                 }
             }
         });
@@ -434,6 +452,8 @@ pub fn draw_graph(
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
     mut node_task: ResMut<NodeInfoTask>,
+    mut popup_task: ResMut<PopupTask>,
+    mut validate_task: ResMut<ValidateTask>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
     factory: Res<BoxedFactory>,
     icons: Option<Res<Icons>>,
@@ -443,6 +463,8 @@ pub fn draw_graph(
     if let Ok(ctx) = contexts.ctx_mut() {
         poll_ai_task(&mut ai_task, &mut state);
         poll_node_task(&mut node_task, &mut data);
+        poll_popup_task(&mut popup_task, &mut state);
+        poll_validate_task(&mut validate_task, &mut state);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Graph View");
             let rect = ui.max_rect();
@@ -463,6 +485,8 @@ pub fn draw_graph(
             &mut log_writer,
             &runtime,
             &mut node_task,
+            &mut popup_task,
+            &mut validate_task,
         );
             palette::handle_drop(ctx, rect, &viewport, &mut state, &mut data, &mut node_positions);
         });
@@ -596,6 +620,8 @@ impl Plugin for ViewerPlugin {
             .init_resource::<NodeTemplates>()
             .init_resource::<BoxedFactory>()
             .init_resource::<BuildTask>()
+            .init_resource::<PopupTask>()
+            .init_resource::<ValidateTask>()
             .add_plugins(crate::runtime::runtime_plugin())
             .insert_resource(AiTask::default())
             .insert_resource(NodeInfoTask::default())
