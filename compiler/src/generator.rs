@@ -3,6 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tera::{Context as TeraContext, Tera};
 
+use crate::template_context::*;
 use ferrum_shared_models::{Module, Node, NodeType};
 
 /// Code generator that materializes a graph of nodes into Rust and
@@ -70,13 +71,6 @@ impl Generator {
     }
 
     fn generate_usecase(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        // Add module name directly to context for templates
-        context.insert("module_name", &module.name);
-
-        // Collect validations for this usecase
         let mut field_validations: Vec<FieldValidation> = Vec::new();
         if let Some(vmod) = self.modules.iter().find(|m| m.name == "validations") {
             for val in &vmod.nodes {
@@ -93,9 +87,19 @@ impl Generator {
                 }
             }
         }
-        if !field_validations.is_empty() {
-            context.insert("field_validations", &field_validations);
-        }
+        let ctx = UsecaseContext {
+            module,
+            node,
+            module_name: &module.name,
+            field_validations: if field_validations.is_empty() {
+                None
+            } else {
+                Some(field_validations)
+            },
+        };
+
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize usecase context")?;
 
         // Generate handler
         let handler_content = self
@@ -145,10 +149,13 @@ impl Generator {
     }
 
     fn generate_adapter(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = AdapterContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize adapter context")?;
 
         let adapter_content = self
             .templates
@@ -164,10 +171,13 @@ impl Generator {
     }
 
     fn generate_port(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = PortContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize port context")?;
 
         let port_content = self
             .templates
@@ -194,10 +204,13 @@ impl Generator {
     }
 
     fn generate_entity(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = EntityContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize entity context")?;
 
         // Generate Rust model
         let model_content = self
@@ -262,12 +275,6 @@ impl Generator {
         }
 
         // Prepare field metadata for templates
-        #[derive(serde::Serialize)]
-        struct DieselField {
-            name: String,
-            rust_type: String,
-            sql_type: String,
-        }
         let fields: Vec<DieselField> = node
             .input
             .iter()
@@ -290,10 +297,13 @@ impl Generator {
             })
             .collect();
 
-        let mut diesel_ctx = TeraContext::new();
-        diesel_ctx.insert("table_name", &node.id.to_lowercase());
-        diesel_ctx.insert("struct_name", &capitalize(&node.id));
-        diesel_ctx.insert("fields", &fields);
+        let diesel_ctx = DieselContext {
+            table_name: node.id.to_lowercase(),
+            struct_name: capitalize(&node.id),
+            fields,
+        };
+        let diesel_ctx = TeraContext::from_serialize(&diesel_ctx)
+            .context("Failed to serialize Diesel context")?;
 
         let model_snippet = self
             .templates
@@ -329,10 +339,13 @@ impl Generator {
     }
 
     fn generate_component(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = ComponentContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize component context")?;
 
         let frontend_leptos = self.output_dir.join("frontend_leptos").exists();
         if frontend_leptos {
@@ -359,10 +372,13 @@ impl Generator {
     }
 
     fn generate_hook(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = HookContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize hook context")?;
 
         let hook_content = self
             .templates
@@ -376,10 +392,13 @@ impl Generator {
     }
 
     fn generate_schema(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        context.insert("module_name", &module.name);
+        let ctx = SchemaContext {
+            module,
+            node,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize schema context")?;
 
         let schema_content = self
             .templates
@@ -393,9 +412,9 @@ impl Generator {
     }
 
     fn generate_form(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
+        let ctx = FormContext { module, node };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize form context")?;
 
         let form_content = self
             .templates
@@ -409,25 +428,25 @@ impl Generator {
     }
 
     fn generate_validation(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
-        if let Some(rule) = &node.story {
-            let parsed = parse_validation_rule(rule);
-            context.insert("rule", &parsed);
+        let rule = if let Some(rule) = &node.story {
+            parse_validation_rule(rule)
         } else {
-            context.insert(
-                "rule",
-                &ParsedRule {
-                    kind: "Custom".into(),
-                    pattern: None,
-                    min: None,
-                    max: None,
-                },
-            );
-        }
+            ParsedRule {
+                kind: "Custom".into(),
+                pattern: None,
+                min: None,
+                max: None,
+            }
+        };
         let fn_name = snake_case(&node.id);
-        context.insert("fn_name", &fn_name);
+        let ctx = ValidationContext {
+            module,
+            node,
+            rule,
+            fn_name: fn_name.clone(),
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize validation context")?;
 
         let backend_content = self
             .templates
@@ -451,9 +470,9 @@ impl Generator {
     }
 
     fn generate_upload(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
+        let ctx = UploadContext { module, node };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize upload context")?;
 
         let handler_content = self
             .templates
@@ -500,9 +519,12 @@ impl Generator {
     }
 
     fn generate_batteries(&self, module: &Module) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("module_name", &module.name);
+        let ctx = BatteriesContext {
+            module,
+            module_name: &module.name,
+        };
+        let context =
+            TeraContext::from_serialize(&ctx).context("Failed to serialize batteries context")?;
 
         if module.nodes.iter().any(|n| n.id == "authService") {
             let handler_content = self
@@ -547,9 +569,9 @@ impl Generator {
     }
 
     fn generate_documentation(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut context = TeraContext::new();
-        context.insert("module", module);
-        context.insert("node", node);
+        let ctx = DocumentationContext { module, node };
+        let context = TeraContext::from_serialize(&ctx)
+            .context("Failed to serialize documentation context")?;
 
         let doc_content = self
             .templates
@@ -586,8 +608,8 @@ impl Generator {
     }
 
     fn run_post_processing(&self) -> Result<()> {
-        use std::process::Command;
         use crate::{format_frontend, format_rust, CargoFmt, Prettier};
+        use std::process::Command;
 
         // Attempt to run typeshare if available
         let types_output_dir = self.output_dir.join("frontend/src/types");
@@ -637,20 +659,6 @@ pub(crate) fn snake_case(s: &str) -> String {
         }
     }
     out
-}
-
-#[derive(Debug, serde::Serialize)]
-struct ParsedRule {
-    kind: String,
-    pattern: Option<String>,
-    min: Option<i32>,
-    max: Option<i32>,
-}
-
-#[derive(Debug, serde::Serialize)]
-struct FieldValidation {
-    field: String,
-    func: String,
 }
 
 fn parse_validation_rule(rule: &str) -> ParsedRule {
