@@ -1,5 +1,6 @@
 use crate::ui::{Icons, SvgImage, SvgImageLoader};
 use bevy::prelude::*;
+use bevy::asset::AssetPlugin;
 use bevy_asset_loader::prelude::*;
 use bevy_egui::EguiPlugin;
 
@@ -14,8 +15,14 @@ use std::sync::{mpsc::Receiver, Arc, Mutex};
 struct LogReceiver(pub Arc<Mutex<Receiver<String>>>);
 
 pub fn run_app(log_rx: Receiver<String>) {
+    let asset_path = format!("{}/assets", env!("CARGO_MANIFEST_DIR"));
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(
+            DefaultPlugins.set(AssetPlugin {
+                asset_folder: asset_path,
+                ..default()
+            })
+        )
         .init_state::<AppState>()
         .init_asset::<SvgImage>()
         .init_asset_loader::<SvgImageLoader>()
