@@ -1,4 +1,4 @@
-use bevy::asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext};
+use bevy::asset::{io::Reader, AssetLoader, AsyncReadExt, BoxedFuture, LoadContext};
 use bevy::prelude::*;
 use bevy::reflect::TypePath;
 use bevy_asset_loader::prelude::*;
@@ -30,19 +30,19 @@ impl AssetLoader for SvgImageLoader {
     type Settings = ();
     type Error = SvgImageLoaderError;
 
-    fn load(
-        &self,
-        reader: &mut dyn Reader,
+    fn load<'a>(
+        &'a self,
+        reader: &'a mut dyn Reader,
         _settings: &Self::Settings,
-        load_context: &mut LoadContext,
-    ) -> impl bevy::tasks::ConditionalSendFuture<Output = Result<Self::Asset, Self::Error>> + '_ {
-        async move {
+        load_context: &'a mut LoadContext<'a>,
+    ) -> BoxedFuture<'a, Result<Self::Asset, Self::Error>> {
+        Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
             let img = RetainedImage::from_svg_bytes(load_context.path().to_string_lossy(), &bytes)
                 .map_err(SvgImageLoaderError::Svg)?;
             Ok(SvgImage(img))
-        }
+        })
     }
 
     fn extensions(&self) -> &[&str] {
