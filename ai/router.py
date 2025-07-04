@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.concurrency import run_in_threadpool
 try:  # Support execution as a script without package context
     from .schemas import (
@@ -28,6 +28,7 @@ from agents.component_designer import design_component
 from agents.usecase_designer import design_usecase
 from agents.filler import fill_code, store_details
 from services.chat_agent import ChatAgent
+from services.history import InMemoryHistory, ChatHistory
 from agents.coordinator import Coordinator
 try:  # Support execution as a script without package context
     from .toolset import Toolset
@@ -35,7 +36,13 @@ except ImportError:  # pragma: no cover - fallback when run as a script
     from toolset import Toolset
 
 router = APIRouter()
-agent = ChatAgent()
+
+def _get_history() -> ChatHistory:
+    return InMemoryHistory()
+
+def _get_agent(history: ChatHistory = Depends(_get_history)) -> ChatAgent:
+    return ChatAgent(history)
+
 tools = Toolset()
 coordinator = Coordinator(tools)
 
@@ -169,7 +176,10 @@ async def graph_rag_route(req: PromptRequest):
 
 
 @router.post("/chat")
-async def chat_route(req: ChatRequest) -> ChatResponse:
+async def chat_route(
+    req: ChatRequest,
+    agent: ChatAgent = Depends(_get_agent),
+) -> ChatResponse:
     reply = await run_in_threadpool(agent.chat, req.messages, req.model)
     return ChatResponse(message=reply)
 
