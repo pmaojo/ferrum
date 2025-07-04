@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::egui;
 use studio_desktop::graph::{GraphData, NodePositions, Viewport};
-use studio_desktop::ui::{UiState};
-use studio_desktop::ui::palette::{NodeTemplate, handle_drop};
+use studio_desktop::ui::palette::{handle_drop, NodeTemplate};
+use studio_desktop::ui::UiState;
 
 #[test]
 fn dropping_template_creates_node() {
@@ -18,7 +18,10 @@ fn dropping_template_creates_node() {
     // prepare drag from palette
     {
         let mut state = app.world_mut().resource_mut::<UiState>();
-        state.palette_dragging = Some(NodeTemplate { label: "service".into(), node_type: Some("service".into()) });
+        state.palette_dragging = Some(NodeTemplate {
+            label: "service".into(),
+            node_type: Some("service".into()),
+        });
     }
 
     let ctx = egui::Context::default();
@@ -34,10 +37,11 @@ fn dropping_template_creates_node() {
     ctx.begin_frame(input);
 
     {
-        let mut state = app.world_mut().resource_mut::<UiState>();
-        let mut data = app.world_mut().resource_mut::<GraphData>();
-        let mut positions = app.world_mut().resource_mut::<NodePositions>();
         let viewport = app.world().resource::<Viewport>().clone();
+        let mut world = app.world_mut();
+        let mut state = world.resource_mut::<UiState>();
+        let mut data = world.resource_mut::<GraphData>();
+        let mut positions = world.resource_mut::<NodePositions>();
         handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
     }
     ctx.end_frame();
