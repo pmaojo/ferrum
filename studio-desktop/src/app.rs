@@ -24,7 +24,7 @@ pub fn run_app(log_rx: Receiver<String>) {
                 .continue_to_state(AppState::InGame)
                 .load_collection::<Icons>(),
         )
-        .add_plugins(EguiPlugin)
+        .add_plugins(EguiPlugin::default())
         .add_plugins(InputManagerPlugin::<Action>::default())
         .add_plugins(ViewerPlugin)
         .insert_resource(LogReceiver(Arc::new(Mutex::new(log_rx))))

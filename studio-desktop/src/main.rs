@@ -4,6 +4,7 @@ mod graph;
 mod layout;
 mod python;
 mod runtime;
+mod input;
 
 mod ui;
 mod app_state;

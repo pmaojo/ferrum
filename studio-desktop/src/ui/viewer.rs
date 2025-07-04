@@ -273,6 +273,7 @@ fn draw_nodes(
             if let Some(desc) = &node.description {
                 egui::show_tooltip_at_pointer(
                     ui.ctx(),
+                    ui.layer_id(),
                     egui::Id::new(format!("tip_{}", node.name)),
                     |ui| {
                         ui.label(desc);
@@ -565,14 +566,26 @@ pub fn update_build_task(
     mut writer: EventWriter<crate::api::LogEvent>,
 ) {
     if let Some(handle) = task.0.as_mut() {
-        if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
+        if let Some(res) =
+            futures_lite::future::block_on(futures_lite::future::poll_once(handle))
+        {
             task.0 = None;
-            if let Ok((ok, logs)) = res {
-                for line in logs.lines() {
-                    writer.send(crate::api::LogEvent(format!("[BUILD] {}", line)));
+            match res {
+                Ok(Ok((ok, logs))) => {
+                    for line in logs.lines() {
+                        writer.send(crate::api::LogEvent(format!("[BUILD] {}", line)));
+                    }
+                    if ok {
+                        let _ = webbrowser::open("gen/frontend/index.html");
+                    }
                 }
-                if ok {
-                    let _ = webbrowser::open("gen/frontend/index.html");
+                Ok(Err(err)) => {
+                    writer.send(crate::api::LogEvent(format!("Build error: {err}")));
+                }
+                Err(err) => {
+                    writer.send(crate::api::LogEvent(format!(
+                        "Task join error: {err}"
+                    )));
                 }
             }
         }
