@@ -10,11 +10,10 @@ fn spawn_input_adds_bundle() {
         .add_systems(Startup, spawn_input);
     app.update();
 
-    let count = app
-        .world()
-        .query::<(&ActionState<Action>, &InputMap<Action>)>()
-        .iter(&app.world())
-        .count();
+    let mut query = app
+        .world_mut()
+        .query::<(&ActionState<Action>, &InputMap<Action>)>();
+    let count = query.iter(&app.world()).count();
     assert_eq!(count, 1);
 }
 
