@@ -587,6 +587,7 @@ impl Generator {
 
     fn run_post_processing(&self) -> Result<()> {
         use std::process::Command;
+        use crate::{format_frontend, format_rust, CargoFmt, Prettier};
 
         // Attempt to run typeshare if available
         let types_output_dir = self.output_dir.join("frontend/src/types");
@@ -604,28 +605,9 @@ impl Generator {
             println!("⚠️  typeshare not available or failed, skipping TypeScript generation");
         }
 
-        // Format Rust code
-        let fmt_status = Command::new("cargo")
-            .arg("fmt")
-            .arg("--all")
-            .current_dir(&self.output_dir)
-            .status();
-        if fmt_status.as_ref().map(|s| !s.success()).unwrap_or(true) {
-            println!("⚠️  cargo fmt failed or is unavailable");
-        }
-
-        // Format frontend files with prettier if installed
-        let prettier_status = Command::new("prettier")
-            .arg("--write")
-            .arg(self.output_dir.join("frontend").to_str().unwrap())
-            .status();
-        if prettier_status
-            .as_ref()
-            .map(|s| !s.success())
-            .unwrap_or(true)
-        {
-            println!("⚠️  prettier failed or is unavailable");
-        }
+        // Format generated sources using external tools when available
+        format_rust(&CargoFmt, &self.output_dir);
+        format_frontend(&Prettier, &self.output_dir.join("frontend"));
 
         Ok(())
     }
