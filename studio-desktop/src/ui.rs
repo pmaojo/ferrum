@@ -92,22 +92,20 @@ impl Default for UiState {
 
 #[derive(Default)]
 pub struct EditData {
-    pub name: String,
+    pub id: String,
     pub description: String,
     pub story: String,
-    pub calls: String,
-    pub used_by: String,
+    pub depends_on: String,
 }
 
 #[derive(Resource, Default)]
 pub struct AiTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>);
 
 pub struct NodeUpdate {
-    pub name: String,
+    pub id: String,
     pub description: Option<String>,
     pub story: Option<String>,
-    pub calls: Option<Vec<String>>,
-    pub used_by: Option<Vec<String>>,
+    pub depends_on: Option<Vec<String>>,
 }
 
 #[derive(Resource, Default)]

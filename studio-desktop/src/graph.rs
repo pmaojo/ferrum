@@ -1,7 +1,7 @@
 use crate::api;
 use bevy::prelude::*;
 use bevy_tokio_tasks::tokio::task::JoinHandle;
-use serde::{Deserialize, Serialize};
+pub use ferrum_shared_models::Node;
 use std::collections::HashMap;
 
 
@@ -10,20 +10,6 @@ use bevy_tokio_tasks::TokioTasksRuntime;
 use crate::app_state::AppState;
 use bevy::prelude::NextState;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Node {
-    pub name: String,
-    #[serde(default)]
-    pub node_type: Option<String>,
-    #[serde(default)]
-    pub description: Option<String>,
-    #[serde(default)]
-    pub story: Option<String>,
-    #[serde(default)]
-    pub calls: Option<Vec<String>>,
-    #[serde(default)]
-    pub used_by: Option<Vec<String>>,
-}
 
 #[derive(Resource, Default, Clone)]
 pub struct GraphData {
@@ -68,7 +54,7 @@ pub fn load_graph(
     state.loading = true;
 
     if !data.nodes.is_empty() {
-        let names: Vec<String> = data.nodes.iter().map(|n| n.name.clone()).collect();
+        let names: Vec<String> = data.nodes.iter().map(|n| n.id.clone()).collect();
         pos.0 = LayoutEngine::circular_layout(&names, 200.0);
     }
 }
@@ -91,7 +77,7 @@ pub fn update_graph_task(
         task.0 = None;
         if let Ok(Ok(graph_yaml)) = res {
             if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
-                let names: Vec<String> = nodes.iter().map(|n| n.name.clone()).collect();
+                let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
                 pos.0 = LayoutEngine::circular_layout(&names, 200.0);
                 data.nodes = nodes;
                 next_state.set(AppState::InGame);

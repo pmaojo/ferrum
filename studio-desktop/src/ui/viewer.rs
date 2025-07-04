@@ -5,7 +5,8 @@ use super::{
 use super::palette::{self, NodeTemplates};
 use crate::api;
 use crate::app_state::AppState;
-use crate::graph::{GraphData, GraphTask, Node, NodePositions, Viewport};
+use crate::graph::{GraphData, GraphTask, Node as GraphNode, NodePositions, Viewport};
+use ferrum_shared_models::NodeType;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use bevy_tokio_tasks::TokioTasksRuntime;
@@ -115,24 +116,22 @@ fn show_tour_overlay(ctx: &egui::Context, tour: &mut TourState) {
 }
 
 /// Generate YAML for a subgraph rooted at `name`.
-pub fn subgraph_yaml(data: &GraphData, name: &str) -> Option<String> {
+pub fn subgraph_yaml(data: &GraphData, id: &str) -> Option<String> {
     let mut names = HashSet::new();
-    let node = data.nodes.iter().find(|n| n.name == name)?;
-    names.insert(name.to_string());
-    if let Some(calls) = &node.calls {
-        for c in calls {
-            names.insert(c.clone());
+    let node = data.nodes.iter().find(|n| n.id == id)?;
+    names.insert(id.to_string());
+    for c in &node.depends_on {
+        names.insert(c.clone());
+    }
+    for n in &data.nodes {
+        if n.depends_on.iter().any(|d| d == &node.id) {
+            names.insert(n.id.clone());
         }
     }
-    if let Some(used_by) = &node.used_by {
-        for u in used_by {
-            names.insert(u.clone());
-        }
-    }
-    let nodes: Vec<Node> = data
+    let nodes: Vec<GraphNode> = data
         .nodes
         .iter()
-        .filter(|n| names.contains(&n.name))
+        .filter(|n| names.contains(&n.id))
         .cloned()
         .collect();
     serde_yaml::to_string(&nodes).ok()
@@ -199,11 +198,12 @@ fn poll_node_task(node_task: &mut NodeInfoTask, data: &mut GraphData) {
     if let Some((update, handle)) = node_task.0.as_mut() {
         if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             if res.is_ok() {
-                if let Some(node) = data.nodes.iter_mut().find(|n| n.name == update.name) {
+                if let Some(node) = data.nodes.iter_mut().find(|n| n.id == update.id) {
                     node.description = update.description.clone();
                     node.story = update.story.clone();
-                    node.calls = update.calls.clone();
-                    node.used_by = update.used_by.clone();
+                    if let Some(dep) = update.depends_on.clone() {
+                        node.depends_on = dep;
+                    }
                 }
             }
             node_task.0 = None;
@@ -213,32 +213,30 @@ fn poll_node_task(node_task: &mut NodeInfoTask, data: &mut GraphData) {
 
 fn draw_edges(
     painter: &egui::Painter,
-    nodes: &[Node],
+    nodes: &[GraphNode],
     node_positions: &NodePositions,
     center: egui::Vec2,
     viewport: &Viewport,
 ) {
     for node in nodes {
-        if let Some(calls) = &node.calls {
-            for target in calls {
-                if let (Some(a), Some(b)) = (
-                    node_positions.0.get(&node.name),
-                    node_positions.0.get(target),
-                ) {
-                    painter.line_segment(
-                        [
-                            egui::pos2(
-                                (center + to_egui(*a) * viewport.zoom).x,
-                                (center + to_egui(*a) * viewport.zoom).y,
-                            ),
-                            egui::pos2(
-                                (center + to_egui(*b) * viewport.zoom).x,
-                                (center + to_egui(*b) * viewport.zoom).y,
-                            ),
-                        ],
-                        egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
-                    );
-                }
+        for target in &node.depends_on {
+            if let (Some(a), Some(b)) = (
+                node_positions.0.get(&node.id),
+                node_positions.0.get(target),
+            ) {
+                painter.line_segment(
+                    [
+                        egui::pos2(
+                            (center + to_egui(*a) * viewport.zoom).x,
+                            (center + to_egui(*a) * viewport.zoom).y,
+                        ),
+                        egui::pos2(
+                            (center + to_egui(*b) * viewport.zoom).x,
+                            (center + to_egui(*b) * viewport.zoom).y,
+                        ),
+                    ],
+                    egui::Stroke::new(1.0, egui::Color32::LIGHT_GRAY),
+                );
             }
         }
     }
@@ -262,19 +260,19 @@ fn draw_nodes(
 ) {
     for node in &data.nodes {
         let pos_vec = center
-            + to_egui(*node_positions.0.get(&node.name).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
+            + to_egui(*node_positions.0.get(&node.id).unwrap_or(&Vec2::ZERO)) * viewport.zoom;
         let pos = egui::pos2(pos_vec.x, pos_vec.y);
-        let selected = state.selected.as_deref() == Some(node.name.as_str());
+        let selected = state.selected.as_deref() == Some(node.id.as_str());
         let resp = factory.draw_node(ui, painter, node, pos, selected, icons, svg_assets);
         if resp.drag_started() {
-            state.dragging = Some(node.name.clone());
+            state.dragging = Some(node.id.clone());
         }
         if resp.hovered() {
             if let Some(desc) = &node.description {
                 egui::show_tooltip_at_pointer(
                     ui.ctx(),
                     ui.layer_id(),
-                    egui::Id::new(format!("tip_{}", node.name)),
+                    egui::Id::new(format!("tip_{}", node.id)),
                     |ui| {
                         ui.label(desc);
                     },
@@ -282,33 +280,32 @@ fn draw_nodes(
             }
         }
         if resp.clicked() {
-            state.selected = Some(node.name.clone());
+            state.selected = Some(node.id.clone());
             state.ai_reply = None;
         }
         resp.context_menu(|ui| {
             if ui.button("Edit info").clicked() {
                 state.edit = Some(EditData {
-                    name: node.name.clone(),
+                    id: node.id.clone(),
                     description: node.description.clone().unwrap_or_default(),
                     story: node.story.clone().unwrap_or_default(),
-                    calls: node.calls.clone().unwrap_or_default().join(", "),
-                    used_by: node.used_by.clone().unwrap_or_default().join(", "),
+                    depends_on: node.depends_on.join(", "),
                 });
             }
             if ui.button("Simulate").clicked() {
-                if let Some(yaml) = subgraph_yaml(data, &node.name) {
+                if let Some(yaml) = subgraph_yaml(data, &node.id) {
                     if let Ok(text) = api::simulate_flow(&mut log_writer, &yaml) {
                         state.popup = Some(text);
                     }
                 }
             }
             if ui.button("Generate").clicked() {
-                if let Ok(yaml) = api::generate_component(&mut log_writer, &node.name) {
+                if let Ok(yaml) = api::generate_component(&mut log_writer, &node.id) {
                     state.popup = Some(yaml);
                 }
             }
             if ui.button("Validate").clicked() {
-                if let Some(yaml) = subgraph_yaml(data, &node.name) {
+                if let Some(yaml) = subgraph_yaml(data, &node.id) {
                     if let Ok(ok) = api::validate_yaml(&mut log_writer, &yaml) {
                         state.popup = Some(if ok {
                             "YAML válido".into()
@@ -318,17 +315,17 @@ fn draw_nodes(
                     }
                 }
             }
-            if node.node_type.as_deref() == Some("iot") {
+            if node.node_type == NodeType::Iot {
                 if ui.button("Call REST").clicked() {
                     if let Ok(text) =
-                        api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.name))
+                        api::call_iot_http(&mut log_writer, &format!("/iot/{}", node.id))
                     {
                         state.popup = Some(text);
                     }
                 }
                 if ui.button("Publish MQTT").clicked() {
                     let _ =
-                        api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.name), "ping");
+                        api::publish_mqtt(&mut log_writer, &format!("iot/{}", node.id), "ping");
                 }
             }
         });
@@ -360,20 +357,18 @@ fn show_edit_window(
 ) {
     if let Some(mut edit_data) = state.edit.take() {
         let mut close = false;
-        egui::Window::new(format!("Edit {}", edit_data.name))
+        egui::Window::new(format!("Edit {}", edit_data.id))
             .collapsible(false)
             .show(ctx, |ui| {
                 ui.label("Description");
                 ui.text_edit_singleline(&mut edit_data.description);
                 ui.label("Story");
                 ui.text_edit_multiline(&mut edit_data.story);
-                ui.label("Calls (comma separated)");
-                ui.text_edit_singleline(&mut edit_data.calls);
-                ui.label("Used by (comma separated)");
-                ui.text_edit_singleline(&mut edit_data.used_by);
+                ui.label("Depends on (comma separated)");
+                ui.text_edit_singleline(&mut edit_data.depends_on);
                 ui.horizontal(|ui| {
                     if ui.button("Save").clicked() {
-                        if let Some(node) = data.nodes.iter().find(|n| n.name == edit_data.name) {
+                        if let Some(node) = data.nodes.iter().find(|n| n.id == edit_data.id) {
                             let desc = if edit_data.description.trim().is_empty() {
                                 None
                             } else {
@@ -385,33 +380,22 @@ fn show_edit_window(
                                 Some(edit_data.story.clone())
                             };
                             let update = NodeUpdate {
-                                name: node.name.clone(),
+                                id: node.id.clone(),
                                 description: desc.clone(),
                                 story: story.clone(),
-                                calls: if edit_data.calls.trim().is_empty() {
+                                depends_on: if edit_data.depends_on.trim().is_empty() {
                                     None
                                 } else {
                                     Some(
                                         edit_data
-                                            .calls
-                                            .split(',')
-                                            .map(|s| s.trim().to_string())
-                                            .collect(),
-                                    )
-                                },
-                                used_by: if edit_data.used_by.trim().is_empty() {
-                                    None
-                                } else {
-                                    Some(
-                                        edit_data
-                                            .used_by
+                                            .depends_on
                                             .split(',')
                                             .map(|s| s.trim().to_string())
                                             .collect(),
                                     )
                                 },
                             };
-                            let name = update.name.clone();
+                            let name = update.id.clone();
                             let desc_clone = update.description.clone();
                             let story_clone = update.story.clone();
                             let handle = runtime.runtime().spawn(async move {
@@ -538,7 +522,7 @@ pub fn update_side_panel(
         }
         ui.separator();
         if let Some(name) = &state.selected {
-            if let Some(node) = data.nodes.iter().find(|n| &n.name == name) {
+            if let Some(node) = data.nodes.iter().find(|n| &n.id == name) {
                 ui.label(format!("Selected: {}", name));
                 if let Some(story) = &node.story {
                     egui::CollapsingHeader::new("Story").show(ui, |ui| {

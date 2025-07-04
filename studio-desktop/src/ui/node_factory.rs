@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy_egui::egui;
 
-use crate::graph::Node;
+use crate::graph::Node as GraphNode;
+use ferrum_shared_models::NodeType;
 
 use super::{Icons, SvgImage};
 
 pub trait Palette: Send + Sync {
-    fn color(&self, node: &Node, selected: bool) -> egui::Color32;
+    fn color(&self, node: &GraphNode, selected: bool) -> egui::Color32;
 }
 
 pub trait NodeFactory: Send + Sync {
@@ -14,7 +15,7 @@ pub trait NodeFactory: Send + Sync {
         &self,
         ui: &mut egui::Ui,
         painter: &egui::Painter,
-        node: &Node,
+        node: &GraphNode,
         pos: egui::Pos2,
         selected: bool,
         icons: &Icons,
@@ -25,8 +26,8 @@ pub trait NodeFactory: Send + Sync {
 pub struct DefaultPalette;
 
 impl Palette for DefaultPalette {
-    fn color(&self, node: &Node, selected: bool) -> egui::Color32 {
-        if node.node_type.as_deref() == Some("iot") {
+    fn color(&self, node: &GraphNode, selected: bool) -> egui::Color32 {
+        if node.node_type == NodeType::Iot {
             egui::Color32::from_rgb(250, 180, 100)
         } else if selected {
             egui::Color32::LIGHT_BLUE
@@ -51,7 +52,7 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
         &self,
         ui: &mut egui::Ui,
         painter: &egui::Painter,
-        node: &Node,
+        node: &GraphNode,
         pos: egui::Pos2,
         selected: bool,
         icons: &Icons,
@@ -62,7 +63,7 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
         let color = self.palette.color(node, selected);
         painter.circle_filled(pos, 20.0, color);
 
-        if node.node_type.as_deref() == Some("iot") {
+        if node.node_type == NodeType::Iot {
             if let Some(icon) = svg_assets.get(&icons.iot) {
                 let size = icon.0.size_vec2() * 0.5;
                 let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
@@ -74,7 +75,7 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
         painter.text(
             pos,
             egui::Align2::CENTER_CENTER,
-            &node.name,
+            &node.id,
             egui::FontId::proportional(14.0),
             egui::Color32::BLACK,
         );
