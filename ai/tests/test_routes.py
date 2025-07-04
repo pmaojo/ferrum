@@ -53,11 +53,12 @@ def test_chat_route(monkeypatch):
         assert model == 'gpt-4'
         return 'hello'
 
-    monkeypatch.setattr(router, 'agent', type('obj', (), {'chat': fake_chat})())
+    app.dependency_overrides[router._get_agent] = lambda: type('obj', (), {'chat': fake_chat})()
 
     resp = client.post('/chat', json={'messages': [{'role': 'user', 'content': 'hi'}], 'model': 'gpt-4'})
     assert resp.status_code == 200
     assert resp.json() == {'message': 'hello'}
+    app.dependency_overrides.clear()
 
 
 def test_fill_todo_route(monkeypatch):
