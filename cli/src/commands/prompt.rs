@@ -21,7 +21,7 @@ pub fn prompt(text: String, output: Option<PathBuf>) -> Result<()> {
     // Call Python AI service
     let client = Client::new();
     let response = client
-        .post("http://localhost:8000/generate-yaml")
+        .post("http://localhost:8001/generate-yaml")
         .json(&serde_json::json!({ "text": text, "model": model }))
         .send()?;
 

@@ -12,8 +12,8 @@ fn viewer_plugin_registers_resources() {
         .add_plugins(ViewerPlugin);
     app.update();
 
-    assert!(app.world.contains_resource::<GraphData>());
-    assert!(app.world.contains_resource::<NodePositions>());
-    assert!(app.world.contains_resource::<TourState>());
-    app.world.resource::<Events<LogEvent>>();
+    assert!(app.world().contains_resource::<GraphData>());
+    assert!(app.world().contains_resource::<NodePositions>());
+    assert!(app.world().contains_resource::<TourState>());
+    app.world().resource::<Events<LogEvent>>();
 }

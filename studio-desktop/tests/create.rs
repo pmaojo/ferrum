@@ -17,7 +17,7 @@ fn dropping_template_creates_node() {
 
     // prepare drag from palette
     {
-        let mut state = app.world.resource_mut::<UiState>();
+        let mut state = app.world_mut().resource_mut::<UiState>();
         state.palette_dragging = Some(NodeTemplate { label: "service".into(), node_type: Some("service".into()) });
     }
 
@@ -34,16 +34,16 @@ fn dropping_template_creates_node() {
     ctx.begin_frame(input);
 
     {
-        let mut state = app.world.resource_mut::<UiState>();
-        let mut data = app.world.resource_mut::<GraphData>();
-        let mut positions = app.world.resource_mut::<NodePositions>();
-        let viewport = app.world.resource::<Viewport>().clone();
+        let mut state = app.world_mut().resource_mut::<UiState>();
+        let mut data = app.world_mut().resource_mut::<GraphData>();
+        let mut positions = app.world_mut().resource_mut::<NodePositions>();
+        let viewport = app.world().resource::<Viewport>().clone();
         handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
     }
     ctx.end_frame();
 
-    let data = app.world.resource::<GraphData>();
-    let positions = app.world.resource::<NodePositions>();
+    let data = app.world().resource::<GraphData>();
+    let positions = app.world().resource::<NodePositions>();
     assert_eq!(data.nodes.len(), 1);
     let name = &data.nodes[0].name;
     assert!(positions.0.contains_key(name));

@@ -11,9 +11,9 @@ fn spawn_input_adds_bundle() {
     app.update();
 
     let count = app
-        .world
+        .world()
         .query::<(&ActionState<Action>, &InputMap<Action>)>()
-        .iter(&app.world)
+        .iter(&app.world())
         .count();
     assert_eq!(count, 1);
 }

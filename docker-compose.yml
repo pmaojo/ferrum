@@ -37,7 +37,7 @@ services:
   ferrum-ai:
     build: ./ai
     ports:
-      - "8001:8000"
+      - "8001:8001"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     volumes:
