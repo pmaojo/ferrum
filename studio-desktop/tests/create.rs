@@ -36,16 +36,15 @@ fn dropping_template_creates_node() {
     });
     ctx.begin_frame(input);
 
-    {
-        let viewport = app.world().resource::<Viewport>().clone();
-        app.world_mut().resource_scope(|world, mut state: Mut<UiState>| {
-            world.resource_scope(|world, mut data: Mut<GraphData>| {
-                world.resource_scope(|world, mut positions: Mut<NodePositions>| {
-                    handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
-                });
+    app.world_mut().resource_scope(|world, mut state: Mut<UiState>| {
+        world.resource_scope(|world, mut data: Mut<GraphData>| {
+            world.resource_scope(|world, mut positions: Mut<NodePositions>| {
+                let viewport = world.resource::<Viewport>().clone();
+                handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
             });
         });
-    }
+    });
+
     ctx.end_frame();
 
     let data = app.world().resource::<GraphData>();

@@ -89,7 +89,13 @@ pub fn update_graph_task(
                 }
             }
             Ok(Err(err)) => {
-                crate::api::push_log(&mut log_writer, format!("Graph fetch error: {err}"));
+                api::push_log(&mut log_writer, format!("Graph request error: {err}"));
+                data.nodes.clear();
+                next_state.set(AppState::InGame);
+            }
+            Err(err) => {
+                api::push_log(&mut log_writer, format!("Graph task error: {err}"));
+                data.nodes.clear();
                 next_state.set(AppState::InGame);
             }
             Err(err) => {
