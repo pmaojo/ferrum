@@ -1,4 +1,4 @@
-use bevy::asset::{io::Reader, AssetLoader, AsyncReadExt, LoadContext};
+use bevy::asset::{io::Reader, AssetLoader, LoadContext};
 use bevy::tasks::ConditionalSendFuture;
 use bevy::prelude::*;
 use bevy::reflect::TypePath;
