@@ -65,10 +65,9 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
 
         if node.node_type == NodeType::Iot {
             if let Some(icon) = svg_assets.get(&icons.iot) {
-                let size = icon.0.size_vec2() * 0.5;
+                let size = egui::vec2(24.0, 24.0);
                 let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                egui::Image::from_texture((icon.0.texture_id(ui.ctx()), size))
-                    .paint_at(ui, icon_rect);
+                icon.0.clone().fit_to_exact_size(size).paint_at(ui, icon_rect);
             }
         }
 

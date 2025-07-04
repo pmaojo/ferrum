@@ -4,12 +4,10 @@ use bevy_tokio_tasks::tokio::task::JoinHandle;
 pub use ferrum_shared_models::Node;
 use std::collections::HashMap;
 
-
-use crate::layout::LayoutEngine;
-use bevy_tokio_tasks::TokioTasksRuntime;
 use crate::app_state::AppState;
+use crate::layout::LayoutEngine;
 use bevy::prelude::NextState;
-
+use bevy_tokio_tasks::TokioTasksRuntime;
 
 #[derive(Resource, Default, Clone)]
 pub struct GraphData {
@@ -20,7 +18,9 @@ pub struct GraphData {
 pub struct NodePositions(pub HashMap<String, Vec2>);
 
 #[derive(Resource, Default)]
-pub struct GraphTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>);
+pub struct GraphTask(
+    pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>,
+);
 
 #[derive(Resource, Clone)]
 pub struct Viewport {
@@ -37,7 +37,10 @@ impl Default for Viewport {
     }
 }
 
-pub fn spawn_graph_request(rt: &TokioTasksRuntime, question: String) -> JoinHandle<reqwest::Result<String>> {
+pub fn spawn_graph_request(
+    rt: &TokioTasksRuntime,
+    question: String,
+) -> JoinHandle<reqwest::Result<String>> {
     rt.spawn_background_task(move |_| async move { api::fetch_graph(&question).await })
 }
 
@@ -94,6 +97,9 @@ pub fn update_graph_task(
                 api::push_log(&mut log_writer, format!("Graph task error: {err}"));
                 data.nodes.clear();
                 next_state.set(AppState::InGame);
+            }
+            Err(err) => {
+                crate::api::push_log(&mut log_writer, format!("Task join error: {err}"));
             }
         }
     }
