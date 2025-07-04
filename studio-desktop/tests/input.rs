@@ -6,6 +6,7 @@ use studio_desktop::input::{spawn_input, Action};
 fn spawn_input_adds_bundle() {
     let mut app = App::new();
     app.add_plugins(MinimalPlugins)
+        .add_plugins(bevy::input::InputPlugin)
         .add_plugins(InputManagerPlugin::<Action>::default())
         .add_systems(Startup, spawn_input);
     app.update();

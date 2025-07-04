@@ -65,6 +65,7 @@ pub fn update_graph_task(
     mut task: ResMut<GraphTask>,
     mut state: ResMut<crate::ui::UiState>,
     mut next_state: ResMut<NextState<AppState>>,
+    mut log_writer: EventWriter<crate::api::LogEvent>,
 ) {
     let maybe_res = if let Some(handle) = task.0.as_mut() {
         futures_lite::future::block_on(futures_lite::future::poll_once(handle))
@@ -75,11 +76,23 @@ pub fn update_graph_task(
     if let Some(res) = maybe_res {
         state.loading = false;
         task.0 = None;
-        if let Ok(Ok(graph_yaml)) = res {
-            if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
-                let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
-                pos.0 = LayoutEngine::circular_layout(&names, 200.0);
-                data.nodes = nodes;
+        match res {
+            Ok(Ok(graph_yaml)) => {
+                if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
+                    let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
+                    pos.0 = LayoutEngine::circular_layout(&names, 200.0);
+                    data.nodes = nodes;
+                    next_state.set(AppState::InGame);
+                }
+            }
+            Ok(Err(err)) => {
+                api::push_log(&mut log_writer, format!("Graph request error: {err}"));
+                data.nodes.clear();
+                next_state.set(AppState::InGame);
+            }
+            Err(err) => {
+                api::push_log(&mut log_writer, format!("Graph task error: {err}"));
+                data.nodes.clear();
                 next_state.set(AppState::InGame);
             }
         }
