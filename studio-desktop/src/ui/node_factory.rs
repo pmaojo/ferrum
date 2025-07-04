@@ -18,7 +18,7 @@ pub trait NodeFactory: Send + Sync {
         node: &GraphNode,
         pos: egui::Pos2,
         selected: bool,
-        icons: &Icons,
+        icons: Option<&Icons>,
         svg_assets: &Assets<SvgImage>,
     ) -> egui::Response;
 }
@@ -55,7 +55,7 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
         node: &GraphNode,
         pos: egui::Pos2,
         selected: bool,
-        icons: &Icons,
+        icons: Option<&Icons>,
         svg_assets: &Assets<SvgImage>,
     ) -> egui::Response {
         let rect = egui::Rect::from_center_size(pos, egui::vec2(40.0, 40.0));
@@ -64,10 +64,13 @@ impl<P: Palette + Send + Sync> NodeFactory for EguiNodeFactory<P> {
         painter.circle_filled(pos, 20.0, color);
 
         if node.node_type == NodeType::Iot {
-            if let Some(icon) = svg_assets.get(&icons.iot) {
-                let size = egui::vec2(24.0, 24.0);
-                let icon_rect = egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
-                icon.0.clone().fit_to_exact_size(size).paint_at(ui, icon_rect);
+            if let Some(icons) = icons {
+                if let Some(icon) = svg_assets.get(&icons.iot) {
+                    let size = egui::vec2(24.0, 24.0);
+                    let icon_rect =
+                        egui::Rect::from_center_size(pos + egui::vec2(-12.0, -12.0), size);
+                    icon.0.clone().fit_to_exact_size(size).paint_at(ui, icon_rect);
+                }
             }
         }
 
