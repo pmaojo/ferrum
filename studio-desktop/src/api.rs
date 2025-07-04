@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_tokio_tasks::TokioTasksRuntime;
 use once_cell::sync::OnceCell;
 use std::sync::{mpsc, Mutex};
 use serde::{Deserialize, Serialize};
@@ -134,56 +135,101 @@ struct ValidateResponse {
     valid: bool,
 }
 
-pub fn simulate_flow(writer: &mut EventWriter<LogEvent>, yaml: &str) -> reqwest::Result<String> {
-    log(writer, format!("[API] POST /simulate/flow {yaml}"));
-    let client = reqwest::blocking::Client::new();
+pub async fn simulate_flow_async(yaml: &str) -> reqwest::Result<String> {
+    let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/simulate/flow")
         .json(&YamlRequest { yaml })
-        .send()?;
-    let data: TextResponse = res.json()?;
+        .send()
+        .await?;
+    let data: TextResponse = res.json().await?;
     Ok(data.text)
+}
+
+pub fn simulate_flow(
+    writer: &mut EventWriter<LogEvent>,
+    rt: &TokioTasksRuntime,
+    yaml: &str,
+) -> bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>> {
+    log(writer, format!("[API] POST /simulate/flow {yaml}"));
+    let yaml = yaml.to_string();
+    rt.spawn_background_task(move |_| async move { simulate_flow_async(&yaml).await })
+}
+
+pub async fn generate_component_async(prompt: &str) -> reqwest::Result<String> {
+    let client = reqwest::Client::new();
+    let res = client
+        .post("http://localhost:8001/generate/component")
+        .json(&PromptRequest { text: prompt })
+        .send()
+        .await?;
+    let data: YamlResponse = res.json().await?;
+    Ok(data.yaml)
 }
 
 pub fn generate_component(
     _writer: &mut EventWriter<LogEvent>,
+    rt: &TokioTasksRuntime,
     prompt: &str,
-) -> reqwest::Result<String> {
-    let client = reqwest::blocking::Client::new();
-    let res = client
-        .post("http://localhost:8001/generate/component")
-        .json(&PromptRequest { text: prompt })
-        .send()?;
-    let data: YamlResponse = res.json()?;
-    Ok(data.yaml)
+) -> bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>> {
+    let prompt = prompt.to_string();
+    rt.spawn_background_task(move |_| async move { generate_component_async(&prompt).await })
 }
 
-pub fn validate_yaml(_writer: &mut EventWriter<LogEvent>, yaml: &str) -> reqwest::Result<bool> {
-    let client = reqwest::blocking::Client::new();
+pub async fn validate_yaml_async(yaml: &str) -> reqwest::Result<bool> {
+    let client = reqwest::Client::new();
     let res = client
         .post("http://localhost:8001/validate/yaml")
         .json(&YamlRequest { yaml })
-        .send()?;
-    let data: ValidateResponse = res.json()?;
+        .send()
+        .await?;
+    let data: ValidateResponse = res.json().await?;
     Ok(data.valid)
 }
 
-pub fn call_iot_http(writer: &mut EventWriter<LogEvent>, path: &str) -> reqwest::Result<String> {
-    push_log(writer, format!("[HTTP] POST {}", path));
-    let client = reqwest::blocking::Client::new();
+pub fn validate_yaml(
+    _writer: &mut EventWriter<LogEvent>,
+    rt: &TokioTasksRuntime,
+    yaml: &str,
+) -> bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<bool>> {
+    let yaml = yaml.to_string();
+    rt.spawn_background_task(move |_| async move { validate_yaml_async(&yaml).await })
+}
+
+pub async fn call_iot_http_async(path: &str) -> reqwest::Result<String> {
+    let client = reqwest::Client::new();
     let res = client
         .post(&format!("http://localhost:8001{}", path))
-        .send()?;
-    Ok(res.text()?)
+        .send()
+        .await?;
+    Ok(res.text().await?)
+}
+
+pub fn call_iot_http(
+    writer: &mut EventWriter<LogEvent>,
+    rt: &TokioTasksRuntime,
+    path: &str,
+) -> bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>> {
+    push_log(writer, format!("[HTTP] POST {}", path));
+    let path = path.to_string();
+    rt.spawn_background_task(move |_| async move { call_iot_http_async(&path).await })
+}
+
+pub async fn publish_mqtt_async(topic: &str, payload: &str) -> reqwest::Result<()> {
+    let _ = (topic, payload); // placeholder for real implementation
+    Ok(())
 }
 
 pub fn publish_mqtt(
     writer: &mut EventWriter<LogEvent>,
+    rt: &TokioTasksRuntime,
     topic: &str,
     payload: &str,
-) -> reqwest::Result<()> {
+) -> bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<()>> {
     push_log(writer, format!("[MQTT] {topic}: {payload}"));
-    Ok(())
+    let topic = topic.to_string();
+    let payload = payload.to_string();
+    rt.spawn_background_task(move |_| async move { publish_mqtt_async(&topic, &payload).await })
 }
 
 #[derive(Serialize)]

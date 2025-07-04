@@ -113,6 +113,12 @@ pub struct NodeInfoTask(pub Option<(NodeUpdate, bevy_tokio_tasks::tokio::task::J
 #[derive(Resource, Default)]
 pub struct BuildTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<(bool, String)>>>);
 
+#[derive(Resource, Default)]
+pub struct PopupTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>);
+
+#[derive(Resource, Default)]
+pub struct ValidateTask(pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<bool>>>);
+
 pub fn log_panel(
     mut contexts: EguiContexts,
     mut events: EventReader<crate::api::LogEvent>,
