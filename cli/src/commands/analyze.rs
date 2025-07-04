@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 pub fn analyze(file: PathBuf, json: bool, bottleneck: usize) -> Result<()> {
     let mut dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
-    let modules = ferrum_compiler::project_to_modules(&mut dsl);
+    let modules = ferrum_compiler::project_to_modules(&mut dsl)?;
     let graph = ferrum_compiler::build_graph(&modules);
     let layers = ferrum_compiler::classify_layers(&modules);
     let cycles = ferrum_compiler::find_cycles(&graph);

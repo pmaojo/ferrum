@@ -44,7 +44,7 @@ pub fn compile(
         // Try new DSL format first, fall back to legacy format
         if let Ok(mut project) = ferrum_compiler::parse_dsl_yaml(file) {
             plugins.extend_dsl_all(&mut project)?;
-            let modules = ferrum_compiler::project_to_modules(&mut project);
+            let modules = ferrum_compiler::project_to_modules(&mut project)?;
             ferrum_compiler::validate_modules(&modules)?;
             ferrum_compiler::validate_features(&project, &modules)?;
             ferrum_compiler::validate_validations(&project, &modules)?;

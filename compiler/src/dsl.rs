@@ -1,5 +1,6 @@
 use crate::features::expand_features;
-use crate::{Field, Module, Node, NodeType};
+use crate::{validator::ValidationResult, Field, Module, Node, NodeType};
+use crate::validator::ValidationError;
 use ferrum_shared_models::{DslModule, FerrumDsl};
 use std::collections::BTreeMap;
 
@@ -7,7 +8,7 @@ use std::collections::BTreeMap;
 ///
 /// This provides a bridge between the higher level YAML DSL and the existing
 /// code generation pipeline which operates on `Module` instances.
-pub fn project_to_modules(project: &mut FerrumDsl) -> Vec<Module> {
+pub fn project_to_modules(project: &mut FerrumDsl) -> ValidationResult<Vec<Module>> {
     // Collect entity definitions for derive resolution
     let mut entity_defs: BTreeMap<String, (Option<String>, BTreeMap<String, String>)> =
         BTreeMap::new();
@@ -27,27 +28,35 @@ pub fn project_to_modules(project: &mut FerrumDsl) -> Vec<Module> {
         name: &str,
         defs: &BTreeMap<String, (Option<String>, BTreeMap<String, String>)>,
         cache: &mut BTreeMap<String, BTreeMap<String, String>>,
-    ) -> BTreeMap<String, String> {
+        stack: &mut Vec<String>,
+    ) -> ValidationResult<BTreeMap<String, String>> {
         if let Some(res) = cache.get(name) {
-            return res.clone();
+            return Ok(res.clone());
+        }
+        if stack.contains(&name.to_string()) {
+            return Err(ValidationError::CircularEntityDerive {
+                entity: name.to_string(),
+            });
         }
         if let Some((base, fields)) = defs.get(name) {
+            stack.push(name.to_string());
             let mut out = if let Some(b) = base {
-                resolve_fields(b, defs, cache)
+                resolve_fields(b, defs, cache, stack)?
             } else {
                 BTreeMap::new()
             };
+            stack.pop();
             out.extend(fields.clone());
             cache.insert(name.to_string(), out.clone());
-            out
+            Ok(out)
         } else {
-            BTreeMap::new()
+            Ok(BTreeMap::new())
         }
     }
 
     let mut resolved: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
     for name in entity_defs.keys() {
-        let _ = resolve_fields(name, &entity_defs, &mut resolved);
+        resolve_fields(name, &entity_defs, &mut resolved, &mut Vec::new())?;
     }
 
     let mut modules: Vec<Module> = project
@@ -206,7 +215,7 @@ pub fn project_to_modules(project: &mut FerrumDsl) -> Vec<Module> {
     }
 
     expand_features(project, &mut modules);
-    modules
+    Ok(modules)
 }
 
 /// Convert a single [`DslModule`] into a [`Module`].

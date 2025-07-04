@@ -25,6 +25,10 @@ pub enum ValidationError {
     /// Validation references a field that does not exist
     #[error("validation target not found: {path}")]
     UnknownValidationTarget { path: String },
+
+    /// Entity derives from another entity that eventually references itself.
+    #[error("circular entity derive starting at: {entity}")]
+    CircularEntityDerive { entity: String },
 }
 
 /// Validate a parsed [`Module`].
