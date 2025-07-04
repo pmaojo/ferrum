@@ -69,6 +69,7 @@ pub fn update_graph_task(
     mut state: ResMut<crate::ui::UiState>,
     mut next_state: ResMut<NextState<AppState>>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
+    icons: Option<Res<crate::ui::Icons>>,
 ) {
     let maybe_res = if let Some(handle) = task.0.as_mut() {
         futures_lite::future::block_on(futures_lite::future::poll_once(handle))
@@ -85,12 +86,16 @@ pub fn update_graph_task(
                     let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
                     pos.0 = LayoutEngine::circular_layout(&names, 200.0);
                     data.nodes = nodes;
-                    next_state.set(AppState::InGame);
+                    if icons.is_some() {
+                        next_state.set(AppState::InGame);
+                    }
                 }
             }
             Ok(Err(err)) => {
                 crate::api::push_log(&mut log_writer, format!("Graph fetch error: {err}"));
-                next_state.set(AppState::InGame);
+                if icons.is_some() {
+                    next_state.set(AppState::InGame);
+                }
             }
             Err(err) => {
                 crate::api::push_log(&mut log_writer, format!("Task join error: {err}"));

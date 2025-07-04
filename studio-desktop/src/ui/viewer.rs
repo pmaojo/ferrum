@@ -435,10 +435,11 @@ pub fn draw_graph(
     mut node_task: ResMut<NodeInfoTask>,
     mut log_writer: EventWriter<crate::api::LogEvent>,
     factory: Res<BoxedFactory>,
-    icons: Res<Icons>,
+    icons: Option<Res<Icons>>,
     svg_assets: Res<Assets<SvgImage>>,
     mut tour: ResMut<TourState>,
 ) {
+    let Some(icons) = icons else { return; };
     if let Ok(ctx) = contexts.ctx_mut() {
         poll_ai_task(&mut ai_task, &mut state);
         poll_node_task(&mut node_task, &mut data);
@@ -602,7 +603,7 @@ impl Plugin for ViewerPlugin {
                 Update,
                 (
                     handle_interaction,
-                    draw_graph,
+                    draw_graph.run_if(resource_exists::<Icons>()),
                     palette::node_palette,
                     update_side_panel,
                     update_build_task,

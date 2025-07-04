@@ -4,7 +4,8 @@ use studio_desktop::api::LogEvent;
 use studio_desktop::app_state::AppState;
 use studio_desktop::graph::{load_graph, update_graph_task, GraphData, GraphTask, NodePositions};
 use studio_desktop::runtime::runtime_plugin;
-use studio_desktop::ui::UiState;
+use studio_desktop::ui::{UiState, Icons, SvgImage};
+use bevy::asset::Handle;
 
 #[test]
 fn graph_failure_transitions_to_ingame_and_logs() {
@@ -24,6 +25,7 @@ fn graph_failure_transitions_to_ingame_and_logs() {
         .init_resource::<NodePositions>()
         .init_resource::<GraphTask>()
         .init_resource::<UiState>()
+        .insert_resource(Icons { iot: Handle::<SvgImage>::default() })
         .add_systems(OnEnter(AppState::Loading), load_graph)
         .add_systems(Update, update_graph_task);
 
