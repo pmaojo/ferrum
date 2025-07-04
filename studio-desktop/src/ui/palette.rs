@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::graph::{GraphData, Node, NodePositions, Viewport};
+use crate::graph::{GraphData, Node as GraphNode, NodePositions, Viewport};
+use ferrum_shared_models::NodeType;
 use super::UiState;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -62,13 +63,25 @@ pub fn handle_drop(
                     let egui_pos = (pos.to_vec2() - center) / viewport.zoom;
                     let graph_pos = Vec2::new(egui_pos.x, egui_pos.y);
                     let name = format!("{}{}", template.label, data.nodes.len() + 1);
-                    data.nodes.push(Node {
-                        name: name.clone(),
-                        node_type: template.node_type.clone(),
+                    let node_type = match template.node_type.as_deref() {
+                        Some("service") => NodeType::UseCase,
+                        Some("iot") => NodeType::Iot,
+                        _ => NodeType::Component,
+                    };
+                    data.nodes.push(GraphNode {
+                        id: name.clone(),
+                        node_type,
+                        doc: None,
                         description: None,
                         story: None,
-                        calls: None,
-                        used_by: None,
+                        input: Vec::new(),
+                        output: None,
+                        depends_on: Vec::new(),
+                        implements: None,
+                        view: None,
+                        schema: None,
+                        api_name: None,
+                        ref_node: None,
                     });
                     positions.0.insert(name, Vec2::new(graph_pos.x, graph_pos.y));
                 }

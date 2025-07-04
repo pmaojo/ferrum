@@ -45,6 +45,6 @@ fn dropping_template_creates_node() {
     let data = app.world().resource::<GraphData>();
     let positions = app.world().resource::<NodePositions>();
     assert_eq!(data.nodes.len(), 1);
-    let name = &data.nodes[0].name;
-    assert!(positions.0.contains_key(name));
+    let id = &data.nodes[0].id;
+    assert!(positions.0.contains_key(id));
 }

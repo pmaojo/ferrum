@@ -18,6 +18,7 @@ bevy_asset_loader = "0.23"
 leafwing-input-manager = "0.17"
 bevy-tokio-tasks = "0.16"
 thiserror = "1"
+ferrum-shared-models = { path = "../shared-models" }
 
 [dev-dependencies]
 mockito = "1"
