@@ -1,7 +1,7 @@
 """Specialized experts for the coordinator AI team."""
 
 import json
-from ..toolset import Toolset
+from ...toolset import Toolset
 
 class BackendExpert:
     """Specialist in Rust backend and Ferrum architecture."""
