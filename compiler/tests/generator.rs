@@ -140,7 +140,7 @@ entities:
     let file = dir.path().join("dsl.yaml");
     fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     let templates = templates_path();
     let generator = Generator::new(templates.as_path(), dir.path()).unwrap();
     for m in modules {
@@ -176,7 +176,7 @@ validations:
     let file = dir.path().join("dsl.yaml");
     fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     let templates = templates_path();
     let mut generator = Generator::new(templates.as_path(), dir.path()).unwrap();
     generator.set_modules(modules.clone());

@@ -12,7 +12,7 @@ fn fixture_path(name: &str) -> PathBuf {
 #[test]
 fn it_expands_auth_feature() {
     let mut dsl = parse_dsl_yaml(fixture_path("auth_example.yaml")).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     assert!(modules.iter().any(|m| m.name == "auth"));
     assert!(modules
         .iter()
@@ -27,7 +27,7 @@ fn cron_feature_injects_example_job() {
     let file = dir.path().join("dsl.yaml");
     std::fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let _modules = project_to_modules(&mut dsl);
+    let _modules = project_to_modules(&mut dsl).unwrap();
     assert!(dsl.jobs.iter().any(|j| j.name == "example_job"));
 }
 
@@ -38,7 +38,7 @@ fn realtime_sse_feature_adds_module_and_route() {
     let file = dir.path().join("dsl.yaml");
     std::fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     assert!(modules.iter().any(|m| m.name == "realtime_sse"));
     assert!(dsl.routes.iter().any(|r| r.path == "/events"));
 }
@@ -50,7 +50,7 @@ fn uploads_feature_injects_default_upload() {
     let file = dir.path().join("dsl.yaml");
     std::fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     assert!(modules.iter().any(|m| m.name == "uploads"));
     assert!(modules
         .iter()

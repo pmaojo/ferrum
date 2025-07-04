@@ -74,10 +74,30 @@ validations:
     let file = dir.path().join("dsl.yaml");
     std::fs::write(&file, yaml).unwrap();
     let mut dsl = parse_dsl_yaml(&file).unwrap();
-    let modules = project_to_modules(&mut dsl);
+    let modules = project_to_modules(&mut dsl).unwrap();
     let err = validate_validations(&dsl, &modules).unwrap_err();
     assert!(matches!(
         err,
         ValidationError::UnknownValidationTarget { .. }
     ));
+}
+
+#[test]
+fn fails_on_circular_entity_derive() {
+    let yaml = r#"app:
+  name: demo
+modules:
+  a:
+    entity:
+      deriveFrom: b
+  b:
+    entity:
+      deriveFrom: a
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    std::fs::write(&file, yaml).unwrap();
+    let mut dsl = parse_dsl_yaml(&file).unwrap();
+    let err = project_to_modules(&mut dsl).unwrap_err();
+    assert!(matches!(err, ValidationError::CircularEntityDerive { .. }));
 }
