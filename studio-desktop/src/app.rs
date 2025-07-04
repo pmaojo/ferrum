@@ -19,7 +19,7 @@ pub fn run_app(log_rx: Receiver<String>) {
     App::new()
         .add_plugins(
             DefaultPlugins.set(AssetPlugin {
-                asset_folder: asset_path,
+                file_path: asset_path,
                 ..default()
             })
         )
