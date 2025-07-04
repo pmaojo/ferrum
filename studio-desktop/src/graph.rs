@@ -22,6 +22,11 @@ pub struct GraphTask(
     pub Option<bevy_tokio_tasks::tokio::task::JoinHandle<reqwest::Result<String>>>,
 );
 
+/// Parse the YAML returned by the backend into a list of nodes.
+pub fn parse_graph_yaml(yaml: &str) -> Result<Vec<Node>, serde_yaml::Error> {
+    serde_yaml::from_str(yaml)
+}
+
 #[derive(Resource, Clone)]
 pub struct Viewport {
     pub zoom: f32,
@@ -81,11 +86,18 @@ pub fn update_graph_task(
         task.0 = None;
         match res {
             Ok(Ok(graph_yaml)) => {
-                if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
-                    let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
-                    pos.0 = LayoutEngine::circular_layout(&names, 200.0);
-                    data.nodes = nodes;
-                    next_state.set(AppState::InGame);
+                match parse_graph_yaml(&graph_yaml) {
+                    Ok(nodes) => {
+                        let names: Vec<String> = nodes.iter().map(|n| n.id.clone()).collect();
+                        pos.0 = LayoutEngine::circular_layout(&names, 200.0);
+                        data.nodes = nodes;
+                        next_state.set(AppState::InGame);
+                    }
+                    Err(err) => {
+                        api::push_log(&mut log_writer, format!("Invalid graph YAML: {err}"));
+                        data.nodes.clear();
+                        next_state.set(AppState::InGame);
+                    }
                 }
             }
             Ok(Err(err)) => {
@@ -97,9 +109,6 @@ pub fn update_graph_task(
                 api::push_log(&mut log_writer, format!("Graph task error: {err}"));
                 data.nodes.clear();
                 next_state.set(AppState::InGame);
-            }
-            Err(err) => {
-                crate::api::push_log(&mut log_writer, format!("Task join error: {err}"));
             }
         }
     }
