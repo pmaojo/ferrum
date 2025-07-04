@@ -178,8 +178,18 @@ fn poll_ai_task(ai_task: &mut AiTask, state: &mut UiState) {
     if let Some(handle) = ai_task.0.as_mut() {
         if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             ai_task.0 = None;
-            if let Ok(text) = res {
-                state.ai_reply = Some(text);
+            match res {
+                Ok(res) => {
+                    if let Ok(text) = res {
+                        state.ai_reply = Some(text);
+                    } else {
+                        // TODO: surface the request failure to the UI
+                    }
+                }
+                Err(err) => {
+                    // TODO: surface the join error to the UI
+                    eprintln!("AI task join error: {err}");
+                }
             }
         }
     }
