@@ -5,3 +5,4 @@ pub mod graph;
 pub mod ui;
 pub mod app_state;
 pub mod input;
+pub mod settings;

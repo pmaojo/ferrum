@@ -5,6 +5,7 @@ mod layout;
 mod python;
 mod runtime;
 mod input;
+mod settings;
 
 mod ui;
 mod app_state;

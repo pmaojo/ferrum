@@ -11,6 +11,7 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use bevy_tokio_tasks::TokioTasksRuntime;
 use crate::ui::SvgImage;
+use crate::settings::ProjectSettings;
 use leafwing_input_manager::prelude::*;
 use serde_yaml;
 use std::collections::HashSet;
@@ -477,6 +478,7 @@ pub fn update_side_panel(
     mut contexts: EguiContexts,
     mut data: ResMut<GraphData>,
     mut state: ResMut<UiState>,
+    settings: Res<ProjectSettings>,
     runtime: Res<TokioTasksRuntime>,
     mut graph_task: ResMut<GraphTask>,
     mut ai_task: ResMut<AiTask>,
@@ -500,14 +502,16 @@ pub fn update_side_panel(
             state.loading = true;
         }
         if ui.button("Compile").clicked() {
-            let handle = runtime.spawn_background_task(move |_| async move { api::compile_project("grafo.yaml").await });
+            let file = settings.grafo_path.clone();
+            let handle = runtime.spawn_background_task(move |_| async move { api::compile_project(&file).await });
             build_task.0 = Some(handle);
         }
         if let Some(name) = &state.selected {
             if ui.button("Compile Module").clicked() {
                 let n = name.clone();
+                let file = settings.grafo_path.clone();
                 let handle =
-                    runtime.spawn_background_task(move |_| async move { api::compile_module(&n, "grafo.yaml").await });
+                    runtime.spawn_background_task(move |_| async move { api::compile_module(&n, &file).await });
                 build_task.0 = Some(handle);
             }
             if ui.button("Compile Subgraph").clicked() {
@@ -587,6 +591,7 @@ impl Plugin for ViewerPlugin {
             .init_resource::<Viewport>()
             .init_resource::<GraphTask>()
             .init_resource::<UiState>()
+            .init_resource::<crate::settings::ProjectSettings>()
             .init_resource::<TourState>()
             .init_resource::<NodeTemplates>()
             .init_resource::<BoxedFactory>()
@@ -596,6 +601,7 @@ impl Plugin for ViewerPlugin {
             .insert_resource(NodeInfoTask::default())
             .insert_resource(LogBuffer::default())
             .add_systems(Startup, setup_visuals)
+            .add_systems(Update, crate::ui::setup::setup_panel)
             .add_systems(OnEnter(AppState::Loading), crate::graph::load_graph)
             .add_systems(Update, crate::graph::update_graph_task)
             .add_systems(

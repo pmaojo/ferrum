@@ -10,6 +10,7 @@ use thiserror::Error;
 pub mod node_factory;
 pub mod viewer;
 pub mod palette;
+pub mod setup;
 
 #[derive(Asset, TypePath)]
 pub struct SvgImage(pub egui::Image<'static>);
