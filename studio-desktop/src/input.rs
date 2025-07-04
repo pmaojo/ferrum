@@ -27,5 +27,5 @@ impl Action {
 }
 
 pub fn spawn_input(mut commands: Commands) {
-    commands.spawn(InputManagerBundle::<Action>::with_map(Action::input_map()));
+    commands.spawn((ActionState::<Action>::default(), Action::input_map()));
 }
