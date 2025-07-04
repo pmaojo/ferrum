@@ -19,7 +19,7 @@ pub fn component_prompt(text: String, output: Option<PathBuf>) -> Result<()> {
 
     let client = Client::new();
     let response = client
-        .post("http://localhost:8000/generate-component")
+        .post("http://localhost:8001/generate-component")
         .json(&serde_json::json!({ "text": text, "model": model }))
         .send()?;
 

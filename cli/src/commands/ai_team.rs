@@ -24,7 +24,7 @@ pub fn ai_team(text: String) -> Result<()> {
 
     let client = Client::new();
     let resp = client
-        .post("http://localhost:8000/ai-team")
+        .post("http://localhost:8001/ai-team")
         .json(&serde_json::json!({
             "messages": [{"role": "user", "content": prompt}],
             "model": model,

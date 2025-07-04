@@ -179,7 +179,7 @@ pub fn call_iot_http(writer: &mut EventWriter<LogEvent>, path: &str) -> reqwest:
     push_log(writer, format!("[HTTP] POST {}", path));
     let client = reqwest::blocking::Client::new();
     let res = client
-        .post(&format!("http://localhost:8000{}", path))
+        .post(&format!("http://localhost:8001{}", path))
         .send()?;
     Ok(res.text()?)
 }
