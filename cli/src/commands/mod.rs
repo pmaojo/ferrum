@@ -307,7 +307,7 @@ pub use dev::dev;
 pub use doctor::doctor;
 pub use explain::explain;
 pub use extract_i18n::extract_i18n;
-pub use fill_todos::fill_todos;
+pub use fill_todos::{fill_todos, fill_todos_with_pattern};
 pub use flow_report::flow_report;
 pub use generate_graph::generate_graph;
 pub use generate_usecase::generate_usecase;
