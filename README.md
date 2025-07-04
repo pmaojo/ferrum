@@ -257,6 +257,7 @@ The Docker environment is automatically set up when you initialize a new project
 ---
 
 ## 🧬 DSL Specification (`grafo.yaml`)
+See [docs/dsl.md](docs/dsl.md) for a breakdown of all available sections.
 
 ### 📝 Example
 
