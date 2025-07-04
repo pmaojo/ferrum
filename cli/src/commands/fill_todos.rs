@@ -1,7 +1,18 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::path::PathBuf;
 
+/// Default regex pattern used to locate AI_FILL markers.
+pub(crate) const TODO_PATTERN: &str =
+    r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)";
+
+/// Public interface used by the CLI.
 pub fn fill_todos(dir: PathBuf) -> Result<()> {
+    fill_todos_with_pattern(dir, TODO_PATTERN)
+}
+
+/// Implementation that allows supplying a custom regex pattern.
+/// Exposed for testing to validate regex failure handling.
+pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
     use dialoguer::Input;
     use regex::Regex;
     use reqwest::blocking::Client;
@@ -9,9 +20,7 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
     use std::fs;
     use walkdir::WalkDir;
 
-    let re =
-        Regex::new(r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)")
-            .unwrap();
+    let re = Regex::new(pattern).context("Invalid regex pattern")?;
     let client = Client::new();
 
     for entry in WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
