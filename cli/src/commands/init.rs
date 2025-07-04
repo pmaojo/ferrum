@@ -341,7 +341,7 @@ ethercat = ["ethercat-rs"]
         fs::create_dir_all(project_dir.join("backend"))?;
         fs::write(
             dockerfile_path,
-            "FROM rust:latest\nRUN apt-get update && apt-get install -y libpq-dev \\n+    && cargo install diesel_cli --no-default-features --features postgres\nWORKDIR /app\n",
+            "FROM rust:latest\nRUN apt-get update && apt-get install -y build-essential pkg-config libssl-dev libpq-dev \\n+    && cargo install diesel_cli --no-default-features --features postgres\nWORKDIR /app\n",
         )?;
         println!("📄 Created backend/Dockerfile with diesel_cli");
     }

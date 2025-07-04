@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update && \
-    apt-get install -y pkg-config libssl-dev perl && \
+    apt-get install -y build-essential pkg-config libssl-dev perl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 RUN cargo install cargo-leptos
