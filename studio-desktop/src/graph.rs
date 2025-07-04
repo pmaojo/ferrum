@@ -90,8 +90,8 @@ pub fn update_graph_task(
     if let Some(res) = maybe_res {
         state.loading = false;
         task.0 = None;
-        if let Ok(g) = res {
-            if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&g) {
+        if let Ok(graph_yaml) = res {
+            if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
                 let names: Vec<String> = nodes.iter().map(|n| n.name.clone()).collect();
                 pos.0 = LayoutEngine::circular_layout(&names, 200.0);
                 data.nodes = nodes;
