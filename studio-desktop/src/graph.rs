@@ -1,7 +1,6 @@
 use crate::api;
 use bevy::prelude::*;
 use bevy_tokio_tasks::tokio::task::JoinHandle;
-use bevy::tasks::Task;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -90,7 +89,7 @@ pub fn update_graph_task(
     if let Some(res) = maybe_res {
         state.loading = false;
         task.0 = None;
-        if let Ok(graph_yaml) = res {
+        if let Ok(Ok(graph_yaml)) = res {
             if let Ok(nodes) = serde_yaml::from_str::<Vec<Node>>(&graph_yaml) {
                 let names: Vec<String> = nodes.iter().map(|n| n.name.clone()).collect();
                 pos.0 = LayoutEngine::circular_layout(&names, 200.0);
