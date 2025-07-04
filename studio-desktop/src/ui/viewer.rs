@@ -149,7 +149,7 @@ pub fn handle_interaction(
         Ok(ctx) => ctx,
         Err(_) => return,
     };
-    let action_state = match action_state_query.get_single() {
+    let action_state = match action_state_query.single() {
         Ok(state) => state,
         Err(_) => return,
     };
@@ -558,17 +558,17 @@ pub fn update_build_task(
             match res {
                 Ok(Ok((ok, logs))) => {
                     for line in logs.lines() {
-                        writer.send(crate::api::LogEvent(format!("[BUILD] {}", line)));
+                        writer.write(crate::api::LogEvent(format!("[BUILD] {}", line)));
                     }
                     if ok {
                         let _ = webbrowser::open("gen/frontend/index.html");
                     }
                 }
                 Ok(Err(err)) => {
-                    writer.send(crate::api::LogEvent(format!("Build error: {err}")));
+                    writer.write(crate::api::LogEvent(format!("Build error: {err}")));
                 }
                 Err(err) => {
-                    writer.send(crate::api::LogEvent(format!(
+                    writer.write(crate::api::LogEvent(format!(
                         "Task join error: {err}"
                     )));
                 }

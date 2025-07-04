@@ -96,6 +96,7 @@ pub fn update_graph_task(
                 if icons.is_some() {
                     next_state.set(AppState::InGame);
                 }
+
             }
             Err(err) => {
                 crate::api::push_log(&mut log_writer, format!("Task join error: {err}"));

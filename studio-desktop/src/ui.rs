@@ -4,7 +4,6 @@ use bevy::prelude::*;
 use bevy::reflect::TypePath;
 use bevy_asset_loader::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use egui_extras::RetainedImage;
 use std::collections::VecDeque;
 use thiserror::Error;
 
@@ -13,7 +12,7 @@ pub mod viewer;
 pub mod palette;
 
 #[derive(Asset, TypePath)]
-pub struct SvgImage(pub RetainedImage);
+pub struct SvgImage(pub egui::Image<'static>);
 
 #[derive(Default)]
 pub struct SvgImageLoader;
@@ -40,11 +39,10 @@ impl AssetLoader for SvgImageLoader {
         async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
-            let img = RetainedImage::from_svg_bytes(
-                load_context.path().to_string_lossy(),
-                &bytes,
-            )
-            .map_err(SvgImageLoaderError::Svg)?;
+            let img = egui::Image::from_bytes(
+                load_context.path().to_string_lossy().into_owned(),
+                bytes,
+            );
             Ok(SvgImage(img))
         }
     }

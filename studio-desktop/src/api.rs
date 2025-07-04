@@ -12,12 +12,12 @@ pub struct LogEvent(pub String);
 pub fn push_log<S: Into<String>>(writer: &mut EventWriter<LogEvent>, msg: S) {
     let msg = msg.into();
     send_log(msg.clone());
-    writer.send(LogEvent(msg));
+    writer.write(LogEvent(msg));
 }
 
 fn log(writer: &mut EventWriter<LogEvent>, msg: String) {
     send_log(msg.clone());
-    writer.send(LogEvent(msg));
+    writer.write(LogEvent(msg));
 }
 
 
