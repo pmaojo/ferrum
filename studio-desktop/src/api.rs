@@ -20,9 +20,6 @@ fn log(writer: &mut EventWriter<LogEvent>, msg: String) {
     writer.send(LogEvent(msg));
 }
 
-pub fn set_log_sender(sender: mpsc::Sender<String>) {
-    let _ = LOG_SENDER.set(Mutex::new(sender));
-}
 
 fn send_log(msg: String) {
     if let Some(tx) = LOG_SENDER.get() {
@@ -96,10 +93,6 @@ struct NodeInfoRequest<'a> {
     story: Option<&'a str>,
 }
 
-#[derive(Deserialize)]
-struct NodeInfoResponse {
-    ok: bool,
-}
 
 pub async fn store_node_info(
     id: &str,
@@ -108,7 +101,7 @@ pub async fn store_node_info(
 ) -> reqwest::Result<()> {
     send_log(format!("[API] POST /node-info {id}"));
     let client = reqwest::Client::new();
-    let res = client
+    client
         .post("http://localhost:8001/node-info")
         .json(&NodeInfoRequest {
             id,
@@ -116,8 +109,8 @@ pub async fn store_node_info(
             story,
         })
         .send()
-        .await?;
-    let _data: NodeInfoResponse = res.json().await?;
+        .await?
+        .error_for_status()?;
     Ok(())
 }
 
