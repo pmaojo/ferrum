@@ -1,7 +1,10 @@
 """Specialized experts for the coordinator AI team."""
 
 import json
-from ...toolset import Toolset
+try:  # Support execution as a script without package context
+    from ...toolset import Toolset
+except ImportError:  # pragma: no cover - fallback when run as a script
+    from toolset import Toolset
 
 class BackendExpert:
     """Specialist in Rust backend and Ferrum architecture."""
