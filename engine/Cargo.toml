@@ -25,6 +25,7 @@ serde_yaml = "0.9"
 tempfile = "3"
 ferrum-compiler = { path = "../compiler" }
 rumqttd = "0.19"
+tokio = { version = "1", features = ["full"] }
 
 [features]
 default = []
