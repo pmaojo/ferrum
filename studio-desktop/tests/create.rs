@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy_egui::egui;
 use studio_desktop::graph::{GraphData, NodePositions, Viewport};
-use studio_desktop::ui::{UiState};
-use studio_desktop::ui::palette::{NodeTemplate, handle_drop};
+use studio_desktop::ui::palette::{handle_drop, NodeTemplate};
+use studio_desktop::ui::UiState;
 
 #[test]
 fn dropping_template_creates_node() {
@@ -18,7 +18,10 @@ fn dropping_template_creates_node() {
     // prepare drag from palette
     {
         let mut state = app.world_mut().resource_mut::<UiState>();
-        state.palette_dragging = Some(NodeTemplate { label: "service".into(), node_type: Some("service".into()) });
+        state.palette_dragging = Some(NodeTemplate {
+            label: "service".into(),
+            node_type: Some("service".into()),
+        });
     }
 
     let ctx = egui::Context::default();
