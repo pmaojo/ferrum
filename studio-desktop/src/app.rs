@@ -46,6 +46,6 @@ fn collect_logs(rx: Res<LogReceiver>, mut writer: EventWriter<LogEvent>) {
         return;
     };
     while let Ok(line) = guard.try_recv() {
-        writer.send(LogEvent(line));
+        writer.write(LogEvent(line));
     }
 }

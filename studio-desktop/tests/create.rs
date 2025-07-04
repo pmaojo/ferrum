@@ -34,11 +34,14 @@ fn dropping_template_creates_node() {
     ctx.begin_frame(input);
 
     {
-        let mut state = app.world_mut().resource_mut::<UiState>();
-        let mut data = app.world_mut().resource_mut::<GraphData>();
-        let mut positions = app.world_mut().resource_mut::<NodePositions>();
         let viewport = app.world().resource::<Viewport>().clone();
-        handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
+        app.world_mut().resource_scope(|world, mut state: Mut<UiState>| {
+            world.resource_scope(|world, mut data: Mut<GraphData>| {
+                world.resource_scope(|world, mut positions: Mut<NodePositions>| {
+                    handle_drop(&ctx, rect, &viewport, &mut state, &mut data, &mut positions);
+                });
+            });
+        });
     }
     ctx.end_frame();
 
