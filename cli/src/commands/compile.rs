@@ -78,29 +78,11 @@ pub fn compile(
         plugins.compile_all()?;
     }
 
-    use std::process::Command;
+    use ferrum_compiler::{format_frontend, format_rust, CargoFmt, Prettier};
 
-    // Format Rust code with cargo fmt if available
-    match Command::new("cargo")
-        .arg("fmt")
-        .current_dir(&output_dir)
-        .status()
-    {
-        Ok(status) if status.success() => {},
-        Ok(_) => println!("⚠️  'cargo fmt' failed to format generated code"),
-        Err(_) => println!("⚠️  'cargo fmt' not found; skipping Rust formatting"),
-    }
-
-    // Format TypeScript/JS code with prettier if available
-    match Command::new("prettier")
-        .arg("--write")
-        .arg(output_dir.join("frontend"))
-        .status()
-    {
-        Ok(status) if status.success() => {},
-        Ok(_) => println!("⚠️  'prettier' failed to format TypeScript files"),
-        Err(_) => println!("⚠️  'prettier' not found; skipping TypeScript formatting"),
-    }
+    // Format Rust and TypeScript sources using external tools if available
+    format_rust(&CargoFmt, &output_dir);
+    format_frontend(&Prettier, &output_dir.join("frontend"));
 
     let index = output_dir.join("frontend/index.html");
     if index.exists() {
