@@ -1,16 +1,4 @@
-import os
-import sys
-import importlib.util
-
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, ROOT)
-sys.path.insert(0, os.path.join(ROOT, "ai"))
-
-spec = importlib.util.spec_from_file_location(
-    "llm_client", os.path.join(ROOT, "ai", "services", "llm_client.py")
-)
-llm_client = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(llm_client)
+from ai.services import llm_client
 
 
 class DummyProvider:
