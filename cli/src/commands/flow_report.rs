@@ -9,7 +9,7 @@ pub fn flow_report(file: PathBuf) -> Result<()> {
         .with_context(|| format!("Failed to read file: {}", file.display()))?;
     let client = Client::new();
     let resp = client
-        .post("http://localhost:8000/simulate/flow")
+        .post("http://localhost:8001/simulate/flow")
         .json(&serde_json::json!({ "yaml": yaml }))
         .send()
         .with_context(|| "Failed to connect to AI service. Is it running?")?;

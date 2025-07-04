@@ -5,7 +5,7 @@ use tempfile::NamedTempFile;
 
 #[test]
 fn flow_report_returns_err_on_http_failure() {
-    let mut server = Server::new_with_port(8000);
+    let mut server = Server::new_with_port(8001);
     let _m = server
         .mock("POST", "/simulate/flow")
         .with_status(500)

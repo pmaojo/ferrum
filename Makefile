@@ -24,7 +24,7 @@ ai-setup:
         cd ai && python -m pip install -r requirements.txt
 
 ai-dev:
-        cd ai && uvicorn main:app --reload --host 0.0.0.0 --port 8000
+        cd ai && uvicorn main:app --reload --host 0.0.0.0 --port 8001
 
 ai-build:
 	cd ai && ./build_binary.sh

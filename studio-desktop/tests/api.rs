@@ -24,7 +24,7 @@ fn simulate_flow_sends_payload_and_logs() {
     app.update();
     _m.assert();
     let logs: Vec<String> = app
-        .world
+        .world_mut()
         .resource_mut::<Events<LogEvent>>()
         .drain()
         .map(|e| e.0)

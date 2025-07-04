@@ -19,7 +19,7 @@ pub fn usecase_prompt(text: String, output: Option<PathBuf>) -> Result<()> {
 
     let client = Client::new();
     let response = client
-        .post("http://localhost:8000/generate-usecase")
+        .post("http://localhost:8001/generate-usecase")
         .json(&serde_json::json!({ "text": text, "model": model }))
         .send()?;
 

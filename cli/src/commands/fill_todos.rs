@@ -23,7 +23,7 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
                         let task = &caps["task"];
                         let node = &caps["context"];
                         let mut code = client
-                            .post("http://localhost:8000/fill-todo")
+                            .post("http://localhost:8001/fill-todo")
                             .json(&json!({"code": node, "instructions": task}))
                             .send()
                             .and_then(|r| r.json::<serde_json::Value>())
@@ -44,7 +44,7 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
                                 .unwrap_or_default();
 
                             code = client
-                                .post("http://localhost:8000/fill-todo")
+                                .post("http://localhost:8001/fill-todo")
                                 .json(&json!({
                                     "code": node,
                                     "instructions": format!("{}; {}", task, details),
@@ -60,7 +60,7 @@ pub fn fill_todos(dir: PathBuf) -> Result<()> {
                                 .unwrap_or_else(|| "// failed to fill".to_string());
 
                             let _ = client
-                                .post("http://localhost:8000/node-info")
+                                .post("http://localhost:8001/node-info")
                                 .json(&json!({"id": node, "story": details}))
                                 .send();
                         }
