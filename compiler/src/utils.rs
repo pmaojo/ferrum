@@ -40,3 +40,11 @@ pub fn capitalize(s: &str) -> String {
         Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
     }
 }
+
+/// Return the snippet used when policy checks fail.
+///
+/// Generated sources insert this string to centralize how
+/// unauthorized access should be handled at runtime.
+pub fn handle_unauthorized_snippet() -> &'static str {
+    "crate::handle_unauthorized();"
+}

@@ -5,7 +5,7 @@ use std::fs;
 use ferrum_shared_models::DslMutation;
 use ferrum_shared_models::FerrumDsl;
 
-use crate::ProjectPaths;
+use crate::{utils::handle_unauthorized_snippet, ProjectPaths};
 
 /// Generate source files for a DSL mutation entry.
 pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result<()> {
@@ -32,7 +32,13 @@ pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result
     let policy_check = mutation
         .policy
         .as_ref()
-        .map(|p| format!("    if !crate::policies::evaluate_policy(\"{p}\") {{\n        // TODO: unauthorized handling\n    }}\n", p = p))
+        .map(|p| {
+            format!(
+                "    if !crate::policies::evaluate_policy(\"{p}\") {{\n        {}\n    }}\n",
+                handle_unauthorized_snippet(),
+                p = p
+            )
+        })
         .unwrap_or_default();
 
     let rust_content = format!(
@@ -85,6 +91,7 @@ pub fn compile_mutations(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
 mod tests {
     use super::*;
     use tempfile::tempdir;
+    use std::fs;
 
     #[test]
     fn generate_mutation_creates_files() {
@@ -100,5 +107,21 @@ mod tests {
         generate_mutation(&mutation, &paths).unwrap();
         assert!(dir.path().join("backend/mutations/create_user.rs").exists());
         assert!(dir.path().join("frontend/hooks/useCreateUser.ts").exists());
+    }
+
+    #[test]
+    fn policy_check_uses_helper() {
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+        let mutation = DslMutation {
+            name: "createAdmin".into(),
+            handler: "./backend/mutations/create_admin.rs".into(),
+            entities: vec!["User".into()],
+            auth_required: false,
+            policy: Some("AdminOnly".into()),
+        };
+        generate_mutation(&mutation, &paths).unwrap();
+        let content = fs::read_to_string(dir.path().join("backend/mutations/create_admin.rs")).unwrap();
+        assert!(content.contains("handle_unauthorized()"));
     }
 }
