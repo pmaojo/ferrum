@@ -8,7 +8,8 @@ use studio_desktop::ui::UiState;
 
 #[test]
 fn graph_failure_transitions_to_ingame_and_logs() {
-    let mut server = Server::new_with_port(8001);
+    let mut server = Server::new();
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/graph-rag")
         .with_status(500)
@@ -41,4 +42,5 @@ fn graph_failure_transitions_to_ingame_and_logs() {
         .map(|e| e.0)
         .collect();
     assert!(!logs.is_empty());
+    std::env::remove_var("FERRUM_API_BASE_URL");
 }

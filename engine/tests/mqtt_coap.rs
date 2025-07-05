@@ -15,6 +15,14 @@ use tokio::net::UdpSocket;
 #[cfg(feature = "coap")]
 use tokio::sync::mpsc;
 
+fn unused_port() -> u16 {
+    std::net::TcpListener::bind("127.0.0.1:0")
+        .unwrap()
+        .local_addr()
+        .unwrap()
+        .port()
+}
+
 #[cfg(feature = "mqtt")]
 fn start_mqtt_broker(port: u16) -> thread::JoinHandle<()> {
     let mut config = Config::default();
@@ -73,7 +81,7 @@ fn spawn_coap_server(ip: &'static str) -> mpsc::UnboundedReceiver<u16> {
 #[cfg(feature = "mqtt")]
 #[tokio::test]
 async fn mqtt_connect_publish() {
-    let port = 18883;
+    let port = unused_port();
     let _broker = start_mqtt_broker(port);
     // allow broker to start
     tokio::time::sleep(Duration::from_millis(200)).await;
