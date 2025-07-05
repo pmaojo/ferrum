@@ -17,3 +17,4 @@ petgraph = "0.6"
 
 [dev-dependencies]
 tempfile = "3"
+base64 = "0.21"

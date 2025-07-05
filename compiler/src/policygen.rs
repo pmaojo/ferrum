@@ -9,16 +9,18 @@ use crate::ProjectPaths;
 pub fn generate_policy(policy: &DslPolicy, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("policies");
     fs::create_dir_all(&dir)?;
+    let func = policy.name.to_snake_case();
     let content = if let Some(role) = policy.guard.strip_prefix("role:") {
         format!(
-            "// Guard: role {role}\n\npub fn {func}() -> bool {{\n    // TODO: extract roles from request\n    let roles: Vec<&str> = vec![\"{role}\"];\n    roles.contains(&\"{role}\")\n}}\n",
+            "// Guard: role {role}\n\npub fn {func}() -> bool {{\n    super::current_roles().iter().any(|r| r == \"{role}\")\n}}\n",
             role = role.trim(),
-            func = policy.name
+            func = func
         )
     } else {
         format!(
-            "// Guard: {}\n\npub fn {}() -> bool {{\n    // TODO implement\n    true\n}}\n",
-            policy.guard, policy.name
+            "// Guard: {guard}\n\npub fn {func}() -> bool {{\n    super::{guard}()\n}}\n",
+            guard = policy.guard,
+            func = func
         )
     };
     fs::write(
@@ -78,14 +80,16 @@ fn generate_policy_mod(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     }
     let dir = paths.backend.join("policies");
     fs::create_dir_all(&dir)?;
-    let mut content = String::new();
+    let mut content = String::from(
+        "use std::cell::RefCell;\nuse base64::{engine::general_purpose::STANDARD, Engine as _};\nuse serde::Deserialize;\nuse serde_json;\n\nthread_local! {\n    static REQUEST_ROLES: RefCell<Vec<String>> = RefCell::new(Vec::new());\n}\n\n#[derive(Deserialize)]\nstruct Claims { roles: Vec<String> }\n\n/// Extract roles from a `Cookie` header and store them for policy evaluation.\npub fn set_request_context(header: &str) {\n    let roles = header.split(';').find_map(|p| p.trim().strip_prefix(\"jwt=\"))\n        .and_then(|jwt| {\n            let payload = jwt.split('.').nth(1)?;\n            let decoded = STANDARD.decode(payload).ok()?;\n            let json = std::str::from_utf8(&decoded).ok()?;\n            serde_json::from_str::<Claims>(json).ok().map(|c| c.roles)\n        }).unwrap_or_default();\n    REQUEST_ROLES.with(|r| *r.borrow_mut() = roles);\n}\n\n/// Return roles previously extracted with `set_request_context`.\npub fn current_roles() -> Vec<String> {\n    REQUEST_ROLES.with(|r| r.borrow().clone())\n}\n"
+    );
     for p in &dsl.policies {
         let mod_name = p.name.to_lowercase();
         let func_name = p.name.to_snake_case();
         content.push_str(&format!("mod {mod_name};\n"));
         content.push_str(&format!("pub use {mod_name}::{func_name};\n"));
     }
-    content.push_str("\npub fn evaluate_policy(expr: &str) -> bool {\n    expr.split('&&').map(|p| p.trim()).all(|p| match p {\n");
+    content.push_str("\npub fn evaluate_policy(expr: &str) -> bool {\n    expr.split(\"&&\").map(|p| p.trim()).all(|p| match p {\n");
     for p in &dsl.policies {
         let func_name = p.name.to_snake_case();
         content.push_str(&format!(
