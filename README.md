@@ -92,6 +92,11 @@ service. The **desktop studio** starts the Python backend automatically,
 so no extra environment variables are needed. A dropdown allows choosing
 the AI provider at runtime.
 
+> **Note**
+> The Python dependencies for this service are pinned in
+> `ai/requirements.txt`. Keep that file and the Dockerfile in sync when
+> upgrading packages to avoid version mismatches.
+
 ### 🖥 Desktop Studio
 
 Ferrum also provides a native desktop version of the Studio built with Bevy.

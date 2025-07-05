@@ -3,9 +3,8 @@ import sys
 import types
 import pytest
 
-# Stub agents modules before importing the router
-sys.modules['agents'] = types.ModuleType('agents')
-for mod_name in [
+_STUBBED = [
+    'agents',
     'agents.generator',
     'agents.explainer',
     'agents.validator',
@@ -14,31 +13,53 @@ for mod_name in [
     'agents.filler',
     'agents.coordinator',
     'agents.team',
-]:
-    module = types.ModuleType(mod_name)
-    sys.modules[mod_name] = module
+]
 
-sys.modules['agents.generator'].generate_yaml = lambda *a, **k: ""
-sys.modules['agents.explainer'].explain_yaml = lambda *a, **k: ""
-sys.modules['agents.validator'].validate_yaml = lambda *a, **k: True
-sys.modules['agents.validator'].validate_usecase_prompt = lambda *a, **k: True
-sys.modules['agents.component_designer'].design_component = lambda *a, **k: ""
-sys.modules['agents.usecase_designer'].design_usecase = lambda *a, **k: ""
-sys.modules['agents.filler'].fill_code = lambda *a, **k: ""
-sys.modules['agents.filler'].fetch_context = lambda *a, **k: ""
-sys.modules['agents.filler'].store_details = lambda *a, **k: None
-class _C:
-    def __init__(self, tools=None):
-        pass
 
-    def chat(self, messages, model=None):
-        return ""
+@pytest.fixture(autouse=True, scope="module")
+def _stub_agents():
+    """Install lightweight agent stubs for route tests."""
+    orig: dict[str, object] = {}
+    sys.modules['agents'] = types.ModuleType('agents')
+    for name in _STUBBED:
+        if name in sys.modules:
+            orig[name] = sys.modules[name]
+        sys.modules[name] = types.ModuleType(name)
 
-sys.modules['agents.coordinator'].Coordinator = _C
-sys.modules['agents.team'].BackendExpert = object
-sys.modules['agents.team'].FrontendExpert = object
-sys.modules['agents.team'].UXDesigner = object
-sys.modules['agents.team'].Coach = object
+    sys.modules['agents.generator'].generate_yaml = lambda *a, **k: ""
+    sys.modules['agents.explainer'].explain_yaml = lambda *a, **k: ""
+    sys.modules['agents.validator'].validate_yaml = lambda *a, **k: True
+    sys.modules['agents.validator'].validate_usecase_prompt = lambda *a, **k: True
+    sys.modules['agents.component_designer'].design_component = lambda *a, **k: ""
+    sys.modules['agents.usecase_designer'].design_usecase = lambda *a, **k: ""
+    sys.modules['agents.filler'].fill_code = lambda *a, **k: ""
+    sys.modules['agents.filler'].fetch_context = lambda *a, **k: ""
+    sys.modules['agents.filler'].store_details = lambda *a, **k: None
+    class _C:
+        def __init__(self, tools=None):
+            pass
+
+        def chat(self, messages, model=None):
+            return ""
+
+    sys.modules['agents.coordinator'].Coordinator = _C
+    sys.modules['agents.team'].BackendExpert = object
+    sys.modules['agents.team'].FrontendExpert = object
+    sys.modules['agents.team'].UXDesigner = object
+    sys.modules['agents.team'].Coach = object
+
+    try:
+        yield
+    finally:
+        for name in _STUBBED:
+            if name in orig:
+                sys.modules[name] = orig[name]
+            else:
+                sys.modules.pop(name, None)
+        if 'agents' in orig:
+            sys.modules['agents'] = orig['agents']
+        else:
+            sys.modules.pop('agents', None)
 
 from fastapi.testclient import TestClient
 from ..main import app

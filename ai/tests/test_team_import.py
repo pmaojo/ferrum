@@ -9,6 +9,10 @@ def test_import_team_as_script(tmp_path, monkeypatch):
     sys.path.insert(0, str(root))
     monkeypatch.syspath_prepend(str(root))
 
+    # Ensure no leftover agent stubs
+    sys.modules.pop('agents', None)
+    sys.modules.pop('agents.team', None)
+
     # Stub toolset to avoid heavy dependencies
     toolset = types.ModuleType('toolset')
     toolset.Toolset = object
