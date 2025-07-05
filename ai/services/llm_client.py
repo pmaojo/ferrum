@@ -29,23 +29,27 @@ openai.api_key = os.environ.get(
 class LlmProvider(Protocol):
     """Simple protocol for language model providers."""
 
-    def call(self, prompt: str, system: str) -> str:
-        """Return the model response for the given prompt."""
+    def call(self, prompt: str, system: str, model: str | None = None) -> str:
+        """Return the model response for the given prompt using ``model`` if provided."""
 
 
 class OpenAIProvider:
-    def call(self, prompt: str, system: str) -> str:
+    def call(self, prompt: str, system: str, model: str | None = None) -> str:
+        selected = model or "gpt-4"
         response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+            model=selected,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
         )
         return response.choices[0].message.content.strip()
 
 
 class OllamaProvider:
-    def call(self, prompt: str, system: str) -> str:
+    def call(self, prompt: str, system: str, model: str | None = None) -> str:
         payload = {
-            "model": "lmstudio",
+            "model": model or "lmstudio",
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
@@ -58,10 +62,10 @@ class OllamaProvider:
 
 
 class AnthropicProvider:
-    def call(self, prompt: str, system: str) -> str:
+    def call(self, prompt: str, system: str, model: str | None = None) -> str:
         client = Anthropic()
         response = client.messages.create(
-            model="claude-2",
+            model=model or "claude-2",
             messages=[{"role": "user", "content": prompt}],
             system=system,
         )
@@ -77,8 +81,8 @@ PROVIDERS: Dict[str, LlmProvider] = {
 
 
 def call_llm(prompt: str, system: str, model: str | None = None) -> str:
-    selected = model or os.environ.get("MODEL", MODEL)
+    selected = os.environ.get("MODEL", MODEL)
     provider = PROVIDERS.get(selected)
     if provider is None:
         raise ValueError(f"Unknown model {selected}")
-    return provider.call(prompt, system)
+    return provider.call(prompt, system, model)
