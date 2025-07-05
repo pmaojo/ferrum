@@ -1,7 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use ferrum_cli::commands::{
-    add_plugin, analyze, compile, component_prompt, deploy, dev, explain, fill_todos,
+    add_plugin, analyze, compile, component_prompt, dev, explain, fill_todos,
     generate_graph, init, list_plugins, migrate, plugin_docs, prompt, remove_plugin, sync,
     usecase_prompt, flow_report, Cli, Commands,
 };
