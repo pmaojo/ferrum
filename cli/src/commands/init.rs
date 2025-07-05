@@ -131,7 +131,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = "0.7"
+axum = "0.6"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 embedded-hal = { version = "1", optional = true }
@@ -141,10 +141,10 @@ ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
 
 [features]
 default = []
-hal = ["embedded-hal"]
-rppal = ["rppal"]
-mqtt = ["rumqttc"]
-ethercat = ["ethercat-rs"]
+hal = ["dep:embedded-hal"]
+rppal = ["dep:rppal"]
+mqtt = ["dep:rumqttc"]
+ethercat = ["dep:ethercat-rs"]
 "#,
     )?;
 
