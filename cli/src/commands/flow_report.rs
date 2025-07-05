@@ -8,8 +8,10 @@ pub fn flow_report(file: PathBuf) -> Result<()> {
     let yaml = fs::read_to_string(&file)
         .with_context(|| format!("Failed to read file: {}", file.display()))?;
     let client = Client::new();
+    let base = std::env::var("FERRUM_API_BASE_URL")
+        .unwrap_or_else(|_| "http://localhost:8001".into());
     let resp = client
-        .post("http://localhost:8001/simulate/flow")
+        .post(format!("{}/simulate/flow", base))
         .json(&serde_json::json!({ "yaml": yaml }))
         .send()
         .with_context(|| "Failed to connect to AI service. Is it running?")?;

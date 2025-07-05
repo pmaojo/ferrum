@@ -1,10 +1,17 @@
 use bevy::prelude::*;
 use bevy_tokio_tasks::TokioTasksRuntime;
-use once_cell::sync::OnceCell;
+use once_cell::sync::{Lazy, OnceCell};
 use std::sync::{mpsc, Mutex};
 use serde::{Deserialize, Serialize};
 
 static LOG_SENDER: OnceCell<Mutex<mpsc::Sender<String>>> = OnceCell::new();
+/// Base URL of the AI service used for HTTP requests.
+///
+/// This allows tests to override the address by setting the
+/// `FERRUM_API_BASE_URL` environment variable.
+static API_BASE_URL: Lazy<String> = Lazy::new(|| {
+    std::env::var("FERRUM_API_BASE_URL").unwrap_or_else(|_| "http://localhost:8001".into())
+});
 
 #[derive(Event, Clone)]
 pub struct LogEvent(pub String);
@@ -60,7 +67,7 @@ pub async fn fetch_graph(question: &str) -> reqwest::Result<String> {
     println!("[API] POST /graph-rag {question}");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/graph-rag")
+        .post(format!("{}/graph-rag", *API_BASE_URL))
         .json(&PromptRequest { text: question })
         .send()
         .await?;
@@ -72,7 +79,7 @@ pub async fn ask_ai_team(question: &str) -> reqwest::Result<String> {
     println!("[API] POST /ai-team {question}");
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/ai-team")
+        .post(format!("{}/ai-team", *API_BASE_URL))
         .json(&ChatRequest {
             messages: [Message {
                 role: "user",
@@ -103,7 +110,7 @@ pub async fn store_node_info(
     send_log(format!("[API] POST /node-info {id}"));
     let client = reqwest::Client::new();
     client
-        .post("http://localhost:8001/node-info")
+        .post(format!("{}/node-info", *API_BASE_URL))
         .json(&NodeInfoRequest {
             id,
             description,
@@ -138,7 +145,7 @@ struct ValidateResponse {
 pub async fn simulate_flow_async(yaml: &str) -> reqwest::Result<String> {
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/simulate/flow")
+        .post(format!("{}/simulate/flow", *API_BASE_URL))
         .json(&YamlRequest { yaml })
         .send()
         .await?;
@@ -159,7 +166,7 @@ pub fn simulate_flow(
 pub async fn generate_component_async(prompt: &str) -> reqwest::Result<String> {
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/generate/component")
+        .post(format!("{}/generate/component", *API_BASE_URL))
         .json(&PromptRequest { text: prompt })
         .send()
         .await?;
@@ -179,7 +186,7 @@ pub fn generate_component(
 pub async fn validate_yaml_async(yaml: &str) -> reqwest::Result<bool> {
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/validate/yaml")
+        .post(format!("{}/validate/yaml", *API_BASE_URL))
         .json(&YamlRequest { yaml })
         .send()
         .await?;
@@ -199,7 +206,7 @@ pub fn validate_yaml(
 pub async fn call_iot_http_async(path: &str) -> reqwest::Result<String> {
     let client = reqwest::Client::new();
     let res = client
-        .post(&format!("http://localhost:8001{}", path))
+        .post(&format!("{}{}", *API_BASE_URL, path))
         .send()
         .await?;
     Ok(res.text().await?)
@@ -257,7 +264,7 @@ pub async fn compile_project(file: &str) -> reqwest::Result<(bool, String)> {
     send_log(format!("[API] POST /compile {file}"));
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/compile")
+        .post(format!("{}/compile", *API_BASE_URL))
         .json(&CompileRequest { file })
         .send()
         .await?;
@@ -269,7 +276,7 @@ pub async fn compile_module(name: &str, file: &str) -> reqwest::Result<(bool, St
     send_log(format!("[API] POST /compile/module/{name} {file}"));
     let client = reqwest::Client::new();
     let res = client
-        .post(&format!("http://localhost:8001/compile/module/{name}"))
+        .post(&format!("{}/compile/module/{name}", *API_BASE_URL))
         .json(&ModuleCompileRequest { file })
         .send()
         .await?;
@@ -281,7 +288,7 @@ pub async fn compile_graph(yaml: &str) -> reqwest::Result<(bool, String)> {
     send_log("[API] POST /compile/graph".to_string());
     let client = reqwest::Client::new();
     let res = client
-        .post("http://localhost:8001/compile/graph")
+        .post(format!("{}/compile/graph", *API_BASE_URL))
         .json(&GraphCompileRequest { yaml })
         .send()
         .await?;

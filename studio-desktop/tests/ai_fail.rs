@@ -8,7 +8,8 @@ use studio_desktop::ui::viewer::{AiTask, poll_ai_task};
 #[test]
 fn ai_task_failure_shows_popup() {
     // start mock server returning invalid data to trigger an error
-    let mut server = Server::new_with_port(8001);
+    let mut server = Server::new();
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/ai-team")
         .with_status(500)
@@ -41,4 +42,5 @@ fn ai_task_failure_shows_popup() {
 
     let state = app.world().resource::<UiState>();
     assert!(state.popup.as_deref().unwrap_or("").contains("error"));
+    std::env::remove_var("FERRUM_API_BASE_URL");
 }

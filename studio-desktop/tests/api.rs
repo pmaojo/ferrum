@@ -5,10 +5,11 @@ use studio_desktop::api::{generate_component_async, validate_yaml_async};
 #[test]
 fn simulate_flow_sends_payload_and_logs() {
     let opts = ServerOpts {
-        port: 8001,
+        port: 0,
         ..Default::default()
     };
     let mut server = Server::new_with_opts(opts);
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/simulate/flow")
         .match_header("content-type", "application/json")
@@ -21,15 +22,17 @@ fn simulate_flow_sends_payload_and_logs() {
         assert!(res.is_ok());
     });
     _m.assert();
+    std::env::remove_var("FERRUM_API_BASE_URL");
 }
 
 #[test]
 fn generate_component_sends_prompt() {
     let opts = ServerOpts {
-        port: 8001,
+        port: 0,
         ..Default::default()
     };
     let mut server = Server::new_with_opts(opts);
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/generate/component")
         .match_header("content-type", "application/json")
@@ -42,15 +45,17 @@ fn generate_component_sends_prompt() {
         assert!(res.is_ok());
     });
     _m.assert();
+    std::env::remove_var("FERRUM_API_BASE_URL");
 }
 
 #[test]
 fn validate_yaml_returns_bool() {
     let opts = ServerOpts {
-        port: 8001,
+        port: 0,
         ..Default::default()
     };
     let mut server = Server::new_with_opts(opts);
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/validate/yaml")
         .match_header("content-type", "application/json")
@@ -63,4 +68,5 @@ fn validate_yaml_returns_bool() {
         assert_eq!(res.unwrap(), true);
     });
     _m.assert();
+    std::env::remove_var("FERRUM_API_BASE_URL");
 }

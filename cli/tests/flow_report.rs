@@ -2,22 +2,13 @@ use ferrum_cli::commands::flow_report;
 use mockito::Server;
 use serial_test::serial;
 use std::fs;
-use std::sync::{Mutex, OnceLock};
 use tempfile::NamedTempFile;
-
-static SERVER: OnceLock<Mutex<Server>> = OnceLock::new();
-
-fn server() -> std::sync::MutexGuard<'static, Server> {
-    SERVER
-        .get_or_init(|| Mutex::new(Server::new_with_port(8001)))
-        .lock()
-        .unwrap()
-}
 
 #[test]
 #[serial]
 fn flow_report_returns_err_on_http_failure() {
-    let mut server = server();
+    let mut server = Server::new();
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/simulate/flow")
         .with_status(500)
@@ -26,13 +17,15 @@ fn flow_report_returns_err_on_http_failure() {
     fs::write(tmp.path(), "test: value").unwrap();
     let result = flow_report(tmp.path().to_path_buf());
     drop(server);
+    std::env::remove_var("FERRUM_API_BASE_URL");
     assert!(result.is_err());
 }
 
 #[test]
 #[serial]
 fn flow_report_returns_ok_on_success() {
-    let mut server = server();
+    let mut server = Server::new();
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/simulate/flow")
         .with_status(200)
@@ -44,12 +37,15 @@ fn flow_report_returns_ok_on_success() {
     fs::write(tmp.path(), "test: value").unwrap();
     let result = flow_report(tmp.path().to_path_buf());
     drop(server);
+    std::env::remove_var("FERRUM_API_BASE_URL");
     assert!(result.is_ok());
 }
 
 #[test]
+#[serial]
 fn flow_report_handles_generic_json_body() {
-    let mut server = server();
+    let mut server = Server::new();
+    std::env::set_var("FERRUM_API_BASE_URL", server.url());
     let _m = server
         .mock("POST", "/simulate/flow")
         .with_status(200)
@@ -61,5 +57,6 @@ fn flow_report_handles_generic_json_body() {
     fs::write(tmp.path(), "test: value").unwrap();
     let result = flow_report(tmp.path().to_path_buf());
     drop(server);
+    std::env::remove_var("FERRUM_API_BASE_URL");
     assert!(matches!(result, Ok(())));
 }
