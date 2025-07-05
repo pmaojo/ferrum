@@ -1,3 +1,5 @@
+"""Unit tests for the :mod:`ai.services.vector_search` module."""
+
 from ..services import vector_search
 
 
