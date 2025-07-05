@@ -1,3 +1,20 @@
+"""Tests for :mod:`ai.services.chat_agent`.
+
+This module patches missing third-party dependencies so the tests can run
+in isolation without requiring those packages installed. It focuses on the
+interaction between :class:`ChatAgent` and its history/LLM client.
+"""
+
+from types import ModuleType
+import sys
+
+# Provide a minimal ``yaml`` module if it's not installed. The production code
+# imports ``yaml`` in ``llm_client`` but the tests don't rely on its features.
+if "yaml" not in sys.modules:
+    stub = ModuleType("yaml")
+    stub.safe_load = lambda *_args, **_kwargs: {}
+    sys.modules["yaml"] = stub
+
 from ..services import chat_agent
 from ..services.chat_agent import ChatAgent
 
