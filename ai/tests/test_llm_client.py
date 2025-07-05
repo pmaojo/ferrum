@@ -1,4 +1,4 @@
-from ai.services import llm_client
+from ..services import llm_client
 
 
 class DummyProvider:

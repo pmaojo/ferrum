@@ -1,4 +1,4 @@
-from agents import generator, explainer, validator
+from ..agents import generator, explainer, validator
 
 
 def select(action: str):

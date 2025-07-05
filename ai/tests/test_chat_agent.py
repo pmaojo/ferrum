@@ -1,5 +1,5 @@
-import ai.services.chat_agent as chat_agent
-from ai.services.chat_agent import ChatAgent
+from ..services import chat_agent
+from ..services.chat_agent import ChatAgent
 
 
 class DummyHistory:

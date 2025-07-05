@@ -1,4 +1,4 @@
-import ai.toolset as toolset
+from .. import toolset
 
 
 def test_graph_rag_returns_context(monkeypatch):

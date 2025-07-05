@@ -41,8 +41,8 @@ sys.modules['agents.team'].UXDesigner = object
 sys.modules['agents.team'].Coach = object
 
 from fastapi.testclient import TestClient
-from ai.main import app
-import ai.router as router
+from ..main import app
+from .. import router as router
 
 client = TestClient(app)
 
