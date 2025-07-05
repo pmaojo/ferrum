@@ -1,3 +1,7 @@
+import importlib
+import sys
+
+sys.modules.pop('agents.validator', None)
 from ..agents import validator
 
 
@@ -24,6 +28,7 @@ class FakeDriver:
 
 
 def test_invalid_structure_returns_false(monkeypatch):
+    importlib.reload(validator)
     monkeypatch.setattr(validator, "_get_graph_driver", lambda: FakeDriver())
     result = validator.validate_yaml_with_graph("- just\n- a\n- list")
     assert result is False
