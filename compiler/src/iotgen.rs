@@ -38,7 +38,7 @@ fn generate_ethercat(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("iot");
     fs::create_dir_all(&dir)?;
     let content = format!(
-        "use ethercat_rs::Master;\n\npub fn {name}_master() -> Master {{\n    // \u{26F3} AI_FILL[iot_ethercat] --context=iot:{orig}\n    unimplemented!()\n}}\n",
+        "use ethercat_rs::Master;\n\npub fn {name}_master() -> Master {{\n    // \u{26F3} AI_FILL[iot_ethercat] --context=iot:{orig}\n    Master::default()\n}}\n",
         name = iot.name.to_snake_case(),
         orig = iot.name
     );
@@ -303,6 +303,50 @@ mod tests {
         };
         generate_iot(&iot, &paths).unwrap();
         assert!(dir.path().join("backend/iot/robot_ethercat.rs").exists());
+    }
+
+    #[test]
+    fn ethercat_stub_compiles() {
+        use std::process::Command;
+
+        let dir = tempdir().unwrap();
+        let paths = ProjectPaths::new(dir.path());
+
+        let iot = DslIot {
+            name: "Robot".into(),
+            code: "fn run() {}".into(),
+            protocol: Some("ethercat".into()),
+            driver: None,
+            simulate: false,
+            expose: None,
+        };
+        generate_iot(&iot, &paths).unwrap();
+
+        let stub_dir = dir.path().join("stub");
+        fs::create_dir(&stub_dir).unwrap();
+        fs::write(
+            stub_dir.join("lib.rs"),
+            "pub struct Master; impl Default for Master { fn default() -> Self { Self } }",
+        )
+        .unwrap();
+        let stub_rlib = stub_dir.join("libethercat_rs.rlib");
+        let status = Command::new("rustc")
+            .args(["--crate-type", "lib", "lib.rs", "-o"])
+            .arg(&stub_rlib)
+            .current_dir(&stub_dir)
+            .status()
+            .unwrap();
+        assert!(status.success());
+
+        let gen_file = dir.path().join("backend/iot/robot_ethercat.rs");
+        let status = Command::new("rustc")
+            .args(["--edition", "2021", "--crate-type", "lib"])
+            .arg(&gen_file)
+            .arg("--extern")
+            .arg(format!("ethercat_rs={}", stub_rlib.display()))
+            .status()
+            .unwrap();
+        assert!(status.success());
     }
 
     #[test]
