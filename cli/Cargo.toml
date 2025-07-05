@@ -33,3 +33,4 @@ ferrum-shared-models = { path = "../shared-models" }
 [dev-dependencies]
 mockito = "1"
 tempfile = "3"
+serial_test = "2"

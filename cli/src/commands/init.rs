@@ -460,7 +460,11 @@ fn copy_leptos_starter(dir: &Path, mode: super::Frontend) -> Result<()> {
         _ => unreachable!(),
     };
 
-    let template_dir = PathBuf::from("templates/frontend_leptos").join(subdir);
+    // Resolve the template path relative to the crate directory so it works
+    // regardless of the current working directory of the executable.
+    let template_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../templates/frontend_leptos")
+        .join(subdir);
     for entry in WalkDir::new(&template_dir) {
         let entry = entry?;
         if entry.file_type().is_file() {
