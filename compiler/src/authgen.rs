@@ -13,7 +13,16 @@ pub fn generate_auth(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     fs::create_dir_all(&paths.frontend.join("components"))?;
     fs::create_dir_all(&paths.frontend.join("hooks"))?;
 
-    let backend_content = "// Authentication handlers\n\npub async fn login() {\n    // TODO implement\n}\n";
+    let backend_content = "// Authentication handlers\n\n".to_string()
+        + "pub struct Credentials {\n    pub email: String,\n    pub password: String,\n}\n\n"
+        + "/// Very basic credential check returning a fixed token.\n"
+        + "pub fn login(creds: Credentials) -> Result<String, &'static str> {\n"
+        + "    if creds.email == \"user@example.com\" && creds.password == \"password\" {\n"
+        + "        Ok(\"token123\".to_string())\n"
+        + "    } else {\n"
+        + "        Err(\"invalid_credentials\")\n"
+        + "    }\n"
+        + "}\n";
     fs::write(paths.backend.join("auth.rs"), backend_content)?;
 
     let hook_content = "export function useLogin() {\n  return async (email: string, password: string) => {\n    const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });\n    return res.json();\n  };\n}\n";
