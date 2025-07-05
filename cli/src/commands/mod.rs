@@ -317,7 +317,7 @@ pub use plugin_docs::plugin_docs;
 pub use prompt::prompt;
 pub use sync_cmd::sync;
 pub use usecase_prompt::usecase_prompt;
-pub use compile::compile;
+pub use compile::{compile, compile_with_formatters};
 pub use plugins::{add_plugin, list_plugins, remove_plugin};
 
 pub(crate) fn load_plugins() -> Result<ferrum_engine::PluginManager> {

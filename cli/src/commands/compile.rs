@@ -1,4 +1,5 @@
 use anyhow::Result;
+use ferrum_compiler::FormatStep;
 use std::path::PathBuf;
 
 pub fn compile(
@@ -7,6 +8,32 @@ pub fn compile(
     templates: Option<PathBuf>,
     module: Option<String>,
     graph: bool,
+) -> Result<()> {
+    use ferrum_compiler::{CargoFmt, Prettier};
+    compile_with_formatters(
+        files,
+        output,
+        templates,
+        module,
+        graph,
+        &CargoFmt,
+        &Prettier,
+    )
+}
+
+/// Compile one or more YAML DSL files with injectable formatters.
+///
+/// This function mirrors [`compile`] but allows the caller to provide custom
+/// implementations of [`FormatStep`] for the Rust and frontend formatting
+/// phases. This facilitates unit testing without invoking external tools.
+pub fn compile_with_formatters(
+    files: Vec<String>,
+    output: Option<PathBuf>,
+    templates: Option<PathBuf>,
+    module: Option<String>,
+    graph: bool,
+    rust_fmt: &dyn FormatStep,
+    frontend_fmt: &dyn FormatStep,
 ) -> Result<()> {
     use glob::glob;
 
@@ -78,11 +105,11 @@ pub fn compile(
         plugins.compile_all()?;
     }
 
-    use ferrum_compiler::{format_frontend, format_rust, CargoFmt, Prettier};
+    use ferrum_compiler::{format_frontend, format_rust};
 
-    // Format Rust and TypeScript sources using external tools if available
-    format_rust(&CargoFmt, &output_dir);
-    format_frontend(&Prettier, &output_dir.join("frontend"));
+    // Format Rust and TypeScript sources using the provided formatters
+    format_rust(rust_fmt, &output_dir);
+    format_frontend(frontend_fmt, &output_dir.join("frontend"));
 
     let index = output_dir.join("frontend/index.html");
     if index.exists() {
