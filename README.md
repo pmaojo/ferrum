@@ -147,7 +147,8 @@ Insert `// ⛳️ AI_FILL[task] --context NODE_ID` in your generated files and r
 command above to let Ferrum ask the AI service for code based on your graph
 context. If the answer is empty you'll be prompted for a short description of
 `NODE_ID`. The information is sent back to the AI service and stored in Neo4j
-for next time. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
+for next time. Set `FERRUM_AI_URL` or use `--ai-url` to change the service
+endpoint. See [docs/graph-rag.md](docs/graph-rag.md) for more details.
 For Leptos setup with cargo-leptos see [docs/leptos.md](docs/leptos.md).
 
 #### 9. Cross-compile the backend

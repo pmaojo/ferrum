@@ -6,6 +6,9 @@ use std::path::PathBuf;
 #[command(name = "ferrum")]
 #[command(about = "AI-first scaffolding system for full-stack applications", long_about = None)]
 pub struct Cli {
+    /// Base URL for the AI service
+    #[arg(long, env = "FERRUM_AI_URL", default_value = "http://localhost:8001")]
+    pub ai_url: String,
     #[command(subcommand)]
     pub command: Commands,
 }

@@ -75,7 +75,7 @@ fn main() -> Result<()> {
         Commands::Docs { plugin } => plugin_docs(plugin),
         Commands::I18n { dir, output } => ferrum_cli::commands::extract_i18n(dir, output),
         Commands::Graph { file, output } => generate_graph(file, output),
-        Commands::FillTodos { dir } => fill_todos(dir),
+        Commands::FillTodos { dir } => fill_todos(dir, &cli.ai_url),
         Commands::AiTeam { text } => ai_team(text),
         Commands::Flow { file } => ferrum_cli::commands::flow_report(file),
         Commands::Analyze { file, json, bottleneck } => {

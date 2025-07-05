@@ -2,17 +2,17 @@ use anyhow::{Context, Result};
 use std::path::PathBuf;
 
 /// Default regex pattern used to locate AI_FILL markers.
-pub(crate) const TODO_PATTERN: &str =
+pub const TODO_PATTERN: &str =
     r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)";
 
 /// Public interface used by the CLI.
-pub fn fill_todos(dir: PathBuf) -> Result<()> {
-    fill_todos_with_pattern(dir, TODO_PATTERN)
+pub fn fill_todos(dir: PathBuf, ai_url: &str) -> Result<()> {
+    fill_todos_with_pattern(dir, TODO_PATTERN, ai_url)
 }
 
 /// Implementation that allows supplying a custom regex pattern.
 /// Exposed for testing to validate regex failure handling.
-pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
+pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str, ai_url: &str) -> Result<()> {
     use dialoguer::Input;
     use regex::Regex;
     use reqwest::blocking::Client;
@@ -22,6 +22,9 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
 
     let re = Regex::new(pattern).context("Invalid regex pattern")?;
     let client = Client::new();
+    let base = ai_url.trim_end_matches('/');
+    let fill_todo_url = format!("{}/fill-todo", base);
+    let node_info_url = format!("{}/node-info", base);
 
     for entry in WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
         let path = entry.path();
@@ -32,7 +35,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                         let task = &caps["task"];
                         let node = &caps["context"];
                         let mut code = client
-                            .post("http://localhost:8001/fill-todo")
+                            .post(&fill_todo_url)
                             .json(&json!({"code": node, "instructions": task}))
                             .send()
                             .and_then(|r| r.json::<serde_json::Value>())
@@ -53,7 +56,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                                 .unwrap_or_default();
 
                             code = client
-                                .post("http://localhost:8001/fill-todo")
+                                .post(&fill_todo_url)
                                 .json(&json!({
                                     "code": node,
                                     "instructions": format!("{}; {}", task, details),
@@ -69,7 +72,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                                 .unwrap_or_else(|| "// failed to fill".to_string());
 
                             let _ = client
-                                .post("http://localhost:8001/node-info")
+                                .post(&node_info_url)
                                 .json(&json!({"id": node, "story": details}))
                                 .send();
                         }
