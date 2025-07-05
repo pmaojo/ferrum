@@ -1,0 +1,9 @@
+/**
+ * Custom validation rules.
+ * Export a function matching your validation name. The function
+ * should return `true` when the provided value is valid.
+ *
+ * Example:
+ * export const nonEmpty = (value: unknown): boolean =>
+ *   typeof value === 'string' && value.trim().length > 0;
+ */

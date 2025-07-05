@@ -1,0 +1,11 @@
+/// Custom validation rules.
+///
+/// Add functions matching your validation names here. Each function
+/// should return `true` when the provided value is valid.
+///
+/// Example:
+/// ```
+/// pub fn non_empty(value: &str) -> bool {
+///     !value.trim().is_empty()
+/// }
+/// ```

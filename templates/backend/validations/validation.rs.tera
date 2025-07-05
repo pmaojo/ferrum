@@ -1,4 +1,5 @@
 use regex::Regex;
+use super::custom;
 
 {% if rule.kind == "Regex" %}
 pub fn {{ fn_name }}(value: &str) -> bool {
@@ -9,7 +10,5 @@ pub fn {{ fn_name }}(value: i32) -> bool {
     value >= {{ rule.min }} && value <= {{ rule.max }}
 }
 {% else %}
-pub fn {{ fn_name }}<_T>(_value: _T) -> bool {
-    true // custom rule not implemented
-}
+pub use custom::{{ fn_name }};
 {% endif %}

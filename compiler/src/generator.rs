@@ -448,6 +448,44 @@ impl Generator {
         let context =
             TeraContext::from_serialize(&ctx).context("Failed to serialize validation context")?;
 
+        // Ensure validations module and custom rule file exist
+        use std::fs::OpenOptions;
+        let mod_path = self
+            .output_dir
+            .join("backend/src/validations/mod.rs");
+        if !mod_path.exists() {
+            let mod_content = self
+                .templates
+                .render("backend/validations/mod.rs.tera", &TeraContext::new())
+                .context("Failed to render validations mod template")?;
+            self.write_file(&mod_path, &mod_content)?;
+        }
+        let mut mod_file = OpenOptions::new().append(true).open(&mod_path)?;
+        use std::io::Write;
+        writeln!(mod_file, "pub mod {};", fn_name)?;
+
+        let custom_backend_path = self
+            .output_dir
+            .join("backend/src/validations/custom.rs");
+        if !custom_backend_path.exists() {
+            let custom_content = self
+                .templates
+                .render("backend/validations/custom.rs.tera", &TeraContext::new())
+                .context("Failed to render custom validation template")?;
+            self.write_file(&custom_backend_path, &custom_content)?;
+        }
+
+        let custom_frontend_path = self
+            .output_dir
+            .join("frontend/src/validations/custom.ts");
+        if !custom_frontend_path.exists() {
+            let custom_ts = self
+                .templates
+                .render("frontend/validations/custom.ts.tera", &TeraContext::new())
+                .context("Failed to render custom validation TS template")?;
+            self.write_file(&custom_frontend_path, &custom_ts)?;
+        }
+
         let backend_content = self
             .templates
             .render("backend/validations/validation.rs.tera", &context)
