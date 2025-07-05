@@ -1,5 +1,6 @@
 use ferrum_cli::commands::flow_report;
 use mockito::Server;
+use serial_test::serial;
 use std::fs;
 use std::sync::{Mutex, OnceLock};
 use tempfile::NamedTempFile;
@@ -14,6 +15,7 @@ fn server() -> std::sync::MutexGuard<'static, Server> {
 }
 
 #[test]
+#[serial]
 fn flow_report_returns_err_on_http_failure() {
     let mut server = server();
     let _m = server
@@ -28,6 +30,7 @@ fn flow_report_returns_err_on_http_failure() {
 }
 
 #[test]
+#[serial]
 fn flow_report_returns_ok_on_success() {
     let mut server = server();
     let _m = server
