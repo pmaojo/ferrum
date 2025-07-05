@@ -1,7 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use std::path::{Path, PathBuf};
-use webbrowser;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(name = "ferrum")]
@@ -364,18 +363,4 @@ pub(crate) fn load_plugins() -> Result<ferrum_engine::PluginManager> {
         }
     }
     Ok(manager)
-}
-
-pub(crate) fn detect_leptos_mode() -> Option<String> {
-    use std::fs;
-    let path = std::path::Path::new("frontend_leptos/Cargo.toml");
-    if let Ok(contents) = fs::read_to_string(path) {
-        if contents.contains("default = [\"csr\"]") {
-            return Some("csr".to_string());
-        }
-        if contents.contains("default = [\"ssr\"]") {
-            return Some("ssr".to_string());
-        }
-    }
-    None
 }

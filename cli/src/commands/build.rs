@@ -1,5 +1,4 @@
 use anyhow::Result;
-use std::path::Path;
 
 pub fn build(target: Option<String>) -> Result<()> {
     use std::process::Command;
