@@ -1,4 +1,4 @@
-import ai.services.vector_search as vector_search
+from ..services import vector_search
 
 
 class DummyModel:

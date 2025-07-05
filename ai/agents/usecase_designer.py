@@ -1,4 +1,4 @@
-from services.llm_client import call_llm
+from ..services.llm_client import call_llm
 
 
 def design_usecase(prompt: str, model: str | None = None) -> str:

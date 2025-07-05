@@ -2,7 +2,7 @@
 
 import os
 from neo4j import GraphDatabase
-from services.llm_client import call_llm
+from ..services.llm_client import call_llm
 
 
 def _get_graph_driver():

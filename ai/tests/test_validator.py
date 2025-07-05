@@ -1,4 +1,4 @@
-from ai.agents import validator
+from ..agents import validator
 
 
 class FakeSession:

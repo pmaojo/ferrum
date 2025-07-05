@@ -21,15 +21,15 @@ except ImportError:  # pragma: no cover - fallback when run as a script
 from pydantic import BaseModel
 import subprocess
 from pathlib import Path
-from agents.generator import generate_yaml
-from agents.explainer import explain_yaml
-from agents.validator import validate_yaml, validate_usecase_prompt
-from agents.component_designer import design_component
-from agents.usecase_designer import design_usecase
-from agents.filler import fill_code, store_details
-from services.chat_agent import ChatAgent
-from services.history import InMemoryHistory, ChatHistory
-from agents.coordinator import Coordinator
+from .agents.generator import generate_yaml
+from .agents.explainer import explain_yaml
+from .agents.validator import validate_yaml, validate_usecase_prompt
+from .agents.component_designer import design_component
+from .agents.usecase_designer import design_usecase
+from .agents.filler import fill_code, store_details
+from .services.chat_agent import ChatAgent
+from .services.history import InMemoryHistory, ChatHistory
+from .agents.coordinator import Coordinator
 try:  # Support execution as a script without package context
     from .toolset import Toolset
 except ImportError:  # pragma: no cover - fallback when run as a script
