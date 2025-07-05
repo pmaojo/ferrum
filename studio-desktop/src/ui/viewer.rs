@@ -174,21 +174,22 @@ pub fn handle_interaction(
     }
 }
 
-fn poll_ai_task(ai_task: &mut AiTask, state: &mut UiState) {
+/// Poll the background AI request and surface results or errors in `state`.
+pub fn poll_ai_task(ai_task: &mut AiTask, state: &mut UiState) {
     if let Some(handle) = ai_task.0.as_mut() {
         if let Some(res) = futures_lite::future::block_on(futures_lite::future::poll_once(handle)) {
             ai_task.0 = None;
             match res {
-                Ok(res) => {
-                    if let Ok(text) = res {
+                Ok(res) => match res {
+                    Ok(text) => {
                         state.ai_reply = Some(text);
-                    } else {
-                        // TODO: surface the request failure to the UI
                     }
-                }
+                    Err(err) => {
+                        state.popup = Some(format!("AI request error: {err}"));
+                    }
+                },
                 Err(err) => {
-                    // TODO: surface the join error to the UI
-                    eprintln!("AI task join error: {err}");
+                    state.popup = Some(format!("AI task join error: {err}"));
                 }
             }
         }
