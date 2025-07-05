@@ -2,5 +2,6 @@ use ethercat_rs::Master;
 
 pub fn open_master() -> Master {
     // ⚙ AI_FILL[iot_ethercat_rs]
-    unimplemented!()
+    // TODO: replace with real EtherCAT initialization
+    Master::default()
 }
