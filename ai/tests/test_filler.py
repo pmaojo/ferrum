@@ -63,10 +63,13 @@ def test_fill_code_includes_enriched_context(monkeypatch):
 
     captured = {}
 
-    def fake_call_llm(prompt: str, system: str, model: str | None = None) -> str:
+    def fake_call_llm(
+        prompt: str, system: str, model: str | None = None, config=None
+    ) -> str:
         captured["prompt"] = prompt
         captured["system"] = system
         captured["model"] = model
+        captured["config"] = config
         return "code"
 
     monkeypatch.setattr(filler, "fetch_context", fake_fetch_context)
@@ -78,3 +81,4 @@ def test_fill_code_includes_enriched_context(monkeypatch):
     assert "description: desc" in captured["prompt"]
     assert "story: test" in captured["prompt"]
     assert captured["model"] == "gpt-4"
+    assert captured["config"] is None

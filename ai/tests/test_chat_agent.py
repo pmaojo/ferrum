@@ -38,8 +38,10 @@ def test_chat_appends_and_calls_llm(monkeypatch):
 
     captured = {}
 
-    def fake_call_llm(prompt: str, system: str, model: str | None = None) -> str:
-        captured["args"] = (prompt, system, model)
+    def fake_call_llm(
+        prompt: str, system: str, model: str | None = None, config=None
+    ) -> str:
+        captured["args"] = (prompt, system, model, config)
         return "response"
 
     monkeypatch.setattr(chat_agent, "call_llm", fake_call_llm)
@@ -54,4 +56,9 @@ def test_chat_appends_and_calls_llm(monkeypatch):
     assert reply == "response"
     assert history.messages == messages + [{"role": "assistant", "content": "response"}]
     expected_prompt = "\n".join(["hi", "there"])
-    assert captured["args"] == (expected_prompt, agent.system_prompt, "gpt-4")
+    assert captured["args"] == (
+        expected_prompt,
+        agent.system_prompt,
+        "gpt-4",
+        None,
+    )
