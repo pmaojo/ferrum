@@ -43,6 +43,7 @@ impl FormatStep for Prettier {
     fn run(&self, dir: &Path) -> Result<()> {
         let status = Command::new("prettier")
             .arg("--write")
+            .arg("--single-quote")
             .arg(dir)
             .status()
             .context("failed to execute 'prettier'")?;
