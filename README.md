@@ -116,6 +116,18 @@ Right-click any node to open the context menu. Besides editing its info you can
 and **Validate** the selection. Results from these actions appear in a popup.
 See [studio-desktop/README.md](studio-desktop/README.md) for details.
 
+### 🌐 Web Studio
+
+If the Bevy-based desktop UI doesn't render correctly, you can try the new web
+version built with [Leptos](https://github.com/leptos-rs/leptos). Start it with:
+
+```bash
+cargo leptos serve --manifest-path studio-web/Cargo.toml
+```
+
+The web studio fetches the same `/graph-rag` and `/ai-team` endpoints and shares
+the typed models defined under `ferrum-shared-models`.
+
 #### 5. Design a shared component from a prompt
 
 ```bash

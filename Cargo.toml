@@ -12,6 +12,7 @@ members = [
     "shared-models",
     "engine",
     "studio-desktop",
+    "studio-web",
 ]
 [dependencies]
 ferrum-cli = { path = "./cli" }
