@@ -16,3 +16,17 @@ async fn fetch_graph_returns_dsl() {
     let dsl = api.fetch_graph().await.unwrap();
     assert_eq!(dsl.app.name, "demo");
 }
+
+#[tokio::test]
+async fn ask_ai_team_returns_message() {
+    let mut server = Server::new_async().await;
+    let _m = server
+        .mock("POST", "/ai-team")
+        .with_body(json!({"message": "hi"}).to_string())
+        .create_async()
+        .await;
+
+    let api = HttpGraphApi::new(server.url());
+    let msg = api.ask_ai_team("hello").await.unwrap();
+    assert_eq!(msg, "hi");
+}
