@@ -3,8 +3,26 @@
 //! This separates HTTP calls from UI logic so implementations can be mocked
 //! during tests.
 
-use ferrum_shared_models::{FerrumDsl, DslApp};
+use ferrum_shared_models::FerrumDsl;
 use async_trait::async_trait;
+use thiserror::Error;
+
+/// Result type for [`GraphApi`] operations that may fail beyond HTTP errors.
+pub type ApiResult<T> = Result<T, ApiError>;
+
+/// Error returned by [`GraphApi`] implementations.
+#[derive(Debug, Error)]
+pub enum ApiError {
+    /// HTTP layer failure.
+    #[error(transparent)]
+    Http(#[from] reqwest::Error),
+    /// Expected `graph` field was missing in server response.
+    #[error("missing graph field")] 
+    MissingGraph,
+    /// YAML parsing error when decoding the graph string.
+    #[error(transparent)]
+    Parse(#[from] serde_yaml::Error),
+}
 
 /// API trait used by the components to load and manipulate the graph.
 ///
@@ -12,7 +30,7 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait GraphApi {
     /// Fetch the current architecture graph as a [`FerrumDsl`].
-    async fn fetch_graph(&self) -> reqwest::Result<FerrumDsl>;
+    async fn fetch_graph(&self) -> ApiResult<FerrumDsl>;
 
     /// Ask the AI team a question and return the text response.
     async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String>;
@@ -64,7 +82,7 @@ impl HttpGraphApi {
 
 #[async_trait]
 impl GraphApi for HttpGraphApi {
-    async fn fetch_graph(&self) -> reqwest::Result<FerrumDsl> {
+    async fn fetch_graph(&self) -> ApiResult<FerrumDsl> {
         let url = format!("{}/graph-rag", self.base_url);
         let res = reqwest::Client::new()
             .post(&url)
@@ -72,31 +90,11 @@ impl GraphApi for HttpGraphApi {
             .send()
             .await?;
         let data: serde_json::Value = res.json().await?;
-        let graph_str = data.get("graph").and_then(|v| v.as_str()).unwrap_or("{}");
-        let dsl: FerrumDsl = serde_yaml::from_str(graph_str).unwrap_or_else(|_| FerrumDsl {
-            app: DslApp {
-                name: "empty".into(),
-                title: None,
-                version: None,
-                database: None,
-                features: vec![],
-                auth: None,
-            },
-            modules: Default::default(),
-            routes: vec![],
-            pages: vec![],
-            components: vec![],
-            queries: vec![],
-            mutations: vec![],
-            jobs: vec![],
-            entities: vec![],
-            forms: vec![],
-            validations: vec![],
-            uploads: vec![],
-            policies: vec![],
-            resources: vec![],
-            iot: vec![],
-        });
+        let graph_str = data
+            .get("graph")
+            .and_then(|v| v.as_str())
+            .ok_or(ApiError::MissingGraph)?;
+        let dsl: FerrumDsl = serde_yaml::from_str(graph_str)?;
         Ok(dsl)
     }
 
