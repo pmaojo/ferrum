@@ -4,7 +4,20 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.16"
+bevy = { version = "0.16", default-features = false, features = [
+    "bevy_winit",
+    "bevy_window",
+    "bevy_render",
+    "bevy_core_pipeline",
+    "bevy_sprite",
+    "bevy_text",
+    "bevy_ui",
+    "bevy_asset",
+    "bevy_scene",
+    "png",
+    "file_watcher",
+    "multi_threaded",
+] }
 bevy_egui = "0.35"
 egui_extras = { version = "0.31", features = ["svg"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -15,10 +28,14 @@ once_cell = "1.19"
 webbrowser = "0.8"
 futures-lite = "2"
 bevy_asset_loader = "0.23"
-leafwing-input-manager = "0.17"
+leafwing-input-manager = { version = "0.17", default-features = false, features = ["mouse", "keyboard"] }
 bevy-tokio-tasks = "0.16"
 thiserror = "1"
 ferrum-shared-models = { path = "../shared-models" }
 
 [dev-dependencies]
 mockito = "1"
+
+[features]
+default = []
+audio = ["bevy/bevy_audio", "bevy/vorbis"]
