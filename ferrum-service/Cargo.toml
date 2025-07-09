@@ -1,0 +1,10 @@
+[package]
+name = "ferrum-service"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ferrum-cli = { path = "../cli" }
+ferrum-engine = { path = "../engine" }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3" }
