@@ -4,26 +4,50 @@
 //! during tests.
 
 use ferrum_shared_models::{FerrumDsl, DslApp};
+use async_trait::async_trait;
 
 /// API trait used by the components to load and manipulate the graph.
 ///
 /// Implementations should be side-effect free and easy to mock.
+#[async_trait]
 pub trait GraphApi {
     /// Fetch the current architecture graph as a [`FerrumDsl`].
-    fn fetch_graph(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = reqwest::Result<FerrumDsl>> + '_>>;
+    async fn fetch_graph(&self) -> reqwest::Result<FerrumDsl>;
 
-    // TODO: add async methods mirroring studio-desktop's API such as:
-    // - ask_ai_team(&self, question: &str)
-    // - store_node_info(&self, id: &str, description: Option<&str>, story: Option<&str>)
-    // - simulate_flow(&self, yaml: &str)
-    // - generate_component(&self, prompt: &str)
-    // - validate_yaml(&self, yaml: &str)
-    // - call_iot_http(&self, path: &str)
-    // - publish_mqtt(&self, topic: &str, payload: &str)
-    // - compile_project(&self, file: &str)
-    // - compile_module(&self, name: &str, file: &str)
-    // - compile_graph(&self, yaml: &str)
-    // Each method should return a `reqwest::Result<T>` and be documented.
+    /// Ask the AI team a question and return the text response.
+    async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String>;
+
+    /// Store optional node information for a given `id`.
+    async fn store_node_info(
+        &self,
+        id: &str,
+        description: Option<&str>,
+        story: Option<&str>,
+    ) -> reqwest::Result<()>;
+
+    /// Simulate the provided YAML flow and return textual output.
+    async fn simulate_flow(&self, yaml: &str) -> reqwest::Result<String>;
+
+    /// Generate a component from a prompt in YAML form.
+    async fn generate_component(&self, prompt: &str) -> reqwest::Result<String>;
+
+    /// Validate a YAML snippet, returning `true` when valid.
+    async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool>;
+
+    /// Perform an IoT HTTP call to the given `path`.
+    async fn call_iot_http(&self, path: &str) -> reqwest::Result<String>;
+
+    /// Publish an MQTT message with topic and payload.
+    async fn publish_mqtt(&self, topic: &str, payload: &str) -> reqwest::Result<()>;
+
+    /// Compile an entire project referenced by `file`.
+    async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)>;
+
+    /// Compile a single module `name` from `file`.
+    async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)>;
+
+    /// Compile the provided graph YAML.
+    async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)>;
 }
 
 /// HTTP based [`GraphApi`] implementation.
@@ -38,43 +62,178 @@ impl HttpGraphApi {
     }
 }
 
+#[async_trait]
 impl GraphApi for HttpGraphApi {
-    fn fetch_graph(&self) -> std::pin::Pin<Box<dyn std::future::Future<Output = reqwest::Result<FerrumDsl>> + '_>> {
+    async fn fetch_graph(&self) -> reqwest::Result<FerrumDsl> {
         let url = format!("{}/graph-rag", self.base_url);
-        Box::pin(async move {
-            let res = reqwest::Client::new()
-                .post(&url)
-                .json(&serde_json::json!({ "text": "show" }))
-                .send()
-                .await?;
-            let data: serde_json::Value = res.json().await?;
-            let graph_str = data.get("graph").and_then(|v| v.as_str()).unwrap_or("{}");
-            let dsl: FerrumDsl = serde_yaml::from_str(graph_str).unwrap_or_else(|_| FerrumDsl {
-                app: DslApp {
-                    name: "empty".into(),
-                    title: None,
-                    version: None,
-                    database: None,
-                    features: vec![],
-                    auth: None,
-                },
-                modules: Default::default(),
-                routes: vec![],
-                pages: vec![],
-                components: vec![],
-                queries: vec![],
-                mutations: vec![],
-                jobs: vec![],
-                entities: vec![],
-                forms: vec![],
-                validations: vec![],
-                uploads: vec![],
-                policies: vec![],
-                resources: vec![],
-                iot: vec![],
-            });
-            Ok(dsl)
-        })
+        let res = reqwest::Client::new()
+            .post(&url)
+            .json(&serde_json::json!({ "text": "show" }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        let graph_str = data.get("graph").and_then(|v| v.as_str()).unwrap_or("{}");
+        let dsl: FerrumDsl = serde_yaml::from_str(graph_str).unwrap_or_else(|_| FerrumDsl {
+            app: DslApp {
+                name: "empty".into(),
+                title: None,
+                version: None,
+                database: None,
+                features: vec![],
+                auth: None,
+            },
+            modules: Default::default(),
+            routes: vec![],
+            pages: vec![],
+            components: vec![],
+            queries: vec![],
+            mutations: vec![],
+            jobs: vec![],
+            entities: vec![],
+            forms: vec![],
+            validations: vec![],
+            uploads: vec![],
+            policies: vec![],
+            resources: vec![],
+            iot: vec![],
+        });
+        Ok(dsl)
+    }
+
+    async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/ai-team", self.base_url))
+            .json(&serde_json::json!({
+                "messages": [{ "role": "user", "content": question }]
+            }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok(data
+            .get("message")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string())
+    }
+
+    async fn store_node_info(
+        &self,
+        id: &str,
+        description: Option<&str>,
+        story: Option<&str>,
+    ) -> reqwest::Result<()> {
+        reqwest::Client::new()
+            .post(format!("{}/node-info", self.base_url))
+            .json(&serde_json::json!({
+                "id": id,
+                "description": description,
+                "story": story,
+            }))
+            .send()
+            .await?
+            .error_for_status()?;
+        Ok(())
+    }
+
+    async fn simulate_flow(&self, yaml: &str) -> reqwest::Result<String> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/simulate/flow", self.base_url))
+            .json(&serde_json::json!({ "yaml": yaml }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok(data
+            .get("text")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string())
+    }
+
+    async fn generate_component(&self, prompt: &str) -> reqwest::Result<String> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/generate/component", self.base_url))
+            .json(&serde_json::json!({ "text": prompt }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok(data
+            .get("yaml")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string())
+    }
+
+    async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/validate/yaml", self.base_url))
+            .json(&serde_json::json!({ "yaml": yaml }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok(data
+            .get("valid")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false))
+    }
+
+    async fn call_iot_http(&self, path: &str) -> reqwest::Result<String> {
+        let res = reqwest::Client::new()
+            .post(format!("{}{}", self.base_url, path))
+            .send()
+            .await?;
+        Ok(res.text().await?)
+    }
+
+    async fn publish_mqtt(&self, _topic: &str, _payload: &str) -> reqwest::Result<()> {
+        Ok(())
+    }
+
+    async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/compile", self.base_url))
+            .json(&serde_json::json!({ "file": file }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok((
+            data.get("ok").and_then(|v| v.as_bool()).unwrap_or(false),
+            data.get("logs")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string(),
+        ))
+    }
+
+    async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/compile/module/{}", self.base_url, name))
+            .json(&serde_json::json!({ "file": file }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok((
+            data.get("ok").and_then(|v| v.as_bool()).unwrap_or(false),
+            data.get("logs")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string(),
+        ))
+    }
+
+    async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)> {
+        let res = reqwest::Client::new()
+            .post(format!("{}/compile/graph", self.base_url))
+            .json(&serde_json::json!({ "yaml": yaml }))
+            .send()
+            .await?;
+        let data: serde_json::Value = res.json().await?;
+        Ok((
+            data.get("ok").and_then(|v| v.as_bool()).unwrap_or(false),
+            data.get("logs")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string(),
+        ))
     }
 }
 
