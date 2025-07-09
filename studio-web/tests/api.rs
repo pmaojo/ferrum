@@ -1,4 +1,5 @@
 use studio_web::{HttpGraphApi, GraphApi};
+use studio_web::api::ApiError;
 use mockito::Server;
 use serde_json::json;
 
@@ -15,6 +16,34 @@ async fn fetch_graph_returns_dsl() {
     let api = HttpGraphApi::new(server.url());
     let dsl = api.fetch_graph().await.unwrap();
     assert_eq!(dsl.app.name, "demo");
+}
+
+#[tokio::test]
+async fn fetch_graph_invalid_yaml_errors() {
+    let mut server = Server::new_async().await;
+    let _m = server
+        .mock("POST", "/graph-rag")
+        .with_body(json!({"graph": "invalid"}).to_string())
+        .create_async()
+        .await;
+
+    let api = HttpGraphApi::new(server.url());
+    let err = api.fetch_graph().await.unwrap_err();
+    assert!(matches!(err, ApiError::Parse(_)));
+}
+
+#[tokio::test]
+async fn fetch_graph_missing_field_errors() {
+    let mut server = Server::new_async().await;
+    let _m = server
+        .mock("POST", "/graph-rag")
+        .with_body(json!({"foo": "bar"}).to_string())
+        .create_async()
+        .await;
+
+    let api = HttpGraphApi::new(server.url());
+    let err = api.fetch_graph().await.unwrap_err();
+    assert!(matches!(err, ApiError::MissingGraph));
 }
 
 #[tokio::test]
