@@ -118,8 +118,8 @@ See [studio-desktop/README.md](studio-desktop/README.md) for details.
 
 ### 🌐 Web Studio
 
-If the Bevy-based desktop UI doesn't render correctly, you can try the new web
-version built with [Leptos](https://github.com/leptos-rs/leptos). Start it with:
+The recommended way to explore your architecture is the web studio built with
+[Leptos](https://github.com/leptos-rs/leptos). Start it with:
 
 ```bash
 cargo leptos serve --manifest-path studio-web/Cargo.toml
