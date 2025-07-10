@@ -17,26 +17,9 @@ pub enum ApiError {
     #[error(transparent)]
     Http(#[from] reqwest::Error),
     /// Expected `graph` field was missing in server response.
-    #[error("missing graph field")] 
+    #[error("missing graph field")]
     MissingGraph,
     /// YAML parsing error when decoding the graph string.
-    #[error(transparent)]
-    Parse(#[from] serde_yaml::Error),
-}
-
-/// Result type returned by [`GraphApi`] implementations.
-pub type ApiResult<T> = Result<T, ApiError>;
-
-/// Errors that can occur when interacting with the API.
-#[derive(thiserror::Error, Debug)]
-pub enum ApiError {
-    /// An underlying HTTP error.
-    #[error(transparent)]
-    Http(#[from] reqwest::Error),
-    /// Returned when the backend response is missing the `graph` field.
-    #[error("missing 'graph' field in response" )]
-    MissingGraph,
-    /// Graph YAML parsing failed.
     #[error(transparent)]
     Parse(#[from] serde_yaml::Error),
 }
@@ -44,7 +27,7 @@ pub enum ApiError {
 /// API trait used by the components to load and manipulate the graph.
 ///
 /// Implementations should be side-effect free and easy to mock.
-#[async_trait]
+#[async_trait(?Send)]
 pub trait GraphApi: Send + Sync {
     /// Fetch the current architecture graph as a [`FerrumDsl`].
     async fn fetch_graph(&self) -> ApiResult<FerrumDsl>;
@@ -52,7 +35,7 @@ pub trait GraphApi: Send + Sync {
     /// Ask the AI team a question and return the text response.
     async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String>;
 
-    /// Store optional node information for a given `id`.
+    /// Store optional node information for a given `id` in the backend.
     async fn store_node_info(
         &self,
         id: &str,
@@ -69,19 +52,19 @@ pub trait GraphApi: Send + Sync {
     /// Validate a YAML snippet, returning `true` when valid.
     async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool>;
 
-    /// Perform an IoT HTTP call to the given `path`.
+    /// Perform an IoT HTTP call to the given `path` in the backend.
     async fn call_iot_http(&self, path: &str) -> reqwest::Result<String>;
 
-    /// Publish an MQTT message with topic and payload.
+    /// Publish an MQTT message with topic and payload to the backend.
     async fn publish_mqtt(&self, topic: &str, payload: &str) -> reqwest::Result<()>;
 
-    /// Compile an entire project referenced by `file`.
+    /// Compile an entire project referenced by `file` and return logs.
     async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)>;
 
-    /// Compile a single module `name` from `file`.
+    /// Compile a single module `name` from `file` and return logs.
     async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)>;
 
-    /// Compile the provided graph YAML.
+    /// Compile the provided graph YAML and return logs.
     async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)>;
 }
 
@@ -103,7 +86,7 @@ impl HttpGraphApi {
     }
 }
 
-#[async_trait]
+#[async_trait(?Send)]
 impl GraphApi for HttpGraphApi {
     async fn fetch_graph(&self) -> ApiResult<FerrumDsl> {
         let url = format!("{}/graph-rag", self.base_url);
@@ -266,5 +249,4 @@ impl GraphApi for HttpGraphApi {
                 .to_string(),
         ))
     }
-}
-
+} 

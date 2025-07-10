@@ -11,10 +11,15 @@ members = [
     "compiler",
     "shared-models",
     "engine",
-    "studio-desktop",
     "studio-web",
     "ferrum-service",
 ]
+
+[[workspace.metadata.leptos]]
+name = "studio-web"
+bin-package = "studio-web"
+lib-package = "studio-web"
+
 [dependencies]
 ferrum-engine = { path = "./engine" }
 ferrum-service = { path = "./ferrum-service" }
