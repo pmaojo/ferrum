@@ -1,6 +1,7 @@
 use std::sync::{Arc, atomic::AtomicBool, atomic::Ordering};
 use studio_web::{set_api, set_previewer, compile_and_preview};
 use studio_web::{GraphApi, Previewer};
+use studio_web::preview::INDEX_HTML;
 use ferrum_shared_models::FerrumDsl;
 use async_trait::async_trait;
 
@@ -24,7 +25,7 @@ impl GraphApi for MockApi {
 struct MockPreviewer { flag: Arc<AtomicBool> }
 impl Previewer for MockPreviewer {
     fn show(&self, path: &str) {
-        assert_eq!(path, "frontend/index.html");
+        assert_eq!(path, INDEX_HTML);
         self.flag.store(true, Ordering::SeqCst);
     }
 }

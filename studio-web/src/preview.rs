@@ -2,6 +2,9 @@ use webbrowser;
 #[cfg(target_arch = "wasm32")]
 use web_sys::window;
 
+/// Path to the generated preview entry point.
+pub const INDEX_HTML: &str = "frontend/index.html";
+
 /// Interface to present compiled frontend to the user.
 pub trait Previewer: Send + Sync {
     /// Show the generated index.html located at `path`.
