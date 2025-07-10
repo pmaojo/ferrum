@@ -14,3 +14,6 @@ pub mod settings;
 pub use api::{GraphApi, HttpGraphApi};
 pub use app::App;
 
+#[cfg(any(test, feature = "test-api"))]
+pub use app::set_api;
+

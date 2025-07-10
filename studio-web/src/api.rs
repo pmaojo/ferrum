@@ -28,7 +28,7 @@ pub enum ApiError {
 ///
 /// Implementations should be side-effect free and easy to mock.
 #[async_trait]
-pub trait GraphApi {
+pub trait GraphApi: Send + Sync {
     /// Fetch the current architecture graph as a [`FerrumDsl`].
     async fn fetch_graph(&self) -> ApiResult<FerrumDsl>;
 
