@@ -11,10 +11,7 @@ pub mod viewer;
 pub mod app_state;
 pub mod settings;
 pub mod runtime;
+pub mod ui;
 
 pub use api::{GraphApi, HttpGraphApi};
-pub use app::App;
-
-#[cfg(any(test, feature = "test-api"))]
-pub use app::set_api;
-
+pub use app::{App, compile_project_and_preview, set_api, set_preview_opener};

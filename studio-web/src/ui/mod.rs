@@ -5,3 +5,4 @@
 
 // TODO: implement panels, dialogs and viewer integration.
 
+pub mod preview;
