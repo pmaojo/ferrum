@@ -70,13 +70,19 @@ pub trait GraphApi {
 
 /// HTTP based [`GraphApi`] implementation.
 pub struct HttpGraphApi {
+    /// Base URL for the backend service.
     base_url: String,
+    /// HTTP client reused across API calls.
+    client: reqwest::Client,
 }
 
 impl HttpGraphApi {
     /// Create a new instance pointing to the backend `base_url`.
     pub fn new(base_url: impl Into<String>) -> Self {
-        Self { base_url: base_url.into() }
+        Self {
+            base_url: base_url.into(),
+            client: reqwest::Client::new(),
+        }
     }
 }
 
@@ -84,7 +90,8 @@ impl HttpGraphApi {
 impl GraphApi for HttpGraphApi {
     async fn fetch_graph(&self) -> ApiResult<FerrumDsl> {
         let url = format!("{}/graph-rag", self.base_url);
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(&url)
             .json(&serde_json::json!({ "text": "show" }))
             .send()
@@ -99,7 +106,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/ai-team", self.base_url))
             .json(&serde_json::json!({
                 "messages": [{ "role": "user", "content": question }]
@@ -120,7 +128,8 @@ impl GraphApi for HttpGraphApi {
         description: Option<&str>,
         story: Option<&str>,
     ) -> reqwest::Result<()> {
-        reqwest::Client::new()
+        self
+            .client
             .post(format!("{}/node-info", self.base_url))
             .json(&serde_json::json!({
                 "id": id,
@@ -134,7 +143,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn simulate_flow(&self, yaml: &str) -> reqwest::Result<String> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/simulate/flow", self.base_url))
             .json(&serde_json::json!({ "yaml": yaml }))
             .send()
@@ -148,7 +158,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn generate_component(&self, prompt: &str) -> reqwest::Result<String> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/generate/component", self.base_url))
             .json(&serde_json::json!({ "text": prompt }))
             .send()
@@ -162,7 +173,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/validate/yaml", self.base_url))
             .json(&serde_json::json!({ "yaml": yaml }))
             .send()
@@ -175,7 +187,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn call_iot_http(&self, path: &str) -> reqwest::Result<String> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}{}", self.base_url, path))
             .send()
             .await?;
@@ -187,7 +200,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/compile", self.base_url))
             .json(&serde_json::json!({ "file": file }))
             .send()
@@ -203,7 +217,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/compile/module/{}", self.base_url, name))
             .json(&serde_json::json!({ "file": file }))
             .send()
@@ -219,7 +234,8 @@ impl GraphApi for HttpGraphApi {
     }
 
     async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)> {
-        let res = reqwest::Client::new()
+        let res = self
+            .client
             .post(format!("{}/compile/graph", self.base_url))
             .json(&serde_json::json!({ "yaml": yaml }))
             .send()
