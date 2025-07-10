@@ -7,7 +7,7 @@
 /// Spawn a future on the appropriate executor.
 pub fn spawn<F>(fut: F)
 where
-    F: std::future::Future<Output = ()> + 'static,
+    F: std::future::Future<Output = ()> + 'static + Send,
 {
     #[cfg(target_arch = "wasm32")]
     wasm_bindgen_futures::spawn_local(fut);

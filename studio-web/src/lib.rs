@@ -10,6 +10,7 @@ pub mod graph;
 pub mod viewer;
 pub mod app_state;
 pub mod settings;
+pub mod runtime;
 
 pub use api::{GraphApi, HttpGraphApi};
 pub use app::App;
