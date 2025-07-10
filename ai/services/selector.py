@@ -1,10 +1,12 @@
-from ..agents import generator, explainer, validator
+from services.generator import generate_yaml
+from services.explainer import explain_yaml
+from services.validator import validate_yaml, validate_usecase_prompt
 
 
 def select(action: str):
     return {
-        "generate": generator.generate_yaml,
-        "explain": explainer.explain_yaml,
-        "validate": validator.validate_yaml,
-        "validate_usecase": validator.validate_usecase_prompt,
+        "generate": generate_yaml,
+        "explain": explain_yaml,
+        "validate": validate_yaml,
+        "validate_usecase": validate_usecase_prompt,
     }.get(action)

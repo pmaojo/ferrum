@@ -5,7 +5,7 @@ from .generator import generate_yaml
 from .validator import validate_yaml
 from .filler import fill_code
 from .team import BackendExpert, FrontendExpert, UXDesigner, Coach
-from ..toolset import Toolset
+from toolset import Toolset
 
 
 class Coordinator:

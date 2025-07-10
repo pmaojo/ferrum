@@ -11,7 +11,6 @@ services:
     depends_on:
       - db
 
-
   db:
     image: postgres:15
     restart: always
@@ -49,26 +48,16 @@ services:
       - "6333:6333"
     volumes:
       - ./data/vector:/qdrant/storage
-
-  desktop:
-    image: rustlang/rust:nightly-slim
-    working_dir: /workspace
-    command: cargo run -p studio-desktop
-    volumes:
-      - .:/workspace
-    depends_on:
-      - engine
-      - ferrum-ai
-
   studio-web:
     image: rustlang/rust:nightly-slim
-    working_dir: /workspace
+    working_dir: /workspace/studio-web
     command: >
-      bash -c "cargo install cargo-leptos && \
-      cargo leptos serve --manifest-path studio-web/Cargo.toml --host 0.0.0.0"
+      bash -c "apt-get update && apt-get install -y perl pkg-config libssl-dev make && \
+      cargo install cargo-leptos && \
+      cargo leptos serve --host 0.0.0.0"
     ports:
       - "3000:3000"
-      - "3001:3001"
+      - "3002:3001"
     volumes:
       - .:/workspace
     environment:
