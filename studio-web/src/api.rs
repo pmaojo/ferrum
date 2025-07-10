@@ -6,6 +6,7 @@
 use ferrum_shared_models::FerrumDsl;
 use async_trait::async_trait;
 use thiserror::Error;
+use reqwest_wasm::{Client, Error};
 
 /// Result type for [`GraphApi`] operations that may fail beyond HTTP errors.
 pub type ApiResult<T> = Result<T, ApiError>;
@@ -15,7 +16,7 @@ pub type ApiResult<T> = Result<T, ApiError>;
 pub enum ApiError {
     /// HTTP layer failure.
     #[error(transparent)]
-    Http(#[from] reqwest::Error),
+    Http(#[from] Error),
     /// Expected `graph` field was missing in server response.
     #[error("missing graph field")]
     MissingGraph,
@@ -33,7 +34,7 @@ pub trait GraphApi: Send + Sync {
     async fn fetch_graph(&self) -> ApiResult<FerrumDsl>;
 
     /// Ask the AI team a question and return the text response.
-    async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String>;
+    async fn ask_ai_team(&self, question: &str) -> reqwest_wasm::Result<String>;
 
     /// Store optional node information for a given `id` in the backend.
     async fn store_node_info(
@@ -41,31 +42,31 @@ pub trait GraphApi: Send + Sync {
         id: &str,
         description: Option<&str>,
         story: Option<&str>,
-    ) -> reqwest::Result<()>;
+    ) -> reqwest_wasm::Result<()>;
 
     /// Simulate the provided YAML flow and return textual output.
-    async fn simulate_flow(&self, yaml: &str) -> reqwest::Result<String>;
+    async fn simulate_flow(&self, yaml: &str) -> reqwest_wasm::Result<String>;
 
     /// Generate a component from a prompt in YAML form.
-    async fn generate_component(&self, prompt: &str) -> reqwest::Result<String>;
+    async fn generate_component(&self, prompt: &str) -> reqwest_wasm::Result<String>;
 
     /// Validate a YAML snippet, returning `true` when valid.
-    async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool>;
+    async fn validate_yaml(&self, yaml: &str) -> reqwest_wasm::Result<bool>;
 
     /// Perform an IoT HTTP call to the given `path` in the backend.
-    async fn call_iot_http(&self, path: &str) -> reqwest::Result<String>;
+    async fn call_iot_http(&self, path: &str) -> reqwest_wasm::Result<String>;
 
     /// Publish an MQTT message with topic and payload to the backend.
-    async fn publish_mqtt(&self, topic: &str, payload: &str) -> reqwest::Result<()>;
+    async fn publish_mqtt(&self, topic: &str, payload: &str) -> reqwest_wasm::Result<()>;
 
     /// Compile an entire project referenced by `file` and return logs.
-    async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)>;
+    async fn compile_project(&self, file: &str) -> reqwest_wasm::Result<(bool, String)>;
 
     /// Compile a single module `name` from `file` and return logs.
-    async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)>;
+    async fn compile_module(&self, name: &str, file: &str) -> reqwest_wasm::Result<(bool, String)>;
 
     /// Compile the provided graph YAML and return logs.
-    async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)>;
+    async fn compile_graph(&self, yaml: &str) -> reqwest_wasm::Result<(bool, String)>;
 }
 
 /// HTTP based [`GraphApi`] implementation.
@@ -73,7 +74,7 @@ pub struct HttpGraphApi {
     /// Base URL for the backend service.
     base_url: String,
     /// HTTP client reused across API calls.
-    client: reqwest::Client,
+    client: Client,
 }
 
 impl HttpGraphApi {
@@ -81,7 +82,7 @@ impl HttpGraphApi {
     pub fn new(base_url: impl Into<String>) -> Self {
         Self {
             base_url: base_url.into(),
-            client: reqwest::Client::new(),
+            client: Client::new(),
         }
     }
 }
@@ -105,7 +106,7 @@ impl GraphApi for HttpGraphApi {
         Ok(dsl)
     }
 
-    async fn ask_ai_team(&self, question: &str) -> reqwest::Result<String> {
+    async fn ask_ai_team(&self, question: &str) -> reqwest_wasm::Result<String> {
         let res = self
             .client
             .post(format!("{}/ai-team", self.base_url))
@@ -127,7 +128,7 @@ impl GraphApi for HttpGraphApi {
         id: &str,
         description: Option<&str>,
         story: Option<&str>,
-    ) -> reqwest::Result<()> {
+    ) -> reqwest_wasm::Result<()> {
         self
             .client
             .post(format!("{}/node-info", self.base_url))
@@ -142,7 +143,7 @@ impl GraphApi for HttpGraphApi {
         Ok(())
     }
 
-    async fn simulate_flow(&self, yaml: &str) -> reqwest::Result<String> {
+    async fn simulate_flow(&self, yaml: &str) -> reqwest_wasm::Result<String> {
         let res = self
             .client
             .post(format!("{}/simulate/flow", self.base_url))
@@ -157,7 +158,7 @@ impl GraphApi for HttpGraphApi {
             .to_string())
     }
 
-    async fn generate_component(&self, prompt: &str) -> reqwest::Result<String> {
+    async fn generate_component(&self, prompt: &str) -> reqwest_wasm::Result<String> {
         let res = self
             .client
             .post(format!("{}/generate/component", self.base_url))
@@ -172,7 +173,7 @@ impl GraphApi for HttpGraphApi {
             .to_string())
     }
 
-    async fn validate_yaml(&self, yaml: &str) -> reqwest::Result<bool> {
+    async fn validate_yaml(&self, yaml: &str) -> reqwest_wasm::Result<bool> {
         let res = self
             .client
             .post(format!("{}/validate/yaml", self.base_url))
@@ -186,7 +187,7 @@ impl GraphApi for HttpGraphApi {
             .unwrap_or(false))
     }
 
-    async fn call_iot_http(&self, path: &str) -> reqwest::Result<String> {
+    async fn call_iot_http(&self, path: &str) -> reqwest_wasm::Result<String> {
         let res = self
             .client
             .post(format!("{}{}", self.base_url, path))
@@ -195,11 +196,11 @@ impl GraphApi for HttpGraphApi {
         Ok(res.text().await?)
     }
 
-    async fn publish_mqtt(&self, _topic: &str, _payload: &str) -> reqwest::Result<()> {
+    async fn publish_mqtt(&self, _topic: &str, _payload: &str) -> reqwest_wasm::Result<()> {
         Ok(())
     }
 
-    async fn compile_project(&self, file: &str) -> reqwest::Result<(bool, String)> {
+    async fn compile_project(&self, file: &str) -> reqwest_wasm::Result<(bool, String)> {
         let res = self
             .client
             .post(format!("{}/compile", self.base_url))
@@ -216,7 +217,7 @@ impl GraphApi for HttpGraphApi {
         ))
     }
 
-    async fn compile_module(&self, name: &str, file: &str) -> reqwest::Result<(bool, String)> {
+    async fn compile_module(&self, name: &str, file: &str) -> reqwest_wasm::Result<(bool, String)> {
         let res = self
             .client
             .post(format!("{}/compile/module/{}", self.base_url, name))
@@ -233,7 +234,7 @@ impl GraphApi for HttpGraphApi {
         ))
     }
 
-    async fn compile_graph(&self, yaml: &str) -> reqwest::Result<(bool, String)> {
+    async fn compile_graph(&self, yaml: &str) -> reqwest_wasm::Result<(bool, String)> {
         let res = self
             .client
             .post(format!("{}/compile/graph", self.base_url))
