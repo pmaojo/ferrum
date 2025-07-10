@@ -54,7 +54,7 @@ services:
     command: >
       bash -c "apt-get update && apt-get install -y perl pkg-config libssl-dev make && \
       cargo install cargo-leptos && \
-      cargo leptos serve --host 0.0.0.0"
+      cargo leptos serve -- --host 0.0.0.0"
     ports:
       - "3000:3000"
       - "3002:3001"
