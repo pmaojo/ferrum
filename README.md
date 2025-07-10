@@ -125,8 +125,16 @@ The recommended way to explore your architecture is the web studio built with
 cargo leptos serve --manifest-path studio-web/Cargo.toml
 ```
 
-The web studio fetches the same `/graph-rag` and `/ai-team` endpoints and shares
-the typed models defined under `ferrum-shared-models`.
+Or start the entire stack with Docker:
+
+```bash
+docker-compose up
+```
+
+This launches the backend, AI service and Leptos frontend on
+`http://localhost:3000`. The web studio fetches the same `/graph-rag` and
+`/ai-team` endpoints and shares the typed models defined under
+`ferrum-shared-models`.
 
 #### 5. Design a shared component from a prompt
 

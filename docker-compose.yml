@@ -4,7 +4,7 @@ services:
   engine:
     build: ./engine
     ports:
-      - "3000:3000"
+      - "3001:3000"
     volumes:
       - ./engine:/app
       - ./shared-models:/shared-models
@@ -58,4 +58,20 @@ services:
       - .:/workspace
     depends_on:
       - engine
+      - ferrum-ai
+
+  studio-web:
+    image: rustlang/rust:nightly-slim
+    working_dir: /workspace
+    command: >
+      bash -c "cargo install cargo-leptos && \
+      cargo leptos serve --manifest-path studio-web/Cargo.toml --host 0.0.0.0"
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+    environment:
+      - FERRUM_API_BASE_URL=http://ferrum-ai:8001
+    depends_on:
       - ferrum-ai
