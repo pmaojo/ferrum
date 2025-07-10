@@ -4,7 +4,7 @@
 
 use leptos::*;
 use crate::api::{GraphApi, HttpGraphApi};
-use crate::preview::{Previewer, WindowPreviewer};
+use crate::preview::{Previewer, WindowPreviewer, INDEX_HTML};
 use wasm_bindgen_futures::spawn_local;
 use reqwest_wasm::Result;
 use std::sync::RwLock;
@@ -33,6 +33,8 @@ pub fn set_previewer(previewer: std::sync::Arc<dyn Previewer>) {
 }
 
 /// Compile the given `file` and show the generated frontend when successful.
+/// Compile `file` using [`GraphApi::compile_project`] and show the generated
+/// [`INDEX_HTML`] when successful.
 pub async fn compile_and_preview(file: &str) -> Result<()> {
     let api = {
         let reader = API.read().expect("API lock");
@@ -44,7 +46,7 @@ pub async fn compile_and_preview(file: &str) -> Result<()> {
             let reader = PREVIEWER.read().expect("PREVIEWER lock");
             reader.clone()
         };
-        previewer.show("frontend/index.html");
+        previewer.show(INDEX_HTML);
     }
     Ok(())
 }

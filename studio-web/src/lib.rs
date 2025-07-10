@@ -17,6 +17,7 @@ pub use api::{GraphApi, HttpGraphApi};
 pub use app::App;
 pub use app::compile_and_preview;
 pub use preview::{Previewer, WindowPreviewer};
+pub use preview::INDEX_HTML;
 pub use app::{set_api, set_previewer};
 
 
