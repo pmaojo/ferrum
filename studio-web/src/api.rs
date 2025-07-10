@@ -24,6 +24,23 @@ pub enum ApiError {
     Parse(#[from] serde_yaml::Error),
 }
 
+/// Result type returned by [`GraphApi`] implementations.
+pub type ApiResult<T> = Result<T, ApiError>;
+
+/// Errors that can occur when interacting with the API.
+#[derive(thiserror::Error, Debug)]
+pub enum ApiError {
+    /// An underlying HTTP error.
+    #[error(transparent)]
+    Http(#[from] reqwest::Error),
+    /// Returned when the backend response is missing the `graph` field.
+    #[error("missing 'graph' field in response" )]
+    MissingGraph,
+    /// Graph YAML parsing failed.
+    #[error(transparent)]
+    Parse(#[from] serde_yaml::Error),
+}
+
 /// API trait used by the components to load and manipulate the graph.
 ///
 /// Implementations should be side-effect free and easy to mock.
