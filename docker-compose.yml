@@ -53,6 +53,7 @@ services:
     working_dir: /workspace/studio-web
     command: >
       bash -c "apt-get update && apt-get install -y perl pkg-config libssl-dev make && \
+      rustup target add wasm32-unknown-unknown && \
       cargo install cargo-leptos && \
       cargo leptos serve -- --host 0.0.0.0"
     ports:
