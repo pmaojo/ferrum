@@ -423,6 +423,8 @@ Generated projects live outside this repo, for example:
 
 Ferrum includes a lightweight plugin manager. Plugins can hook into
 `ferrum init` or `ferrum compile` to customize the generated project.
+See [docs/plugins/README.md](docs/plugins/README.md) for
+instructions on writing your own plugins.
 
 Additional runtime utilities are provided under `ferrum-engine::services`,
 including a basic GraphQL schema and a helper for sending SMTP emails.

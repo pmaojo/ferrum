@@ -64,7 +64,7 @@ Este plan detalla las fases de desarrollo necesarias para convertir a Ferrum en 
 
 - [x] Registry de plugins:
   - [x] Buscar y añadir desde GitHub o fuente remota (`ferrum add user/plugin-name`)
-  - [ ] Documentar detalladamente el sistema de plugins y su carga dinámica
+  - [x] Documentar detalladamente el sistema de plugins y su carga dinámica ([docs/plugins/README.md](docs/plugins/README.md))
   - [ ] Añadir hooks de extensión posgeneración para facilitar integraciones
 
 ---
