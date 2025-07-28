@@ -136,6 +136,14 @@ This launches the backend, AI service and Leptos frontend on
 `/ai-team` endpoints and shares the typed models defined under
 `ferrum-shared-models`.
 
+Alternatively, run the native setup script on Ubuntu:
+
+```bash
+scripts/setup_native.sh
+```
+
+This installs dependencies, runs migrations and starts all services without Docker.
+
 #### 5. Design a shared component from a prompt
 
 ```bash
