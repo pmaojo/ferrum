@@ -355,15 +355,20 @@ ethercat = ["dep:ethercat-rs"]
     if with_db {
         let cargo_toml_path = project_dir.join("backend/Cargo.toml");
         fs::create_dir_all(project_dir.join("backend"))?;
-        let mut cargo_toml = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&cargo_toml_path)?;
-        writeln!(
-            cargo_toml,
-            "diesel = {{ version = \"2.1\", features = [\"postgres\", \"r2d2\"] }}"
-        )?;
-        writeln!(cargo_toml, "dotenvy = \"0.15\"")?;
+        let mut cargo_toml: toml::Value = toml::from_str(&fs::read_to_string(&cargo_toml_path)?)?;
+        let dependencies = cargo_toml["dependencies"].as_table_mut().unwrap();
+        let mut diesel_dependency = toml::map::Map::new();
+        diesel_dependency.insert("version".to_string(), toml::Value::String("2.1".to_string()));
+        diesel_dependency.insert("features".to_string(), toml::Value::Array(vec![toml::Value::String("postgres".to_string()), toml::Value::String("r2d2".to_string())]));
+        dependencies.insert(
+            "diesel".to_string(),
+            toml::Value::Table(diesel_dependency),
+        );
+        dependencies.insert(
+            "dotenvy".to_string(),
+            toml::Value::String("0.15".to_string()),
+        );
+        fs::write(&cargo_toml_path, toml::to_string(&cargo_toml)?)?;
         println!("📄 Updated backend/Cargo.toml with Diesel dependencies");
     }
 
