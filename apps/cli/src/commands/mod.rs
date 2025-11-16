@@ -25,6 +25,12 @@ pub enum Frontend {
     LeptosSsr,
 }
 
+#[derive(ValueEnum, Clone)]
+pub enum DbType {
+    Postgres,
+    Sqlite,
+}
+
 #[derive(Subcommand)]
 pub enum Commands {
     /// Compile one or more YAML DSL files into code
@@ -141,6 +147,10 @@ pub enum Commands {
         /// Include Diesel ORM setup
         #[arg(long)]
         with_db: bool,
+
+        /// Choose database type
+        #[arg(long, value_enum, default_value_t = DbType::Postgres)]
+        db_type: DbType,
 
         /// Include authentication templates
         #[arg(long)]
@@ -320,10 +330,10 @@ pub use usecase_prompt::usecase_prompt;
 pub use compile::{compile, compile_with_formatters};
 pub use plugins::{add_plugin, list_plugins, remove_plugin};
 
-pub(crate) fn load_plugins() -> Result<ferrum_engine::PluginManager> {
+pub(crate) fn load_plugins() -> Result<ferrum_engine::plugins::PluginManager> {
     use std::fs;
     use std::path::PathBuf;
-    let mut manager = ferrum_engine::PluginManager::new();
+    let mut manager = ferrum_engine::plugins::PluginManager::new();
     let file_path = PathBuf::from(".ferrum/plugins.txt");
     if file_path.exists() {
         let contents = fs::read_to_string(file_path)?;
@@ -346,11 +356,9 @@ pub(crate) fn load_plugins() -> Result<ferrum_engine::PluginManager> {
                         if meta_path.exists() {
                             if let Ok(meta) = ferrum_engine::plugins::PluginMetadata::from_file(&meta_path) {
                                 let lib_path = path.join(&meta.library);
-                                unsafe {
-                                    if let Ok(p) = ferrum_engine::plugins::DynamicPlugin::load(&lib_path) {
-                                        manager.register(p);
-                                        continue;
-                                    }
+                                if let Ok(p) = ferrum_engine::plugins::DynamicPlugin::load(&lib_path) {
+                                    manager.register(p);
+                                    continue;
                                 }
                             }
                         }

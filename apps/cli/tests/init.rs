@@ -31,6 +31,7 @@ serde = "1.0"
         false,
         false,
         true, // --with-db
+        ferrum_cli::commands::DbType::Postgres,
         false,
         false,
         false,

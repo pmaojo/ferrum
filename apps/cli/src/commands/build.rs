@@ -2,7 +2,6 @@ use anyhow::Result;
 
 pub fn build(target: Option<String>) -> Result<()> {
     use std::process::Command;
-    use std::path::Path;
 
     let mut cmd = Command::new("cargo");
     cmd.arg("build")
