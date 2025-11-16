@@ -1,0 +1,129 @@
+{
+  "id": "react-clean-architecture",
+  "name": "React Clean Architecture",
+  "description": "React application following Clean Architecture principles with clear separation of concerns",
+  "nodeTypes": [
+    {
+      "type": "component",
+      "pattern": "Component",
+      "color": "#61DAFB",
+      "icon": "⚛️",
+      "description": "React component for UI presentation"
+    },
+    {
+      "type": "hook",
+      "pattern": "Hook",
+      "color": "#FF6B6B",
+      "icon": "🪝",
+      "description": "Custom React hook for state logic"
+    },
+    {
+      "type": "service",
+      "pattern": "Service",
+      "color": "#4ECDC4",
+      "icon": "🔧",
+      "description": "Business logic service"
+    },
+    {
+      "type": "repository",
+      "pattern": "Repository",
+      "color": "#45B7D1",
+      "icon": "🗄️",
+      "description": "Data access layer"
+    },
+    {
+      "type": "entity",
+      "pattern": "Entity",
+      "color": "#96CEB4",
+      "icon": "📦",
+      "description": "Domain entity"
+    },
+    {
+      "type": "usecase",
+      "pattern": "UseCase",
+      "color": "#FFEAA7",
+      "icon": "⚡",
+      "description": "Application use case"
+    },
+    {
+      "type": "adapter",
+      "pattern": "Adapter",
+      "color": "#DDA0DD",
+      "icon": "🔌",
+      "description": "External service adapter"
+    },
+    {
+      "type": "store",
+      "pattern": "Store",
+      "color": "#FFB6C1",
+      "icon": "🏪",
+      "description": "State management store"
+    }
+  ],
+  "relations": [
+    { "source": "component", "target": "hook", "type": "uses" },
+    { "source": "hook", "target": "service", "type": "calls" },
+    { "source": "service", "target": "usecase", "type": "implements" },
+    { "source": "usecase", "target": "repository", "type": "depends" },
+    { "source": "repository", "target": "adapter", "type": "uses" },
+    { "source": "usecase", "target": "entity", "type": "manipulates" },
+    { "source": "component", "target": "store", "type": "subscribes" }
+  ],
+  "validationRules": [
+    {
+      "rule": "COMPONENT_HOOK_DEPENDENCY",
+      "type": "required",
+      "description": "Components should use hooks for state management",
+      "pattern": "component->hook"
+    },
+    {
+      "rule": "NO_DIRECT_ADAPTER_ACCESS",
+      "type": "prohibited",
+      "description": "Components cannot directly access adapters",
+      "pattern": "component->adapter"
+    },
+    {
+      "rule": "SERVICE_LAYER_ISOLATION",
+      "type": "required",
+      "description": "Business logic must be in service layer",
+      "pattern": "hook->service"
+    },
+    {
+      "rule": "REPOSITORY_PATTERN",
+      "type": "required",
+      "description": "Data access must go through repository pattern",
+      "pattern": "service->repository"
+    }
+  ],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "react",
+    "language": "typescript",
+    "architecture": "clean",
+    "paradigm": "functional",
+    "principles": ["Clean Architecture", "SOLID", "Separation of Concerns"]
+  }
+}

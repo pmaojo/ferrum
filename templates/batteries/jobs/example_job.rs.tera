@@ -1,0 +1,10 @@
+use tokio::time::{sleep, Duration};
+use tracing::info;
+
+/// Periodic example job executed by the scheduler
+pub async fn run() {
+    loop {
+        info!("example job running");
+        sleep(Duration::from_secs(60)).await;
+    }
+}

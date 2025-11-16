@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: graphrag-latency-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: graphrag.latency.rules
+    rules:
+    - alert: GraphRAGHighLatency
+      expr: histogram_quantile(0.95, sum(rate(graphrag_latency_ms_bucket{operation="query"}[5m])) by (le, tenant_id)) > 350
+      for: 5m
+      labels:
+        severity: warning
+        team: graphrag
+      annotations:
+        summary: "High GraphRAG query latency detected"
+        description: "GraphRAG query p95 latency for tenant {{ $labels.tenant_id }} is {{ $value }}ms, which exceeds the 350ms SLA threshold."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/high-latency"
+    
+    - alert: GraphRAGCriticalLatency
+      expr: histogram_quantile(0.95, sum(rate(graphrag_latency_ms_bucket{operation="query"}[5m])) by (le, tenant_id)) > 500
+      for: 2m
+      labels:
+        severity: critical
+        team: graphrag
+      annotations:
+        summary: "Critical GraphRAG query latency detected"
+        description: "GraphRAG query p95 latency for tenant {{ $labels.tenant_id }} is {{ $value }}ms, which significantly exceeds the 350ms SLA threshold."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/critical-latency"

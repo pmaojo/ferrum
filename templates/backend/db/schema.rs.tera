@@ -1,0 +1,7 @@
+diesel::table! {
+    {{ table_name }} (id) {
+        id -> Uuid,
+{% for f in fields %}        {{ f.name }} -> {{ f.sql_type }},
+{% endfor %}        created_at -> Timestamp,
+    }
+}

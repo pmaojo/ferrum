@@ -1,0 +1,91 @@
+id: tuetano-cpp-application
+name: Tuetano C++ Application
+description: Enterprise-grade C++20 application with hexagonal architecture, modern CMake, and comprehensive testing
+category: backend
+tier_required: free
+price_usd: 0.0
+configuration:
+  framework: tuetano
+  template: tuetano-cpp-application
+  parameters:
+    name: "{{APPLICATION_NAME}}"
+    namespace: "{{NAMESPACE}}"
+    packageManager: "{{PACKAGE_MANAGER|default:conan}}"
+    cppStandard: "{{CPP_STANDARD|default:20}}"
+    includeTests: true
+    includeBenchmarks: true
+    includeDocumentation: true
+ontology_config:
+  domain_concepts:
+    - "Application"
+    - "HexagonalArchitecture" 
+    - "DomainLayer"
+    - "ApplicationLayer"
+    - "AdaptersLayer"
+    - "InfrastructureLayer"
+  relationships:
+    - source: "Application"
+      target: "HexagonalArchitecture"
+      type: "implements"
+    - source: "ApplicationLayer"
+      target: "DomainLayer"
+      type: "depends_on"
+workflow_config:
+  steps:
+    - name: "validate_parameters"
+      description: "Validate C++ identifiers and project structure"
+    - name: "generate_project_structure"
+      description: "Create hexagonal architecture directories"
+    - name: "generate_cmake_config"
+      description: "Generate CMakeLists.txt with presets and dependencies"
+    - name: "generate_package_config"
+      description: "Generate Conan/vcpkg configuration"
+    - name: "generate_domain_layer"
+      description: "Create domain entities and ports"
+    - name: "generate_application_layer"
+      description: "Create use cases and services"
+    - name: "generate_adapters_layer"
+      description: "Create adapter implementations"
+    - name: "generate_infrastructure"
+      description: "Create DI container and configuration"
+    - name: "generate_tests"
+      description: "Generate unit and integration tests"
+    - name: "generate_documentation"
+      description: "Generate API documentation and README"
+ui_adapters:
+  - "rest_api"
+  - "cli_interface"
+  - "web_dashboard"
+tags:
+  - "cpp"
+  - "hexagonal"
+  - "architecture"
+  - "enterprise"
+  - "modern"
+  - "cmake"
+  - "testing"
+  - "performance"
+author: "Kronal Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+default_tenant: "default"
+requirements:
+  system:
+    - "C++20 compatible compiler (GCC 10+, Clang 12+, MSVC 2019+)"
+    - "CMake 3.25+"
+    - "Conan 2.0+ or vcpkg"
+  optional:
+    - "Ninja build system"
+    - "clang-tidy for static analysis"
+    - "clang-format for code formatting"
+examples:
+  basic:
+    name: "UserService"
+    namespace: "mycompany::services"
+    description: "Creates a complete user management service with CRUD operations"
+  advanced:
+    name: "PaymentProcessor"
+    namespace: "fintech::payments"
+    packageManager: "vcpkg"
+    cppStandard: "23"
+    description: "High-performance payment processing service with async operations"

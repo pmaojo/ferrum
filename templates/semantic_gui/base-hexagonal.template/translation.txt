@@ -1,0 +1,1 @@
+// Translation snippet for base-hexagonal

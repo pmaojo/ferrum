@@ -1,0 +1,4581 @@
+[
+  [
+    "test_operation_1",
+    {
+      "id": "test_operation_1",
+      "timestamp": "2025-08-24T14:06:59.098Z",
+      "operation": "test-operation",
+      "phase": "intent-classification",
+      "performance": {
+        "startTime": 2166.3428339995444,
+        "endTime": 2166.6622919999063,
+        "duration": 0.3194580003619194,
+        "cpuUsage": 0.255388,
+        "memoryUsage": 9965880,
+        "networkLatency": 1500
+      },
+      "tokenUsage": {
+        "inputTokens": 100,
+        "outputTokens": 50,
+        "totalTokens": 150,
+        "model": "gpt-4",
+        "provider": "openai"
+      },
+      "cost": {
+        "inputCost": 0.00015000000000000001,
+        "outputCost": 0.0001,
+        "totalCost": 0.00025,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.85,
+        "fallbackUsed": false,
+        "servicePath": [
+          "openai"
+        ]
+      },
+      "context": {
+        "requestSize": 1000,
+        "responseSize": 2000,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {
+        "testData": true
+      }
+    }
+  ],
+  [
+    "test_agg_0",
+    {
+      "id": "test_agg_0",
+      "timestamp": "2025-08-24T14:06:59.099Z",
+      "operation": "test-agg",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2166.7637499999255,
+        "endTime": 2166.782208999619,
+        "duration": 0.018458999693393707,
+        "cpuUsage": 0.25548,
+        "memoryUsage": 9972632
+      },
+      "tokenUsage": {
+        "inputTokens": 50,
+        "outputTokens": 25,
+        "totalTokens": 75,
+        "model": "gpt-4",
+        "provider": "openai"
+      },
+      "cost": {
+        "inputCost": 0.00007500000000000001,
+        "outputCost": 0.00005,
+        "totalCost": 0.000125,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "openai"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "test_agg_1",
+    {
+      "id": "test_agg_1",
+      "timestamp": "2025-08-24T14:06:59.099Z",
+      "operation": "test-agg",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2166.7911670003086,
+        "endTime": 2166.801874998957,
+        "duration": 0.010707998648285866,
+        "cpuUsage": 0.2555,
+        "memoryUsage": 9976256
+      },
+      "tokenUsage": {
+        "inputTokens": 60,
+        "outputTokens": 30,
+        "totalTokens": 90,
+        "model": "gpt-4",
+        "provider": "openai"
+      },
+      "cost": {
+        "inputCost": 0.00008999999999999999,
+        "outputCost": 0.00006,
+        "totalCost": 0.00015,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8500000000000001,
+        "fallbackUsed": false,
+        "servicePath": [
+          "openai"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "test_agg_2",
+    {
+      "id": "test_agg_2",
+      "timestamp": "2025-08-24T14:06:59.099Z",
+      "operation": "test-agg",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2166.808125000447,
+        "endTime": 2166.827500000596,
+        "duration": 0.019375000149011612,
+        "cpuUsage": 0.255525,
+        "memoryUsage": 9979880
+      },
+      "tokenUsage": {
+        "inputTokens": 70,
+        "outputTokens": 35,
+        "totalTokens": 105,
+        "model": "gpt-4",
+        "provider": "openai"
+      },
+      "cost": {
+        "inputCost": 0.00010500000000000002,
+        "outputCost": 0.00007000000000000001,
+        "totalCost": 0.00017500000000000003,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.9,
+        "fallbackUsed": false,
+        "servicePath": [
+          "openai"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_0",
+    {
+      "id": "perf_test_0",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2167.956875000149,
+        "endTime": 2167.9789169989526,
+        "duration": 0.02204199880361557,
+        "cpuUsage": 0.256679,
+        "memoryUsage": 10049144
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_1",
+    {
+      "id": "perf_test_1",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2167.990833999589,
+        "endTime": 2168.003916999325,
+        "duration": 0.013082999736070633,
+        "cpuUsage": 0.256701,
+        "memoryUsage": 10053112
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_2",
+    {
+      "id": "perf_test_2",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.0103339999914,
+        "endTime": 2168.021459000185,
+        "duration": 0.011125000193715096,
+        "cpuUsage": 0.256717,
+        "memoryUsage": 10056736
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_3",
+    {
+      "id": "perf_test_3",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.0263749994338,
+        "endTime": 2168.0364999994636,
+        "duration": 0.010125000029802322,
+        "cpuUsage": 0.256733,
+        "memoryUsage": 10060360
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_4",
+    {
+      "id": "perf_test_4",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.1869999989867,
+        "endTime": 2168.2469999995083,
+        "duration": 0.06000000052154064,
+        "cpuUsage": 0.256944,
+        "memoryUsage": 10096176
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_5",
+    {
+      "id": "perf_test_5",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.303416999057,
+        "endTime": 2168.338709000498,
+        "duration": 0.0352920014411211,
+        "cpuUsage": 0.257037,
+        "memoryUsage": 10102912
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_6",
+    {
+      "id": "perf_test_6",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.351584000513,
+        "endTime": 2168.357999999076,
+        "duration": 0.006415998563170433,
+        "cpuUsage": 0.257054,
+        "memoryUsage": 10106856
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_7",
+    {
+      "id": "perf_test_7",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.3614169992507,
+        "endTime": 2168.364083999768,
+        "duration": 0.0026670005172491074,
+        "cpuUsage": 0.25706,
+        "memoryUsage": 10110720
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_8",
+    {
+      "id": "perf_test_8",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.36641700007,
+        "endTime": 2168.3687500003725,
+        "duration": 0.0023330003023147583,
+        "cpuUsage": 0.257064,
+        "memoryUsage": 10114584
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_9",
+    {
+      "id": "perf_test_9",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.3709999993443,
+        "endTime": 2168.373250000179,
+        "duration": 0.002250000834465027,
+        "cpuUsage": 0.257069,
+        "memoryUsage": 10118448
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_10",
+    {
+      "id": "perf_test_10",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.375416999683,
+        "endTime": 2168.377624999732,
+        "duration": 0.002208000048995018,
+        "cpuUsage": 0.257073,
+        "memoryUsage": 10122312
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_11",
+    {
+      "id": "perf_test_11",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.379750000313,
+        "endTime": 2168.381916999817,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.257078,
+        "memoryUsage": 10126176
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_12",
+    {
+      "id": "perf_test_12",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.38512500003,
+        "endTime": 2168.387416999787,
+        "duration": 0.0022919997572898865,
+        "cpuUsage": 0.257083,
+        "memoryUsage": 10130040
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_13",
+    {
+      "id": "perf_test_13",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.398291999474,
+        "endTime": 2168.400833999738,
+        "duration": 0.002542000263929367,
+        "cpuUsage": 0.257096,
+        "memoryUsage": 10134888
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_14",
+    {
+      "id": "perf_test_14",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4031670000404,
+        "endTime": 2168.4052920006216,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257101,
+        "memoryUsage": 10138768
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_15",
+    {
+      "id": "perf_test_15",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.407333999872,
+        "endTime": 2168.4094590004534,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257105,
+        "memoryUsage": 10142648
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_16",
+    {
+      "id": "perf_test_16",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4114999994636,
+        "endTime": 2168.4136250000447,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257109,
+        "memoryUsage": 10146528
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_17",
+    {
+      "id": "perf_test_17",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.415709000081,
+        "endTime": 2168.417834000662,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257114,
+        "memoryUsage": 10150408
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_18",
+    {
+      "id": "perf_test_18",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.419874999672,
+        "endTime": 2168.4219589997083,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257118,
+        "memoryUsage": 10154288
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_19",
+    {
+      "id": "perf_test_19",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.423959000036,
+        "endTime": 2168.426041999832,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257122,
+        "memoryUsage": 10158168
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_20",
+    {
+      "id": "perf_test_20",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4280839990824,
+        "endTime": 2168.4301670007408,
+        "duration": 0.002083001658320427,
+        "cpuUsage": 0.257126,
+        "memoryUsage": 10162048
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_21",
+    {
+      "id": "perf_test_21",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.432166999206,
+        "endTime": 2168.4342499990016,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.25713,
+        "memoryUsage": 10165928
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_22",
+    {
+      "id": "perf_test_22",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.436209000647,
+        "endTime": 2168.4383339993656,
+        "duration": 0.0021249987185001373,
+        "cpuUsage": 0.257134,
+        "memoryUsage": 10169808
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_23",
+    {
+      "id": "perf_test_23",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4403750002384,
+        "endTime": 2168.4424590002745,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257138,
+        "memoryUsage": 10173688
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_24",
+    {
+      "id": "perf_test_24",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.444416999817,
+        "endTime": 2168.446583999321,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.257142,
+        "memoryUsage": 10177568
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_25",
+    {
+      "id": "perf_test_25",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4484999999404,
+        "endTime": 2168.4506250005215,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257146,
+        "memoryUsage": 10181448
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_26",
+    {
+      "id": "perf_test_26",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4526249989867,
+        "endTime": 2168.454749999568,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257151,
+        "memoryUsage": 10185328
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_27",
+    {
+      "id": "perf_test_27",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4567089993507,
+        "endTime": 2168.458833999932,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257155,
+        "memoryUsage": 10189208
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_28",
+    {
+      "id": "perf_test_28",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4609999991953,
+        "endTime": 2168.4630839992315,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257159,
+        "memoryUsage": 10193088
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_29",
+    {
+      "id": "perf_test_29",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.465375000611,
+        "endTime": 2168.4676249995828,
+        "duration": 0.0022499989718198776,
+        "cpuUsage": 0.257163,
+        "memoryUsage": 10198800
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_30",
+    {
+      "id": "perf_test_30",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.469833999872,
+        "endTime": 2168.471916999668,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257167,
+        "memoryUsage": 10202680
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_31",
+    {
+      "id": "perf_test_31",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4739169999957,
+        "endTime": 2168.4839590005577,
+        "duration": 0.010042000561952591,
+        "cpuUsage": 0.257179,
+        "memoryUsage": 10206560
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_32",
+    {
+      "id": "perf_test_32",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.486500000581,
+        "endTime": 2168.488749999553,
+        "duration": 0.0022499989718198776,
+        "cpuUsage": 0.257184,
+        "memoryUsage": 10210440
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_33",
+    {
+      "id": "perf_test_33",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.490833999589,
+        "endTime": 2168.4929169993848,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257188,
+        "memoryUsage": 10214320
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_34",
+    {
+      "id": "perf_test_34",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.494959000498,
+        "endTime": 2168.4970420002937,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257193,
+        "memoryUsage": 10218200
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_35",
+    {
+      "id": "perf_test_35",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.4990420006216,
+        "endTime": 2168.501083999872,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257197,
+        "memoryUsage": 10222080
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_36",
+    {
+      "id": "perf_test_36",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5030840002,
+        "endTime": 2168.5051249992102,
+        "duration": 0.002040999010205269,
+        "cpuUsage": 0.257201,
+        "memoryUsage": 10225960
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_37",
+    {
+      "id": "perf_test_37",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.507083998993,
+        "endTime": 2168.509208999574,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257205,
+        "memoryUsage": 10229840
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_38",
+    {
+      "id": "perf_test_38",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.51129199937,
+        "endTime": 2168.513334000483,
+        "duration": 0.002042001113295555,
+        "cpuUsage": 0.257209,
+        "memoryUsage": 10233720
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_39",
+    {
+      "id": "perf_test_39",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5154589992017,
+        "endTime": 2168.5175000000745,
+        "duration": 0.002041000872850418,
+        "cpuUsage": 0.257213,
+        "memoryUsage": 10237600
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_40",
+    {
+      "id": "perf_test_40",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5198340006173,
+        "endTime": 2168.521917000413,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257217,
+        "memoryUsage": 10241480
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_41",
+    {
+      "id": "perf_test_41",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5239170007408,
+        "endTime": 2168.5260840002447,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.257221,
+        "memoryUsage": 10245360
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_42",
+    {
+      "id": "perf_test_42",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.528124999255,
+        "endTime": 2168.530208999291,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257226,
+        "memoryUsage": 10249240
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_43",
+    {
+      "id": "perf_test_43",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.532333999872,
+        "endTime": 2168.5345840007067,
+        "duration": 0.002250000834465027,
+        "cpuUsage": 0.25723,
+        "memoryUsage": 10253120
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_44",
+    {
+      "id": "perf_test_44",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5367920007557,
+        "endTime": 2168.5388340000063,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257235,
+        "memoryUsage": 10257000
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_45",
+    {
+      "id": "perf_test_45",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5407919995487,
+        "endTime": 2168.54291700013,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257239,
+        "memoryUsage": 10260880
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_46",
+    {
+      "id": "perf_test_46",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5461669992656,
+        "endTime": 2168.548334000632,
+        "duration": 0.0021670013666152954,
+        "cpuUsage": 0.257244,
+        "memoryUsage": 10264784
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_47",
+    {
+      "id": "perf_test_47",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.550417000428,
+        "endTime": 2168.5525000002235,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257248,
+        "memoryUsage": 10268688
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_48",
+    {
+      "id": "perf_test_48",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5546669997275,
+        "endTime": 2168.5578749999404,
+        "duration": 0.003208000212907791,
+        "cpuUsage": 0.257253,
+        "memoryUsage": 10272592
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_49",
+    {
+      "id": "perf_test_49",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.559875000268,
+        "endTime": 2168.561916999519,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257257,
+        "memoryUsage": 10276472
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_50",
+    {
+      "id": "perf_test_50",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5640420001,
+        "endTime": 2168.566042000428,
+        "duration": 0.0020000003278255463,
+        "cpuUsage": 0.257261,
+        "memoryUsage": 10280376
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_51",
+    {
+      "id": "perf_test_51",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5680420007557,
+        "endTime": 2168.5702919997275,
+        "duration": 0.0022499989718198776,
+        "cpuUsage": 0.257266,
+        "memoryUsage": 10284280
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_52",
+    {
+      "id": "perf_test_52",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5724589992315,
+        "endTime": 2168.575999999419,
+        "duration": 0.003541000187397003,
+        "cpuUsage": 0.257272,
+        "memoryUsage": 10288184
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_53",
+    {
+      "id": "perf_test_53",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5779999997467,
+        "endTime": 2168.580125000328,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257276,
+        "memoryUsage": 10292088
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_54",
+    {
+      "id": "perf_test_54",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5820840001106,
+        "endTime": 2168.5841669999063,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.25728,
+        "memoryUsage": 10295992
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_55",
+    {
+      "id": "perf_test_55",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5860840007663,
+        "endTime": 2168.588167000562,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257284,
+        "memoryUsage": 10299896
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_56",
+    {
+      "id": "perf_test_56",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.590166999027,
+        "endTime": 2168.5922090001404,
+        "duration": 0.002042001113295555,
+        "cpuUsage": 0.257289,
+        "memoryUsage": 10303800
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_57",
+    {
+      "id": "perf_test_57",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.5955420006067,
+        "endTime": 2168.597834000364,
+        "duration": 0.0022919997572898865,
+        "cpuUsage": 0.257293,
+        "memoryUsage": 10307704
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_58",
+    {
+      "id": "perf_test_58",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.599874999374,
+        "endTime": 2168.601874999702,
+        "duration": 0.0020000003278255463,
+        "cpuUsage": 0.257298,
+        "memoryUsage": 10311608
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_59",
+    {
+      "id": "perf_test_59",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.60387500003,
+        "endTime": 2168.606000000611,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257302,
+        "memoryUsage": 10315512
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_60",
+    {
+      "id": "perf_test_60",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6080419998616,
+        "endTime": 2168.6101249996573,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257306,
+        "memoryUsage": 10319416
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_61",
+    {
+      "id": "perf_test_61",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6144169997424,
+        "endTime": 2168.6165839992464,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.257312,
+        "memoryUsage": 10327264
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_62",
+    {
+      "id": "perf_test_62",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.618625000119,
+        "endTime": 2168.6207500007004,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257316,
+        "memoryUsage": 10331168
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_63",
+    {
+      "id": "perf_test_63",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6251250002533,
+        "endTime": 2168.6273340005428,
+        "duration": 0.002209000289440155,
+        "cpuUsage": 0.257322,
+        "memoryUsage": 10335072
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_64",
+    {
+      "id": "perf_test_64",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.629374999553,
+        "endTime": 2168.631458999589,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257327,
+        "memoryUsage": 10338976
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_65",
+    {
+      "id": "perf_test_65",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.633500000462,
+        "endTime": 2168.6355419997126,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257331,
+        "memoryUsage": 10342880
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_66",
+    {
+      "id": "perf_test_66",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6375420000404,
+        "endTime": 2168.639583999291,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257335,
+        "memoryUsage": 10346784
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_67",
+    {
+      "id": "perf_test_67",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6414999999106,
+        "endTime": 2168.6446250006557,
+        "duration": 0.0031250007450580597,
+        "cpuUsage": 0.257341,
+        "memoryUsage": 10350688
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_68",
+    {
+      "id": "perf_test_68",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6466669999063,
+        "endTime": 2168.6487920004874,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257344,
+        "memoryUsage": 10354592
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_69",
+    {
+      "id": "perf_test_69",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.650708999485,
+        "endTime": 2168.652834000066,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257348,
+        "memoryUsage": 10358496
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_70",
+    {
+      "id": "perf_test_70",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6548340003937,
+        "endTime": 2168.656874999404,
+        "duration": 0.002040999010205269,
+        "cpuUsage": 0.257352,
+        "memoryUsage": 10362400
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_71",
+    {
+      "id": "perf_test_71",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.658792000264,
+        "endTime": 2168.6622919999063,
+        "duration": 0.0034999996423721313,
+        "cpuUsage": 0.257358,
+        "memoryUsage": 10366304
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_72",
+    {
+      "id": "perf_test_72",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.664374999702,
+        "endTime": 2168.666458999738,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257362,
+        "memoryUsage": 10370208
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_73",
+    {
+      "id": "perf_test_73",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.668459000066,
+        "endTime": 2168.670499999076,
+        "duration": 0.002040999010205269,
+        "cpuUsage": 0.257366,
+        "memoryUsage": 10374112
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_74",
+    {
+      "id": "perf_test_74",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6725420001894,
+        "endTime": 2168.6747089996934,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.25737,
+        "memoryUsage": 10378016
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_75",
+    {
+      "id": "perf_test_75",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6766669992357,
+        "endTime": 2168.6796669997275,
+        "duration": 0.0030000004917383194,
+        "cpuUsage": 0.257375,
+        "memoryUsage": 10381920
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_76",
+    {
+      "id": "perf_test_76",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.681708998978,
+        "endTime": 2168.684291999787,
+        "duration": 0.002583000808954239,
+        "cpuUsage": 0.25738,
+        "memoryUsage": 10385824
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_77",
+    {
+      "id": "perf_test_77",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.686292000115,
+        "endTime": 2168.6883749999106,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257384,
+        "memoryUsage": 10389728
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_78",
+    {
+      "id": "perf_test_78",
+      "timestamp": "2025-08-24T14:06:59.100Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6904169991612,
+        "endTime": 2168.6924590002745,
+        "duration": 0.002042001113295555,
+        "cpuUsage": 0.257388,
+        "memoryUsage": 10393632
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_79",
+    {
+      "id": "perf_test_79",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6944590006024,
+        "endTime": 2168.6964999996126,
+        "duration": 0.002040999010205269,
+        "cpuUsage": 0.257393,
+        "memoryUsage": 10397536
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_80",
+    {
+      "id": "perf_test_80",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.6996250003576,
+        "endTime": 2168.701834000647,
+        "duration": 0.002209000289440155,
+        "cpuUsage": 0.257398,
+        "memoryUsage": 10401440
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_81",
+    {
+      "id": "perf_test_81",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7038749996573,
+        "endTime": 2168.7059589996934,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257402,
+        "memoryUsage": 10405344
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_82",
+    {
+      "id": "perf_test_82",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.707959000021,
+        "endTime": 2168.710041999817,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257406,
+        "memoryUsage": 10409248
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_83",
+    {
+      "id": "perf_test_83",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7120420001447,
+        "endTime": 2168.7141249999404,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.25741,
+        "memoryUsage": 10413152
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_84",
+    {
+      "id": "perf_test_84",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7216250002384,
+        "endTime": 2168.723959000781,
+        "duration": 0.0023340005427598953,
+        "cpuUsage": 0.257419,
+        "memoryUsage": 10417056
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_85",
+    {
+      "id": "perf_test_85",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7261250000447,
+        "endTime": 2168.728209000081,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257424,
+        "memoryUsage": 10420960
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_86",
+    {
+      "id": "perf_test_86",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7302919998765,
+        "endTime": 2168.732333999127,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257428,
+        "memoryUsage": 10424864
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_87",
+    {
+      "id": "perf_test_87",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.734333999455,
+        "endTime": 2168.7364169992507,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257432,
+        "memoryUsage": 10428768
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_88",
+    {
+      "id": "perf_test_88",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.738459000364,
+        "endTime": 2168.742291999981,
+        "duration": 0.0038329996168613434,
+        "cpuUsage": 0.257438,
+        "memoryUsage": 10432672
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_89",
+    {
+      "id": "perf_test_89",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.74450000003,
+        "endTime": 2168.746584000066,
+        "duration": 0.0020840000361204147,
+        "cpuUsage": 0.257442,
+        "memoryUsage": 10436576
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_90",
+    {
+      "id": "perf_test_90",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.748624999076,
+        "endTime": 2168.7506670001894,
+        "duration": 0.002042001113295555,
+        "cpuUsage": 0.257446,
+        "memoryUsage": 10440456
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_91",
+    {
+      "id": "perf_test_91",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7526670005172,
+        "endTime": 2168.754834000021,
+        "duration": 0.002166999503970146,
+        "cpuUsage": 0.25745,
+        "memoryUsage": 10444360
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_92",
+    {
+      "id": "perf_test_92",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7568749990314,
+        "endTime": 2168.7606249991804,
+        "duration": 0.003750000149011612,
+        "cpuUsage": 0.257456,
+        "memoryUsage": 10448240
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_93",
+    {
+      "id": "perf_test_93",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.762792000547,
+        "endTime": 2168.7651249989867,
+        "duration": 0.002332998439669609,
+        "cpuUsage": 0.257461,
+        "memoryUsage": 10452144
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_94",
+    {
+      "id": "perf_test_94",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7671249993145,
+        "endTime": 2168.7692499998957,
+        "duration": 0.0021250005811452866,
+        "cpuUsage": 0.257465,
+        "memoryUsage": 10456048
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_95",
+    {
+      "id": "perf_test_95",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7712089996785,
+        "endTime": 2168.773291999474,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257469,
+        "memoryUsage": 10459928
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_96",
+    {
+      "id": "perf_test_96",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7754170000553,
+        "endTime": 2168.778959000483,
+        "duration": 0.00354200042784214,
+        "cpuUsage": 0.257475,
+        "memoryUsage": 10463808
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_97",
+    {
+      "id": "perf_test_97",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7810839992017,
+        "endTime": 2168.7831669989973,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257479,
+        "memoryUsage": 10467712
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_98",
+    {
+      "id": "perf_test_98",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.785334000364,
+        "endTime": 2168.7874170001596,
+        "duration": 0.0020829997956752777,
+        "cpuUsage": 0.257483,
+        "memoryUsage": 10471616
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ],
+  [
+    "perf_test_99",
+    {
+      "id": "perf_test_99",
+      "timestamp": "2025-08-24T14:06:59.101Z",
+      "operation": "perf-test",
+      "phase": "complete",
+      "performance": {
+        "startTime": 2168.7894170004874,
+        "endTime": 2168.791458999738,
+        "duration": 0.002041999250650406,
+        "cpuUsage": 0.257487,
+        "memoryUsage": 10475520
+      },
+      "tokenUsage": {
+        "inputTokens": 10,
+        "outputTokens": 5,
+        "totalTokens": 15,
+        "model": "test-model",
+        "provider": "local"
+      },
+      "cost": {
+        "inputCost": 0,
+        "outputCost": 0,
+        "totalCost": 0,
+        "currency": "USD"
+      },
+      "quality": {
+        "confidence": 0.8,
+        "fallbackUsed": false,
+        "servicePath": [
+          "local"
+        ]
+      },
+      "context": {
+        "requestSize": 0,
+        "responseSize": 0,
+        "cacheHit": false,
+        "retryCount": 0,
+        "errorCount": 0
+      },
+      "metadata": {}
+    }
+  ]
+]

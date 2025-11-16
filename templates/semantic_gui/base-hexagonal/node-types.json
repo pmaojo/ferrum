@@ -1,0 +1,51 @@
+[
+  {
+    "type": "controller",
+    "pattern": ".*",
+    "color": "#3b82f6",
+    "icon": "\uD83C\uDFAE",
+    "description": "Entry points handling external requests"
+  },
+  {
+    "type": "usecase",
+    "pattern": ".*",
+    "color": "#10b981",
+    "icon": "\u26A1",
+    "description": "Application business logic"
+  },
+  {
+    "type": "service",
+    "pattern": ".*",
+    "color": "#059669",
+    "icon": "\u2699\uFE0F",
+    "description": "Reusable application services"
+  },
+  {
+    "type": "entity",
+    "pattern": ".*",
+    "color": "#ef4444",
+    "icon": "\uD83D\uDCE6",
+    "description": "Domain entity"
+  },
+  {
+    "type": "repository",
+    "pattern": ".*",
+    "color": "#f59e0b",
+    "icon": "\uD83D\uDCBE",
+    "description": "Persistence gateway"
+  },
+  {
+    "type": "adapter",
+    "pattern": ".*",
+    "color": "#84cc16",
+    "icon": "\uD83D\uDD0C",
+    "description": "Infrastructure adapter"
+  },
+  {
+    "type": "port",
+    "pattern": ".*",
+    "color": "#8b5cf6",
+    "icon": "\uD83D\uDEAA",
+    "description": "Interface between layers"
+  }
+]

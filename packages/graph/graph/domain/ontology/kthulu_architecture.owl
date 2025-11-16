@@ -1,0 +1,337 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://kthulu.io/ontology#"
+     xml:base="http://kthulu.io/ontology"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://kthulu.io/ontology">
+        <rdfs:label>Kthulu Architecture Ontology</rdfs:label>
+        <rdfs:comment>Formal ontology for representing Kthulu hexagonal architecture components and their relationships</rdfs:comment>
+        <owl:versionInfo>1.0.0</owl:versionInfo>
+    </owl:Ontology>
+    
+    
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://kthulu.io/ontology#Adapter -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#Adapter">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#InfrastructureComponent"/>
+        <rdfs:label>Adapter</rdfs:label>
+        <rdfs:comment>Infrastructure component that implements ports and handles external system interactions</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#DomainComponent -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#DomainComponent">
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://kthulu.io/ontology#calls"/>
+                <owl:allValuesFrom>
+                    <owl:Class>
+                        <owl:complementOf rdf:resource="http://kthulu.io/ontology#InfrastructureComponent"/>
+                    </owl:Class>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="http://kthulu.io/ontology#InfrastructureComponent"/>
+        <rdfs:label>Domain Component</rdfs:label>
+        <rdfs:comment>Abstract class for components that belong to the domain layer. Domain components must not directly call infrastructure components (DIP).</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#DomainEntity -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#DomainEntity">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#DomainComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://kthulu.io/ontology#partOfAggregate"/>
+                <owl:maxCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">1</owl:maxCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Domain Entity</rdfs:label>
+        <rdfs:comment>Domain object with identity and lifecycle. Each entity can belong to at most one aggregate.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#DomainEvent -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#DomainEvent">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#DomainComponent"/>
+        <rdfs:label>Domain Event</rdfs:label>
+        <rdfs:comment>Event that represents something significant that happened in the domain</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#InfrastructureComponent -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#InfrastructureComponent">
+        <rdfs:label>Infrastructure Component</rdfs:label>
+        <rdfs:comment>Abstract class for components that belong to the infrastructure layer</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#Module -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#Module">
+        <rdfs:label>Module</rdfs:label>
+        <rdfs:comment>Bounded context that encapsulates related use cases, entities, and business logic</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#Port -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#Port">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#DomainComponent"/>
+        <rdfs:label>Port</rdfs:label>
+        <rdfs:comment>Interface that defines how the domain interacts with external systems</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#UseCase -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#UseCase">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#DomainComponent"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://kthulu.io/ontology#usesEntity"/>
+                <owl:allValuesFrom>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://kthulu.io/ontology#belongsToModule"/>
+                        <owl:hasValue rdf:resource="http://kthulu.io/ontology#SelfModule"/>
+                    </owl:Restriction>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Use Case</rdfs:label>
+        <rdfs:comment>Application service that orchestrates domain logic for a specific business scenario. Use cases should only use entities from their own module.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://kthulu.io/ontology#AggregateRoot -->
+
+    <owl:Class rdf:about="http://kthulu.io/ontology#AggregateRoot">
+        <rdfs:subClassOf rdf:resource="http://kthulu.io/ontology#DomainEntity"/>
+        <rdfs:label>Aggregate Root</rdfs:label>
+        <rdfs:comment>Domain entity that serves as the entry point to an aggregate</rdfs:comment>
+    </owl:Class>
+    
+
+
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://kthulu.io/ontology#calls -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#calls">
+        <rdfs:label>calls</rdfs:label>
+        <rdfs:comment>Indicates that one component calls or depends on another component</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#definesUseCase -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#definesUseCase">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#Module"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#UseCase"/>
+        <rdfs:label>defines use case</rdfs:label>
+        <rdfs:comment>Indicates that a module defines a specific use case</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#dependsOnModule -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#dependsOnModule">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#Module"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#Module"/>
+        <rdfs:label>depends on module</rdfs:label>
+        <rdfs:comment>Indicates that one module depends on another module</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#emitsEvent -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#emitsEvent">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#UseCase"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#DomainEvent"/>
+        <rdfs:label>emits event</rdfs:label>
+        <rdfs:comment>Indicates that a use case emits a domain event</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#handlesEvent -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#handlesEvent">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#Adapter"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#DomainEvent"/>
+        <rdfs:label>handles event</rdfs:label>
+        <rdfs:comment>Indicates that an adapter handles a domain event</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#hasPort -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#hasPort">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#Module"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#Port"/>
+        <rdfs:label>has port</rdfs:label>
+        <rdfs:comment>Indicates that a module defines a port interface</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#implementsPort -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#implementsPort">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#Adapter"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#Port"/>
+        <rdfs:label>implements port</rdfs:label>
+        <rdfs:comment>Indicates that an adapter implements a port interface</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#usesPort -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#usesPort">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#UseCase"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#Port"/>
+        <rdfs:label>uses port</rdfs:label>
+        <rdfs:comment>Indicates that a use case uses a port interface</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#usesEntity -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#usesEntity">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#UseCase"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#DomainEntity"/>
+        <rdfs:label>uses entity</rdfs:label>
+        <rdfs:comment>Indicates that a use case uses a domain entity</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#partOfAggregate -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#partOfAggregate">
+        <rdfs:domain rdf:resource="http://kthulu.io/ontology#DomainEntity"/>
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#AggregateRoot"/>
+        <rdfs:label>part of aggregate</rdfs:label>
+        <rdfs:comment>Indicates that a domain entity is part of an aggregate</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#belongsToModule -->
+
+    <owl:ObjectProperty rdf:about="http://kthulu.io/ontology#belongsToModule">
+        <rdfs:range rdf:resource="http://kthulu.io/ontology#Module"/>
+        <rdfs:label>belongs to module</rdfs:label>
+        <rdfs:comment>Indicates that a component belongs to a specific module</rdfs:comment>
+    </owl:ObjectProperty>
+    
+
+
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://kthulu.io/ontology#hasName -->
+
+    <owl:DatatypeProperty rdf:about="http://kthulu.io/ontology#hasName">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>has name</rdfs:label>
+        <rdfs:comment>The name identifier of a component</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#hasNamespace -->
+
+    <owl:DatatypeProperty rdf:about="http://kthulu.io/ontology#hasNamespace">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>has namespace</rdfs:label>
+        <rdfs:comment>The namespace or module path of a component</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://kthulu.io/ontology#hasVersion -->
+
+    <owl:DatatypeProperty rdf:about="http://kthulu.io/ontology#hasVersion">
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>has version</rdfs:label>
+        <rdfs:comment>The version identifier of a component</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+
+
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://kthulu.io/ontology#Adapter"/>
+            <rdf:Description rdf:about="http://kthulu.io/ontology#DomainEvent"/>
+            <rdf:Description rdf:about="http://kthulu.io/ontology#Module"/>
+            <rdf:Description rdf:about="http://kthulu.io/ontology#Port"/>
+            <rdf:Description rdf:about="http://kthulu.io/ontology#UseCase"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->

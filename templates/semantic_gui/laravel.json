@@ -1,0 +1,61 @@
+{
+  "id": "laravel",
+  "name": "Laravel MVC Template",
+  "description": "Template for Laravel applications using the MVC pattern",
+  "nodeTypes": [
+    {
+      "type": "controller",
+      "pattern": "app/Http/Controllers/.*\\.php$",
+      "color": "#f55247",
+      "icon": "🧭"
+    },
+    {
+      "type": "model",
+      "pattern": "app/Models/.*\\.php$",
+      "color": "#3b82f6",
+      "icon": "📦"
+    },
+    {
+      "type": "service",
+      "pattern": "app/Services/.*\\.php$",
+      "color": "#10b981",
+      "icon": "⚙️"
+    },
+    {
+      "type": "repository",
+      "pattern": "app/Repositories/.*\\.php$",
+      "color": "#8b5cf6",
+      "icon": "🗃️"
+    }
+  ],
+  "validationRules": [],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "laravel",
+    "language": "php",
+    "architecture": "mvc"
+  }
+}

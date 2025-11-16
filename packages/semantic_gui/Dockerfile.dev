@@ -1,0 +1,32 @@
+# Development Dockerfile with Node 20
+FROM node:20-alpine
+
+# Install PostgreSQL client and development tools
+RUN apk add --no-cache \
+    postgresql-client \
+    git \
+    bash \
+    curl
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm for faster package management
+RUN npm install -g pnpm@latest
+
+# Copy package files
+COPY package*.json ./
+COPY pnpm-lock.yaml* ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy app source
+COPY . .
+
+# Expose ports
+EXPOSE 5000
+EXPOSE 24678
+
+# Development command
+CMD ["pnpm", "run", "dev"]

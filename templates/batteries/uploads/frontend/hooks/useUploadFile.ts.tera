@@ -1,0 +1,6 @@
+// Hook to upload a file
+export async function useUploadFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    await fetch('/upload', { method: 'POST', body: formData });
+}

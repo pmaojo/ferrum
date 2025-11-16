@@ -1,0 +1,95 @@
+use anyhow::{Context, Result};
+use std::path::PathBuf;
+
+/// Default regex pattern used to locate AI_FILL markers.
+pub(crate) const TODO_PATTERN: &str =
+    r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)";
+
+/// Public interface used by the CLI.
+pub fn fill_todos(dir: PathBuf) -> Result<()> {
+    fill_todos_with_pattern(dir, TODO_PATTERN)
+}
+
+/// Helper to allow injecting predefined answers during tests.
+fn details_from_env_or_prompt(node: &str) -> String {
+    std::env::var("FERRUM_TEST_INPUT").unwrap_or_else(|_| {
+        use dialoguer::Input;
+        Input::new()
+            .with_prompt(&format!("Describe {node}"))
+            .allow_empty(false)
+            .interact_text()
+            .unwrap_or_default()
+    })
+}
+
+/// Implementation that allows supplying a custom regex pattern.
+/// Exposed for testing to validate regex failure handling.
+pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
+    use regex::Regex;
+    use reqwest::blocking::Client;
+    use serde_json::json;
+    use std::fs;
+    use walkdir::WalkDir;
+
+    let re = Regex::new(pattern).context("Invalid regex pattern")?;
+    let client = Client::new();
+    let base_url =
+        std::env::var("FERRUM_FILL_BASE").unwrap_or_else(|_| "http://localhost:8001".to_string());
+
+    for entry in WalkDir::new(&dir).into_iter().filter_map(Result::ok) {
+        let path = entry.path();
+        if path.is_file() {
+            if let Ok(contents) = fs::read_to_string(path) {
+                if contents.contains("AI_FILL") {
+                    let replaced = re.replace_all(&contents, |caps: &regex::Captures| {
+                        let task = &caps["task"];
+                        let node = &caps["context"];
+                        let mut code = client
+                            .post(&format!("{}/fill-todo", base_url))
+                            .json(&json!({"code": node, "instructions": task}))
+                            .send()
+                            .and_then(|r| r.json::<serde_json::Value>())
+                            .ok()
+                            .and_then(|v| {
+                                v.get("code")
+                                    .and_then(|v| v.as_str())
+                                    .map(|s| s.to_string())
+                            })
+                            .unwrap_or_default();
+
+                        if code.trim().is_empty() || code.contains("failed to fill") {
+                            println!("⚠️  Need more context for {node}");
+                            let details = details_from_env_or_prompt(node);
+
+                            code = client
+                                .post(&format!("{}/fill-todo", base_url))
+                                .json(&json!({
+                                    "code": node,
+                                    "instructions": format!("{}; {}", task, details),
+                                }))
+                                .send()
+                                .and_then(|r| r.json::<serde_json::Value>())
+                                .ok()
+                                .and_then(|v| {
+                                    v.get("code")
+                                        .and_then(|v| v.as_str())
+                                        .map(|s| s.to_string())
+                                })
+                                .unwrap_or_else(|| "// failed to fill".to_string());
+
+                            let _ = client
+                                .post(&format!("{}/node-info", base_url))
+                                .json(&json!({"id": node, "story": details}))
+                                .send();
+                        }
+
+                        code
+                    });
+                    fs::write(path, replaced.as_bytes())?;
+                    println!("Filled markers in {}", path.display());
+                }
+            }
+        }
+    }
+    Ok(())
+}

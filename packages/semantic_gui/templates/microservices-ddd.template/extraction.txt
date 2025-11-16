@@ -1,0 +1,1 @@
+// Extraction snippet for microservices-ddd

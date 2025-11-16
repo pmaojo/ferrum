@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "backend",
+    "frontend_egui",
+    "shared-models",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"

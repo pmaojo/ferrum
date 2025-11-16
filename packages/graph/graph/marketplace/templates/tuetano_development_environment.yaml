@@ -1,0 +1,259 @@
+id: "tuetano_development_environment"
+name: "Tuetano C++ Development Environment"
+description: "Enterprise-grade C++20 development environment with hexagonal architecture, modern tooling, and semantic code generation"
+category: "development"
+default_tenant: "tuetano-dev-tenant"
+tier_required: "free"
+price_usd: 0.0
+tags: ["cpp", "tuetano", "hexagonal", "enterprise", "modern", "development"]
+author: "Kronal Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 8192
+    temperature: 0.05  # Low temperature for precise code generation
+  
+  # Tuetano CLI integration
+  tuetano_cli:
+    version: "latest"
+    auto_install: true
+    global_config: true
+    plugin_system_enabled: true
+    
+  # C++ Development environment
+  cpp_environment:
+    standard: "20"  # C++20 by default, supports C++23
+    compilers:
+      - name: "gcc"
+        version: "13+"
+        flags: ["-Wall", "-Wextra", "-Wpedantic", "-Werror"]
+      - name: "clang"
+        version: "16+"
+        flags: ["-Wall", "-Wextra", "-Wpedantic", "-Werror"]
+    build_system: "cmake"
+    cmake_version: "3.25+"
+    
+  # Package management
+  package_managers:
+    primary: "conan"
+    secondary: "vcpkg"
+    auto_detect: true
+    
+  # Code quality tools
+  quality_tools:
+    formatter: "clang-format"
+    linter: "clang-tidy"
+    static_analyzer: "clang-static-analyzer"
+    sanitizers: ["address", "thread", "undefined"]
+    
+  # Testing framework
+  testing:
+    framework: "catch2"  # Default, supports GTest too
+    coverage_tool: "gcov"
+    benchmark_framework: "google-benchmark"
+    
+  # Semantic code generation
+  code_generation:
+    enable_tuetano_templates: true
+    hexagonal_architecture: true
+    solid_principles: true
+    memory_safety_patterns: true
+    performance_optimization: true
+
+ontology_config:
+  entities:
+    - "CppProject"
+    - "HexagonalModule"
+    - "DomainEntity"
+    - "UseCase"
+    - "Port"
+    - "Adapter"
+    - "BusinessRule"
+    - "CppClass"
+    - "CppInterface"
+    - "TestSuite"
+    - "CMakeTarget"
+    - "Dependency"
+  relationships:
+    - "contains_module"
+    - "implements_port"
+    - "uses_adapter"
+    - "enforces_rule"
+    - "depends_on"
+    - "tests"
+    - "inherits_from"
+    - "compiles_to"
+  domain: "cpp_development"
+
+workflow_config:
+  workflows:
+    - name: "project_setup"
+      pattern: "sequential"
+      steps:
+        - name: "validate_environment"
+          agent_type: "environment_validator"
+          timeout: 60
+        - name: "setup_build_system"
+          agent_type: "build_agent"
+          timeout: 120
+        - name: "configure_quality_tools"
+          agent_type: "quality_agent"
+          timeout: 90
+        - name: "initialize_testing"
+          agent_type: "test_agent"
+          timeout: 60
+    
+    - name: "hexagonal_scaffolding"
+      pattern: "sequential"
+      steps:
+        - name: "design_architecture"
+          agent_type: "architecture_agent"
+          timeout: 180
+        - name: "generate_domain_layer"
+          agent_type: "domain_agent"
+          timeout: 120
+        - name: "generate_application_layer"
+          agent_type: "application_agent"
+          timeout: 120
+        - name: "generate_adapters"
+          agent_type: "adapter_agent"
+          timeout: 150
+        - name: "setup_dependency_injection"
+          agent_type: "di_agent"
+          timeout: 90
+    
+    - name: "continuous_quality"
+      pattern: "continuous"
+      steps:
+        - name: "format_code"
+          agent_type: "formatter"
+          schedule: "on_save"
+        - name: "lint_code"
+          agent_type: "linter"
+          schedule: "on_save"
+        - name: "run_tests"
+          agent_type: "test_runner"
+          schedule: "on_commit"
+        - name: "analyze_performance"
+          agent_type: "performance_analyzer"
+          schedule: "0 0 * * *"  # Daily
+
+ui_adapters:
+  - "semantic_gui"
+  - "tuetano_cli"
+  - "vscode_extension"
+  - "rest_api"
+
+# Tuetano-specific configuration
+tuetano_config:
+  # CLI commands available
+  cli_commands:
+    - name: "tue scaffold new"
+      description: "Create new C++ application with hexagonal architecture"
+      templates: ["cpp-application", "cpp-library", "cpp-microservice"]
+    - name: "tue scaffold add"
+      description: "Add components to existing project"
+      components: ["usecase", "port", "adapter", "entity"]
+    - name: "tue build"
+      description: "Build project with optimized settings"
+      presets: ["dev", "release", "debug", "ci"]
+    - name: "tue test"
+      description: "Run comprehensive test suite"
+      options: ["unit", "integration", "coverage", "benchmarks"]
+    - name: "tue tooling"
+      description: "Code quality and analysis tools"
+      tools: ["fmt", "tidy", "doctor", "graph"]
+    
+  # Template system
+  templates:
+    builtin_templates:
+      - "cpp-hexagonal-application"
+      - "cpp-hexagonal-module"
+      - "cpp-domain-entity"
+      - "cpp-use-case"
+      - "cpp-port-interface"
+      - "cpp-adapter-implementation"
+    custom_templates_path: ".tuetano/templates"
+    
+  # Plugin system
+  plugins:
+    enabled: true
+    marketplace_integration: true
+    security_verification: true
+    auto_update: false
+    
+  # Performance optimization
+  performance:
+    compile_time_optimization: true
+    runtime_optimization: true
+    memory_profiling: true
+    cpu_profiling: true
+    
+  # Security features
+  security:
+    memory_safety_checks: true
+    static_analysis: true
+    dependency_scanning: true
+    secure_coding_guidelines: true
+
+# Pre-configured project examples
+project_examples:
+  - name: "User Management Service"
+    description: "Complete user management with authentication and profiles"
+    architecture: "hexagonal"
+    components:
+      domain: ["User", "Profile", "Authentication"]
+      use_cases: ["CreateUser", "AuthenticateUser", "UpdateProfile"]
+      ports: ["UserRepository", "EmailService", "AuthService"]
+      adapters: ["PostgresUserRepo", "SMTPEmailService", "JWTAuthService"]
+    
+  - name: "Payment Processing System"
+    description: "High-performance payment processing with fraud detection"
+    architecture: "hexagonal"
+    components:
+      domain: ["Payment", "Transaction", "FraudRule"]
+      use_cases: ["ProcessPayment", "DetectFraud", "RefundPayment"]
+      ports: ["PaymentGateway", "FraudDetector", "TransactionRepo"]
+      adapters: ["StripeGateway", "MLFraudDetector", "SQLTransactionRepo"]
+    
+  - name: "IoT Data Processor"
+    description: "Real-time IoT data processing with analytics"
+    architecture: "hexagonal"
+    components:
+      domain: ["SensorData", "Device", "Analytics"]
+      use_cases: ["ProcessSensorData", "AnalyzePatterns", "GenerateAlerts"]
+      ports: ["DataIngestion", "AnalyticsEngine", "AlertService"]
+      adapters: ["MQTTIngestion", "TensorFlowAnalytics", "WebSocketAlerts"]
+
+# Development best practices
+best_practices:
+  architecture:
+    - "Follow hexagonal architecture principles"
+    - "Maintain clear separation of concerns"
+    - "Use dependency injection for loose coupling"
+    - "Keep domain logic pure and testable"
+    
+  coding:
+    - "Follow C++ Core Guidelines"
+    - "Use RAII for resource management"
+    - "Prefer value semantics over reference semantics"
+    - "Use modern C++20 features appropriately"
+    
+  testing:
+    - "Write tests for all business logic"
+    - "Use mocks for external dependencies"
+    - "Maintain high test coverage (>90%)"
+    - "Include performance benchmarks"
+    
+  performance:
+    - "Profile before optimizing"
+    - "Use move semantics for expensive operations"
+    - "Consider memory layout for cache efficiency"
+    - "Minimize dynamic allocations in hot paths"

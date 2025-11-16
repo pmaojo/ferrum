@@ -1,0 +1,55 @@
+/// Enum representing all available views in the application
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum View {
+    Home,
+    Login,
+    {% for route in routes -%}
+    {{ route.view_name }},
+    {% endfor -%}
+}
+
+impl View {
+    /// Get all available views
+    pub fn all() -> &'static [View] {
+        &[
+            View::Home,
+            View::Login,
+            {% for route in routes -%}
+            View::{{ route.view_name }},
+            {% endfor -%}
+        ]
+    }
+
+    /// Get the display name for this view
+    pub fn name(&self) -> &'static str {
+        match self {
+            View::Home => "Home",
+            View::Login => "Login",
+            {% for route in routes -%}
+            View::{{ route.view_name }} => "{{ route.display_name }}",
+            {% endfor -%}
+        }
+    }
+
+    /// Check if this view requires authentication
+    pub fn requires_auth(&self) -> bool {
+        match self {
+            View::Home => false,
+            View::Login => false,
+            {% for route in routes -%}
+            View::{{ route.view_name }} => {{ route.auth_required }},
+            {% endfor -%}
+        }
+    }
+
+    /// Get the route path for this view
+    pub fn path(&self) -> &'static str {
+        match self {
+            View::Home => "/",
+            View::Login => "/login",
+            {% for route in routes -%}
+            View::{{ route.view_name }} => "{{ route.path }}",
+            {% endfor -%}
+        }
+    }
+}

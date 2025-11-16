@@ -1,0 +1,61 @@
+{
+    "thresholds": {
+        "consoleStatements": {
+            "max": 0,
+            "warning": 5,
+            "description": "Console statements should be replaced with proper logging"
+        },
+        "anyTypes": {
+            "max": 10,
+            "warning": 20,
+            "description": "'any' types reduce type safety and should be replaced with specific types"
+        },
+        "unusedVariables": {
+            "max": 0,
+            "warning": 5,
+            "description": "Unused variables should be removed or prefixed with underscore"
+        },
+        "testCoverage": {
+            "min": 80,
+            "warning": 70,
+            "description": "Test coverage should be at least 80%"
+        },
+        "lintErrors": {
+            "max": 0,
+            "warning": 0,
+            "description": "All lint errors should be fixed"
+        },
+        "lintWarnings": {
+            "max": 10,
+            "warning": 20,
+            "description": "Lint warnings should be addressed"
+        },
+        "typeErrors": {
+            "max": 0,
+            "warning": 0,
+            "description": "All TypeScript errors should be fixed"
+        },
+        "importOrderViolations": {
+            "max": 0,
+            "warning": 10,
+            "description": "Import order should follow established conventions"
+        },
+        "structuralIssues": {
+            "max": 0,
+            "warning": 5,
+            "description": "Structural issues like empty blocks should be resolved"
+        }
+    },
+    "rules": {
+        "failOnThresholdExceeded": true,
+        "warnOnThresholdApproached": true,
+        "trackTrends": true,
+        "generateReports": true
+    },
+    "reporting": {
+        "historyLength": 50,
+        "trendAnalysis": true,
+        "markdownReports": true,
+        "ciIntegration": true
+    }
+}

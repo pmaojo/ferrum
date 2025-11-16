@@ -1,0 +1,147 @@
+use axum::{
+    extract::{Extension, Query, TypedHeader},
+    http::{header, HeaderMap, StatusCode},
+    response::{IntoResponse, Redirect, Response},
+};
+use oauth2::{
+    reqwest::async_http_client, AuthorizationCode, CsrfToken, Scope, TokenResponse,
+};
+use serde::Deserialize;
+use jsonwebtoken::{encode, EncodingKey, Header};
+use serde::Serialize;
+use std::env;
+use crate::sessions::{create_session, consume_session, redis_client};
+use diesel::prelude::*;
+use uuid::Uuid;
+use chrono::Utc;
+use headers::Cookie;
+
+use crate::db::{DbPool};
+use crate::db::models::Usuario;
+use crate::db::schema::usuarios::dsl::*;
+use crate::oauth_clients::{google_client, github_client};
+
+#[derive(Serialize)]
+struct Claims {
+    sub: String,
+    roles: Vec<String>,
+    exp: usize,
+}
+
+#[derive(Deserialize)]
+pub struct OAuthQuery {
+    code: String,
+    state: Option<String>,
+}
+
+/// Redirects the user to the Google OAuth consent screen.
+pub async fn google_login() -> Redirect {
+    let (url, _csrf) = google_client()
+        .authorize_url(CsrfToken::new_random)
+        .add_scope(Scope::new("email".into()))
+        .url();
+    Redirect::temporary(url.as_str())
+}
+
+/// Redirects the user to the GitHub OAuth consent screen.
+pub async fn github_login() -> Redirect {
+    let (url, _csrf) = github_client()
+        .authorize_url(CsrfToken::new_random)
+        .url();
+    Redirect::temporary(url.as_str())
+}
+
+/// Callback endpoint that should exchange the code for a token and issue a JWT.
+pub async fn oauth_callback(
+    Extension(pool): Extension<DbPool>,
+    Query(q): Query<OAuthQuery>,
+) -> Response {
+    let (client, userinfo_url) = if q.state.as_deref() == Some("github") {
+        (github_client(), "https://api.github.com/user")
+    } else {
+        (google_client(), "https://www.googleapis.com/oauth2/v3/userinfo")
+    };
+
+    let token = client
+        .exchange_code(AuthorizationCode::new(q.code))
+        .request_async(async_http_client)
+        .await
+        .unwrap();
+
+    let user: serde_json::Value = reqwest::Client::new()
+        .get(userinfo_url)
+        .bearer_auth(token.access_token().secret())
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    let email_val = user.get("email").and_then(|v| v.as_str()).unwrap_or("oauth-user");
+
+    let mut conn = pool.get().unwrap();
+    let existing = usuarios
+        .filter(email.eq(email_val))
+        .first::<Usuario>(&mut conn)
+        .optional()
+        .unwrap();
+    if existing.is_none() {
+        let new_user = Usuario {
+            id: uuid::Uuid::new_v4(),
+            email: email_val.to_string(),
+            password: "".to_string(),
+            created_at: chrono::Utc::now().naive_utc(),
+        };
+        diesel::insert_into(usuarios)
+            .values(&new_user)
+            .execute(&mut conn)
+            .unwrap();
+    }
+
+    let claims = Claims {
+        sub: email_val.to_string(),
+        roles: vec!["user".into()],
+        exp: chrono::Utc::now().timestamp() as usize + 900,
+    };
+    let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+    let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+
+    let redis = redis_client();
+    let refresh = create_session(&redis, email_val);
+    let refresh = refresh.await.unwrap();
+
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        header::SET_COOKIE,
+        format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap(),
+    );
+    headers.append(
+        header::SET_COOKIE,
+        format!("refresh_token={}; HttpOnly; Path=/", refresh).parse().unwrap(),
+    );
+    (StatusCode::FOUND, headers, Redirect::temporary("/")).into_response()
+}
+
+pub async fn refresh(
+    TypedHeader(cookies): TypedHeader<Cookie>,
+) -> impl IntoResponse {
+    let redis = redis_client();
+    if let Some(token) = cookies.get("refresh_token") {
+        if let Ok(Some(user_id)) = crate::sessions::consume_session(&redis, token).await {
+            let claims = Claims {
+                sub: user_id.clone(),
+                roles: vec!["user".into()],
+                exp: chrono::Utc::now().timestamp() as usize + 900,
+            };
+            let secret = env::var("JWT_SECRET").unwrap_or_else(|_| "secret".into());
+            let jwt = encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_bytes())).unwrap();
+            let new_refresh = create_session(&redis, &user_id).await.unwrap();
+            let mut headers = HeaderMap::new();
+            headers.insert(header::SET_COOKIE, format!("jwt={}; HttpOnly; Path=/", jwt).parse().unwrap());
+            headers.append(header::SET_COOKIE, format!("refresh_token={}; HttpOnly; Path=/", new_refresh).parse().unwrap());
+            return (StatusCode::OK, headers).into_response();
+        }
+    }
+    StatusCode::UNAUTHORIZED.into_response()
+}

@@ -1,0 +1,219 @@
+{
+  "id": "kthulu-hexagonal",
+  "name": "Kthulu Hexagonal Architecture",
+  "description": "Template for Kthulu-generated Go projects using hexagonal architecture and DDD principles",
+  "extends": "base-hexagonal",
+  "nodeTypes": [
+    {
+      "type": "module",
+      "pattern": "Module",
+      "color": "#3B82F6",
+      "icon": "📦",
+      "description": "Kthulu module containing use cases, adapters, and entities"
+    },
+    {
+      "type": "usecase",
+      "pattern": "UseCase",
+      "color": "#10B981",
+      "icon": "⚡",
+      "description": "Domain use case implementing business logic"
+    },
+    {
+      "type": "adapter",
+      "pattern": "Adapter",
+      "color": "#F59E0B",
+      "icon": "🔌",
+      "description": "Infrastructure adapter implementing ports"
+    },
+    {
+      "type": "port",
+      "pattern": "Port",
+      "color": "#8B5CF6",
+      "icon": "🚪",
+      "description": "Interface defining contract between domain and infrastructure"
+    },
+    {
+      "type": "entity",
+      "pattern": "Entity",
+      "color": "#EF4444",
+      "icon": "🏛️",
+      "description": "Domain entity representing business concepts"
+    },
+    {
+      "type": "event",
+      "pattern": "Event",
+      "color": "#F97316",
+      "icon": "📡",
+      "description": "Domain event for decoupled communication"
+    },
+    {
+      "type": "handler",
+      "pattern": "Handler",
+      "color": "#06B6D4",
+      "icon": "🎯",
+      "description": "HTTP handler for API endpoints"
+    },
+    {
+      "type": "service",
+      "pattern": "Service",
+      "color": "#84CC16",
+      "icon": "⚙️",
+      "description": "Application service orchestrating use cases"
+    }
+  ],
+  "validationRules": [
+    {
+      "rule": "DIP_VIOLATION",
+      "type": "prohibited",
+      "description": "Domain components cannot depend on infrastructure components (Dependency Inversion Principle)",
+      "pattern": "usecase->adapter|entity->adapter|port->adapter"
+    },
+    {
+      "rule": "BOUNDED_CONTEXT_VIOLATION",
+      "type": "prohibited",
+      "description": "Entities from one module cannot be directly used by another module",
+      "pattern": "module.entity->other_module.*"
+    },
+    {
+      "rule": "AGGREGATE_INTEGRITY",
+      "type": "required",
+      "description": "Each entity must belong to exactly one aggregate root",
+      "pattern": "entity->aggregate_root"
+    },
+    {
+      "rule": "PORT_IMPLEMENTATION",
+      "type": "required",
+      "description": "Each port must be implemented by at least one adapter",
+      "pattern": "port<-adapter"
+    },
+    {
+      "rule": "USE_CASE_ISOLATION",
+      "type": "required",
+      "description": "Use cases should only depend on ports, not concrete adapters",
+      "pattern": "usecase->port"
+    },
+    {
+      "rule": "MODULE_COMPLETENESS",
+      "type": "required",
+      "description": "Each module must define at least one use case",
+      "pattern": "module->usecase"
+    },
+    {
+      "rule": "HANDLER_DELEGATION",
+      "type": "required",
+      "description": "HTTP handlers should delegate to use cases, not contain business logic",
+      "pattern": "handler->usecase"
+    },
+    {
+      "rule": "EVENT_DECOUPLING",
+      "type": "required",
+      "description": "Domain events should be used for cross-module communication",
+      "pattern": "module->event->other_module"
+    }
+  ],
+  "connector": {
+    "type": "file-based",
+    "parser": "go-ast",
+    "fileWatcher": {
+      "patterns": ["backend/**/*.go"],
+      "excludes": ["**/*_test.go", "**/vendor/**"],
+      "events": ["codeChanged", "codeApplied", "codeError"]
+    },
+    "analysis": {
+      "graphCommand": "kthulu-cli plan --graph --format=json",
+      "outputPath": "/tmp/kthulu.graph.json",
+      "structureCommand": "kthulu-cli analyze --structure",
+      "validationCommand": "kthulu-cli plan --validate"
+    },
+    "paths": {
+      "projectRoot": ".",
+      "backendPath": "backend",
+      "cliPath": "backend/cmd/kthulu-cli",
+      "tempDir": "/tmp"
+    },
+    "scgMapping": {
+      "nodePositioning": {
+        "module": {
+          "baseX": 0,
+          "baseY": 0
+        },
+        "usecase": {
+          "baseX": 50,
+          "baseY": 100
+        },
+        "adapter": {
+          "baseX": 200,
+          "baseY": 100
+        },
+        "entity": {
+          "baseX": 100,
+          "baseY": 200
+        },
+        "port": {
+          "baseX": 150,
+          "baseY": 50
+        }
+      },
+      "componentTypes": {
+        "usecase": "domain",
+        "entity": "domain",
+        "port": "domain",
+        "adapter": "infrastructure",
+        "handler": "infrastructure",
+        "service": "application"
+      }
+    }
+  },
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "kthulu",
+    "language": "go",
+    "architecture": "hexagonal",
+    "paradigm": "ddd",
+    "principles": ["SOLID", "DDD", "Hexagonal", "Clean Architecture"],
+    "cli": {
+      "planGraph": "kthulu-cli plan --graph --format=json",
+      "validate": "kthulu-cli plan --validate"
+    },
+    "filePatterns": {
+      "modules": "backend/internal/modules/*.go",
+      "handlers": "backend/internal/handlers/*.go",
+      "services": "backend/internal/services/*.go",
+      "entities": "backend/internal/entities/*.go",
+      "ports": "backend/internal/ports/*.go"
+    },
+    "semanticMapping": {
+      "Module": "kth:Module",
+      "UseCase": "kth:UseCase",
+      "Adapter": "kth:Adapter",
+      "Port": "kth:Port",
+      "Entity": "kth:DomainEntity",
+      "Event": "kth:DomainEvent"
+    },
+    "ontologyNamespace": "http://kthulu.io/ontology#",
+    "supportedFormats": ["json", "dot", "yaml", "rdf", "owl"]
+  }
+}

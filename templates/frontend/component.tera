@@ -1,0 +1,23 @@
+import React from 'react';
+import { use{{ node.id | capitalize }} } from '../hooks/use{{ node.id | capitalize }}';
+
+interface {{ node.id | capitalize }}ViewProps {
+  {% for input in node.input %}
+  {{ input.name }}: string; // Using string as default type
+  {% endfor %}
+}
+
+export const {{ node.id | capitalize }}View: React.FC<{{ node.id | capitalize }}ViewProps> = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }) => {
+  const { data, isLoading, error } = use{{ node.id | capitalize }}({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {(error as Error).message}</div>;
+  if (!data) return null;
+
+  return (
+    <div className="{{ node.id | lower }}-view">
+      <h2>{{ node.output }}</h2>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};

@@ -1,0 +1,150 @@
+{
+  "id": "nextjs-app-router",
+  "name": "Next.js App Router",
+  "description": "Modern Next.js application with App Router, Server Components, and full-stack architecture",
+  "nodeTypes": [
+    {
+      "type": "page",
+      "pattern": "Page",
+      "color": "#3B82F6",
+      "icon": "📄",
+      "description": "Next.js page component"
+    },
+    {
+      "type": "layout",
+      "pattern": "Layout",
+      "color": "#8B5CF6",
+      "icon": "🏗️",
+      "description": "Layout component wrapping pages"
+    },
+    {
+      "type": "component",
+      "pattern": "Component",
+      "color": "#10B981",
+      "icon": "🧩",
+      "description": "Reusable React component"
+    },
+    {
+      "type": "api-route",
+      "pattern": "ApiRoute",
+      "color": "#F59E0B",
+      "icon": "🔄",
+      "description": "API route handler"
+    },
+    {
+      "type": "middleware",
+      "pattern": "Middleware",
+      "color": "#EF4444",
+      "icon": "🛡️",
+      "description": "Next.js middleware"
+    },
+    {
+      "type": "hook",
+      "pattern": "Hook",
+      "color": "#06B6D4",
+      "icon": "🪝",
+      "description": "Custom React hook"
+    },
+    {
+      "type": "server-action",
+      "pattern": "ServerAction",
+      "color": "#84CC16",
+      "icon": "⚡",
+      "description": "Server action for form handling"
+    },
+    {
+      "type": "loading",
+      "pattern": "Loading",
+      "color": "#6366F1",
+      "icon": "⏳",
+      "description": "Loading UI component"
+    },
+    {
+      "type": "error",
+      "pattern": "Error",
+      "color": "#DC2626",
+      "icon": "❌",
+      "description": "Error boundary component"
+    },
+    {
+      "type": "context",
+      "pattern": "Context",
+      "color": "#C026D3",
+      "icon": "🔗",
+      "description": "React context provider"
+    }
+  ],
+  "relations": [
+    { "source": "page", "target": "layout", "type": "wrapped-by" },
+    { "source": "page", "target": "component", "type": "uses" },
+    { "source": "component", "target": "hook", "type": "uses" },
+    { "source": "page", "target": "server-action", "type": "calls" },
+    { "source": "api-route", "target": "server-action", "type": "implements" },
+    { "source": "page", "target": "loading", "type": "shows" },
+    { "source": "page", "target": "error", "type": "handled-by" },
+    { "source": "component", "target": "context", "type": "consumes" }
+  ],
+  "validationRules": [
+    {
+      "rule": "PAGE_DEFAULT_EXPORT",
+      "type": "required",
+      "description": "Page components must have a default export",
+      "pattern": "page->default-export"
+    },
+    {
+      "rule": "LAYOUT_CHILDREN_PROP",
+      "type": "required",
+      "description": "Layout components must accept and render children prop",
+      "pattern": "layout->children"
+    },
+    {
+      "rule": "NO_CLIENT_IN_SERVER",
+      "type": "prohibited",
+      "description": "Server components should not use client-side APIs",
+      "pattern": "page->client-api"
+    },
+    {
+      "rule": "SERVER_ACTIONS_ASYNC",
+      "type": "required",
+      "description": "Server Actions must be async functions",
+      "pattern": "server-action->async"
+    },
+    {
+      "rule": "CLIENT_COMPONENTS_DIRECTIVE",
+      "type": "required",
+      "description": "Interactive components must have 'use client' directive",
+      "pattern": "component->use-client"
+    }
+  ],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "nextjs",
+    "language": "typescript",
+    "architecture": "app-router",
+    "paradigm": "react",
+    "principles": ["Server Components", "App Router", "Streaming", "RSC"]
+  }
+}

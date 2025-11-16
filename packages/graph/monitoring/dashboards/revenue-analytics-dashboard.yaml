@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: revenue-analytics-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  revenue-analytics.json: |-
+    {
+      "title": "Revenue Analytics",
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Monthly Recurring Revenue",
+          "targets": [
+            {"expr": "sum(revenue_mrr)"}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Average Revenue Per User",
+          "targets": [
+            {"expr": "avg(revenue_arpu)"}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Churn Rate",
+          "targets": [
+            {"expr": "avg(revenue_churn)"}
+          ]
+        }
+      ]
+    }

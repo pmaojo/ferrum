@@ -1,0 +1,138 @@
+{
+  "id": "spring-boot-layered",
+  "name": "Spring Boot Layered Architecture",
+  "description": "Traditional Spring Boot application with layered architecture",
+  "nodeTypes": [
+    {
+      "type": "controller",
+      "pattern": "Controller",
+      "color": "#6DB33F",
+      "icon": "🎮",
+      "description": "REST controller handling HTTP requests"
+    },
+    {
+      "type": "service",
+      "pattern": "Service",
+      "color": "#4285F4",
+      "icon": "⚙️",
+      "description": "Business logic service"
+    },
+    {
+      "type": "repository",
+      "pattern": "Repository",
+      "color": "#FF6B35",
+      "icon": "🗄️",
+      "description": "Data access repository"
+    },
+    {
+      "type": "entity",
+      "pattern": "Entity",
+      "color": "#9B59B6",
+      "icon": "📦",
+      "description": "JPA entity"
+    },
+    {
+      "type": "dto",
+      "pattern": "DTO",
+      "color": "#E74C3C",
+      "icon": "📋",
+      "description": "Data Transfer Object"
+    },
+    {
+      "type": "config",
+      "pattern": "Config",
+      "color": "#F39C12",
+      "icon": "⚙️",
+      "description": "Spring configuration class"
+    },
+    {
+      "type": "component",
+      "pattern": "Component",
+      "color": "#1ABC9C",
+      "icon": "🔧",
+      "description": "Spring component"
+    },
+    {
+      "type": "exception-handler",
+      "pattern": "ExceptionHandler",
+      "color": "#E67E22",
+      "icon": "⚠️",
+      "description": "Global exception handler"
+    }
+  ],
+  "relations": [
+    { "source": "controller", "target": "service", "type": "calls" },
+    { "source": "service", "target": "repository", "type": "uses" },
+    { "source": "repository", "target": "entity", "type": "manages" },
+    { "source": "controller", "target": "dto", "type": "uses" },
+    { "source": "service", "target": "dto", "type": "transforms" },
+    {
+      "source": "controller",
+      "target": "exception-handler",
+      "type": "handled-by"
+    }
+  ],
+  "validationRules": [
+    {
+      "rule": "CONTROLLER_SERVICE_DEPENDENCY",
+      "type": "required",
+      "description": "Controllers should delegate to services",
+      "pattern": "controller->service"
+    },
+    {
+      "rule": "NO_CONTROLLER_REPOSITORY_ACCESS",
+      "type": "prohibited",
+      "description": "Controllers should not directly access repositories",
+      "pattern": "controller->repository"
+    },
+    {
+      "rule": "SERVICE_LAYER_BUSINESS_LOGIC",
+      "type": "required",
+      "description": "Business logic should be in service layer",
+      "pattern": "service->repository"
+    },
+    {
+      "rule": "DTO_BOUNDARY_OBJECTS",
+      "type": "required",
+      "description": "Use DTOs for API boundaries",
+      "pattern": "controller->dto"
+    },
+    {
+      "rule": "EXCEPTION_HANDLING",
+      "type": "required",
+      "description": "Global exception handling should be implemented",
+      "pattern": "controller<-exception-handler"
+    }
+  ],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "spring-boot",
+    "language": "java",
+    "architecture": "layered",
+    "paradigm": "oop",
+    "principles": ["Layered Architecture", "Dependency Injection", "MVC"]
+  }
+}

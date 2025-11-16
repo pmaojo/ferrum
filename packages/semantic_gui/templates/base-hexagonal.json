@@ -1,0 +1,190 @@
+{
+  "id": "ferrum-hexagonal",
+  "name": "Ferrum Hexagonal Architecture",
+  "description": "Default Ferrum template for hexagonal architecture patterns with AI-first scaffolding",
+  "nodeTypes": [
+    {
+      "type": "domain",
+      "label": "Domain",
+      "pattern": "Domain",
+      "color": "#2563EB",
+      "icon": "🏛️",
+      "description": "Core domain logic and business rules",
+      "template": "export class {name}Domain {\n  // Core business logic\n  // No external dependencies\n}",
+      "bestPractices": [
+        "Single responsibility principle",
+        "No external dependencies",
+        "Pure business logic only"
+      ]
+    },
+    {
+      "type": "port",
+      "label": "Port",
+      "pattern": "Port",
+      "color": "#7C3AED",
+      "icon": "🚪",
+      "description": "Interface defining contract between layers",
+      "template": "export interface {name}Port {\n  // Define contract methods\n}",
+      "bestPractices": [
+        "Interface segregation",
+        "Clear method contracts",
+        "Dependency inversion"
+      ]
+    },
+    {
+      "type": "adapter",
+      "label": "Adapter",
+      "pattern": "Adapter",
+      "color": "#DC2626",
+      "icon": "🔌",
+      "description": "Infrastructure implementation of ports",
+      "template": "export class {name}Adapter implements {name}Port {\n  // Infrastructure implementation\n}",
+      "bestPractices": [
+        "Implement port interfaces",
+        "Handle external dependencies",
+        "Error handling and resilience"
+      ]
+    },
+    {
+      "type": "service",
+      "label": "Service",
+      "pattern": "Service",
+      "color": "#059669",
+      "icon": "⚙️",
+      "description": "Application service orchestrating domain logic",
+      "template": "export class {name}Service {\n  constructor(\n    private readonly port: {name}Port\n  ) {}\n\n  async execute(): Promise<void> {\n    // Orchestrate domain logic\n  }\n}",
+      "bestPractices": [
+        "Orchestrate domain operations",
+        "Dependency injection",
+        "Transaction boundaries"
+      ]
+    },
+    {
+      "type": "entity",
+      "label": "Entity",
+      "pattern": "Entity",
+      "color": "#DC2626",
+      "icon": "📦",
+      "description": "Domain entity with identity",
+      "template": "export class {name}Entity {\n  constructor(\n    private readonly id: string\n  ) {}\n\n  // Domain methods\n}",
+      "bestPractices": [
+        "Rich domain model",
+        "Encapsulate business rules",
+        "Identity-based equality"
+      ]
+    },
+    {
+      "type": "valueobject",
+      "label": "Value Object",
+      "pattern": "ValueObject",
+      "color": "#7C2D12",
+      "icon": "💎",
+      "description": "Immutable value object",
+      "template": "export class {name}ValueObject {\n  constructor(\n    private readonly value: any\n  ) {\n    // Validation logic\n  }\n\n  equals(other: {name}ValueObject): boolean {\n    return this.value === other.value;\n  }\n}",
+      "bestPractices": [
+        "Immutable objects",
+        "Value-based equality",
+        "Self-validation"
+      ]
+    }
+  ],
+  "relations": [
+    { "source": "domain", "target": "port", "type": "defines" },
+    { "source": "adapter", "target": "port", "type": "implements" },
+    { "source": "service", "target": "domain", "type": "uses" },
+    { "source": "service", "target": "port", "type": "depends_on" }
+  ],
+  "cli": {
+    "binary": "ferrum",
+    "description": "Ferrum CLI for AI-first scaffolding and architecture analysis",
+    "requiresBinary": true,
+    "commands": {
+      "planGraph": {
+        "command": "ferrum compile",
+        "description": "Compile Ferrum DSL to generate full-stack code",
+        "outputFormat": "json"
+      },
+      "validate": {
+        "command": "ferrum validate",
+        "description": "Validate architecture compliance with Ferrum standards",
+        "outputFormat": "json"
+      },
+      "scaffold": {
+        "command": "ferrum init",
+        "description": "Initialize new project with Ferrum scaffolding",
+        "outputFormat": "text"
+      },
+      "aiTeam": {
+        "command": "ferrum ai-team",
+        "description": "Consult AI team for architecture decisions",
+        "outputFormat": "text"
+      }
+    }
+  },
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "snippets": {
+    "domain-method": "public {methodName}(): {returnType} {\n  // Business logic here\n  return {defaultReturn};\n}",
+    "port-method": "{methodName}({params}): Promise<{returnType}>;",
+    "adapter-method": "async {methodName}({params}): Promise<{returnType}> {\n  // Infrastructure implementation\n  throw new Error('Not implemented');\n}"
+  },
+  "validationRules": [
+    {
+      "rule": "DEPENDENCY_INVERSION",
+      "type": "prohibited",
+      "description": "Domain should not depend on infrastructure",
+      "pattern": "domain->adapter"
+    },
+    {
+      "rule": "PORT_IMPLEMENTATION",
+      "type": "required",
+      "description": "Each port must be implemented",
+      "pattern": "port<-adapter"
+    },
+    {
+      "rule": "SERVICE_ORCHESTRATION",
+      "type": "required",
+      "description": "Services should orchestrate domain logic",
+      "pattern": "service->domain"
+    }
+  ],
+  "metadata": {
+    "architecture": "hexagonal",
+    "principles": ["Dependency Inversion", "Ports and Adapters"],
+    "configSchema": {
+      "type": "object",
+      "required": ["name", "packageManager"],
+      "properties": {
+        "name": { "type": "string", "title": "Project Name" },
+        "packageManager": {
+          "type": "string",
+          "enum": ["npm", "yarn", "pnpm"],
+          "default": "npm"
+        },
+        "strict": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}

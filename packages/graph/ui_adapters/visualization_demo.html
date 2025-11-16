@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphRAG Visualization Demo</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        #visualization {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        .node {
+            cursor: pointer;
+        }
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        .community {
+            stroke: #ff7f0e;
+            stroke-width: 2px;
+            fill-opacity: 0.3;
+        }
+        .highlighted {
+            stroke: #d62728;
+            stroke-width: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>GraphRAG Visualization Demo</h1>
+    
+    <div class="controls">
+        <button id="overviewBtn">Show Graph Overview</button>
+        <button id="communityBtn">Show Community Detail</button>
+        <button id="highlightBtn">Highlight Path</button>
+    </div>
+    
+    <div id="visualization"></div>
+    
+    <script>
+        // This is a frontend demo that would connect to your GraphVisualizer backend
+        // In a real application, you would fetch this data from your API
+        
+        // Sample data that mimics what GraphVisualizer would return
+        const sampleOverview = {
+            "communities": [
+                { "id": "kg1:1", "size": 25, "position": { "x": 200, "y": 150 }, "tenant_id": "tenant1" },
+                { "id": "kg1:2", "size": 18, "position": { "x": 400, "y": 250 }, "tenant_id": "tenant1" },
+                { "id": "kg1:3", "size": 32, "position": { "x": 300, "y": 350 }, "tenant_id": "tenant1" },
+                { "id": "kg1:4", "size": 15, "position": { "x": 500, "y": 150 }, "tenant_id": "tenant1" }
+            ],
+            "layout": {
+                "type": "force",
+                "width": 800,
+                "height": 600
+            },
+            "styles": {
+                "node": {
+                    "radius": 8,
+                    "color": "#1f77b4",
+                    "stroke": "#fff",
+                    "strokeWidth": 1.5,
+                    "opacity": 0.8
+                },
+                "edge": {
+                    "width": 1.5,
+                    "color": "#999",
+                    "opacity": 0.6,
+                    "arrow": true
+                },
+                "community": {
+                    "color": "#ff7f0e",
+                    "opacity": 0.3,
+                    "strokeWidth": 2
+                }
+            },
+            "stats": {
+                "total_nodes": 90,
+                "total_communities": 4,
+                "visible_communities": 4,
+                "render_mode": "svg"
+            }
+        };
+        
+        const sampleCommunity = {
+            "nodes": [
+                { "id": "node1", "position": { "x": 100, "y": 100 }, "attributes": { "label": "Entity1" }, "community_id": "kg1:1" },
+                { "id": "node2", "position": { "x": 200, "y": 150 }, "attributes": { "label": "Entity2" }, "community_id": "kg1:1" },
+                { "id": "node3", "position": { "x": 150, "y": 200 }, "attributes": { "label": "Entity3" }, "community_id": "kg1:1" },
+                { "id": "node4", "position": { "x": 250, "y": 100 }, "attributes": { "label": "Entity4" }, "community_id": "kg1:1" },
+                { "id": "node5", "position": { "x": 300, "y": 200 }, "attributes": { "label": "Entity5" }, "community_id": "kg1:1" }
+            ],
+            "edges": [
+                { "source": "node1", "target": "node2", "type": "relates_to", "attributes": { "label": "relates_to" } },
+                { "source": "node2", "target": "node3", "type": "connects_to", "attributes": { "label": "connects_to" } },
+                { "source": "node1", "target": "node4", "type": "references", "attributes": { "label": "references" } },
+                { "source": "node4", "target": "node5", "type": "part_of", "attributes": { "label": "part_of" } },
+                { "source": "node3", "target": "node5", "type": "relates_to", "attributes": { "label": "relates_to" } }
+            ],
+            "layout": {
+                "type": "force",
+                "width": 800,
+                "height": 600,
+                "charge": -120,
+                "linkDistance": 30
+            },
+            "styles": sampleOverview.styles
+        };
+        
+        const sampleHighlight = {
+            "highlight_id": "highlight_123",
+            "path": ["node1", "node2", "node3", "node5"],
+            "styles": {
+                "node": {
+                    "color": "#d62728",
+                    "radius": 10,
+                    "opacity": 1.0
+                },
+                "edge": {
+                    "color": "#d62728",
+                    "width": 3,
+                    "opacity": 1.0
+                }
+            }
+        };
+        
+        // D3.js visualization setup
+        const width = 800;
+        const height = 600;
+        
+        const svg = d3.select("#visualization")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+        
+        // Create a group for all visualization elements
+        const g = svg.append("g");
+        
+        // Add zoom behavior
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 10])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+        
+        svg.call(zoom);
+        
+        // Function to render graph overview
+        function renderOverview(data) {
+            // Clear previous visualization
+            g.selectAll("*").remove();
+            
+            // Draw communities as circles
+            const communities = g.selectAll(".community")
+                .data(data.communities)
+                .enter()
+                .append("circle")
+                .attr("class", "community")
+                .attr("cx", d => d.position.x)
+                .attr("cy", d => d.position.y)
+                .attr("r", d => Math.sqrt(d.size) * 5)  // Size based on node count
+                .style("fill", data.styles.community.color)
+                .style("fill-opacity", data.styles.community.opacity)
+                .style("stroke", data.styles.community.color)
+                .style("stroke-width", data.styles.community.strokeWidth)
+                .on("click", function(event, d) {
+                    console.log("Community clicked:", d.id);
+                    renderCommunity(sampleCommunity);  // In real app, fetch community data
+                });
+            
+            // Add labels
+            g.selectAll(".community-label")
+                .data(data.communities)
+                .enter()
+                .append("text")
+                .attr("class", "community-label")
+                .attr("x", d => d.position.x)
+                .attr("y", d => d.position.y)
+                .attr("text-anchor", "middle")
+                .attr("dy", ".35em")
+                .text(d => d.id.split(":")[1])
+                .style("font-size", "12px");
+            
+            // Add stats info
+            svg.append("text")
+                .attr("x", 10)
+                .attr("y", 20)
+                .text(`Total nodes: ${data.stats.total_nodes}, Communities: ${data.stats.total_communities}`)
+                .style("font-size", "12px");
+        }
+        
+        // Function to render community detail
+        function renderCommunity(data) {
+            // Clear previous visualization
+            g.selectAll("*").remove();
+            
+            // Create force simulation
+            const simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(d => d.id).distance(data.layout.linkDistance))
+                .force("charge", d3.forceManyBody().strength(-120))
+                .force("center", d3.forceCenter(width / 2, height / 2));
+            
+            // Create links
+            const link = g.selectAll(".link")
+                .data(data.edges)
+                .enter()
+                .append("line")
+                .attr("class", "link")
+                .style("stroke", data.styles.edge.color)
+                .style("stroke-width", data.styles.edge.width)
+                .style("stroke-opacity", data.styles.edge.opacity);
+            
+            // Create nodes
+            const node = g.selectAll(".node")
+                .data(data.nodes)
+                .enter()
+                .append("circle")
+                .attr("class", "node")
+                .attr("r", data.styles.node.radius)
+                .style("fill", data.styles.node.color)
+                .style("stroke", data.styles.node.stroke)
+                .style("stroke-width", data.styles.node.strokeWidth)
+                .style("opacity", data.styles.node.opacity)
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+            
+            // Add node labels
+            const labels = g.selectAll(".node-label")
+                .data(data.nodes)
+                .enter()
+                .append("text")
+                .attr("class", "node-label")
+                .attr("dx", 12)
+                .attr("dy", ".35em")
+                .text(d => d.attributes.label)
+                .style("font-size", "10px");
+            
+            // Update positions on simulation tick
+            simulation.nodes(data.nodes).on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+                
+                labels
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
+            });
+            
+            // Add links to simulation
+            simulation.force("link").links(data.edges);
+            
+            // Drag functions
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+        
+        // Function to highlight a path
+        function highlightPath(data) {
+            // Highlight nodes in the path
+            g.selectAll(".node")
+                .filter(d => data.path.includes(d.id))
+                .transition()
+                .duration(300)
+                .attr("r", data.styles.node.radius)
+                .style("fill", data.styles.node.color)
+                .style("opacity", data.styles.node.opacity);
+            
+            // Highlight edges in the path
+            g.selectAll(".link")
+                .filter(d => {
+                    // Check if both source and target are in the path and adjacent
+                    const sourceIndex = data.path.indexOf(d.source.id);
+                    const targetIndex = data.path.indexOf(d.target.id);
+                    return sourceIndex !== -1 && targetIndex !== -1 && 
+                           Math.abs(sourceIndex - targetIndex) === 1;
+                })
+                .transition()
+                .duration(300)
+                .style("stroke", data.styles.edge.color)
+                .style("stroke-width", data.styles.edge.width)
+                .style("stroke-opacity", data.styles.edge.opacity);
+        }
+        
+        // Button event handlers
+        document.getElementById("overviewBtn").addEventListener("click", () => {
+            renderOverview(sampleOverview);
+        });
+        
+        document.getElementById("communityBtn").addEventListener("click", () => {
+            renderCommunity(sampleCommunity);
+        });
+        
+        document.getElementById("highlightBtn").addEventListener("click", () => {
+            // First render community, then highlight path
+            renderCommunity(sampleCommunity);
+            setTimeout(() => highlightPath(sampleHighlight), 1000);
+        });
+        
+        // Initial render
+        renderOverview(sampleOverview);
+    </script>
+</body>
+</html>

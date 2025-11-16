@@ -1,0 +1,6 @@
+#[derive(Queryable, Insertable, Serialize, Deserialize)]
+#[diesel(table_name = {{ table_name }})]
+pub struct {{ struct_name }} {
+{% for f in fields %}    pub {{ f.name }}: {{ f.rust_type }},
+{% endfor %}    pub created_at: chrono::NaiveDateTime,
+}

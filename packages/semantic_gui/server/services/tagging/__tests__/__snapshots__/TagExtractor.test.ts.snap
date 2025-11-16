@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`TagExtractor extracts module tags using decorator pattern 1`] = `
+{
+  "columnNumber": 1,
+  "confidence": 1,
+  "context": {},
+  "extractedData": {
+    "metadata": {
+      "args": "{}",
+    },
+  },
+  "filePath": "src/app.module.ts",
+  "framework": "test",
+  "isValidated": false,
+  "lineNumber": 1,
+  "rawMatch": "@Module({})",
+  "type": "Module",
+  "value": "@Module({})",
+}
+`;

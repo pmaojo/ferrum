@@ -1,0 +1,250 @@
+{
+  "id": "nestjs-hexagonal",
+  "name": "NestJS Hexagonal Architecture",
+  "description": "Hexagonal architecture pattern for NestJS applications with clear separation of concerns",
+  "extends": "base-hexagonal",
+  "nodeTypes": [
+    {
+      "type": "usecase",
+      "pattern": "src/(.*)/use-cases/(.*)\\.ts$",
+      "color": "#1976D2",
+      "icon": "fas fa-cog"
+    },
+    {
+      "type": "adapter",
+      "pattern": "src/(.*)/adapters/(.*)\\.ts$",
+      "color": "#4CAF50",
+      "icon": "fas fa-plug"
+    },
+    {
+      "type": "entity",
+      "pattern": "src/domain/(.*)\\.entity\\.ts$",
+      "color": "#FF9800",
+      "icon": "fas fa-cube"
+    },
+    {
+      "type": "controller",
+      "pattern": "src/(.*)/controllers/(.*)\\.controller\\.ts$",
+      "color": "#9C27B0",
+      "icon": "fas fa-server"
+    },
+    {
+      "type": "repository",
+      "pattern": "src/(.*)/repositories/(.*)\\.repository\\.ts$",
+      "color": "#00BCD4",
+      "icon": "fas fa-database"
+    },
+    {
+      "type": "service",
+      "pattern": "src/(.*)/services/(.*)\\.service\\.ts$",
+      "color": "#607D8B",
+      "icon": "fas fa-wrench"
+    },
+    {
+      "type": "dto",
+      "pattern": "src/(.*)/dto/(.*)\\.dto\\.ts$",
+      "color": "#795548",
+      "icon": "fas fa-exchange-alt"
+    },
+    {
+      "type": "interface",
+      "pattern": "src/(.*)/interfaces/(.*)\\.interface\\.ts$",
+      "color": "#E91E63",
+      "icon": "fas fa-handshake"
+    },
+    {
+      "type": "module",
+      "pattern": "src/(.*)/(.*)\\.module\\.ts$",
+      "color": "#3F51B5",
+      "icon": "fas fa-cube"
+    }
+  ],
+  "validationRules": [
+    {
+      "rule": "usecase-no-direct-adapter",
+      "type": "prohibited",
+      "description": "Use cases should not directly depend on adapters - use repository interfaces instead"
+    },
+    {
+      "rule": "controller-calls-usecase",
+      "type": "required",
+      "description": "Controllers should delegate business logic to use cases"
+    },
+    {
+      "rule": "entity-no-dependencies",
+      "type": "prohibited",
+      "description": "Domain entities should have no external dependencies"
+    },
+    {
+      "rule": "adapter-implements-interface",
+      "type": "required",
+      "description": "Adapters should implement repository interfaces"
+    },
+    {
+      "rule": "no-circular-dependencies",
+      "type": "prohibited",
+      "description": "Circular dependencies between components are not allowed"
+    },
+    {
+      "rule": "layered-dependencies",
+      "type": "required",
+      "description": "Dependencies should flow from outer layers to inner layers only"
+    },
+    {
+      "rule": "dto-validation",
+      "type": "required",
+      "description": "DTOs should include proper validation decorators"
+    },
+    {
+      "rule": "service-single-responsibility",
+      "type": "required",
+      "description": "Services should follow single responsibility principle"
+    },
+    {
+      "rule": "module-exported-class",
+      "type": "required",
+      "description": "Modules should export a class decorated with @Module"
+    }
+  ],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [
+        { "pattern": "**/*.controller.ts", "weight": 5 },
+        { "pattern": "**/*.service.ts", "weight": 4 },
+        { "pattern": "**/*.module.ts", "weight": 5 },
+        { "pattern": "**/*.repository.ts", "weight": 3 },
+        { "pattern": "**/*.entity.ts", "weight": 2 },
+        { "pattern": "**/*.dto.ts", "weight": 1 }
+      ],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {
+          "controllers/": { "type": "controller", "layer": "presentation" },
+          "services/": { "type": "service", "layer": "application" },
+          "modules/": { "type": "module", "layer": "application" }
+        },
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": true,
+      "confidence": "medium",
+      "patterns": [
+        {
+          "regex": ".*\\.controller\\.ts$",
+          "suggestedTag": {
+            "type": "controller",
+            "layer": "presentation",
+            "template": "@Controller()"
+          }
+        },
+        {
+          "regex": ".*\\.service\\.ts$",
+          "suggestedTag": {
+            "type": "service",
+            "layer": "application",
+            "template": "@Injectable()"
+          }
+        },
+        {
+          "regex": ".*\\.module\\.ts$",
+          "suggestedTag": {
+            "type": "module",
+            "layer": "application",
+            "template": "@Module()"
+          }
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "framework": "NestJS",
+    "pattern": "Hexagonal Architecture",
+    "description": "Clean architecture implementation with ports and adapters pattern",
+    "documentation": "https://docs.nestjs.com/fundamentals/custom-providers#dependency-injection",
+    "layers": [
+      {
+        "name": "Presentation Layer",
+        "components": ["controller", "dto"],
+        "description": "HTTP endpoints and data transfer objects"
+      },
+      {
+        "name": "Application Layer",
+        "components": ["usecase", "service"],
+        "description": "Business logic and application services"
+      },
+      {
+        "name": "Domain Layer",
+        "components": ["entity", "interface"],
+        "description": "Core business entities and domain interfaces"
+      },
+      {
+        "name": "Infrastructure Layer",
+        "components": ["adapter", "repository"],
+        "description": "External dependencies and data persistence"
+      }
+    ],
+    "bestPractices": [
+      "Keep entities free of external dependencies",
+      "Use dependency injection for all services",
+      "Implement repository pattern for data access",
+      "Validate DTOs at the presentation layer",
+      "Keep controllers thin and focused on HTTP concerns",
+      "Use interfaces to define contracts between layers"
+    ]
+  },
+  "cli": {
+    "binary": "nest",
+    "operations": {
+      "new": {
+        "cmd": "new",
+        "argsSchema": {
+          "name": { "type": "string" },
+          "packageManager": { "enum": ["npm", "yarn", "pnpm"] }
+        }
+      },
+      "planGraph": {
+        "command": "npx nx graph --file graph/project-graph.json"
+      },
+      "validate": {
+        "cmd": "test"
+      },
+      "make:module": {
+        "cmd": "g",
+        "argsSchema": {
+          "name": { "type": "string" },
+          "type": { "const": "module" }
+        }
+      },
+      "make:service": {
+        "cmd": "g",
+        "argsSchema": {
+          "name": { "type": "string" },
+          "type": { "const": "service" }
+        }
+      },
+      "make:controller": {
+        "cmd": "g",
+        "argsSchema": {
+          "name": { "type": "string" },
+          "type": { "const": "controller" }
+        }
+      }
+    }
+  },
+  "analysis": {
+    "diGraph": {
+      "script": "npm run di:graph",
+      "output": "graph/di-graph.json"
+    }
+  }
+}

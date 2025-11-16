@@ -1,0 +1,1 @@
+"""Flowise AI framework adapter for GraphRAG Ontology Application."""

@@ -1,0 +1,95 @@
+modules = ["python-3.12", "nodejs-20", "web", "lua-5.2"]
+run = "python infrastructure/start_api.py"
+
+[nix]
+channel = "stable-24_05"
+packages = ["ffmpeg-full", "libxcrypt"]
+
+[deployment]
+run = ["sh", "-c", "python infrastructure/start_api.py"]
+
+[workflows]
+runButton = "Run Streamlit Local"
+
+[[workflows.workflow]]
+name = "Run API Server"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python infrastructure/start_api.py"
+
+[[workflows.workflow]]
+name = "Run Streamlit"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_streamlit.py"
+
+[[workflows.workflow]]
+name = "Run Marketplace API"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m marketplace.marketplace_api"
+
+[[workflows.workflow]]
+name = "Start E-commerce Platform"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m marketplace.marketplace_api"
+
+[[workflows.workflow]]
+name = "Complete E-commerce Platform"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_ecommerce_platform.py"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m ui_adapters.streamlit.ecommerce_platform"
+
+[[workflows.workflow]]
+name = "Run Direct API"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pip install -e . --no-cache-dir"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python infrastructure/start_api.py"
+
+[[workflows.workflow]]
+name = "Run Streamlit Local"
+author = 2857020
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python run_streamlit.py"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 6379
+externalPort = 3001
+
+[[ports]]
+localPort = 8501
+externalPort = 3000

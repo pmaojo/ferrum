@@ -1,0 +1,82 @@
+
+id: "enterprise_intelligence"
+name: "Enterprise Intelligence Platform" 
+description: "Complete enterprise knowledge management with real-time analytics and compliance tracking"
+category: "enterprise"
+default_tenant: "enterprise_intelligence-tenant"
+tier_required: "enterprise"
+price_usd: 199.99
+tags: ["enterprise", "compliance", "analytics", "governance"]
+author: "GraphRAG Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 8192
+    temperature: 0.05
+  
+  # Enterprise features
+  enterprise:
+    multi_tenant: true
+    audit_logging: true
+    data_retention_days: 2555  # 7 years
+    encryption_at_rest: true
+    sso_enabled: true
+    
+  # Real-time processing
+  realtime:
+    enable_streaming: true
+    websocket_port: 8080
+    batch_size: 100
+    processing_interval: 30
+
+ontology_config:
+  entities:
+    - "Employee"
+    - "Department"
+    - "Project"
+    - "Document"
+    - "Process"
+    - "Policy"
+    - "Compliance_Rule"
+    - "Risk_Factor"
+  relationships:
+    - "works_in"
+    - "manages"
+    - "participates_in"
+    - "governs"
+    - "complies_with"
+    - "mitigates"
+    - "depends_on"
+  domain: "enterprise"
+
+workflow_config:
+  workflows:
+    - name: "compliance_monitoring"
+      pattern: "continuous"
+      steps:
+        - name: "scan_documents"
+          agent_type: "compliance_agent"
+          schedule: "0 */6 * * *"  # Every 6 hours
+        - name: "check_violations"
+          agent_type: "audit_agent"
+          schedule: "0 0 * * *"    # Daily
+    - name: "knowledge_discovery"
+      pattern: "map_reduce"
+      steps:
+        - name: "analyze_communications"
+          agent_type: "nlp_agent"
+        - name: "detect_patterns"
+          agent_type: "analytics_agent"
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"
+  - "flowise"
+  - "langflow"

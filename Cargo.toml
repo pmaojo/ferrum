@@ -1,0 +1,29 @@
+[package]
+name = "ferrum"
+version = "0.1.0"
+edition = "2021"
+description = "AI-first scaffolding system for full-stack Rust + React + TypeScript applications"
+authors = ["Ferrum Team"]
+
+[workspace]
+members = [
+    "apps/cli",
+    "apps/compiler",
+    "apps/shared-models",
+    "apps/engine",
+    "apps/ferrum-service",
+]
+
+[dependencies]
+ferrum-cli = { path = "./apps/cli" }
+ferrum-engine = { path = "./apps/engine" }
+ferrum-service = { path = "./apps/ferrum-service" }
+clap = { version = "4.4", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tera = "1.19"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+typeshare = "1.0"

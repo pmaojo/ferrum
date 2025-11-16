@@ -1,0 +1,27 @@
+{
+  "ferrum": {
+    "filePatterns": ["Cargo.toml", "ferrum.yaml", "ferrum.config.json"],
+    "lockfiles": ["Cargo.lock"],
+    "keywords": ["ferrum", "embedded", "iot", "sensor", "firmware", "rust"]
+  },
+  "kthulu": {
+    "filePatterns": ["kthulu.config.json", "go.mod", "hexagonal.yaml", ".kthulu/plan.json"],
+    "lockfiles": ["go.sum"],
+    "keywords": ["kthulu", "hexagonal", "domain", "port", "adapter", "go"]
+  },
+  "tuetano": {
+    "filePatterns": ["CMakeLists.txt", "conanfile.py", "vcpkg.json", ".tuetano/config.yaml"],
+    "lockfiles": ["conan.lock", "vcpkg.json"],
+    "keywords": ["tuetano", "cpp", "hexagonal", "enterprise", "cmake", "modern-cpp", "cpp20", "cpp23"]
+  },
+  "react": {
+    "filePatterns": ["package.json"],
+    "lockfiles": ["yarn.lock", "package-lock.json", "pnpm-lock.yaml"],
+    "keywords": ["react"]
+  },
+  "nextjs": {
+    "filePatterns": ["next.config.js", "next.config.ts"],
+    "lockfiles": ["yarn.lock", "package-lock.json", "pnpm-lock.yaml"],
+    "keywords": ["next", "next.js"]
+  }
+}

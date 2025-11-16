@@ -1,0 +1,6 @@
+use axum::{Router, routing::get};
+use crate::handlers::sse::sse_handler;
+
+pub fn routes() -> Router {
+    Router::new().route("/events", get(sse_handler))
+}

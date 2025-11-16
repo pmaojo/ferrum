@@ -1,0 +1,109 @@
+
+id: "permaculture_garden"
+name: "Permaculture Garden Design Assistant"
+description: "Intelligent garden planning with plant compatibility, companion planting, and sustainable design principles"
+category: "agriculture"
+default_tenant: "permaculture_garden-tenant"
+tier_required: "professional"
+price_usd: 89.99
+tags: ["permaculture", "agriculture", "sustainability", "companion-planting"]
+author: "PermaGraph Team"
+version: "1.0.0"
+created_at: "2025-01-21T15:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 4096
+    temperature: 0.3
+  
+  # Permaculture-specific features
+  permaculture:
+    companion_planting: true
+    seasonal_planning: true
+    soil_analysis: true
+    water_management: true
+    biodiversity_optimization: true
+    
+  # Real-time garden monitoring
+  monitoring:
+    enable_streaming: true
+    sensor_integration: true
+    weather_data: true
+    growth_tracking: true
+
+ontology_config:
+  entities:
+    - "Plant"
+    - "Soil"
+    - "Nutrient"
+    - "Season"
+    - "Climate_Zone"
+    - "Garden_Bed"
+    - "Companion_Group"
+    - "Growth_Stage"
+  relationships:
+    - "fixes_nitrogen"
+    - "depletes_nitrogen"
+    - "requires_nutrient"
+    - "provides_nutrient"
+    - "companion_with"
+    - "incompatible_with"
+    - "grows_in_season"
+    - "thrives_in_zone"
+    - "attracts_beneficial"
+    - "repels_pest"
+  domain: "permaculture"
+
+workflow_config:
+  workflows:
+    - name: "compatibility_analysis"
+      pattern: "map_reduce"
+      steps:
+        - name: "analyze_nutrient_cycles"
+          agent_type: "soil_scientist_agent"
+        - name: "determine_companions"
+          agent_type: "permaculture_agent"
+        - name: "optimize_layout"
+          agent_type: "garden_designer_agent"
+    - name: "seasonal_planning"
+      pattern: "pipeline"
+      steps:
+        - name: "assess_current_conditions"
+          agent_type: "environmental_agent"
+        - name: "plan_succession"
+          agent_type: "crop_rotation_agent"
+        - name: "schedule_activities"
+          agent_type: "garden_manager_agent"
+
+# Custom business logic for plant compatibility
+compatibility_logic:
+  nitrogen_fixers:
+    - "Legumes"
+    - "Clover" 
+    - "Beans"
+    - "Peas"
+    - "Alfalfa"
+  nitrogen_consumers:
+    - "Tomatoes"
+    - "Corn"
+    - "Leafy_Greens"
+    - "Brassicas"
+  compatibility_rules:
+    - rule: "nitrogen_fixer_with_consumer"
+      condition: "fixes_nitrogen AND requires_nitrogen"
+      compatibility: "high"
+    - rule: "heavy_feeders_together"
+      condition: "depletes_nitrogen AND depletes_nitrogen"
+      compatibility: "low"
+    - rule: "allelopathic_inhibition"
+      condition: "releases_toxin AND sensitive_to_toxin"
+      compatibility: "incompatible"
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"

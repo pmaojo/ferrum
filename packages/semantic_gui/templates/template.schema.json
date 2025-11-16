@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Template",
+  "type": "object",
+  "required": ["id", "name", "description", "nodeTypes"],
+  "properties": {
+    "id": { "type": "string" },
+    "extends": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "nodeTypes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "label"],
+        "properties": {
+          "type": { "type": "string" },
+          "label": { "type": "string" },
+          "pattern": { "type": "string" },
+          "color": { "type": "string" },
+          "icon": { "type": "string" },
+          "description": { "type": "string" },
+          "template": { "type": "string" },
+          "bestPractices": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "type"],
+        "properties": {
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "type": { "type": "string" }
+        }
+      }
+    },
+    "cli": { "type": "object" },
+    "universalTagSystem": { "type": "object" },
+    "snippets": { "type": "object" },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rule", "type"],
+        "properties": {
+          "rule": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "pattern": { "type": "string" }
+        }
+      }
+    },
+    "metadata": { "type": "object" }
+  },
+  "additionalProperties": true
+}

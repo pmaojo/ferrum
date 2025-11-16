@@ -1,0 +1,89 @@
+use eframe::egui;
+use crate::state::AppState;
+use crate::navigation::View;
+use crate::api::ApiClient;
+
+/// Main application struct that implements the eframe::App trait
+pub struct App {
+    state: AppState,
+    current_view: View,
+    api_client: ApiClient,
+}
+
+impl App {
+    /// Create a new application instance
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        Self {
+            state: AppState::new(),
+            current_view: View::Home,
+            api_client: ApiClient::new("{{ api_base_url | default(value="http://localhost:3000") }}".to_string()),
+        }
+    }
+
+    /// Render the navigation bar
+    fn render_navigation(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.heading("{{ app_name }}");
+            ui.separator();
+            
+            for view in View::all() {
+                // Skip views that require auth if not authenticated
+                if view.requires_auth() && !self.state.is_authenticated() {
+                    continue;
+                }
+                
+                if ui.selectable_label(self.current_view == *view, view.name()).clicked() {
+                    self.current_view = *view;
+                }
+            }
+            
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if self.state.is_authenticated() {
+                    if let Some(user) = &self.state.user {
+                        ui.label(format!("👤 {}", user.name));
+                    }
+                    if ui.button("Logout").clicked() {
+                        self.state.logout();
+                        self.current_view = View::Login;
+                    }
+                } else {
+                    if ui.button("Login").clicked() {
+                        self.current_view = View::Login;
+                    }
+                }
+            });
+        });
+    }
+
+    /// Render the current view
+    fn render_current_view(&mut self, ui: &mut egui::Ui) {
+        // Check authentication requirements
+        if self.current_view.requires_auth() && !self.state.is_authenticated() {
+            self.current_view = View::Login;
+        }
+
+        match self.current_view {
+            View::Home => {
+                ui.heading("Welcome to {{ app_name }}");
+                ui.label("Select a view from the navigation bar above.");
+            }
+            View::Login => {
+                ui.heading("Login");
+                ui.label("Login functionality will be implemented in task 4.");
+            }
+            // Additional views will be generated here
+        }
+    }
+}
+
+impl eframe::App for App {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            self.render_navigation(ui);
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            self.render_current_view(ui);
+        });
+    }
+}

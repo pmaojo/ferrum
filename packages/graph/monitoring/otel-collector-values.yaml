@@ -1,0 +1,61 @@
+mode: deployment
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+    
+  processors:
+    batch:
+      timeout: 1s
+      send_batch_size: 1024
+    memory_limiter:
+      check_interval: 1s
+      limit_mib: 1000
+    attributes:
+      actions:
+        - key: tenant_id
+          action: upsert
+          from_context: tenant_id
+    
+  exporters:
+    prometheus:
+      endpoint: 0.0.0.0:8889
+      namespace: graphrag
+    otlp:
+      endpoint: tempo.monitoring.svc.cluster.local:4317
+      tls:
+        insecure: true
+    
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch, attributes]
+        exporters: [otlp]
+      metrics:
+        receivers: [otlp]
+        processors: [memory_limiter, batch, attributes]
+        exporters: [prometheus]
+
+ports:
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi

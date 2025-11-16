@@ -1,0 +1,38 @@
+# IDE and editor files
+.vscode/
+.idea/
+
+# Specific files to ignore
+client/src/components/OnboardingTGAInterface.tsx
+client/src/components/sidebar/LeftSidebar.tsx
+client/src/components/realtime/CollaborativeEditingSystem.tsx
+client/src/components/realtime/RealtimeSystemStatus.tsx
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+
+# Generated files
+*.generated.*
+openapi.json
+*.d.ts.map
+
+# Logs
+logs/
+*.log
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+
+# Test coverage
+coverage/

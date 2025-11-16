@@ -1,0 +1,361 @@
+{
+  "id": "ferrus-hexagonal",
+  "name": "Ferrus Hexagonal Architecture",
+  "description": "Template for Ferrus CLI projects using hexagonal architecture with IoT support",
+  "extends": "base-hexagonal",
+  "version": "1.0.0",
+  "nodeTypes": [
+    {
+      "type": "module",
+      "pattern": "Module",
+      "color": "#3B82F6",
+      "icon": "📦",
+      "description": "Ferrus module containing use cases, adapters, and entities"
+    },
+    {
+      "type": "usecase",
+      "pattern": "UseCase",
+      "color": "#10B981",
+      "icon": "⚡",
+      "description": "Domain use case implementing business logic"
+    },
+    {
+      "type": "adapter",
+      "pattern": "Adapter",
+      "color": "#F59E0B",
+      "icon": "🔌",
+      "description": "Infrastructure adapter implementing ports"
+    },
+    {
+      "type": "port",
+      "pattern": "Port",
+      "color": "#8B5CF6",
+      "icon": "🚪",
+      "description": "Interface defining contract between domain and infrastructure"
+    },
+    {
+      "type": "entity",
+      "pattern": "Entity",
+      "color": "#EF4444",
+      "icon": "🏛️",
+      "description": "Domain entity representing business concepts"
+    },
+    {
+      "type": "event",
+      "pattern": "Event",
+      "color": "#F97316",
+      "icon": "📡",
+      "description": "Domain event for decoupled communication"
+    },
+    {
+      "type": "handler",
+      "pattern": "Handler",
+      "color": "#06B6D4",
+      "icon": "🎯",
+      "description": "HTTP handler for API endpoints"
+    },
+    {
+      "type": "service",
+      "pattern": "Service",
+      "color": "#84CC16",
+      "icon": "⚙️",
+      "description": "Application service orchestrating use cases"
+    },
+    {
+      "type": "iot",
+      "pattern": "IoT",
+      "color": "#EC4899",
+      "icon": "🔗",
+      "description": "IoT component for hardware integration and protocol communication"
+    }
+  ],
+  "validationRules": [
+    {
+      "rule": "DIP_VIOLATION",
+      "type": "prohibited",
+      "description": "Domain components cannot depend on infrastructure components (Dependency Inversion Principle)",
+      "pattern": "usecase->adapter|entity->adapter|port->adapter"
+    },
+    {
+      "rule": "BOUNDED_CONTEXT_VIOLATION",
+      "type": "prohibited",
+      "description": "Entities from one module cannot be directly used by another module",
+      "pattern": "module.entity->other_module.*"
+    },
+    {
+      "rule": "AGGREGATE_INTEGRITY",
+      "type": "required",
+      "description": "Each entity must belong to exactly one aggregate root",
+      "pattern": "entity->aggregate_root"
+    },
+    {
+      "rule": "PORT_IMPLEMENTATION",
+      "type": "required",
+      "description": "Each port must be implemented by at least one adapter",
+      "pattern": "port<-adapter"
+    },
+    {
+      "rule": "USE_CASE_ISOLATION",
+      "type": "required",
+      "description": "Use cases should only depend on ports, not concrete adapters",
+      "pattern": "usecase->port"
+    },
+    {
+      "rule": "MODULE_COMPLETENESS",
+      "type": "required",
+      "description": "Each module must define at least one use case",
+      "pattern": "module->usecase"
+    },
+    {
+      "rule": "HANDLER_DELEGATION",
+      "type": "required",
+      "description": "HTTP handlers should delegate to use cases, not contain business logic",
+      "pattern": "handler->usecase"
+    },
+    {
+      "rule": "EVENT_DECOUPLING",
+      "type": "required",
+      "description": "Domain events should be used for cross-module communication",
+      "pattern": "module->event->other_module"
+    },
+    {
+      "rule": "IOT_PROTOCOL_CONSISTENCY",
+      "type": "required",
+      "description": "IoT components must specify a valid protocol",
+      "pattern": "iot.protocol"
+    },
+    {
+      "rule": "IOT_EXPOSURE_VALIDATION",
+      "type": "required",
+      "description": "IoT components with expose configuration must have valid method or protocol",
+      "pattern": "iot.expose->method|protocol"
+    }
+  ],
+  "cli": {
+    "binary": "ferrum",
+    "commands": {
+      "init": { "command": "ferrum init" },
+      "compile": { "command": "ferrum compile" },
+      "dev": { "command": "ferrum dev" },
+      "prompt": { "command": "ferrum prompt" }
+    }
+  },
+  "dragAndDrop": {
+    "enabled": true,
+    "nodeCreation": {
+      "enabled": true,
+      "defaultPosition": { "x": 100, "y": 100 },
+      "snapToGrid": true,
+      "gridSize": 20
+    },
+    "nodeEditing": {
+      "enabled": true,
+      "allowTypeChange": false,
+      "allowPositionChange": true,
+      "allowDataEdit": true
+    },
+    "edgeCreation": {
+      "enabled": true,
+      "allowedConnections": {
+        "usecase": ["port", "entity", "event"],
+        "adapter": ["port", "entity"],
+        "handler": ["usecase", "service"],
+        "service": ["usecase", "port"],
+        "iot": ["adapter", "port", "event"],
+        "module": ["usecase", "entity", "port", "adapter", "service", "handler", "iot"]
+      },
+      "validation": true
+    },
+    "layoutOptions": {
+      "autoLayout": true,
+      "layoutAlgorithm": "hierarchical",
+      "spacing": {
+        "node": 100,
+        "rank": 150
+      }
+    }
+  },
+  "connector": {
+    "type": "file-based",
+    "parser": "rust-analyzer",
+    "fileWatcher": {
+      "patterns": [
+        "templates/backend/**/*.rs",
+        "templates/frontend/**/*.rs",
+        "shared-models/**/*.rs"
+      ],
+      "excludes": ["**/*_test.rs", "**/target/**"],
+      "events": ["codeChanged", "codeApplied", "codeError"]
+    },
+    "analysis": {
+      "graphCommand": "ferrum compile --graph --format=json",
+      "outputPath": "/tmp/ferrus.graph.json",
+      "structureCommand": "ferrum compile --structure",
+      "validationCommand": "ferrum compile --validate"
+    },
+    "paths": {
+      "projectRoot": ".",
+      "backendPath": "templates/backend",
+      "cliPath": "templates",
+      "tempDir": "/tmp"
+    },
+    "scgMapping": {
+      "nodePositioning": {
+        "module": {
+          "baseX": 0,
+          "baseY": 0,
+          "width": 300,
+          "height": 400
+        },
+        "usecase": {
+          "baseX": 50,
+          "baseY": 100,
+          "width": 120,
+          "height": 60
+        },
+        "adapter": {
+          "baseX": 200,
+          "baseY": 100,
+          "width": 120,
+          "height": 60
+        },
+        "entity": {
+          "baseX": 100,
+          "baseY": 200,
+          "width": 100,
+          "height": 80
+        },
+        "port": {
+          "baseX": 150,
+          "baseY": 50,
+          "width": 100,
+          "height": 40
+        },
+        "handler": {
+          "baseX": 50,
+          "baseY": 20,
+          "width": 100,
+          "height": 50
+        },
+        "service": {
+          "baseX": 200,
+          "baseY": 20,
+          "width": 100,
+          "height": 50
+        },
+        "event": {
+          "baseX": 250,
+          "baseY": 200,
+          "width": 80,
+          "height": 40
+        },
+        "iot": {
+          "baseX": 300,
+          "baseY": 150,
+          "width": 100,
+          "height": 70
+        }
+      },
+      "componentTypes": {
+        "usecase": "domain",
+        "entity": "domain",
+        "port": "domain",
+        "event": "domain",
+        "adapter": "infrastructure",
+        "handler": "infrastructure",
+        "iot": "infrastructure",
+        "service": "application"
+      },
+      "layerColors": {
+        "domain": "#10B981",
+        "application": "#84CC16",
+        "infrastructure": "#F59E0B"
+      }
+    }
+  },
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "ferrus",
+    "language": "rust",
+    "architecture": "hexagonal",
+    "paradigm": "ddd",
+    "principles": ["SOLID", "DDD", "Hexagonal", "Clean Architecture"],
+    "cli": {
+      "planGraph": "ferrum compile --graph --format=json",
+      "validate": "ferrum prompt"
+    },
+    "filePatterns": {
+      "backend": "templates/backend/**/*.rs",
+      "frontend": "templates/frontend/**/*.rs",
+      "sharedModels": "shared-models/**/*.rs"
+    },
+    "semanticMapping": {
+      "Module": "fer:Module",
+      "UseCase": "fer:UseCase",
+      "Adapter": "fer:Adapter",
+      "Port": "fer:Port",
+      "Entity": "fer:DomainEntity",
+      "Event": "fer:DomainEvent",
+      "Handler": "fer:HttpHandler",
+      "Service": "fer:ApplicationService",
+      "IoT": "fer:IoTComponent"
+    },
+    "ontologyNamespace": "http://ferrus.io/ontology#",
+    "supportedFormats": ["json", "dot", "yaml", "rdf", "owl"]
+  },
+  "integration": {
+    "ferrumGraphData": {
+      "enabled": true,
+      "version": "1.0.0",
+      "nodeMapping": {
+        "module": "FerrumModule",
+        "usecase": "FerrumUseCase",
+        "adapter": "FerrumAdapter",
+        "port": "FerrumPort",
+        "entity": "FerrumEntity",
+        "event": "FerrumEvent",
+        "handler": "FerrumHandler",
+        "service": "FerrumService",
+        "iot": "FerrumIoTComponent"
+      },
+      "edgeMapping": {
+        "dependency": "depends_on",
+        "implementation": "implements",
+        "data_flow": "data_flow",
+        "calls": "calls",
+        "extends": "extends",
+        "aggregates": "aggregates"
+      }
+    },
+    "dslConversion": {
+      "enabled": true,
+      "inputFormat": "yaml",
+      "outputFormat": "json",
+      "preserveComments": false,
+      "validateOnConvert": true
+    }
+  }
+}

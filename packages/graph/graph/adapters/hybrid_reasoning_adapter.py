@@ -1,0 +1,268 @@
+"""Adapters implementing ports for hybrid reasoning workflow.
+
+This module provides simple reference implementations for the ports defined in
+``application/ports/hybrid_reasoning.py``.  The goal is to demonstrate how the
+hybrid reasoning workflow can be composed from smaller components:
+
+* :class:`FileOntologyLoaderAdapter` – access ontologies from the file system
+* :class:`BasicConsistencyCheckerAdapter` – perform lightweight validation of
+  triples against the ontology
+* :class:`SimpleReasoningExplanationAdapter` – generate a human readable
+  explanation of the reasoning process
+* :class:`RegexEntityLinkingAdapter` – link entities in free text to ontology
+  concepts using a regular expression strategy
+* :class:`SimpleHybridReasoningAdapter` – orchestrate the workflow by calling
+  the other adapters in sequence
+
+Each adapter documents its expected inputs and outputs so that other
+implementations can follow the same contract.
+"""
+
+from __future__ import annotations
+
+import logging
+import re
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+from application.ports.hybrid_reasoning import (
+    ConsistencyCheckerPort,
+    EntityLinkingPort,
+    HybridReasoningPort,
+    OntologyLoaderPort,
+    ReasoningExplanationPort,
+)
+from domain.entities import (
+    RepairSuggestion,
+    RuleViolation,
+    Triple,
+    ValidationReport,
+)
+from domain.entities.validation_report import ViolationSeverity
+
+logger = logging.getLogger(__name__)
+
+
+class FileOntologyLoaderAdapter(OntologyLoaderPort):
+    """Load ontologies from local OWL files.
+
+    Parameters
+    ----------
+    path:
+        Path to an ontology file on disk.
+
+    Returns
+    -------
+    Any
+        The loaded ontology object.  When :mod:`owlready2` is installed the
+        return value is an ``owlready2.namespace.Ontology`` instance.  If the
+        dependency is missing, the raw text of the file is returned instead.
+    """
+
+    def load(self, *, path: str) -> Any:  # pragma: no cover - simple file IO
+        try:  # Attempt to load with owlready2 if available
+            from owlready2 import get_ontology
+
+            logger.debug("Loading ontology with owlready2 from %s", path)
+            return get_ontology(path).load()
+        except Exception:  # Fallback to returning file contents
+            logger.debug("Returning raw ontology text from %s", path)
+            with open(path, "r", encoding="utf-8") as f:
+                return f.read()
+
+
+class BasicConsistencyCheckerAdapter(ConsistencyCheckerPort):
+    """Very lightweight triple validation.
+
+    This checker only ensures that each triple has non-empty ``subject``,
+    ``predicate`` and ``object`` values.  It is primarily intended as a stub for
+    demonstration purposes until a full reasoning engine is plugged in.
+
+    Parameters
+    ----------
+    triples:
+        List of :class:`~domain.entities.Triple` objects to validate.
+    ontology_version_id:
+        Identifier for the ontology version used during validation.  This value
+        is simply echoed back in the resulting report.
+
+    Returns
+    -------
+    ValidationReport
+        Report indicating whether the triples passed the basic checks.  The
+        ``violated_rules`` field contains one entry per malformed triple.
+    """
+
+    def check(self, *, triples: List[Triple], ontology_version_id: str) -> ValidationReport:
+        violations: List[RuleViolation] = []
+        for t in triples:
+            if not all([t.subject, t.predicate, t.object]):
+                violations.append(
+                    RuleViolation(
+                        rule_id="TRIPLE_INCOMPLETE",
+                        violated_constraint="subject, predicate and object must be provided",
+                        violating_components=[f"{t.subject}|{t.predicate}|{t.object}"],
+                        severity=ViolationSeverity.ERROR.value,
+                        description="Triple contains empty field",
+                        repair_suggestion=RepairSuggestion(
+                            action="FillMissingField",
+                            description="Provide values for all parts of the triple",
+                            confidence=0.5,
+                        ),
+                    )
+                )
+
+        tenant_id = triples[0].tenant_id if triples else "unknown"
+        return ValidationReport(
+            tenant_id=tenant_id,
+            is_consistent=len(violations) == 0,
+            violated_rules=violations,
+            unsat_classes=[],
+            repair_suggestions=[],
+            explanation=None,
+            ontology_version_id=ontology_version_id,
+        )
+
+
+class SimpleReasoningExplanationAdapter(ReasoningExplanationPort):
+    """Generate human readable explanations for reasoning results.
+
+    Parameters
+    ----------
+    report:
+        The :class:`~domain.entities.ValidationReport` produced during
+        validation.
+    llm_output:
+        Raw text generated by a language model answering the user's question.
+    tenant_id:
+        Identifier of the tenant requesting the explanation.  This adapter does
+        not make use of it directly but it allows future implementations to
+        scope explanations per tenant.
+
+    Returns
+    -------
+    str
+        A textual explanation combining the LLM output and high level
+        validation result.
+    """
+
+    def explain(self, *, report: ValidationReport, llm_output: str, tenant_id: str) -> str:
+        status = "consistent" if report.is_consistent else "inconsistent"
+        violation_count = len(report.violated_rules)
+        explanation = (
+            f"Model response: {llm_output.strip()}\n"
+            f"Ontology validation is {status} with {violation_count} violation(s)."
+        )
+        logger.debug("Generated explanation for tenant %s", tenant_id)
+        return explanation
+
+
+class RegexEntityLinkingAdapter(EntityLinkingPort):
+    """Naively link text entities to ontology IRIs using regex tokenisation.
+
+    Entities are extracted as words beginning with a capital letter.  Each token
+    is converted into a pseudo IRI by lower-casing it and prefixing with the
+    ontology IRI (if available).
+
+    Parameters
+    ----------
+    text:
+        Free text from which entities should be extracted.
+    ontology:
+        Either an ontology object or the ontology IRI as a string.  When an
+        object is supplied its ``base_iri`` attribute is used if present.
+    tenant_id:
+        Tenant requesting the linking operation.
+
+    Returns
+    -------
+    List[str]
+        A list of ontology IRIs corresponding to the detected entities.  The
+        order of the IRIs matches the order of appearance in the input text.
+    """
+
+    def link(self, *, text: str, ontology: Any, tenant_id: str) -> List[str]:
+        base_iri = getattr(ontology, "base_iri", None)
+        if not base_iri and isinstance(ontology, str):
+            base_iri = ontology
+        base_iri = base_iri or "http://example.org/"
+
+        tokens = re.findall(r"\b[A-Z][A-Za-z0-9_]+\b", text)
+        linked = [f"{base_iri}{token.lower()}" for token in tokens]
+        logger.debug("Linked %d entities for tenant %s", len(linked), tenant_id)
+        return linked
+
+
+@dataclass
+class SimpleHybridReasoningAdapter(HybridReasoningPort):
+    """Coordinate ontology loading, validation, entity linking and explanation.
+
+    The adapter composes the previously defined components to implement the full
+    hybrid reasoning workflow.
+
+    Parameters
+    ----------
+    loader:
+        Implementation of :class:`OntologyLoaderPort` used to access ontologies.
+    checker:
+        Implementation of :class:`ConsistencyCheckerPort` used for validation.
+    explainer:
+        Implementation of :class:`ReasoningExplanationPort` generating the
+        natural language explanation.
+    linker:
+        Implementation of :class:`EntityLinkingPort` that maps text entities to
+        ontology IRIs.
+    """
+
+    loader: OntologyLoaderPort
+    checker: ConsistencyCheckerPort
+    explainer: ReasoningExplanationPort
+    linker: EntityLinkingPort
+
+    def reason(
+        self,
+        *,
+        question: str,
+        triples: List[Triple],
+        ontology_version_id: str,
+        tenant_id: str,
+    ) -> Dict[str, Any]:
+        """Execute the complete hybrid reasoning workflow.
+
+        Parameters
+        ----------
+        question:
+            Natural language question asked by the user.
+        triples:
+            Triples representing facts to validate.
+        ontology_version_id:
+            Identifier or path of the ontology version to use.
+        tenant_id:
+            Tenant identifier for multi‑tenant isolation.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary containing the validation report, entity links and the
+            generated explanation.
+        """
+
+        logger.info("Starting hybrid reasoning workflow for tenant %s", tenant_id)
+
+        ontology = self.loader.load(path=ontology_version_id)
+        links = self.linker.link(text=question, ontology=ontology, tenant_id=tenant_id)
+        report = self.checker.check(triples=triples, ontology_version_id=ontology_version_id)
+        explanation = self.explainer.explain(
+            report=report, llm_output=question, tenant_id=tenant_id
+        )
+
+        return {"links": links, "validation": report, "explanation": explanation}
+
+
+__all__ = [
+    "FileOntologyLoaderAdapter",
+    "BasicConsistencyCheckerAdapter",
+    "SimpleReasoningExplanationAdapter",
+    "RegexEntityLinkingAdapter",
+    "SimpleHybridReasoningAdapter",
+]

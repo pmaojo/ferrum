@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://optometry.kronal.io/ontology#"
+     xml:base="http://optometry.kronal.io/ontology"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    
+    <owl:Ontology rdf:about="http://optometry.kronal.io/ontology">
+        <rdfs:label>Clinical Optometry Ontology</rdfs:label>
+        <rdfs:comment>Formal ontology for representing clinical optometry concepts, refractive errors, and diagnostic procedures</rdfs:comment>
+        <owl:versionInfo>1.0.0</owl:versionInfo>
+    </owl:Ontology>
+    
+    <!-- Classes -->
+    
+    <!-- Refractive Error Hierarchy -->
+    <owl:Class rdf:about="#RefractiveError">
+        <rdfs:label>Refractive Error</rdfs:label>
+        <rdfs:comment>Abstract class for all types of refractive errors</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#Myopia">
+        <rdfs:subClassOf rdf:resource="#RefractiveError"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasSphereValue"/>
+                <owl:allValuesFrom>
+                    <rdfs:Datatype>
+                        <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+                        <owl:withRestrictions rdf:parseType="Collection">
+                            <rdf:Description>
+                                <xsd:maxExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.0</xsd:maxExclusive>
+                            </rdf:Description>
+                        </owl:withRestrictions>
+                    </rdfs:Datatype>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Myopia</rdfs:label>
+        <rdfs:comment>Near-sightedness characterized by negative sphere measurements</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#Hyperopia">
+        <rdfs:subClassOf rdf:resource="#RefractiveError"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasSphereValue"/>
+                <owl:allValuesFrom>
+                    <rdfs:Datatype>
+                        <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+                        <owl:withRestrictions rdf:parseType="Collection">
+                            <rdf:Description>
+                                <xsd:minInclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.0</xsd:minInclusive>
+                            </rdf:Description>
+                        </owl:withRestrictions>
+                    </rdfs:Datatype>
+                </owl:allValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Hyperopia</rdfs:label>
+        <rdfs:comment>Far-sightedness characterized by positive sphere measurements</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#Astigmatism">
+        <rdfs:subClassOf rdf:resource="#RefractiveError"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasCylinderValue"/>
+                <owl:someValuesFrom>
+                    <rdfs:Datatype>
+                        <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+                        <owl:withRestrictions rdf:parseType="Collection">
+                            <rdf:Description>
+                                <xsd:minExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.0</xsd:minExclusive>
+                            </rdf:Description>
+                        </owl:withRestrictions>
+                    </rdfs:Datatype>
+                </owl:someValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Astigmatism</rdfs:label>
+        <rdfs:comment>Refractive error requiring cylinder correction with specific axis</rdfs:comment>
+    </owl:Class>
+    
+    <!-- Visual Acuity Classes -->
+    <owl:Class rdf:about="#VisualAcuity">
+        <rdfs:label>Visual Acuity</rdfs:label>
+        <rdfs:comment>Measurement of the clarity or sharpness of vision</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#NormalVision">
+        <rdfs:subClassOf rdf:resource="#VisualAcuity"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="#hasSnellenValue"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">20/20</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:label>Normal Vision</rdfs:label>
+    </owl:Class>
+    
+    <!-- Diagnostic Classes -->
+    <owl:Class rdf:about="#DiagnosticProcedure">
+        <rdfs:label>Diagnostic Procedure</rdfs:label>
+        <rdfs:comment>Clinical procedure for assessing vision and refractive errors</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#AutoRefraction">
+        <rdfs:subClassOf rdf:resource="#DiagnosticProcedure"/>
+        <rdfs:label>Auto-refraction</rdfs:label>
+        <rdfs:comment>Automated measurement of refractive error</rdfs:comment>
+    </owl:Class>
+    
+    <owl:Class rdf:about="#SubjectiveRefraction">
+        <rdfs:subClassOf rdf:resource="#DiagnosticProcedure"/>
+        <rdfs:label>Subjective Refraction</rdfs:label>
+        <rdfs:comment>Patient-guided refinement of lens prescription</rdfs:comment>
+    </owl:Class>
+    
+    <!-- Object Properties -->
+    <owl:ObjectProperty rdf:about="#hasRefractiveError">
+        <rdfs:domain rdf:resource="#Patient"/>
+        <rdfs:range rdf:resource="#RefractiveError"/>
+        <rdfs:label>has refractive error</rdfs:label>
+    </owl:ObjectProperty>
+    
+    <owl:ObjectProperty rdf:about="#requiresProcedure">
+        <rdfs:domain rdf:resource="#RefractiveError"/>
+        <rdfs:range rdf:resource="#DiagnosticProcedure"/>
+        <rdfs:label>requires procedure</rdfs:label>
+    </owl:ObjectProperty>
+    
+    <!-- Data Properties -->
+    <owl:DatatypeProperty rdf:about="#hasSphereValue">
+        <rdfs:domain rdf:resource="#RefractiveError"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+        <rdfs:label>has sphere value</rdfs:label>
+        <rdfs:comment>Sphere measurement in diopters</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+    <owl:DatatypeProperty rdf:about="#hasCylinderValue">
+        <rdfs:domain rdf:resource="#RefractiveError"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+        <rdfs:label>has cylinder value</rdfs:label>
+        <rdfs:comment>Cylinder measurement in diopters for astigmatism correction</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+    <owl:DatatypeProperty rdf:about="#hasAxisValue">
+        <rdfs:domain rdf:resource="#Astigmatism"/>
+        <rdfs:range>
+            <rdfs:Datatype>
+                <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+                <owl:withRestrictions rdf:parseType="Collection">
+                    <rdf:Description>
+                        <xsd:minInclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</xsd:minInclusive>
+                        <xsd:maxInclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">180</xsd:maxInclusive>
+                    </rdf:Description>
+                </owl:withRestrictions>
+            </rdfs:Datatype>
+        </rdfs:range>
+        <rdfs:label>has axis value</rdfs:label>
+        <rdfs:comment>Axis measurement in degrees (1-180) for astigmatism correction</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+    <owl:DatatypeProperty rdf:about="#hasSnellenValue">
+        <rdfs:domain rdf:resource="#VisualAcuity"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label>has Snellen value</rdfs:label>
+        <rdfs:comment>Visual acuity expressed in Snellen notation (e.g., 20/20)</rdfs:comment>
+    </owl:DatatypeProperty>
+    
+    <!-- Patient Class -->
+    <owl:Class rdf:about="#Patient">
+        <rdfs:label>Patient</rdfs:label>
+        <rdfs:comment>Individual receiving optometric care</rdfs:comment>
+    </owl:Class>
+    
+    <!-- Reasoning Rules -->
+    <!-- Myopia Detection Rule -->
+    <owl:Class rdf:about="#DetectedMyopia">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="#RefractiveError"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="#hasSphereValue"/>
+                        <owl:someValuesFrom>
+                            <rdfs:Datatype>
+                                <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+                                <owl:withRestrictions rdf:parseType="Collection">
+                                    <rdf:Description>
+                                        <xsd:maxExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.0</xsd:maxExclusive>
+                                    </rdf:Description>
+                                </owl:withRestrictions>
+                            </rdfs:Datatype>
+                        </owl:someValuesFrom>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:label>Detected Myopia</rdfs:label>
+        <rdfs:comment>Refractive error automatically classified as myopia based on negative sphere values</rdfs:comment>
+    </owl:Class>
+    
+</rdf:RDF>

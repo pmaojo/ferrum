@@ -1,0 +1,6 @@
+[
+  { "source": "controller", "target": "usecase", "type": "calls" },
+  { "source": "usecase", "target": "port", "type": "uses" },
+  { "source": "adapter", "target": "port", "type": "implements" },
+  { "source": "usecase", "target": "entity", "type": "manipulates" }
+]

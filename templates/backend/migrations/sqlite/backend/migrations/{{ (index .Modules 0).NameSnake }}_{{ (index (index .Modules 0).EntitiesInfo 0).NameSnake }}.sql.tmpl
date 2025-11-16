@@ -1,0 +1,15 @@
+{{- $module := index .Modules 0 -}}
+{{- $entity := index $module.EntitiesInfo 0 -}}
+{{- define "sqliteColumnType" -}}
+{{- $type := lower .Type -}}
+{{- if eq $type "uuid" -}}TEXT{{- else if eq $type "string" -}}TEXT{{- else if eq $type "text" -}}TEXT{{- else if eq $type "boolean" -}}INTEGER{{- else if eq $type "timestamp" -}}DATETIME{{- else if eq $type "date" -}}DATETIME{{- else if eq $type "decimal" -}}REAL{{- else if eq $type "integer" -}}INTEGER{{- else -}}TEXT{{- end -}}
+{{- end -}}
+-- @kthulu:module:{{ $module.Name }}
+-- Auto-generated migration for {{ $entity.Name }}
+CREATE TABLE IF NOT EXISTS {{ $entity.Table }} (
+    id TEXT PRIMARY KEY,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL{{- range $entity.Fields }}
+    , {{ .NameSnake }} {{ template "sqliteColumnType" . }}
+{{- end }}
+);

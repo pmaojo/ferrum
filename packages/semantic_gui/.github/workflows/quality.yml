@@ -1,0 +1,247 @@
+name: Quality Assurance
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20.18'
+  PNPM_VERSION: '9'
+
+jobs:
+  quality-checks:
+    name: Quality Checks
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: postgres
+          POSTGRES_DB: scg_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Security audit
+        run: pnpm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check outdated dependencies
+        run: pnpm outdated
+        continue-on-error: true
+
+      - name: Type check client
+        run: pnpm run type-check
+
+      - name: Type check server
+        run: pnpm run type-check:server
+
+      - name: Lint code
+        run: pnpm run lint
+
+      - name: Check formatting
+        run: pnpm run format:check
+
+      - name: Run unit tests
+        run: pnpm test
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/scg_test
+
+      - name: Run database migrations
+        run: pnpm run db:push
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/scg_test
+
+      - name: Run integration tests
+        run: pnpm run test:full-flow
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/scg_test
+
+      - name: Generate quality metrics
+        run: pnpm run quality:metrics
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+        continue-on-error: true
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+    needs: quality-checks
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Build Docker image
+        run: docker build -t scg:${{ github.sha }} .
+
+      - name: Test Docker image
+        run: |
+          docker run --rm --name scg-test -d -p 5000:5000 scg:${{ github.sha }}
+          sleep 10
+          curl -f http://localhost:5000 || exit 1
+          docker stop scg-test
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: postgres
+          POSTGRES_DB: scg_e2e
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Setup database
+        run: pnpm run db:push
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/scg_e2e
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Start application
+        run: pnpm start &
+        env:
+          DATABASE_URL: postgresql://postgres:password@localhost:5432/scg_e2e
+          NODE_ENV: production
+
+      - name: Wait for application
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:5000; do sleep 2; done'
+
+      - name: Run E2E tests
+        run: pnpm run e2e
+
+      - name: Upload E2E artifacts
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: e2e-results
+          path: |
+            test-results/
+            playwright-report/
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: quality-checks
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [quality-checks, build-test, e2e-tests, security-scan]
+    if: always()
+
+    steps:
+      - name: Check all jobs status
+        run: |
+          if [[ "${{ needs.quality-checks.result }}" == "success" && 
+                "${{ needs.build-test.result }}" == "success" && 
+                ("${{ needs.e2e-tests.result }}" == "success" || "${{ needs.e2e-tests.result }}" == "skipped") && 
+                ("${{ needs.security-scan.result }}" == "success" || "${{ needs.security-scan.result }}" == "skipped") ]]; then
+            echo "✅ Quality gate passed!"
+            exit 0
+          else
+            echo "❌ Quality gate failed!"
+            echo "Quality checks: ${{ needs.quality-checks.result }}"
+            echo "Build test: ${{ needs.build-test.result }}"
+            echo "E2E tests: ${{ needs.e2e-tests.result }}"
+            echo "Security scan: ${{ needs.security-scan.result }}"
+            exit 1
+          fi

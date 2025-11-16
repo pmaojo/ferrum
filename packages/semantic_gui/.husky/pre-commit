@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd scg
+
+# Check for bypass flag
+if [ "$SKIP_QUALITY_CHECKS" = "true" ]; then
+  echo "⚠️  Skipping quality checks (SKIP_QUALITY_CHECKS=true)"
+  exit 0
+fi
+
+echo "🔍 Running pre-commit quality checks..."
+
+# Run lint-staged for file-specific checks
+npx lint-staged
+
+# For commits, we'll run a more lenient quality check
+echo "🚪 Running basic quality checks..."
+npm run quality:check
+
+echo "✅ Pre-commit quality checks passed!"

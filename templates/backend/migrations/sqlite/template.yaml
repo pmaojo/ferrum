@@ -1,0 +1,16 @@
+name: backend-migration-sqlite
+version: 0.1.0
+description: SQLite entity migration
+author: Kthulu Framework
+metadata:
+  category: backend
+  language: sql
+  framework: kthulu
+  custom:
+    database: sqlite
+files:
+  - source: backend/migrations/{{ (index .Modules 0).NameSnake }}_{{ (index (index .Modules 0).EntitiesInfo 0).NameSnake }}.sql.tmpl
+    destination: backend/migrations/{{ (index .Modules 0).NameSnake }}_{{ (index (index .Modules 0).EntitiesInfo 0).NameSnake }}.sql
+    template: true
+    condition: gt (len (index (index .Modules 0).EntitiesInfo)) 0
+variables: []

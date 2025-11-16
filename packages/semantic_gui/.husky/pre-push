@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+cd scg
+
+# Check for bypass flag
+if [ "$SKIP_QUALITY_CHECKS" = "true" ]; then
+  echo "⚠️  Skipping quality checks (SKIP_QUALITY_CHECKS=true)"
+  exit 0
+fi
+
+echo "🚀 Running pre-push quality checks..."
+
+# Run comprehensive quality gate
+echo "🚪 Running quality gate..."
+npm run quality:gate
+
+# Run all tests
+echo "🧪 Running tests..."
+npm run test
+
+echo "✅ Pre-push quality checks passed!"

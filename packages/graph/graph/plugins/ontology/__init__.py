@@ -1,0 +1,1 @@
+"""Ontology adapter plugin implementations."""

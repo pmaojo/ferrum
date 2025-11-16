@@ -1,0 +1,111 @@
+
+id: "permaculture_enhanced"
+name: "Enhanced Permaculture Garden Assistant" 
+description: "Permaculture planning with official plant and crop ontologies"
+category: "agriculture"
+default_tenant: "permaculture_enhanced-tenant"
+tier_required: "pro"
+price_usd: 49.99
+tags: ["permaculture", "agriculture", "plants", "ontology"]
+author: "PermaGraph Team"
+version: "2.0.0"
+created_at: "2024-01-20T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.5-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 4096
+    temperature: 0.1
+  
+  # Official ontology loading
+  official_ontologies:
+    load_on_startup: true
+    ontologies:
+      - name: "plant_ontology"
+        merge_custom_rules: true
+        force_refresh: false
+      - name: "crop_ontology" 
+        merge_custom_rules: true
+        force_refresh: false
+      - name: "agrovoc"
+        merge_custom_rules: true
+        force_refresh: false
+    
+  # Permaculture-specific features
+  permaculture:
+    companion_planting: true
+    nitrogen_fixing: true
+    soil_health_monitoring: true
+    seasonal_planning: true
+
+ontology_config:
+  # Base entities from official ontologies
+  official_entities:
+    from_plant_ontology:
+      - "Plant_Anatomy"
+      - "Plant_Structure" 
+      - "Growth_Stage"
+      - "Plant_Part"
+    from_crop_ontology:
+      - "Crop_Trait"
+      - "Phenotype"
+      - "Breeding_Method"
+      - "Yield_Component"
+    from_agrovoc:
+      - "Agricultural_Practice"
+      - "Crop_Management"
+      - "Soil_Type"
+      - "Climate_Factor"
+  
+  # Custom permaculture entities
+  custom_entities:
+    - "Companion_Plant"
+    - "Nitrogen_Fixer"
+    - "Dynamic_Accumulator"
+    - "Guild_Plant"
+    - "Polyculture_System"
+    - "Permaculture_Zone"
+  
+  # Enhanced relationships
+  relationships:
+    - "fixes_nitrogen"
+    - "companions_with"
+    - "repels_pest"
+    - "attracts_beneficial"
+    - "accumulates_nutrient"
+    - "grows_in_zone"
+    - "harvests_in_season"
+    - "requires_spacing"
+
+workflow_config:
+  workflows:
+    - name: "load_official_ontologies"
+      pattern: "sequential"
+      steps:
+        - name: "load_plant_ontology"
+          agent_type: "ontology_loader"
+          schedule: "@startup"
+        - name: "load_crop_ontology"
+          agent_type: "ontology_loader" 
+          schedule: "@startup"
+        - name: "load_agrovoc"
+          agent_type: "ontology_loader"
+          schedule: "@startup"
+        - name: "merge_compatibility_rules"
+          agent_type: "compatibility_agent"
+          schedule: "after_ontology_load"
+    
+    - name: "companion_analysis"
+      pattern: "continuous"
+      steps:
+        - name: "analyze_plant_compatibility"
+          agent_type: "companion_agent"
+          schedule: "0 */4 * * *"  # Every 4 hours
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"

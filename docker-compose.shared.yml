@@ -1,0 +1,331 @@
+version: '3.8'
+
+services:
+  # Semantic Code Graph UI (Port 3000) - Optimized
+  scg-ui:
+    build:
+      context: ./applications/semantic_gui
+      dockerfile: Dockerfile
+      target: production
+      cache_from:
+        - node:20.18-alpine
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    container_name: scg_ui
+    platform: linux/amd64
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/scg?sslmode=disable
+      DATABASE_HOST: postgres
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DATABASE_NAME: scg
+      
+      # API Keys
+      GROQ_API_KEY: ${GROQ_API_KEY:-test}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      
+      # Session Configuration
+      SESSION_SECRET: ${SESSION_SECRET:-default-session-secret}
+      
+      # Integration URLs (lazy loaded)
+      PERMAGRAPH_API_URL: http://permagraph:8080
+      PERMAGRAPH_ENABLED: ${PERMAGRAPH_ENABLED:-true}
+      
+      # WebSocket Configuration
+      WEBSOCKET_ENABLED: true
+      WEBSOCKET_PORT: 5000
+      
+      # File System Configuration
+      FILE_WATCHER_ENABLED: true
+      
+      # Performance Configuration
+      LAZY_LOADING_ENABLED: ${LAZY_LOADING_ENABLED:-true}
+      CACHE_ENABLED: ${CACHE_ENABLED:-true}
+      CACHE_TTL_DEFAULT: ${CACHE_TTL_DEFAULT:-300}
+      
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # PermaGraph is optional with lazy loading
+      permagraph:
+        condition: service_started
+        required: false
+    volumes:
+      - scg_data:/data
+      - ./templates:/app/templates:ro
+      - ./infra/deployment/config/scg:/app/config:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 curl -f http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shared_network
+    deploy:
+      resources:
+        limits:
+          memory: ${SCG_UI_MEMORY:-1g}
+          cpus: '${SCG_UI_CPU:-1.0}'
+        reservations:
+          memory: 512m
+          cpus: '0.5'
+
+  # PermaGraph Service (Port 8080) - Optimized with lazy loading
+  permagraph:
+    build:
+      context: ./services/graph
+      dockerfile: Dockerfile
+      cache_from:
+        - python:3.11-slim
+    container_name: permagraph_service
+    environment:
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: permagraph
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      
+      # Redis Configuration (lazy loaded)
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_ENABLED: ${REDIS_CACHE_ENABLED:-true}
+      FALKORDB_CONNECTION_STRING: redis://redis:6379
+      
+      # API Configuration
+      PERMAGRAPH_API_KEY: ${PERMAGRAPH_API_KEY:-shared-api-key}
+      SERVICE_NAME: permagraph-shared
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      
+      # LLM Configuration (lazy loaded)
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      
+      # Integration Configuration
+      SCG_WEBSOCKET_URL: ws://scg-ui:5000/ws
+      
+      # Performance Configuration
+      USE_GPU: false
+      TORCH_CPU_ONLY: true
+      ENABLE_DEGRADATION: true
+      DEFAULT_COMPRESSION_RATIO: 0.7
+      WORKERS: 2
+      MAX_REQUESTS: 1000
+      
+      # Agent Configuration (lazy loaded)
+      REASONER_AGENT_ENABLED: ${REASONER_AGENT_ENABLED:-true}
+      EXPLANATION_AGENT_ENABLED: ${EXPLANATION_AGENT_ENABLED:-true}
+      GENERATION_AGENT_ENABLED: ${GENERATION_AGENT_ENABLED:-true}
+      AGENT_COORDINATOR_ENABLED: ${AGENT_COORDINATOR_ENABLED:-true}
+      
+      # Ontology Configuration
+      ONTOLOGY_SYNC_INTERVAL: 30
+      
+      # Cache Configuration
+      CACHE_ENABLED: ${CACHE_ENABLED:-true}
+      CACHE_TTL_DEFAULT: ${CACHE_TTL_DEFAULT:-300}
+      
+    ports:
+      - "8080:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - permagraph_data:/data
+      - ./infra/deployment/config/permagraph:/app/config:ro
+      - ./services/graph/contracts:/app/contracts:ro
+      - ./services/graph/cqs:/app/cqs:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 10 curl -f http://localhost:8000/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - shared_network
+    deploy:
+      resources:
+        limits:
+          memory: ${PERMAGRAPH_MEMORY:-2g}
+          cpus: '${PERMAGRAPH_CPU:-1.5}'
+        reservations:
+          memory: 1g
+          cpus: '0.5'
+    profiles:
+      - default
+      - permagraph
+
+  # Neo4j Database (Port 7687)
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: neo4j_database
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-password}
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*,gds.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*,gds.*
+      NEO4J_apoc_export_file_enabled: true
+      NEO4J_apoc_import_file_enabled: true
+      NEO4J_apoc_import_file_use__neo4j__config: true
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD:-password}", "RETURN 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared_network
+
+  # Redis Cache (Port 6379)
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared_network
+
+  # PostgreSQL Database for shared services
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_shared
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_MULTIPLE_DATABASES: scg,permagraph
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/deployment/scripts/create-multiple-databases.sh:/docker-entrypoint-initdb.d/create-multiple-databases.sh
+      - ./services/graph/database/schema:/docker-entrypoint-initdb.d/permagraph
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared_network
+
+  # MCP Server (Port 8001)
+  mcp-server:
+    build:
+      context: ./services/mcp-server
+      dockerfile: Dockerfile
+    container_name: mcp_server
+    environment:
+      MCP_PORT: 8001
+      SCG_API_URL: http://scg-ui:3000
+      PERMAGRAPH_API_URL: http://permagraph:8080
+      REDIS_URL: redis://redis:6379
+      
+      # Framework Integration URLs
+      FERRUM_API_URL: http://ferrum-cli:8002
+      KTHULU_API_URL: http://kthulu-backend:8080
+      TUETANO_API_URL: http://tuetano-service:8003
+      
+      # API Keys
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      
+    ports:
+      - "8001:8001"
+    depends_on:
+      redis:
+        condition: service_healthy
+      scg-ui:
+        condition: service_started
+      permagraph:
+        condition: service_started
+        required: false
+    volumes:
+      - mcp_data:/data
+      - ./infra/deployment/config/mcp:/app/config
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - shared_network
+
+  # SCG Database Migration
+  scg-migrate:
+    build:
+      context: ./applications/semantic_gui
+      dockerfile: Dockerfile
+      target: base
+    container_name: scg_migrate
+    platform: linux/amd64
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/scg?sslmode=disable
+      NODE_ENV: production
+      GROQ_API_KEY: ${GROQ_API_KEY:-test}
+      SESSION_SECRET: ${SESSION_SECRET:-default-session-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./applications/semantic_gui/shared:/app/shared
+      - ./applications/semantic_gui/migrations:/app/migrations
+      - ./applications/semantic_gui/scripts:/app/scripts
+      - ./applications/semantic_gui/drizzle.config.ts:/app/drizzle.config.ts
+      - ./applications/semantic_gui/package.json:/app/package.json
+      - ./applications/semantic_gui/package-lock.json:/app/package-lock.json
+      - ./applications/semantic_gui/tsconfig.json:/app/tsconfig.json
+    working_dir: /app
+    command: ["sh", "-c", "npm run db:push && npm run db:seed"]
+    networks:
+      - shared_network
+
+volumes:
+  scg_data:
+    driver: local
+  permagraph_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  neo4j_import:
+    driver: local
+  neo4j_plugins:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  mcp_data:
+    driver: local
+
+networks:
+  shared_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

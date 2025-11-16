@@ -1,0 +1,21 @@
+module: users
+nodes:
+  - id: getUser
+    type: usecase
+    description: Retrieve user by ID for profile display
+    story: |
+      As a logged-in user,
+      I want to view my profile details,
+      So that I can verify and update my information.
+    input:
+      - name: userId
+        type: uuid
+    output: User
+    depends_on: [userRepository]
+
+  - id: userRepository
+    type: adapter
+    implements: userReaderPort
+
+  - id: userReaderPort
+    type: port

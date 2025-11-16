@@ -1,0 +1,180 @@
+use egui::Ui;
+use crate::api::ApiClient;
+use crate::state::AppState;
+use shared_models::{{ entity_name }};
+
+/// View for displaying and managing {{ entity_name }} entities
+pub struct {{ struct_name }} {
+    /// List of {{ entity_name }} items
+    items: Vec<{{ entity_name }}>,
+    /// Currently selected item for detail view
+    selected_item: Option<{{ entity_name }}>,
+    /// Loading state
+    loading: bool,
+    /// Error message if any
+    error: Option<String>,
+    /// View mode: list or detail
+    view_mode: ViewMode,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ViewMode {
+    List,
+    Detail,
+}
+
+impl {{ struct_name }} {
+    pub fn new() -> Self {
+        Self {
+            items: Vec::new(),
+            selected_item: None,
+            loading: false,
+            error: None,
+            view_mode: ViewMode::List,
+        }
+    }
+
+    /// Main render method called by the app
+    pub fn render(&mut self, ui: &mut Ui, api: &ApiClient, _state: &mut AppState) {
+        ui.heading("{{ display_name }}");
+        
+        // Show error if present
+        if let Some(err) = &self.error {
+            ui.colored_label(egui::Color32::RED, format!("Error: {}", err));
+            if ui.button("Dismiss").clicked() {
+                self.error = None;
+            }
+            ui.separator();
+        }
+
+        // Show loading spinner
+        if self.loading {
+            ui.horizontal(|ui| {
+                ui.spinner();
+                ui.label("Loading...");
+            });
+            return;
+        }
+
+        // Render based on view mode
+        match self.view_mode {
+            ViewMode::List => self.render_list(ui, api),
+            ViewMode::Detail => self.render_detail(ui),
+        }
+    }
+
+    /// Render the list view with all items
+    fn render_list(&mut self, ui: &mut Ui, api: &ApiClient) {
+        ui.horizontal(|ui| {
+            if ui.button("🔄 Refresh").clicked() {
+                self.load_items(api);
+            }
+        });
+
+        ui.separator();
+
+        if self.items.is_empty() {
+            ui.label("No items found");
+        } else {
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    for item in &self.items {
+                        ui.horizontal(|ui| {
+                            self.render_item_row(ui, item);
+                            if ui.button("View Details").clicked() {
+                                self.selected_item = Some(item.clone());
+                                self.view_mode = ViewMode::Detail;
+                            }
+                        });
+                        ui.separator();
+                    }
+                });
+        }
+    }
+
+    /// Render a single item row in the list
+    fn render_item_row(&self, ui: &mut Ui, item: &{{ entity_name }}) {
+        ui.vertical(|ui| {
+            {% for field in fields -%}
+            {% if field.widget_type == "text_edit" -%}
+            ui.horizontal(|ui| {
+                ui.label("{{ field.display_name }}:");
+                ui.label(&item.{{ field.name }});
+            });
+            {% elif field.widget_type == "drag_value" -%}
+            ui.horizontal(|ui| {
+                ui.label("{{ field.display_name }}:");
+                ui.label(format!("{}", item.{{ field.name }}));
+            });
+            {% elif field.widget_type == "checkbox" -%}
+            ui.horizontal(|ui| {
+                ui.label("{{ field.display_name }}:");
+                ui.label(if item.{{ field.name }} { "✓ Yes" } else { "✗ No" });
+            });
+            {% endif -%}
+            {% endfor -%}
+        });
+    }
+
+    /// Render the detail view for a single item
+    fn render_detail(&mut self, ui: &mut Ui) {
+        if ui.button("← Back to List").clicked() {
+            self.view_mode = ViewMode::List;
+            self.selected_item = None;
+            return;
+        }
+
+        ui.separator();
+
+        if let Some(item) = &self.selected_item {
+            ui.heading("Details");
+            ui.separator();
+
+            egui::Grid::new("detail_grid")
+                .num_columns(2)
+                .spacing([40.0, 8.0])
+                .striped(true)
+                .show(ui, |ui| {
+                    {% for field in fields -%}
+                    ui.label("{{ field.display_name }}:");
+                    {% if field.widget_type == "text_edit" -%}
+                    ui.label(&item.{{ field.name }});
+                    {% elif field.widget_type == "drag_value" -%}
+                    ui.label(format!("{}", item.{{ field.name }}));
+                    {% elif field.widget_type == "checkbox" -%}
+                    ui.label(if item.{{ field.name }} { "Yes" } else { "No" });
+                    {% endif -%}
+                    ui.end_row();
+                    {% endfor -%}
+                });
+        } else {
+            ui.label("No item selected");
+        }
+    }
+
+    /// Load items from the API
+    fn load_items(&mut self, api: &ApiClient) {
+        self.loading = true;
+        self.error = None;
+
+        // TODO: Make this async with proper channel-based communication
+        // For now, this is a synchronous blocking call
+        match api.get::<Vec<{{ entity_name }}>>("{{ api_path }}") {
+            Ok(items) => {
+                self.items = items;
+                self.loading = false;
+            }
+            Err(e) => {
+                self.error = Some(format!("Failed to load items: {}", e));
+                self.loading = false;
+            }
+        }
+    }
+}
+
+impl Default for {{ struct_name }} {
+    fn default() -> Self {
+        Self::new()
+    }
+}

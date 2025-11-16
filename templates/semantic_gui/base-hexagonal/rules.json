@@ -1,0 +1,17 @@
+[
+  {
+    "rule": "controller-calls-usecase",
+    "type": "required",
+    "description": "Controllers should delegate business logic to use cases"
+  },
+  {
+    "rule": "usecase-no-direct-adapter",
+    "type": "prohibited",
+    "description": "Use cases should depend on ports, not adapters"
+  },
+  {
+    "rule": "adapter-implements-port",
+    "type": "required",
+    "description": "Adapters must implement ports"
+  }
+]

@@ -1,0 +1,27 @@
+[package]
+name = "ferrum-cli"
+version = "0.1.0"
+edition = "2021"
+description = "CLI for the Ferrum scaffolding system"
+
+[[bin]]
+name = "ferrum"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+tera = "1.19"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+ferrum-shared-models = { path = "../shared-models" }
+ferrum-engine = { path = "../engine" }
+ferrum-service = { path = "../ferrum-service" }
+clap = { version = "4.4", features = ["derive"] }
+Inflector = "0.11"
+petgraph = "0.6"
+
+[dev-dependencies]
+tempfile = "3"
+base64 = "0.21"

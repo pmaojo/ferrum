@@ -1,0 +1,306 @@
+{
+  "id": "enhanced-kthulu",
+  "name": "Enhanced Kthulu Architecture",
+  "description": "Enhanced Kthulu template with complete binary and tooling specification",
+  "extends": "base-hexagonal",
+  "nodeTypes": [
+    {
+      "type": "module",
+      "label": "Kthulu Module",
+      "pattern": "Module",
+      "color": "#3B82F6",
+      "icon": "📦",
+      "description": "Kthulu module containing use cases, adapters, and entities",
+      "template": "package {name}\n\n// Module {name} implements business logic\ntype {name}Module struct {\n\t// dependencies\n}",
+      "bestPractices": [
+        "Single responsibility per module",
+        "Clear module boundaries",
+        "Dependency injection"
+      ]
+    },
+    {
+      "type": "handler",
+      "label": "HTTP Handler",
+      "pattern": "Handler",
+      "color": "#06B6D4",
+      "icon": "🎯",
+      "description": "HTTP handler for API endpoints",
+      "template": "package handlers\n\n// {name}Handler handles HTTP requests\ntype {name}Handler struct {\n\tservice *services.{name}Service\n}",
+      "bestPractices": [
+        "Thin handlers",
+        "Delegate to services",
+        "Proper HTTP status codes"
+      ]
+    }
+  ],
+  "cli": {
+    "binary": "kthulu-cli",
+    "version": ">=1.0.0",
+    "installUrl": "https://github.com/kthulu/cli/releases",
+    "installCommand": "go install github.com/kthulu/cli@latest",
+    "checkCommand": "kthulu-cli --version",
+    "workingDirectory": ".",
+    "configFile": ".kthulu.yml",
+    "environment": {
+      "KTHULU_CONFIG": ".kthulu.yml",
+      "KTHULU_LOG_LEVEL": "info",
+      "GO_ENV": "development"
+    },
+    "dependencies": [
+      {
+        "name": "go",
+        "version": ">=1.19",
+        "checkCommand": "go version",
+        "installUrl": "https://golang.org/dl/"
+      },
+      {
+        "name": "git",
+        "version": ">=2.0",
+        "checkCommand": "git --version",
+        "installUrl": "https://git-scm.com/downloads"
+      }
+    ],
+    "commands": {
+      "init": {
+        "command": "kthulu-cli init {projectName}",
+        "description": "Initialize new Kthulu project",
+        "requiresProject": false,
+        "outputFormat": "text",
+        "creates": [".kthulu.yml", "go.mod", "main.go"]
+      },
+      "planGraph": {
+        "command": "kthulu-cli plan --graph --format=json --output={outputFile}",
+        "description": "Generate architecture graph from Go code",
+        "requiresProject": true,
+        "outputFormat": "json",
+        "outputFile": "architecture.json",
+        "timeout": 30
+      },
+      "validate": {
+        "command": "kthulu-cli plan --validate --strict",
+        "description": "Validate architecture compliance with strict rules",
+        "requiresProject": true,
+        "outputFormat": "text",
+        "timeout": 15
+      },
+      "build": {
+        "command": "kthulu-cli build --optimize",
+        "description": "Build the project with optimizations",
+        "requiresProject": true,
+        "outputFormat": "text",
+        "timeout": 60
+      },
+      "test": {
+        "command": "kthulu-cli test --coverage --report=coverage.html",
+        "description": "Run tests with coverage report",
+        "requiresProject": true,
+        "outputFormat": "text",
+        "creates": ["coverage.html", "coverage.out"]
+      }
+    },
+    "hooks": {
+      "preCommand": "kthulu-cli check-deps",
+      "postCommand": "kthulu-cli format --fix",
+      "onError": "kthulu-cli diagnose"
+    }
+  },
+  "connector": {
+    "type": "file-based",
+    "parser": "go-ast",
+    "fileWatcher": {
+      "patterns": ["backend/**/*.go"],
+      "excludes": ["**/*_test.go", "**/vendor/**"],
+      "events": ["codeChanged", "codeApplied", "codeError"]
+    },
+    "analysis": {
+      "graphCommand": "kthulu-cli plan --graph --format=json",
+      "outputPath": "/tmp/kthulu.graph.json",
+      "structureCommand": "kthulu-cli analyze --structure",
+      "validationCommand": "kthulu-cli plan --validate"
+    },
+    "paths": {
+      "projectRoot": ".",
+      "backendPath": "backend",
+      "cliPath": "backend/cmd/kthulu-cli",
+      "tempDir": "/tmp"
+    },
+    "scgMapping": {
+      "nodePositioning": {
+        "module": {
+          "baseX": 0,
+          "baseY": 0
+        },
+        "usecase": {
+          "baseX": 50,
+          "baseY": 100
+        },
+        "adapter": {
+          "baseX": 200,
+          "baseY": 100
+        },
+        "entity": {
+          "baseX": 100,
+          "baseY": 200
+        },
+        "port": {
+          "baseX": 150,
+          "baseY": 50
+        }
+      },
+      "componentTypes": {
+        "usecase": "domain",
+        "entity": "domain",
+        "port": "domain",
+        "adapter": "infrastructure",
+        "handler": "infrastructure",
+        "service": "application"
+      }
+    }
+  },
+  "tooling": {
+    "editor": {
+      "vscode": {
+        "extensions": ["golang.go", "kthulu.kthulu-vscode"],
+        "settings": {
+          "go.useLanguageServer": true,
+          "kthulu.autoFormat": true
+        }
+      },
+      "vim": {
+        "plugins": ["vim-go", "kthulu.vim"]
+      }
+    },
+    "linting": {
+      "golangci-lint": {
+        "version": ">=1.50",
+        "config": ".golangci.yml",
+        "command": "golangci-lint run"
+      }
+    },
+    "formatting": {
+      "gofmt": {
+        "command": "gofmt -w .",
+        "autoRun": true
+      }
+    }
+  },
+  "deployment": {
+    "docker": {
+      "dockerfile": "Dockerfile.kthulu",
+      "baseImage": "golang:1.19-alpine",
+      "buildCommand": "docker build -t {projectName} .",
+      "runCommand": "docker run -p 8080:8080 {projectName}"
+    },
+    "kubernetes": {
+      "manifests": ["k8s/deployment.yaml", "k8s/service.yaml"],
+      "namespace": "kthulu-apps"
+    }
+  },
+  "filePatterns": {
+    "modules": "backend/internal/modules/**/*.go",
+    "handlers": "backend/internal/handlers/**/*.go",
+    "services": "backend/internal/services/**/*.go",
+    "entities": "backend/internal/entities/**/*.go",
+    "ports": "backend/internal/ports/**/*.go",
+    "tests": "**/*_test.go",
+    "config": ".kthulu.yml"
+  },
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "framework": "kthulu",
+    "language": "go",
+    "architecture": "hexagonal",
+    "paradigm": "ddd",
+    "principles": ["SOLID", "DDD", "Hexagonal", "Clean Architecture"],
+    "configSchema": [
+      {
+        "name": "projectName",
+        "label": "Project Name",
+        "type": "text",
+        "placeholder": "my-kthulu-app",
+        "description": "Name of the Kthulu project",
+        "required": true,
+        "validation": "^[a-z][a-z0-9-]*$"
+      },
+      {
+        "name": "goVersion",
+        "label": "Go Version",
+        "type": "select",
+        "options": [
+          {
+            "value": "1.19",
+            "label": "Go 1.19"
+          },
+          {
+            "value": "1.20",
+            "label": "Go 1.20"
+          },
+          {
+            "value": "1.21",
+            "label": "Go 1.21"
+          }
+        ],
+        "defaultValue": "1.20",
+        "description": "Go version to use for the project"
+      },
+      {
+        "name": "enableMetrics",
+        "label": "Enable Metrics",
+        "type": "checkbox",
+        "defaultValue": true,
+        "description": "Include Prometheus metrics collection"
+      },
+      {
+        "name": "databaseType",
+        "label": "Database Type",
+        "type": "select",
+        "options": [
+          {
+            "value": "postgresql",
+            "label": "PostgreSQL"
+          },
+          {
+            "value": "mysql",
+            "label": "MySQL"
+          },
+          {
+            "value": "sqlite",
+            "label": "SQLite"
+          }
+        ],
+        "defaultValue": "postgresql",
+        "description": "Database system to use"
+      },
+      {
+        "name": "description",
+        "label": "Project Description",
+        "type": "textarea",
+        "placeholder": "A Kthulu-based microservice...",
+        "description": "Brief description of the project"
+      }
+    ]
+  }
+}

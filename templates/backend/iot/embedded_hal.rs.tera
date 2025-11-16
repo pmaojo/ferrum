@@ -1,0 +1,7 @@
+use embedded_hal::digital::v2::OutputPin;
+
+pub fn blink_hal<P: OutputPin>(mut pin: P) {
+    pin.set_high().ok();
+    // ⚙ AI_FILL[iot_embedded_hal]
+    pin.set_low().ok();
+}

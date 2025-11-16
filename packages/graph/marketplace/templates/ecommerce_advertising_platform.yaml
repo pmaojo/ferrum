@@ -1,0 +1,135 @@
+
+id: "ecommerce_advertising_platform"
+name: "E-commerce Advertising & DSP Platform"
+description: "Complete multimodal RAG solution for e-commerce, advertising, and DSP with unified context management"
+category: "commerce"
+default_tenant: "ecommerce_advertising_platform-tenant"
+tier_required: "enterprise"
+price_usd: 499.99
+tags: ["ecommerce", "advertising", "dsp", "multimodal", "contextual-commerce"]
+author: "GraphRAG Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-large"
+    max_tokens: 8192
+    temperature: 0.1
+    
+  # Multi-tenant architecture
+  multitenancy:
+    pattern: "bridge"  # bridge pattern for optimal scale with encryption
+    encryption_per_tenant: true
+    shared_indexes: true
+    tenant_isolation_level: "high"
+    
+  # Event-driven architecture
+  event_driven:
+    enable_kafka_ingestion: true
+    enable_kinesis_ingestion: true
+    event_store_type: "immutable"
+    max_event_retention_days: 2555  # 7 years
+    real_time_processing: true
+    
+  # Multimodal processing
+  multimodal:
+    enable_image_processing: true
+    enable_audio_processing: true
+    enable_video_processing: true
+    image_embedding_model: "clip-large"
+    audio_embedding_model: "whisper-large-v3"
+    vlm_model: "gpt-4o"
+    cross_modal_retrieval: true
+    
+  # DSP integration
+  dsp:
+    enable_real_time_bidding: true
+    bid_response_timeout_ms: 100
+    enable_creative_optimization: true
+    enable_audience_targeting: true
+    contextual_bid_adjustment: true
+    
+  # Customer Data Platform
+  cdp:
+    enable_rudderstack: true
+    enable_segment: true
+    unified_customer_profiles: true
+    cross_channel_attribution: true
+    
+  # Vector database configuration
+  vector_db:
+    provider: "qdrant"
+    embedding_dimensions: 1536
+    similarity_metric: "cosine"
+    enable_hybrid_search: true
+    enable_any_to_any_retrieval: true
+
+ontology_config:
+  entities:
+    - "Customer"
+    - "Product" 
+    - "Transaction"
+    - "Campaign"
+    - "Creative"
+    - "BidRequest"
+    - "Impression"
+    - "Click"
+    - "Conversion"
+    - "Segment"
+    - "Channel"
+    - "Intent"
+    - "Context"
+  relationships:
+    - "purchased"
+    - "viewed"
+    - "clicked"
+    - "converted"
+    - "targeted_by"
+    - "belongs_to_campaign"
+    - "has_creative"
+    - "triggers_bid"
+    - "belongs_to_segment"
+    - "expressed_intent"
+    - "has_context"
+  domain: "commerce_advertising"
+
+workflow_config:
+  workflows:
+    - name: "real_time_context_tracking"
+      pattern: "streaming"
+      steps:
+        - name: "ingest_events"
+          agent_type: "event_ingestion_agent"
+          real_time: true
+        - name: "extract_intent"
+          agent_type: "intent_extraction_agent"
+        - name: "update_context"
+          agent_type: "context_management_agent"
+    - name: "bid_optimization"
+      pattern: "real_time"
+      steps:
+        - name: "retrieve_context"
+          agent_type: "context_retrieval_agent"
+          timeout_ms: 50
+        - name: "optimize_bid"
+          agent_type: "bid_optimization_agent"
+          timeout_ms: 40
+    - name: "creative_personalization"
+      pattern: "multimodal"
+      steps:
+        - name: "analyze_creative_assets"
+          agent_type: "multimodal_analysis_agent"
+        - name: "personalize_content"
+          agent_type: "creative_optimization_agent"
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"
+  - "flowise"
+  - "langflow"
+  - "n8n"

@@ -1,0 +1,45 @@
+@prefix onto: <http://kronal.dev/optometry#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+onto:Contact_Lens_Fitting a owl:Class .
+
+onto:Dry_Eye_Assessment a owl:Class .
+
+onto:Eye_Disease a owl:Class .
+
+onto:Eye_Measurement a owl:Class .
+
+onto:Glaucoma_Screening a owl:Class .
+
+onto:Lens_Material a owl:Class .
+
+onto:Lens_Type a owl:Class .
+
+onto:Ocular_Structure a owl:Class .
+
+onto:Optometry_Diagnosis a owl:Class .
+
+onto:Prescription a owl:Class .
+
+onto:Refraction_Exam a owl:Class .
+
+onto:Refraction_Method a owl:Class .
+
+onto:Vision_Function a owl:Class .
+
+onto:Visual_Acuity_Test a owl:Class .
+
+onto:fits_contact_lens a owl:ObjectProperty .
+
+onto:has_diagnosis a owl:ObjectProperty .
+
+onto:measures_refraction a owl:ObjectProperty .
+
+onto:performs_exam a owl:ObjectProperty .
+
+onto:prescribes_lens a owl:ObjectProperty .
+
+onto:records_visual_acuity a owl:ObjectProperty .
+
+onto:screens_for a owl:ObjectProperty .
+

@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # GraphRAG REST API Application
+  app:
+    build: .
+    container_name: knowledge_graphs_app
+    environment:
+      # Database Configuration - connect to semantic GUI PostgreSQL
+      DB_HOST: 172.19.0.2
+      DB_PORT: 5432
+      DB_NAME: semanticcodegraph
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      
+      # Redis Configuration - connect to existing Redis
+      REDIS_HOST: knowledge_graphs_cache
+      REDIS_PORT: 6379
+      FALKORDB_CONNECTION_STRING: redis://knowledge_graphs_cache:6379
+      
+      # API Configuration
+      PERMAGRAPH_API_KEY: dev-api-key
+      SERVICE_NAME: permagraph-dev
+      ENVIRONMENT: development
+      
+      # LLM Configuration
+      GEMINI_API_KEY: AIzaSyCmz2MPCrI78hjAY9nTtPmxb0w_E3EpRU8
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      
+      # Optimize for lightweight operation
+      USE_GPU: false
+      TORCH_CPU_ONLY: true
+      
+      # GraphRAG SDK Configuration
+      GRAPHRAG_HOST: knowledge_graphs_cache
+      GRAPHRAG_PORT: 6379
+      
+      # Token Budget Configuration
+      TOKEN_BUDGET_STORAGE_PATH: /data/token_budget
+      DEFAULT_MONTHLY_BUDGET_USD: 100.0
+      ALERT_THRESHOLD_PERCENT: 80.0
+      
+      # Performance Configuration
+      ENABLE_DEGRADATION: true
+      DEFAULT_COMPRESSION_RATIO: 0.7
+      MIN_TRIPLES: 10
+      USE_EMBEDDINGS: true
+      
+      # LLM Circuit Breaker Configuration
+      LLM_ERROR_THRESHOLD: 5
+      LLM_LATENCY_THRESHOLD_MS: 800
+      LLM_RESET_TIMEOUT_SECONDS: 60
+      
+      # LiteLLM Configuration
+      LITELLM_MODE_ENABLED: true
+      LITELLM_COST_TRACKING: true
+      LITELLM_MAX_RETRIES: 3
+      LITELLM_TIMEOUT: 30
+      LITELLM_RATE_LIMIT_RETRY: true
+      LITELLM_CONTEXT_LENGTH_FALLBACK: true
+      
+      # Job Repository
+      JOB_REPOSITORY_URL: redis://knowledge_graphs_cache:6379/1
+      
+    ports:
+      - "8000:8000"
+    volumes:
+      - permagraph_data:/data
+      - .:/app
+      - ./contracts:/app/contracts
+      - ./cqs:/app/cqs
+    working_dir: /app
+    command: ["bash", "-c", "alembic upgrade head && uvicorn ui_adapters.rest_api.server:app --host 0.0.0.0 --port 8000 --log-level info"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - semantic_gui_default
+
+networks:
+  semantic_gui_default:
+    external: true
+
+volumes:
+  permagraph_data:
+    driver: local

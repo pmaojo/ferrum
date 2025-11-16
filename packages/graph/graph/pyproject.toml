@@ -1,0 +1,104 @@
+[project]
+name = "permagraph"
+version = "0.1.0"
+description = "Plataforma para grafos de conocimiento con GraphRAG"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+  {name = "PermaGraph"}
+]
+dependencies = [
+"fastapi==0.109.2",            # Compatible con Pydantic v1
+"starlette==0.36.3",           # Alineado con fastapi 0.109.x
+"uvicorn>=0.22.0",
+"h11>=0.14.0",
+"click>=8.0.0",
+"pydantic==1.10.15",           # Downgrade para evitar restricciones de nombres con underscore
+# Eliminado pydantic-settings (v2 depende de pydantic v2)
+"slowapi>=0.1.7",
+"prometheus-client>=0.16.0",
+"cachetools>=5.3.0",
+"redis[hiredis]>=4.5.0",
+"httpx>=0.24.0",
+"python-multipart>=0.0.6",
+"python-dotenv>=1.0.0",
+"numpy>=1.26.0",
+"PyYAML>=6.0",
+"Pillow>=10.0",
+"typing_inspection",
+"openai>=1.63.0",
+"google-generativeai>=0.8.0",
+"graphrag_sdk>=0.3.0",
+"transformers>=4.36.0",
+"gremlinpython>=3.7.0",
+"structlog>=23.1.0",
+"opentelemetry-api>=1.20.0",
+"opentelemetry-sdk>=1.20.0",
+"opentelemetry-exporter-otlp>=1.20.0",
+"sqlalchemy>=2.0.23",
+"psycopg2-binary>=2.9.9",
+"alembic>=1.13.0",
+"neo4j>=5.28.1",
+"python-dateutil>=2.8.2",
+"typing-extensions>=4.8.0",
+"websockets>=12.0",
+"PyPDF2>=3.0.0",
+"asyncio-redis>=0.16.0",
+"networkx>=3.0",
+"python-louvain>=0.16.0",
+"scikit-learn>=1.3.0",
+"streamlit>=1.28.0",
+"dependency_injector>=4.41.0",
+"typer>=0.9.0",
+"questionary>=2.0.1"
+,
+"requests>=2.31.0",
+"beautifulsoup4>=4.12.0",
+"duckduckgo-search>=5.3.0",
+"celery>=5.3.0",
+]
+
+[project.optional-dependencies]
+# Development and test dependencies
+dev = [
+"pytest==8.1.1",
+"pytest-asyncio==0.21.1",
+"pytest-anyio>=0.1.0",
+"pytest-mock==3.12.0",
+"httpx>=0.28.1",
+"websockets>=12.0",
+"PyPDF2>=3.0.0",
+"PyYAML>=6.0",
+"jsonschema>=4.19.0",
+"black==23.11.0",
+"isort==5.12.0",
+"flake8==6.1.0",
+"mypy==1.7.1",
+"prometheus_client==0.19.0",
+"graphrag_sdk"
+]
+
+[project.scripts]
+permagraph = "permagraph.cli.main:app"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+    "application",
+    "adapters",
+    "domain",
+    "infrastructure",
+    "database",
+    "marketplace",
+    "monitoring",
+    "plugins",
+    "ui_adapters",
+    "hypothesis_extras",
+    "permagraph",
+    "kernel",
+]

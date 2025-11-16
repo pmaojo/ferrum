@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "test-ferrum-types.ts",
+    "shared/types/**/*"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  }
+}

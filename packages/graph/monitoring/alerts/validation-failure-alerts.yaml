@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: graphrag-validation-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: graphrag.validation.rules
+    rules:
+    - alert: ValidationFailureRateIncreased
+      expr: (sum(rate(validation_failures_total[1h])) / sum(rate(validation_attempts_total[1h]))) > (sum(rate(validation_failures_total[24h] offset 1h)) / sum(rate(validation_attempts_total[24h] offset 1h))) * 1.05
+      for: 15m
+      labels:
+        severity: warning
+        team: graphrag
+      annotations:
+        summary: "Validation failure rate increased by more than 5%"
+        description: "The validation failure rate has increased by more than 5% compared to the 24-hour baseline."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/validation-failures"
+    
+    - alert: HighValidationFailureRate
+      expr: sum(rate(validation_failures_total[5m])) / sum(rate(validation_attempts_total[5m])) > 0.1
+      for: 5m
+      labels:
+        severity: critical
+        team: graphrag
+      annotations:
+        summary: "High validation failure rate detected"
+        description: "The validation failure rate is {{ $value | humanizePercentage }}, which exceeds the 10% threshold."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/high-validation-failures"

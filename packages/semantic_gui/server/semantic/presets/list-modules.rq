@@ -1,0 +1,6 @@
+PREFIX kth: <http://kthulu.io/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?module ?name WHERE {
+  ?module a kth:Module .
+  ?module rdfs:label ?name .
+}

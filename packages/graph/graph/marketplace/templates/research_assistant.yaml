@@ -1,0 +1,82 @@
+
+id: "research_assistant"
+name: "AI Research Assistant"
+description: "Intelligent research assistant with multi-domain knowledge graphs and agent coordination"
+category: "research"
+default_tenant: "research_assistant-tenant"
+tier_required: "professional"
+price_usd: 29.99
+tags: ["research", "multi-agent", "academic", "knowledge-discovery"]
+author: "GraphRAG Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 4096
+    temperature: 0.1
+  
+  # Multi-agent orchestration
+  orchestration:
+    enable_multi_agent: true
+    agent_count: 5
+    specializations:
+      - "literature_review"
+      - "data_extraction" 
+      - "hypothesis_generation"
+      - "citation_analysis"
+      - "synthesis"
+    
+  # Knowledge graph settings
+  knowledge_graphs:
+    - name: "academic_papers"
+      domain: "research"
+      auto_index: true
+    - name: "citations"
+      domain: "bibliography"
+      auto_index: true
+
+ontology_config:
+  entities:
+    - "Author"
+    - "Paper" 
+    - "Institution"
+    - "Concept"
+    - "Methodology"
+    - "Dataset"
+    - "Hypothesis"
+  relationships:
+    - "authored_by"
+    - "cites"
+    - "affiliated_with"
+    - "studies"
+    - "uses_method"
+    - "validates"
+    - "contradicts"
+  domain: "research"
+
+workflow_config:
+  workflows:
+    - name: "literature_review"
+      pattern: "map_reduce"
+      steps:
+        - name: "search_papers"
+          agent_type: "search_agent"
+          timeout: 300
+        - name: "extract_insights"
+          agent_type: "extraction_agent"
+          timeout: 180
+        - name: "synthesize_findings"
+          agent_type: "synthesis_agent"
+          timeout: 240
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"
+  - "autogen"
+  - "chainlit"

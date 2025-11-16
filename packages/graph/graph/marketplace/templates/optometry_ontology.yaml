@@ -1,0 +1,99 @@
+
+id: "optometry_ontology"
+name: "Optometry Clinical Ontology"
+description: "Optometry examinations, diagnoses, refraction data and related entities"
+category: "healthcare"
+default_tenant: "optometry-tenant"
+tier_required: "pro"
+price_usd: 29.99
+tags: ["optometry", "eye care", "vision", "ontology"]
+author: "PermaGraph Team"
+version: "1.0.0"
+created_at: "2024-04-01T00:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.5-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 4096
+    temperature: 0.1
+  
+  # Official ontology loading
+  official_ontologies:
+    load_on_startup: true
+    ontologies:
+      - name: "eye_ontology"
+        merge_custom_rules: true
+        force_refresh: false
+      - name: "optical_ontology"
+        merge_custom_rules: true
+        force_refresh: false
+
+  # Optometry-specific features
+  optometry:
+    refraction_support: true
+    ocular_history_tracking: true
+    lens_prescription_management: true
+    diagnostic_rules: true
+
+ontology_config:
+  # Base entities from official ontologies
+  official_entities:
+    from_eye_ontology:
+      - "Ocular_Structure"
+      - "Eye_Disease"
+      - "Vision_Function"
+      - "Eye_Measurement"
+    from_optical_ontology:
+      - "Lens_Material"
+      - "Refraction_Method"
+      - "Prescription"
+      - "Lens_Type"
+
+  # Custom optometry entities
+  custom_entities:
+    - "Visual_Acuity_Test"
+    - "Refraction_Exam"
+    - "Optometry_Diagnosis"
+    - "Contact_Lens_Fitting"
+    - "Glaucoma_Screening"
+    - "Dry_Eye_Assessment"
+
+  # Optometry relationships
+  relationships:
+    - "has_diagnosis"
+    - "measures_refraction"
+    - "prescribes_lens"
+    - "performs_exam"
+    - "records_visual_acuity"
+    - "screens_for"
+    - "fits_contact_lens"
+
+workflow_config:
+  workflows:
+    - name: "load_official_ontologies"
+      pattern: "sequential"
+      steps:
+        - name: "load_eye_ontology"
+          agent_type: "ontology_loader"
+          schedule: "@startup"
+        - name: "load_optical_ontology"
+          agent_type: "ontology_loader"
+          schedule: "@startup"
+        - name: "merge_optometry_rules"
+          agent_type: "compatibility_agent"
+          schedule: "after_ontology_load"
+
+    - name: "exam_analysis"
+      pattern: "continuous"
+      steps:
+        - name: "analyze_refraction_data"
+          agent_type: "analysis_agent"
+          schedule: "0 */4 * * *"  # Every 4 hours
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"

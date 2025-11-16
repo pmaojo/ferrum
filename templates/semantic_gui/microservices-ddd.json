@@ -1,0 +1,158 @@
+{
+  "id": "microservices-ddd",
+  "name": "Microservices with DDD",
+  "description": "Microservices architecture following Domain-Driven Design principles",
+  "nodeTypes": [
+    {
+      "type": "bounded-context",
+      "pattern": "BoundedContext",
+      "color": "#2E86AB",
+      "icon": "🏛️",
+      "description": "Domain boundary containing related business logic"
+    },
+    {
+      "type": "aggregate",
+      "pattern": "Aggregate",
+      "color": "#A23B72",
+      "icon": "🎯",
+      "description": "Aggregate root managing consistency boundary"
+    },
+    {
+      "type": "entity",
+      "pattern": "Entity",
+      "color": "#F18F01",
+      "icon": "📦",
+      "description": "Domain entity with identity"
+    },
+    {
+      "type": "value-object",
+      "pattern": "ValueObject",
+      "color": "#C73E1D",
+      "icon": "💎",
+      "description": "Immutable value object"
+    },
+    {
+      "type": "domain-service",
+      "pattern": "DomainService",
+      "color": "#4CAF50",
+      "icon": "⚙️",
+      "description": "Domain service for business logic"
+    },
+    {
+      "type": "application-service",
+      "pattern": "ApplicationService",
+      "color": "#FF9800",
+      "icon": "🔧",
+      "description": "Application service orchestrating use cases"
+    },
+    {
+      "type": "repository",
+      "pattern": "Repository",
+      "color": "#9C27B0",
+      "icon": "🗄️",
+      "description": "Repository for aggregate persistence"
+    },
+    {
+      "type": "domain-event",
+      "pattern": "DomainEvent",
+      "color": "#607D8B",
+      "icon": "📡",
+      "description": "Domain event for decoupled communication"
+    },
+    {
+      "type": "api-gateway",
+      "pattern": "ApiGateway",
+      "color": "#795548",
+      "icon": "🚪",
+      "description": "API Gateway routing requests"
+    },
+    {
+      "type": "event-bus",
+      "pattern": "EventBus",
+      "color": "#FF5722",
+      "icon": "🚌",
+      "description": "Event bus for inter-service communication"
+    }
+  ],
+  "relations": [
+    { "source": "bounded-context", "target": "aggregate", "type": "contains" },
+    { "source": "aggregate", "target": "entity", "type": "manages" },
+    { "source": "aggregate", "target": "value-object", "type": "uses" },
+    {
+      "source": "application-service",
+      "target": "aggregate",
+      "type": "orchestrates"
+    },
+    { "source": "domain-service", "target": "entity", "type": "operates-on" },
+    { "source": "repository", "target": "aggregate", "type": "persists" },
+    { "source": "aggregate", "target": "domain-event", "type": "publishes" },
+    {
+      "source": "api-gateway",
+      "target": "application-service",
+      "type": "routes-to"
+    },
+    { "source": "domain-event", "target": "event-bus", "type": "published-via" }
+  ],
+  "validationRules": [
+    {
+      "rule": "AGGREGATE_CONSISTENCY",
+      "type": "required",
+      "description": "Each aggregate must maintain its own consistency boundary",
+      "pattern": "aggregate->entity"
+    },
+    {
+      "rule": "BOUNDED_CONTEXT_ISOLATION",
+      "type": "prohibited",
+      "description": "Bounded contexts should not directly access each other's internals",
+      "pattern": "bounded-context.entity->other-bounded-context.entity"
+    },
+    {
+      "rule": "DOMAIN_EVENT_COMMUNICATION",
+      "type": "required",
+      "description": "Inter-context communication should use domain events",
+      "pattern": "bounded-context->domain-event->other-bounded-context"
+    },
+    {
+      "rule": "REPOSITORY_PER_AGGREGATE",
+      "type": "required",
+      "description": "Each aggregate should have its own repository",
+      "pattern": "aggregate<-repository"
+    },
+    {
+      "rule": "APPLICATION_SERVICE_ORCHESTRATION",
+      "type": "required",
+      "description": "Application services should orchestrate domain operations",
+      "pattern": "application-service->domain-service"
+    }
+  ],
+  "universalTagSystem": {
+    "detection": {
+      "filePatterns": [],
+      "codePatterns": [],
+      "directoryPatterns": []
+    },
+    "extraction": {
+      "nativePatterns": {},
+      "conventions": {
+        "directoryMapping": {},
+        "fileNamePatterns": {},
+        "classNamePatterns": {}
+      }
+    },
+    "translation": {
+      "toSCG": {},
+      "fromSCG": {}
+    },
+    "autoTagging": {
+      "enabled": false,
+      "confidence": "low",
+      "patterns": []
+    }
+  },
+  "metadata": {
+    "architecture": "microservices",
+    "paradigm": "ddd",
+    "principles": ["DDD", "Microservices", "Event-Driven", "CQRS"],
+    "patterns": ["Aggregate", "Repository", "Domain Events", "API Gateway"]
+  }
+}

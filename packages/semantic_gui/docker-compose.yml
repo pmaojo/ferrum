@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+      args:
+        - NODE_ENV=production
+    ports:
+      - '5000:3000'
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/semanticcodegraph?sslmode=disable
+      - DATABASE_HOST=db
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=semanticcodegraph
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - SESSION_SECRET=${SESSION_SECRET}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ['/wait-for-postgres.sh', 'db', 'npm', 'start']
+
+  migrate:
+    build:
+      context: .
+      target: base
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/semanticcodegraph?sslmode=disable
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    working_dir: /app
+    command: ['sh', '-c', 'npm run db:push && npm run db:seed']
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=semanticcodegraph
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: scg-dev
+    ports:
+      - "5000:5000"
+      - "24678:24678" # Hot reload port
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/scg_dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - postgres
+    stdin_open: true
+    tty: true
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: scg-postgres-dev
+    environment:
+      - POSTGRES_DB=scg_dev
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  quality:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: scg-quality
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run quality:full
+    profiles: ["quality"]
+
+volumes:
+  postgres_data:

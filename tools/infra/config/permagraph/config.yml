@@ -1,0 +1,83 @@
+# PermaGraph Configuration for Integrated Deployment
+
+# Database Configuration
+database:
+  host: postgres
+  port: 5432
+  name: permagraph
+  user: postgres
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+
+# Redis Configuration
+redis:
+  host: redis
+  port: 6379
+  db: 0
+  max_connections: 100
+  socket_timeout: 30
+  socket_connect_timeout: 30
+
+# Agent Configuration
+agents:
+  reasoner:
+    enabled: true
+    max_workers: 4
+    timeout: 300
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_timeout: 60
+      expected_exception: ReasonerException
+  
+  explanation:
+    enabled: true
+    max_workers: 2
+    timeout: 120
+    llm_fallback: true
+    template_fallback: true
+  
+  generation:
+    enabled: true
+    max_workers: 2
+    timeout: 180
+    code_generation: true
+    kthulu_integration: true
+
+# Ontology Configuration
+ontology:
+  namespace: "http://kthulu.io/ontology#"
+  sync_interval: 30
+  validation_enabled: true
+  reasoning_profile: "hybrid"
+  
+# Integration Configuration
+integrations:
+  kthulu:
+    api_url: "http://kthulu-backend:8080"
+    timeout: 30
+    retry_attempts: 3
+    cli_path: "/usr/local/bin/kthulu-cli"
+  
+  scg:
+    websocket_url: "ws://scg-backend:5000/ws"
+    api_url: "http://scg-backend:5000"
+    timeout: 30
+
+# Performance Configuration
+performance:
+  enable_caching: true
+  cache_ttl: 3600
+  enable_compression: true
+  compression_ratio: 0.7
+  max_graph_size: 10000
+  reasoning_timeout: 300
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: json
+  file: /var/log/permagraph/app.log
+  max_size: 100MB
+  backup_count: 5

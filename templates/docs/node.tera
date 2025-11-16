@@ -1,0 +1,11 @@
+## {{ node.id }} ({{ node.type }})
+{{ node.description | default(value="") }}
+
+{% if node.story %}
+**Story:**
+{{ node.story }}
+{% endif %}
+
+**Input:** {{ node.input | json_encode }}
+**Output:** {{ node.output | default(value="None") }}
+**Depends on:** {{ node.depends_on | join(sep=", ") }}

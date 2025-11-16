@@ -1,0 +1,140 @@
+Tu código es muy sólido y bien estructurado, pero hay varios puntos **que podrían estar generando errores silenciosos, inconsistencias o efectos secundarios indeseados**. Te enumero los más relevantes y te explico por qué podrían estar fallando o generando bugs:
+
+---
+
+### ✅ 1. **Desincronización entre datos del backend y estado del grafo**
+
+#### Problema:
+
+Cuando haces `setNodes(flowNodes)` y `setEdges(flowEdges)` dentro de un `useEffect`, estás **machacando cualquier cambio local no persistido** (como reordenar nodos, conexiones temporales o cambios no guardados).
+
+#### Solución recomendada:
+
+Aplica un `diff` entre los nodos actuales y los del backend para actualizar solo lo necesario o añade un flag de control. También podrías usar un `ref` para evitar sobreescritura constante.
+
+---
+
+### ✅ 2. **El `screenToFlowPosition` a veces devuelve `undefined` si el canvas no está montado completamente**
+
+Esto puede pasar si haces doble click muy pronto o si el hook `useReactFlow()` aún no tiene un viewport calculado.
+
+#### Solución:
+
+```ts
+const position = screenToFlowPosition?.({ x: event.clientX, y: event.clientY });
+if (!position) return;
+```
+
+---
+
+### ✅ 3. **Estás creando nodos con IDs aleatorios, pero no los añades al grafo local tras el `mutate`**
+
+Cuando haces `createNodeMutation.mutate(...)`, esperas que se recargue automáticamente con `graphData`, pero si eso tarda o falla, el nuevo nodo no se ve hasta recargar.
+
+#### Solución inmediata:
+
+Tras `onSuccess`, añade el nodo también con `setNodes((prev) => [...prev, newNodeFromResponse])`.
+
+---
+
+### ✅ 4. **Tipos incorrectos en `onConnect` (estás usando `sourceNodeId` y `targetNodeId`)**
+
+Estás usando los campos `sourceNodeId` y `targetNodeId`, pero React Flow espera `source` y `target` como claves mínimas. Si luego tratas de renderizar esas relaciones sin transformarlas, te puedes quedar sin líneas visuales.
+
+#### Solución:
+
+Haz una conversión explícita para el grafo React Flow (y guarda los `NodeId` personalizados como `data` si los necesitas luego):
+
+```ts
+const newEdge: Edge = {
+  id: `edge_${Date.now()}`,
+  source: params.source,
+  target: params.target,
+  type: "custom",
+  data: {
+    type: "depends",
+    label: "depends"
+  },
+};
+setEdges((eds) => addEdge(newEdge, eds));
+```
+
+---
+
+### ✅ 5. **Tipo `any` en `selectedTemplate` y `nodeData`**
+
+Estás perdiendo tipado importante y eso puede derivar en errores silenciosos. Por ejemplo:
+
+```ts
+interface NodeCreationData {
+  name: string;
+  type: string;
+  description?: string;
+  filePath?: string;
+  position: { x: number; y: number };
+}
+```
+
+Y reemplazar el `any` en `handleNodeCreation`.
+
+---
+
+### ✅ 6. **No controlas `onNodeClick` vs `onPaneClick` en eventos anidados**
+
+Ambos pueden dispararse en eventos similares. Si `onPaneClick` se ejecuta justo después de `onNodeClick`, puedes ver un parpadeo o que no se selecciona correctamente el nodo.
+
+#### Solución:
+
+Añade `event.stopPropagation()` dentro de `onNodeClick`.
+
+---
+
+### ✅ 7. **Posible bug visual: no usas `fitView` después de cargar nodos**
+
+Aunque tienes `fitView` activado como prop, este no se ejecuta después de cargar nuevos nodos desde el backend.
+
+#### Solución:
+
+```ts
+useEffect(() => {
+  if (graphData?.nodes?.length) {
+    setTimeout(() => instance?.fitView(), 0);
+  }
+}, [graphData]);
+```
+
+(usa `const instance = useReactFlow()`)
+
+---
+
+### ✅ 8. **Validación de `event.dataTransfer.getData` puede ser vacía o inválida**
+
+Actualmente asumes que siempre viene algo válido. Añade una validación más robusta.
+
+---
+
+### ✅ 9. **Te falta asignar `type: "custom"` al crear nodo desde el drop**
+
+Para que use `GraphNode`, debe tener el tipo correcto en el objeto React Flow:
+
+```ts
+const newNode: Node<GraphNodeData> = {
+  id: generatedId,
+  type: "custom",
+  position,
+  data: {
+    id: generatedId,
+    ...
+  }
+}
+```
+
+---
+
+### ✅ 10. **No limpias el estado de errores (toast) anteriores o repetidos**
+
+Si un usuario fuerza errores muchas veces, puedes tener una cola de errores o toasts apilados. Podrías usar un `id` único o `replace: true` en algunos casos.
+
+---
+
+¿Quieres que te lo reescriba ya con estos cambios aplicados, en versión limpia y modular?

@@ -1,0 +1,35 @@
+# Node
+node_modules
+npm-debug.log
+
+# Build artifacts
+dist
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Version control
+.git
+.gitignore
+
+# IDEs and editors
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Documentation
+*.md
+
+# Include wait script in the container
+!wait-for-postgres.sh

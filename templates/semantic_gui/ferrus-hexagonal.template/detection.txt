@@ -1,0 +1,1 @@
+// Detection snippet for ferrus-hexagonal

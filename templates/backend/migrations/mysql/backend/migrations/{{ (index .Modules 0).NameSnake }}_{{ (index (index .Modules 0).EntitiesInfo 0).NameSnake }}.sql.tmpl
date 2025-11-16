@@ -1,0 +1,15 @@
+{{- $module := index .Modules 0 -}}
+{{- $entity := index $module.EntitiesInfo 0 -}}
+{{- define "mysqlColumnType" -}}
+{{- $type := lower .Type -}}
+{{- if eq $type "uuid" -}}CHAR(36){{- else if eq $type "string" -}}VARCHAR(255){{- else if eq $type "text" -}}TEXT{{- else if eq $type "boolean" -}}TINYINT(1){{- else if eq $type "timestamp" -}}DATETIME{{- else if eq $type "date" -}}DATE{{- else if eq $type "decimal" -}}DECIMAL(10,2){{- else if eq $type "integer" -}}INT{{- else -}}TEXT{{- end -}}
+{{- end -}}
+-- @kthulu:module:{{ $module.Name }}
+-- Auto-generated migration for {{ $entity.Name }}
+CREATE TABLE IF NOT EXISTS {{ $entity.Table }} (
+    id CHAR(36) PRIMARY KEY,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL{{- range $entity.Fields }}
+    , {{ .NameSnake }} {{ template "mysqlColumnType" . }}
+{{- end }}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

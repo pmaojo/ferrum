@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": ["server/**/*", "shared/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "build", "dist", "client"],
+  "files": ["server/types/express.d.ts"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["./shared/*"]
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noUncheckedIndexedAccess": false,
+    "downlevelIteration": true
+  }
+}

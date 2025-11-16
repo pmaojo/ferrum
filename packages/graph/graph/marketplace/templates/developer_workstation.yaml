@@ -1,0 +1,182 @@
+id: "developer_workstation"
+name: "DEVELOPER Workstation"
+description: "Complete development environment with multi-framework support, semantic code generation, and intelligent architecture assistance"
+category: "development"
+default_tenant: "developer-tenant"
+tier_required: "professional"
+price_usd: 49.99
+tags: ["development", "multi-framework", "code-generation", "architecture", "semantic-gui"]
+author: "Kronal Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 8192
+    temperature: 0.1
+  
+  # Multi-framework development support
+  frameworks:
+    enable_multi_framework: true
+    supported_frameworks:
+      - name: "ferrum"
+        description: "IoT/Embedded Rust development"
+        mcp_server: "ferrum-mcp"
+        templates: ["ferrum-iot-device", "ferrum-sensor-driver", "ferrum-embedded-service"]
+      - name: "kthulu"
+        description: "Hexagonal architecture Go development"
+        mcp_server: "kthulu-mcp"
+        templates: ["kthulu-hexagonal-module", "kthulu-domain-entity", "kthulu-use-case"]
+      - name: "tuetano"
+        description: "Enterprise C++20 development"
+        mcp_server: "tuetano-mcp"
+        templates: ["tuetano-cpp-application", "tuetano-hexagonal-module", "tuetano-use-case"]
+    
+  # Semantic code generation
+  code_generation:
+    enable_scg: true
+    auto_detect_framework: true
+    traceability_enabled: true
+    permagraph_integration: true
+    
+  # Development tools integration
+  dev_tools:
+    enable_graph_editor: true
+    enable_template_marketplace: true
+    enable_semantic_search: true
+    enable_architecture_validation: true
+    
+  # AI-powered assistance
+  ai_assistance:
+    code_completion: true
+    architecture_suggestions: true
+    best_practices_validation: true
+    performance_optimization: true
+
+ontology_config:
+  entities:
+    - "Project"
+    - "Framework"
+    - "Component"
+    - "Architecture"
+    - "Template"
+    - "Requirement"
+    - "CodeFile"
+    - "TestCase"
+    - "Documentation"
+    - "Dependency"
+  relationships:
+    - "uses_framework"
+    - "implements_architecture"
+    - "generated_from_template"
+    - "satisfies_requirement"
+    - "depends_on"
+    - "tests"
+    - "documents"
+    - "extends"
+  domain: "software_development"
+
+workflow_config:
+  workflows:
+    - name: "project_scaffolding"
+      pattern: "sequential"
+      steps:
+        - name: "detect_requirements"
+          agent_type: "requirements_agent"
+          timeout: 120
+        - name: "select_framework"
+          agent_type: "framework_agent"
+          timeout: 60
+        - name: "generate_architecture"
+          agent_type: "architecture_agent"
+          timeout: 180
+        - name: "scaffold_code"
+          agent_type: "generation_agent"
+          timeout: 300
+    
+    - name: "code_review"
+      pattern: "parallel"
+      steps:
+        - name: "architecture_validation"
+          agent_type: "architecture_validator"
+          timeout: 120
+        - name: "best_practices_check"
+          agent_type: "quality_agent"
+          timeout: 90
+        - name: "security_scan"
+          agent_type: "security_agent"
+          timeout: 150
+    
+    - name: "continuous_assistance"
+      pattern: "continuous"
+      steps:
+        - name: "monitor_changes"
+          agent_type: "file_watcher"
+          schedule: "continuous"
+        - name: "suggest_improvements"
+          agent_type: "improvement_agent"
+          schedule: "0 */2 * * *"  # Every 2 hours
+
+ui_adapters:
+  - "semantic_gui"
+  - "graph_editor"
+  - "template_marketplace"
+  - "permagraph_dashboard"
+  - "rest_api"
+  - "vscode_extension"
+
+# Development environment specific configuration
+development_config:
+  # Semantic GUI integration
+  semantic_gui:
+    enable_graph_visualization: true
+    enable_template_browser: true
+    enable_framework_switcher: true
+    enable_requirement_tracker: true
+    
+  # PermaGraph integration
+  permagraph:
+    enable_traceability: true
+    enable_semantic_search: true
+    enable_impact_analysis: true
+    auto_sync_changes: true
+    
+  # MCP servers configuration
+  mcp_servers:
+    auto_discover: true
+    load_balancing: true
+    failover_enabled: true
+    
+  # Code generation settings
+  generation:
+    preview_mode: true
+    incremental_updates: true
+    conflict_resolution: "interactive"
+    backup_enabled: true
+
+# Pre-configured project templates
+project_templates:
+  - name: "IoT Application"
+    framework: "ferrum"
+    description: "Complete IoT application with sensors, MQTT, and web dashboard"
+    components: ["sensor-drivers", "mqtt-client", "web-api", "dashboard"]
+    
+  - name: "Microservice"
+    framework: "kthulu"
+    description: "Hexagonal microservice with REST API and database"
+    components: ["domain-entities", "use-cases", "rest-api", "database-adapter"]
+    
+  - name: "High-Performance Service"
+    framework: "tuetano"
+    description: "Enterprise C++ service with async processing"
+    components: ["domain-layer", "async-handlers", "database-pool", "monitoring"]
+    
+  - name: "Multi-Framework System"
+    framework: "mixed"
+    description: "System using multiple frameworks for different components"
+    components: ["ferrum-sensors", "kthulu-backend", "tuetano-processing"]

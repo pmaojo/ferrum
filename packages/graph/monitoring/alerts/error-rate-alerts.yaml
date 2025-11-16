@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: graphrag-error-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: graphrag.errors.rules
+    rules:
+    - alert: HighErrorRate
+      expr: sum(rate(graphrag_errors_total[5m])) / sum(rate(graphrag_requests_total[5m])) > 0.05
+      for: 2m
+      labels:
+        severity: warning
+        team: graphrag
+      annotations:
+        summary: "High error rate detected"
+        description: "GraphRAG error rate is {{ $value | humanizePercentage }}, which exceeds the 5% threshold."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/high-error-rate"
+    
+    - alert: CriticalErrorRate
+      expr: sum(rate(graphrag_errors_total[5m])) / sum(rate(graphrag_requests_total[5m])) > 0.10
+      for: 1m
+      labels:
+        severity: critical
+        team: graphrag
+      annotations:
+        summary: "Critical error rate detected"
+        description: "GraphRAG error rate is {{ $value | humanizePercentage }}, which exceeds the 10% critical threshold."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/critical-error-rate"
+        
+    - alert: RepeatedValidationErrors
+      expr: increase(validation_failures_total{error_type="schema_violation"}[15m]) > 50
+      for: 5m
+      labels:
+        severity: warning
+        team: graphrag
+      annotations:
+        summary: "Repeated schema validation errors detected"
+        description: "More than 50 schema validation errors in the last 15 minutes."
+        runbook_url: "https://wiki.example.com/runbooks/graphrag/schema-validation-errors"

@@ -1,0 +1,6 @@
+[run]
+omit =
+    marketplace/auth_service.py
+    marketplace/create_saas_deployment.py
+    marketplace/dependencies.py
+    marketplace/marketplace_api.py

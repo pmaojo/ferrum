@@ -1,0 +1,48 @@
+[GENERAL]
+PORT = 3001
+SIMILARITY_MEASURE = "cosine"
+TINY_MODE = false
+
+[API_KEYS]
+OPENAI = ""
+GROQ = ""
+ANTHROPIC = ""
+GEMINI = ""
+
+[API_ENDPOINTS]
+SEARXNG = "http://searxng:8080"
+OLLAMA = ""
+
+[models.embedding]
+text_model = "text-embedding-3-small"
+image_model = "clip-vit-base-patch32"
+multimodal_model = "clip-vit-base-patch32"
+
+[models.ml_inference]
+# Hugging Face configuration
+huggingface_api_token = "${HUGGINGFACE_API_TOKEN}"
+huggingface_base_url = "https://api-inference.huggingface.co"
+enable_batch_processing = true
+
+# Domain-specific model defaults
+[models.ml_inference.medical]
+skin_disease_model = "google/vit-base-patch16-224"
+xray_analysis_model = "microsoft/swin-tiny-patch4-window7-224"
+
+[models.ml_inference.iot]
+anomaly_detection_model = "microsoft/DialoGPT-medium"
+time_series_model = "microsoft/table-transformer-structure-recognition"
+
+[models.ml_inference.creative]
+image_analysis_model = "Salesforce/blip-image-captioning-base"
+style_transfer_model = "runwayml/stable-diffusion-v1-5"
+[HYDRA]
+enabled = true
+persona_generation = true
+scope_generation = true
+cq_generation = true
+
+[HYDRA.llm]
+model = "${HYDRA_LLM_MODEL}"
+temperature = 0.7
+max_tokens = 4096

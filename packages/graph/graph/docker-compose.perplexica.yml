@@ -1,0 +1,66 @@
+
+version: '3.8'
+
+services:
+  searxng:
+    container_name: searxng
+    image: docker.io/searxng/searxng:latest
+    networks:
+      - perplexica-network
+    ports:
+      - "4000:8080"
+    volumes:
+      - ./searxng:/etc/searxng:rw
+    environment:
+      - BASE_URL=http://localhost:4000/
+      - INSTANCE_NAME=Perplexica
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+
+  perplexica-backend:
+    container_name: perplexica-backend
+    build:
+      context: .
+      dockerfile: backend.dockerfile
+    networks:
+      - perplexica-network
+    ports:
+      - "3001:3001"
+    depends_on:
+      - searxng
+    environment:
+      - SEARXNG_API_URL=http://searxng:8080
+    volumes:
+      - ./config.toml:/home/perplexica/config.toml
+      - ./app:/home/perplexica/data
+      - ./contracts:/home/perplexica/contracts
+      - ./cqs:/home/perplexica/cqs
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  perplexica-frontend:
+    container_name: perplexica-frontend
+    build:
+      context: .
+      dockerfile: app.dockerfile
+    networks:
+      - perplexica-network
+    ports:
+      - "3000:3000"
+    depends_on:
+      - perplexica-backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001/api
+      - NEXT_PUBLIC_WS_URL=ws://localhost:3001
+
+networks:
+  perplexica-network:

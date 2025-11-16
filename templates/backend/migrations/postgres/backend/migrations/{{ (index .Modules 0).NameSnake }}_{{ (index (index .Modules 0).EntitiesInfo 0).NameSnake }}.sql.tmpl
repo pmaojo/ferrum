@@ -1,0 +1,15 @@
+{{- $module := index .Modules 0 -}}
+{{- $entity := index $module.EntitiesInfo 0 -}}
+{{- define "pgColumnType" -}}
+{{- $type := lower .Type -}}
+{{- if eq $type "uuid" -}}UUID{{- else if eq $type "string" -}}VARCHAR(255){{- else if eq $type "text" -}}TEXT{{- else if eq $type "boolean" -}}BOOLEAN{{- else if eq $type "timestamp" -}}TIMESTAMP WITH TIME ZONE{{- else if eq $type "date" -}}DATE{{- else if eq $type "decimal" -}}DECIMAL(10,2){{- else if eq $type "integer" -}}INTEGER{{- else -}}TEXT{{- end -}}
+{{- end -}}
+-- @kthulu:module:{{ $module.Name }}
+-- Auto-generated migration for {{ $entity.Name }}
+CREATE TABLE IF NOT EXISTS {{ $entity.Table }} (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL{{- range $entity.Fields }}
+    , {{ .NameSnake }} {{ template "pgColumnType" . }}
+{{- end }}
+);

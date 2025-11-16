@@ -1,0 +1,68 @@
+project is not defined
+project is not defined
+project is not defined
+The above error occurred in the <GraphCanvasInner> component:
+
+    at GraphCanvasInner (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/components/graph/GraphCanvas.tsx?t=1748308264035:39:29)
+    at ReactFlowProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/reactflow.js?v=a62b25f3:7330:38)
+    at GraphCanvas
+    at div
+    at div
+    at div
+    at div
+    at GraphEditor (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/pages/graph-editor.tsx?t=1748308264035:33:30)
+    at Route (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:191:16)
+    at Switch (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:247:17)
+    at Router
+    at div
+    at Provider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-O46BVKQA.js?v=a62b25f3:48:15)
+    at TooltipProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a62b25f3:58:5)
+    at QueryClientProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a62b25f3:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+The above error occurred in the <GraphCanvasInner> component:
+
+    at GraphCanvasInner (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/components/graph/GraphCanvas.tsx?t=1748308264035:39:29)
+    at ReactFlowProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/reactflow.js?v=a62b25f3:7330:38)
+    at GraphCanvas
+    at div
+    at div
+    at div
+    at GraphEditor (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/pages/graph-editor.tsx?t=1748308264035:33:30)
+    at Route (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:191:16)
+    at Switch (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:247:17)
+    at Router
+    at div
+    at Provider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-O46BVKQA.js?v=a62b25f3:48:15)
+    at TooltipProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a62b25f3:58:5)
+    at QueryClientProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a62b25f3:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at GraphCanvasInner (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/components/graph/GraphCanvas.tsx?t=1748308264035:39:29)
+at ReactFlowProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/reactflow.js?v=a62b25f3:7330:38)
+at GraphCanvas
+at div
+at div
+at div
+at GraphEditor (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/src/pages/graph-editor.tsx?t=1748308264035:33:30)
+at Route (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:191:16)
+at Switch (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=a62b25f3:247:17)
+at Router
+at div
+at Provider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-O46BVKQA.js?v=a62b25f3:48:15)
+at TooltipProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=a62b25f3:58:5)
+at QueryClientProvider (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=a62b25f3:2805:3)
+at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://f69f06a2-0ceb-405a-a2a7-03eca8608415-00-1py8mly52s9lw.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+project is not defined

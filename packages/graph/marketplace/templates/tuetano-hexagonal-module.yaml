@@ -1,0 +1,102 @@
+id: tuetano-hexagonal-module
+name: Tuetano Hexagonal Module
+description: Complete hexagonal architecture module with domain entities, use cases, ports, and adapters following SOLID principles
+category: architecture
+tier_required: free
+price_usd: 0.0
+configuration:
+  framework: tuetano
+  template: tuetano-hexagonal-module
+  parameters:
+    moduleName: "{{MODULE_NAME}}"
+    namespace: "{{NAMESPACE}}"
+    domainEntities: "{{DOMAIN_ENTITIES|default:[]}}"
+    useCases: "{{USE_CASES|default:[]}}"
+    ports: "{{PORTS|default:[]}}"
+    adapters: "{{ADAPTERS|default:[]}}"
+    includeValidation: true
+    includeErrorHandling: true
+    includeTesting: true
+ontology_config:
+  domain_concepts:
+    - "HexagonalModule"
+    - "DomainEntity"
+    - "UseCase"
+    - "Port"
+    - "Adapter"
+    - "BusinessRule"
+    - "DomainService"
+  relationships:
+    - source: "UseCase"
+      target: "Port"
+      type: "depends_on"
+    - source: "Adapter"
+      target: "Port"
+      type: "implements"
+    - source: "UseCase"
+      target: "DomainEntity"
+      type: "operates_on"
+    - source: "DomainEntity"
+      target: "BusinessRule"
+      type: "enforces"
+workflow_config:
+  steps:
+    - name: "validate_module_design"
+      description: "Validate hexagonal architecture compliance"
+    - name: "generate_domain_entities"
+      description: "Create domain entities with business logic"
+    - name: "generate_domain_ports"
+      description: "Create port interfaces following ISP"
+    - name: "generate_use_cases"
+      description: "Create use cases with dependency injection"
+    - name: "generate_adapters"
+      description: "Create adapter implementations"
+    - name: "generate_di_configuration"
+      description: "Create dependency injection setup"
+    - name: "generate_module_tests"
+      description: "Generate comprehensive test suite"
+    - name: "validate_dependencies"
+      description: "Ensure no circular dependencies"
+ui_adapters:
+  - "module_visualizer"
+  - "dependency_graph"
+  - "test_runner"
+tags:
+  - "hexagonal"
+  - "module"
+  - "domain"
+  - "ports"
+  - "adapters"
+  - "solid"
+  - "clean-architecture"
+  - "cpp20"
+author: "Kronal Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+default_tenant: "default"
+requirements:
+  dependencies:
+    - "Modern C++ compiler with concepts support"
+    - "Dependency injection framework (optional)"
+    - "Testing framework (Catch2, GTest)"
+  architecture:
+    - "No dependencies from domain to infrastructure"
+    - "Ports define contracts, adapters implement them"
+    - "Use cases orchestrate business logic"
+examples:
+  user_management:
+    moduleName: "UserManagement"
+    namespace: "myapp::users"
+    domainEntities: ["User", "Profile", "Preferences"]
+    useCases: ["CreateUser", "UpdateProfile", "DeleteUser"]
+    ports: ["UserRepository", "EmailService", "ValidationService"]
+    adapters: ["PostgresUserRepository", "SMTPEmailService"]
+    description: "Complete user management module with authentication and profiles"
+  order_processing:
+    moduleName: "OrderProcessing"
+    namespace: "ecommerce::orders"
+    domainEntities: ["Order", "OrderItem", "Payment"]
+    useCases: ["PlaceOrder", "ProcessPayment", "FulfillOrder"]
+    ports: ["OrderRepository", "PaymentGateway", "InventoryService"]
+    adapters: ["SQLOrderRepository", "StripePaymentGateway"]
+    description: "E-commerce order processing with payment integration"

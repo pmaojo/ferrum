@@ -1,0 +1,1 @@
+"""AutoGen Studio adapter for GraphRAG integration."""

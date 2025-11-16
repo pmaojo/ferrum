@@ -1,0 +1,72 @@
+# SCG Configuration for Integrated Deployment
+
+# Database Configuration
+database:
+  host: postgres
+  port: 5432
+  name: scg
+  user: postgres
+  max_connections: 20
+  idle_timeout: 30000
+  connection_timeout: 5000
+
+# Integration Configuration
+integrations:
+  permagraph:
+    api_url: "http://permagraph:8000"
+    websocket_url: "ws://permagraph:8000/ws"
+    timeout: 30000
+    retry_attempts: 3
+    
+  kthulu:
+    api_url: "http://kthulu-backend:8080"
+    timeout: 30000
+    retry_attempts: 3
+    project_path: "/projects/kthulu"
+    cli_enabled: true
+
+# WebSocket Configuration
+websocket:
+  enabled: true
+  port: 5000
+  heartbeat_interval: 30000
+  max_connections: 1000
+  compression: true
+
+# File System Configuration
+filesystem:
+  watcher_enabled: true
+  watch_patterns: ["*.go", "*.mod", "*.sum"]
+  ignore_patterns: ["node_modules", ".git", "dist", "build"]
+  debounce_delay: 500
+
+# Performance Configuration
+performance:
+  enable_caching: true
+  cache_ttl: 3600
+  max_graph_nodes: 5000
+  max_graph_edges: 10000
+  background_processing: true
+  
+# UI Configuration
+ui:
+  theme: "dark"
+  auto_layout: true
+  animation_enabled: true
+  minimap_enabled: true
+  controls_enabled: true
+
+# Security Configuration
+security:
+  cors_enabled: true
+  cors_origins: ["http://localhost:3000", "http://localhost:80"]
+  rate_limiting: true
+  max_requests_per_minute: 100
+
+# Logging Configuration
+logging:
+  level: "info"
+  format: "json"
+  file: "/var/log/scg/app.log"
+  max_size: "100MB"
+  backup_count: 5

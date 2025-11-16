@@ -1,0 +1,135 @@
+id: tuetano-domain-entity
+name: Tuetano Domain Entity
+description: C++20 domain entity with business rules, validation, value objects, and comprehensive testing
+category: domain
+tier_required: free
+price_usd: 0.0
+configuration:
+  framework: tuetano
+  template: tuetano-domain-entity
+  parameters:
+    entityName: "{{ENTITY_NAME}}"
+    namespace: "{{NAMESPACE}}"
+    fields: "{{FIELDS|default:[]}}"
+    businessRules: "{{BUSINESS_RULES|default:[]}}"
+    valueObjects: "{{VALUE_OBJECTS|default:[]}}"
+    aggregateRoot: "{{AGGREGATE_ROOT|default:false}}"
+    includeBuilder: true
+    includeValidation: true
+    includeEquality: true
+    includeSerialization: false
+ontology_config:
+  domain_concepts:
+    - "DomainEntity"
+    - "ValueObject"
+    - "BusinessRule"
+    - "AggregateRoot"
+    - "DomainEvent"
+    - "EntityId"
+    - "Invariant"
+  relationships:
+    - source: "DomainEntity"
+      target: "ValueObject"
+      type: "contains"
+    - source: "DomainEntity"
+      target: "BusinessRule"
+      type: "enforces"
+    - source: "AggregateRoot"
+      target: "DomainEntity"
+      type: "is_a"
+    - source: "DomainEntity"
+      target: "Invariant"
+      type: "maintains"
+workflow_config:
+  steps:
+    - name: "validate_entity_design"
+      description: "Validate entity structure and business rules"
+    - name: "generate_value_objects"
+      description: "Create immutable value objects"
+    - name: "generate_entity_class"
+      description: "Create entity with private state and public behavior"
+    - name: "generate_business_rules"
+      description: "Implement business rule validation"
+    - name: "generate_builder_pattern"
+      description: "Create builder for complex entity construction"
+    - name: "generate_equality_operators"
+      description: "Implement equality based on identity"
+    - name: "generate_entity_tests"
+      description: "Generate comprehensive unit tests"
+    - name: "validate_invariants"
+      description: "Ensure entity invariants are maintained"
+ui_adapters:
+  - "entity_designer"
+  - "rule_validator"
+  - "test_generator"
+tags:
+  - "domain"
+  - "entity"
+  - "business-rules"
+  - "value-objects"
+  - "ddd"
+  - "cpp20"
+  - "validation"
+  - "immutable"
+author: "Kronal Team"
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+default_tenant: "default"
+requirements:
+  language_features:
+    - "C++20 concepts"
+    - "std::optional for nullable fields"
+    - "Strong typing for value objects"
+  design_principles:
+    - "Encapsulation of business logic"
+    - "Immutable value objects"
+    - "Clear separation of data and behavior"
+examples:
+  user_entity:
+    entityName: "User"
+    namespace: "myapp::domain"
+    fields:
+      - name: "id"
+        type: "UserId"
+        description: "Unique user identifier"
+      - name: "email"
+        type: "EmailAddress"
+        description: "User email (value object)"
+      - name: "profile"
+        type: "UserProfile"
+        description: "User profile information"
+    businessRules:
+      - "Email must be unique across system"
+      - "User must have valid email format"
+      - "Profile cannot be empty for active users"
+    valueObjects: ["UserId", "EmailAddress", "UserProfile"]
+    aggregateRoot: true
+    description: "User entity with email validation and profile management"
+  
+  order_entity:
+    entityName: "Order"
+    namespace: "ecommerce::domain"
+    fields:
+      - name: "id"
+        type: "OrderId"
+        description: "Unique order identifier"
+      - name: "customerId"
+        type: "CustomerId"
+        description: "Customer who placed the order"
+      - name: "items"
+        type: "std::vector<OrderItem>"
+        description: "Items in the order"
+      - name: "total"
+        type: "Money"
+        description: "Total order amount"
+      - name: "status"
+        type: "OrderStatus"
+        description: "Current order status"
+    businessRules:
+      - "Order must have at least one item"
+      - "Total must equal sum of item prices"
+      - "Cannot modify confirmed orders"
+      - "Customer must exist in system"
+    valueObjects: ["OrderId", "CustomerId", "Money", "OrderStatus"]
+    aggregateRoot: true
+    description: "Order aggregate with business rule enforcement"

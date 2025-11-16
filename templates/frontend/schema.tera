@@ -1,0 +1,9 @@
+import { z } from 'zod';
+
+export const {{ node.id | lower }}Schema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  createdAt: z.string().datetime(),
+});
+
+export type {{ node.id | capitalize }} = z.infer<typeof {{ node.id | lower }}Schema>;

@@ -1,0 +1,55 @@
+fastapi>=0.110.0
+uvicorn>=0.22.0
+pydantic>=2.0.0
+pydantic-core>=2.16.3
+pydantic-settings>=2.0.0
+slowapi>=0.1.7
+prometheus-client>=0.16.0
+cachetools>=5.3.0
+redis[hiredis]>=4.5.0
+httpx>=0.24.0
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+numpy>=1.26.0
+
+# LLM dependencies
+openai>=1.63.0
+google-generativeai>=0.8.0
+
+# GraphRAG integration
+graphrag_sdk>=0.3.0
+
+# Transformers for local LLM support
+transformers[serve]>=4.36.0
+torch>=2.1.0
+accelerate>=0.25.0
+
+# Graph database and traversal
+gremlinpython>=3.7.0
+
+# Observability and tracing
+structlog>=23.1.0
+opentelemetry-api>=1.20.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-exporter-otlp>=1.20.0
+
+# Database dependencies
+sqlalchemy>=2.0.23
+psycopg2-binary>=2.9.9
+alembic>=1.13.0
+
+# Graph database
+neo4j>=5.28.1
+
+# Date/time utilities
+python-dateutil>=2.8.2
+
+# Type hints
+typing-extensions>=4.12.2
+
+# Async support
+asyncio-redis>=0.16.0
+
+# Streamlit interface
+streamlit>=1.28.0
+redis>=4.5.0

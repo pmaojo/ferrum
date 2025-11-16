@@ -1,0 +1,236 @@
+# PermaGraph Monitoring Configuration
+
+monitoring:
+  enabled: true
+  
+  # Metrics collection settings
+  metrics:
+    collection_interval: 30  # seconds
+    retention_period: 7      # days
+    
+    # Prometheus configuration
+    prometheus:
+      enabled: true
+      pushgateway_url: "http://prometheus-pushgateway:9091"
+      prometheus_url: "http://prometheus:9090"
+      job_name: "permagraph"
+    
+    # Custom metrics
+    custom_metrics:
+      - name: "reasoning_operations_total"
+        type: "counter"
+        description: "Total number of reasoning operations"
+        labels: ["operation_type", "success"]
+      
+      - name: "reasoning_duration_seconds"
+        type: "histogram"
+        description: "Duration of reasoning operations in seconds"
+        labels: ["operation_type"]
+        buckets: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
+      
+      - name: "sparql_queries_total"
+        type: "counter"
+        description: "Total number of SPARQL queries"
+        labels: ["query_type", "success"]
+      
+      - name: "sparql_query_duration_seconds"
+        type: "histogram"
+        description: "Duration of SPARQL queries in seconds"
+        labels: ["query_type"]
+      
+      - name: "sync_operations_total"
+        type: "counter"
+        description: "Total number of synchronization operations"
+        labels: ["sync_type", "success"]
+      
+      - name: "active_agents"
+        type: "gauge"
+        description: "Number of active agents"
+        labels: ["agent_type"]
+
+  # Health check settings
+  health_checks:
+    enabled: true
+    check_interval: 60  # seconds
+    timeout: 30         # seconds
+    
+    components:
+      database:
+        enabled: true
+        interval: 30
+        timeout: 10
+        connection_string: "${DATABASE_URL}"
+      
+      knowledge_graph:
+        enabled: true
+        interval: 60
+        timeout: 15
+        endpoint: "${FALKORDB_URL}"
+      
+      llm_service:
+        enabled: true
+        interval: 120
+        timeout: 30
+        api_key: "${OPENAI_API_KEY}"
+      
+      reasoner:
+        enabled: true
+        interval: 60
+        timeout: 45
+      
+      web_service:
+        enabled: true
+        interval: 30
+        timeout: 5
+        endpoint: "${WEB_SERVICE_URL}"
+
+  # Alerting configuration
+  alerting:
+    enabled: true
+    
+    # PagerDuty integration
+    pagerduty:
+      enabled: false
+      integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+      api_token: "${PAGERDUTY_API_TOKEN}"
+    
+    # Slack integration
+    slack:
+      enabled: true
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+    
+    # Alert rules
+    rules:
+      - name: "high_cpu_usage"
+        condition: "cpu_percent > 90"
+        severity: "warning"
+        duration: "5m"
+        message: "High CPU usage detected: {{ $value }}%"
+      
+      - name: "high_memory_usage"
+        condition: "memory_percent > 90"
+        severity: "warning"
+        duration: "5m"
+        message: "High memory usage detected: {{ $value }}%"
+      
+      - name: "high_disk_usage"
+        condition: "disk_percent > 90"
+        severity: "critical"
+        duration: "1m"
+        message: "High disk usage detected: {{ $value }}%"
+      
+      - name: "reasoning_performance_degradation"
+        condition: "reasoning_duration_seconds > 10"
+        severity: "warning"
+        duration: "2m"
+        message: "Reasoning operations taking too long: {{ $value }}s"
+      
+      - name: "component_unhealthy"
+        condition: "component_status != 'healthy'"
+        severity: "critical"
+        duration: "1m"
+        message: "Component {{ $labels.component }} is unhealthy"
+      
+      - name: "agent_failure"
+        condition: "agent_circuit_breaker_state == 'OPEN'"
+        severity: "critical"
+        duration: "1m"
+        message: "Agent {{ $labels.agent_type }} circuit breaker is open"
+
+  # Dashboard configuration
+  dashboards:
+    grafana:
+      enabled: true
+      url: "http://grafana:3000"
+      admin_user: "admin"
+      admin_password: "${GRAFANA_ADMIN_PASSWORD}"
+      
+      # Pre-configured dashboards
+      default_dashboards:
+        - name: "System Overview"
+          file: "dashboards/system-overview.json"
+        
+        - name: "Performance Metrics"
+          file: "dashboards/performance-metrics.json"
+        
+        - name: "Reasoning Analytics"
+          file: "dashboards/reasoning-analytics.json"
+        
+        - name: "Agent Monitoring"
+          file: "dashboards/agent-monitoring.json"
+
+  # Logging configuration
+  logging:
+    level: "INFO"
+    format: "json"
+    
+    # Log aggregation
+    aggregation:
+      enabled: true
+      endpoint: "${LOG_AGGREGATION_ENDPOINT}"
+      api_key: "${LOG_AGGREGATION_API_KEY}"
+    
+    # Structured logging fields
+    fields:
+      service: "permagraph"
+      version: "${APP_VERSION}"
+      environment: "${ENVIRONMENT}"
+      tenant_id: true
+      request_id: true
+      user_id: true
+
+  # Performance monitoring
+  performance:
+    enabled: true
+    
+    # APM integration
+    apm:
+      enabled: false
+      service_name: "permagraph"
+      environment: "${ENVIRONMENT}"
+      
+    # Tracing
+    tracing:
+      enabled: true
+      sample_rate: 0.1  # 10% sampling
+      
+    # Profiling
+    profiling:
+      enabled: false
+      cpu_profile_rate: 100  # Hz
+      memory_profile_rate: 512  # KB
+
+# Environment-specific overrides
+environments:
+  development:
+    monitoring:
+      metrics:
+        collection_interval: 10
+      health_checks:
+        check_interval: 30
+      alerting:
+        enabled: false
+      logging:
+        level: "DEBUG"
+  
+  staging:
+    monitoring:
+      metrics:
+        retention_period: 3
+      alerting:
+        rules:
+          - name: "high_cpu_usage"
+            condition: "cpu_percent > 80"
+  
+  production:
+    monitoring:
+      metrics:
+        retention_period: 30
+      alerting:
+        pagerduty:
+          enabled: true
+      performance:
+        apm:
+          enabled: true
+        profiling:
+          enabled: true

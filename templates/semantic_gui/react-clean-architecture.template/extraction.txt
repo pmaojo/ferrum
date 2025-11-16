@@ -1,0 +1,1 @@
+// Extraction snippet for react-clean-architecture

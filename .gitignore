@@ -1,0 +1,27 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock
+
+# Generated code
+/projects
+
+# Docker data
+/data
+
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+.env
+.env.local
+
+# Editor directories and files
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store

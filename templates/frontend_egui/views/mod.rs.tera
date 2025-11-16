@@ -1,0 +1,8 @@
+// Auto-generated view modules
+{% for view in views -%}
+pub mod {{ view.module_name }};
+{% endfor -%}
+
+{% for view in views -%}
+pub use {{ view.module_name }}::{{ view.struct_name }};
+{% endfor -%}

@@ -1,0 +1,75 @@
+use serde::{Deserialize, Serialize};
+use shared_models::User;
+
+/// Application state that persists across view transitions
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppState {
+    /// Currently authenticated user, if any
+    pub user: Option<User>,
+    
+    /// JWT authentication token, if any
+    pub token: Option<String>,
+    
+    /// Application theme preference
+    pub theme: Theme,
+}
+
+/// Theme options for the application
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum Theme {
+    Light,
+    Dark,
+}
+
+impl Default for Theme {
+    fn default() -> Self {
+        Theme::Light
+    }
+}
+
+impl AppState {
+    /// Create a new application state with default values
+    pub fn new() -> Self {
+        Self {
+            user: None,
+            token: None,
+            theme: Theme::default(),
+        }
+    }
+
+    /// Check if a user is currently authenticated
+    pub fn is_authenticated(&self) -> bool {
+        self.token.is_some() && self.user.is_some()
+    }
+
+    /// Set the authenticated user and token
+    pub fn login(&mut self, user: User, token: String) {
+        self.user = Some(user);
+        self.token = Some(token);
+    }
+
+    /// Clear authentication state
+    pub fn logout(&mut self) {
+        self.user = None;
+        self.token = None;
+    }
+
+    /// Get the current authentication token, if any
+    pub fn get_token(&self) -> Option<&str> {
+        self.token.as_deref()
+    }
+
+    /// Toggle between light and dark themes
+    pub fn toggle_theme(&mut self) {
+        self.theme = match self.theme {
+            Theme::Light => Theme::Dark,
+            Theme::Dark => Theme::Light,
+        };
+    }
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self::new()
+    }
+}

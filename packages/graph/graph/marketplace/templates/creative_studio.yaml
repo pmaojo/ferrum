@@ -1,0 +1,91 @@
+
+id: "creative_studio"
+name: "Creative Content Studio"
+description: "Multimodal creative assistant for content creators with image, audio, and text analysis"
+category: "creative"
+default_tenant: "creative_studio-tenant"
+tier_required: "basic"
+price_usd: 9.99
+tags: ["creative", "multimodal", "content", "media"]
+author: "GraphRAG Team" 
+version: "1.0.0"
+created_at: "2024-01-15T10:00:00Z"
+
+configuration:
+  # GraphRAG SDK Configuration
+  graphrag_sdk:
+    host: "0.0.0.0"
+    port: 6379
+    llm_model: "gemini-2.0-flash"
+    embedding_model: "text-embedding-3-small"
+    max_tokens: 4096
+    temperature: 0.7
+    
+  # Multimodal processing
+  multimodal:
+    enable_image_processing: true
+    enable_audio_processing: true
+    enable_video_processing: false
+    image_embedding_model: "clip"
+    audio_embedding_model: "whisper"
+    
+  # Flexible ML Models Configuration
+  ml_inference:
+    enable_huggingface_api: true
+    enable_custom_models: true
+    models:
+      - model_id: "google/vit-base-patch16-224"
+        task_type: "image-classification"
+        domain: "creative"
+        description: "Style and content analysis"
+      - model_id: "Salesforce/blip-image-captioning-base"
+        task_type: "image-to-text"
+        domain: "creative"
+        description: "Image captioning for assets"
+      - model_id: "runwayml/stable-diffusion-v1-5"
+        task_type: "text-to-image"
+        domain: "creative"
+        description: "Generate creative assets"
+        
+  # Sensor integration for creative studios
+  sensors:
+    enable_camera_sensors: true
+    enable_audio_sensors: true
+    enable_environmental_sensors: false
+
+ontology_config:
+  entities:
+    - "Asset"
+    - "Theme"
+    - "Style"
+    - "Character"
+    - "Location"
+    - "Mood"
+    - "Color_Palette"
+    - "Genre"
+  relationships:
+    - "has_theme"
+    - "exhibits_style"
+    - "features"
+    - "set_in"
+    - "evokes_mood"
+    - "uses_colors"
+    - "belongs_to_genre"
+  domain: "creative"
+
+workflow_config:
+  workflows:
+    - name: "content_analysis"
+      pattern: "pipeline"
+      steps:
+        - name: "extract_visual_features"
+          agent_type: "vision_agent"
+        - name: "analyze_audio_sentiment"
+          agent_type: "audio_agent"
+        - name: "generate_suggestions"
+          agent_type: "creative_agent"
+
+ui_adapters:
+  - "streamlit"
+  - "rest_api"
+  - "chainlit"
