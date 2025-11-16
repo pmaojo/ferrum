@@ -1,6 +1,8 @@
 use anyhow::Result;
 use std::path::PathBuf;
 
+use ferrum_shared_models::{DslApp, FerrumDsl};
+
 pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Result<()> {
     use neo4rs::Graph;
 
@@ -8,8 +10,33 @@ pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Resul
     ferrum_compiler::validate_module(&module)?;
     let rt = tokio::runtime::Runtime::new()?;
     rt.block_on(async {
-        let graph = Graph::new(uri.clone(), user.clone(), password.clone())?;
-        ferrum_engine::sync_ast_to_graph(&module, &graph).await?;
+        let _graph = Graph::new(uri.clone(), user.clone(), password.clone()).await?;
+        let mut dsl = FerrumDsl {
+            app: DslApp {
+                name: "default".to_string(),
+                title: None,
+                version: None,
+                database: None,
+                features: vec![],
+                auth: None,
+            },
+            modules: std::collections::BTreeMap::new(),
+            routes: vec![],
+            pages: vec![],
+            components: vec![],
+            queries: vec![],
+            mutations: vec![],
+            jobs: vec![],
+            entities: vec![],
+            forms: vec![],
+            validations: vec![],
+            uploads: vec![],
+            policies: vec![],
+            resources: vec![],
+            iot: vec![],
+        };
+        dsl.modules.insert(module.name.clone(), module.into());
+        ferrum_engine::sync_ast_to_graph(&dsl, &()).await?;
         Ok::<_, anyhow::Error>(())
     })?;
 

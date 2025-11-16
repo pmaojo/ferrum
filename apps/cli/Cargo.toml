@@ -21,7 +21,27 @@ ferrum-service = { path = "../ferrum-service" }
 clap = { version = "4.4", features = ["derive"] }
 Inflector = "0.11"
 petgraph = "0.6"
+ctrlc = "3.4.4"
+toml = "0.8.12"
+ferrum-compiler = { path = "../compiler" }
+dotenvy = "0.15.7"
+serde_json = "1.0.117"
+regex = "1.10.4"
+atty = "0.2.14"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+tokio = { version = "1", features = ["full"] }
+walkdir = "2"
+diesel_migrations = "2.1.0"
+sha2 = "0.10.8"
+webbrowser = "0.8"
+glob = "0.3.1"
+dialoguer = "0.11.0"
+diesel = { version = "2.1.0", features = ["postgres", "r2d2", "sqlite"] }
+neo4rs = "0.6.1"
+
 
 [dev-dependencies]
 tempfile = "3"
 base64 = "0.21"
+serial_test = "3.0.0"
+mockito = "1.4.0"

@@ -5,6 +5,10 @@ edition = "2021"
 description = "AI-first scaffolding system for full-stack Rust + React + TypeScript applications"
 authors = ["Ferrum Team"]
 
+[lib]
+name = "ferrum"
+path = "apps/cli/src/lib.rs"
+
 [workspace]
 members = [
     "apps/cli",

@@ -1,0 +1,11 @@
+{% set module = modules[0] %}
+{% set entity = module.entities_info[0] %}
+-- Auto-generated migration for {{ entity.name }}
+CREATE TABLE IF NOT EXISTS {{ entity.table }} (
+    id CHAR(36) PRIMARY KEY,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+    {% for field in entity.fields %}
+    , {{ field.name_snake }} {% if field.type == "uuid" %}CHAR(36){% elif field.type == "string" %}VARCHAR(255){% elif field.type == "text" %}TEXT{% elif field.type == "boolean" %}TINYINT(1){% elif field.type == "timestamp" %}DATETIME{% elif field.type == "date" %}DATE{% elif field.type == "decimal" %}DECIMAL(10,2){% elif field.type == "integer" %}INT{% else %}TEXT{% endif %}
+    {% endfor %}
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

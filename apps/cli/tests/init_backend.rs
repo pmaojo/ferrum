@@ -18,6 +18,7 @@ fn init_backend_builds_with_features() {
         false,
         false,
         false,
+        ferrum_cli::commands::DbType::Postgres,
         false,
         false,
         false,
@@ -42,7 +43,7 @@ fn init_backend_builds_with_features() {
         "pub struct Master; impl Default for Master { fn default() -> Self { Self } }",
     )
     .unwrap();
-    let mut backend_toml = dir.path().join("demo/backend/Cargo.toml");
+    let backend_toml = dir.path().join("demo/backend/Cargo.toml");
     let mut append = std::fs::OpenOptions::new()
         .append(true)
         .open(&backend_toml)

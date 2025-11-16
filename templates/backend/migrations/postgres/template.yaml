@@ -9,8 +9,8 @@ metadata:
   custom:
     database: postgres
 files:
-  - source: backend/migrations/{{ (index .Modules 0).NameSnake }}_{{ (index (index .Modules 0).EntitiesInfo 0).NameSnake }}.sql.tmpl
-    destination: backend/migrations/{{ (index .Modules 0).NameSnake }}_{{ (index (index .Modules 0).EntitiesInfo 0).NameSnake }}.sql
+  - source: backend/migrations/migration.sql.tmpl
+    destination: backend/migrations/{{ modules[0].name_snake }}_{{ modules[0].entities_info[0].name_snake }}.sql
     template: true
-    condition: gt (len (index (index .Modules 0).EntitiesInfo)) 0
+    condition: modules[0].entities_info | length > 0
 variables: []

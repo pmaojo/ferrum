@@ -6,6 +6,7 @@ pub fn init(
     mut with_graph: bool,
     mut with_ai: bool,
     mut with_db: bool,
+    mut db_type: super::DbType,
     mut with_auth: bool,
     mut with_jobs: bool,
     mut with_uploads: bool,
@@ -14,14 +15,14 @@ pub fn init(
     mut api_only: bool,
     interactive: bool,
 ) -> Result<()> {
-    use std::fs::{self, OpenOptions};
+    use std::fs::{self};
     use std::io::Write;
 
     println!("🏗️  Initializing new Ferrum project: {}", name);
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     if interactive {
-        use dialoguer::Confirm;
+        use dialoguer::{Confirm, Select};
         with_graph = Confirm::new()
             .with_prompt("Include graph database support?")
             .default(with_graph)
@@ -34,6 +35,17 @@ pub fn init(
             .with_prompt("Include Diesel ORM setup?")
             .default(with_db)
             .interact()?;
+        if with_db {
+            db_type = match Select::new()
+                .with_prompt("Database type")
+                .default(0)
+                .items(&["PostgreSQL", "SQLite"])
+                .interact()?
+            {
+                1 => super::DbType::Sqlite,
+                _ => super::DbType::Postgres,
+            };
+        }
         with_auth = Confirm::new()
             .with_prompt("Include authentication templates?")
             .default(with_auth)
@@ -46,7 +58,6 @@ pub fn init(
             .with_prompt("Include file upload templates?")
             .default(with_uploads)
             .interact()?;
-        use dialoguer::{Select};
         frontend = match Select::new()
             .with_prompt("Frontend framework")
             .default(match frontend {
@@ -100,6 +111,7 @@ edition = "2021"
     // Create directory structure
     let mut dirs = vec![
         "backend/src",
+        "backend/tests",
         "shared-models/src",
         "templates/backend",
         "templates/shared-models",
@@ -149,11 +161,20 @@ async fn main() {
 "#,
     )?;
     fs::write(
+        project_dir.join("backend/tests/integration_test.rs"),
+        r#"#[test]
+fn test_hello_world() {
+    assert_eq!(2 + 2, 4);
+}
+"#,
+    )?;
+    fs::write(
         project_dir.join("backend/Cargo.toml"),
         r#"[package]
 name = "backend"
 version = "0.1.0"
 edition = "2021"
+keywords = ["ferrum", "axum", "rust"]
 
 [dependencies]
 axum = "0.6"
@@ -199,6 +220,7 @@ chrono = { version = "0.4", features = ["serde"] }
     if matches!(frontend, super::Frontend::LeptosCsr | super::Frontend::LeptosSsr) {
         fs::write(
             project_dir.join("Cargo.toml"),
+            ""
         )?;
     }
 
@@ -230,28 +252,28 @@ chrono = { version = "0.4", features = ["serde"] }
         // Copy Diesel templates into project templates directory
         fs::write(
             project_dir.join("templates/backend/db/schema.rs.tera"),
-            include_str!("../../../templates/backend/db/schema.rs.tera"),
+            include_str!("../../../../templates/backend/db/schema.rs.tera"),
         )?;
         fs::write(
             project_dir.join("templates/backend/db/models.rs.tera"),
-            include_str!("../../../templates/backend/db/models.rs.tera"),
+            include_str!("../../../../templates/backend/db/models.rs.tera"),
         )?;
         fs::write(
             project_dir.join("templates/backend/db/mod.rs.tera"),
-            include_str!("../../../templates/backend/db/mod.rs.tera"),
+            include_str!("../../../../templates/backend/db/mod.rs.tera"),
         )?;
 
         // Copy optional seed data
         fs::create_dir_all(project_dir.join("templates/backend/db/seeds"))?;
         fs::write(
             project_dir.join("templates/backend/db/seeds/usuarios.sql"),
-            include_str!("../../../templates/backend/db/seeds/usuarios.sql"),
+            include_str!("../../../../templates/backend/db/seeds/usuarios.sql"),
         )?;
 
         fs::create_dir_all(project_dir.join("backend/seeds"))?;
         fs::write(
             project_dir.join("backend/seeds/usuarios.sql"),
-            include_str!("../../../templates/backend/db/seeds/usuarios.sql"),
+            include_str!("../../../../templates/backend/db/seeds/usuarios.sql"),
         )?;
 
         let mig_template_dir =
@@ -259,28 +281,32 @@ chrono = { version = "0.4", features = ["serde"] }
         fs::create_dir_all(&mig_template_dir)?;
         fs::write(
             mig_template_dir.join("up.sql"),
-            include_str!("../../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
+            include_str!("../../../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
         )?;
         fs::write(
             mig_template_dir.join("down.sql"),
-            include_str!("../../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
+            include_str!("../../../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
         )?;
 
         let mig_dir = project_dir.join("backend/migrations/0001_create_usuarios");
         fs::create_dir_all(&mig_dir)?;
         fs::write(
             mig_dir.join("up.sql"),
-            include_str!("../../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
+            include_str!("../../../../templates/backend/db/migrations/0001_create_usuarios/up.sql"),
         )?;
         fs::write(
             mig_dir.join("down.sql"),
-            include_str!("../../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
+            include_str!("../../../../templates/backend/db/migrations/0001_create_usuarios/down.sql"),
         )?;
 
         // Create .env with database URL
+        let db_url = match db_type {
+            super::DbType::Postgres => "postgres://usuario:clave@localhost/ferrum_dev",
+            super::DbType::Sqlite => "sqlite:data/ferrum_dev.db",
+        };
         fs::write(
             project_dir.join(".env"),
-            "DATABASE_URL=postgres://usuario:clave@localhost/ferrum_dev\n",
+            format!("DATABASE_URL={}\n", db_url),
         )?;
 
         // Create diesel.toml for CLI configuration
@@ -290,9 +316,13 @@ chrono = { version = "0.4", features = ["serde"] }
         )?;
 
         // Create basic Makefile with DB init commands
+        let makefile_content = match db_type {
+            super::DbType::Postgres => "db-init:\n\tdiesel setup\n\tdiesel migration generate create_usuarios\n\ntest:\n\tcd backend && cargo test\n",
+            super::DbType::Sqlite => "db-init:\n\tdiesel setup\n\tdiesel migration generate create_usuarios\n\ntest:\n\tcd backend && cargo test\n",
+        };
         fs::write(
             project_dir.join("Makefile"),
-            "db-init:\n\tdiesel setup\n\tdiesel migration generate create_usuarios\n",
+            makefile_content,
         )?;
 
         println!("📄 Added Diesel templates and .env file");
@@ -302,7 +332,7 @@ chrono = { version = "0.4", features = ["serde"] }
         fs::create_dir_all(project_dir.join("templates/batteries/auth"))?;
         fs::write(
             project_dir.join("templates/batteries/auth/login_handler.rs.tera"),
-            include_str!("../../../templates/batteries/auth/login_handler.rs.tera"),
+            include_str!("../../../../templates/batteries/auth/login_handler.rs.tera"),
         )?;
         println!("📄 Added authentication templates");
     }
@@ -311,7 +341,7 @@ chrono = { version = "0.4", features = ["serde"] }
         fs::create_dir_all(project_dir.join("templates/batteries/jobs"))?;
         fs::write(
             project_dir.join("templates/batteries/jobs/example_job.rs.tera"),
-            include_str!("../../../templates/batteries/jobs/example_job.rs.tera"),
+            include_str!("../../../../templates/batteries/jobs/example_job.rs.tera"),
         )?;
         println!("📄 Added job templates");
     }
@@ -320,29 +350,29 @@ chrono = { version = "0.4", features = ["serde"] }
         fs::create_dir_all(project_dir.join("templates/batteries/uploads"))?;
         fs::write(
             project_dir.join("templates/batteries/uploads/backend/handlers/upload.rs.tera"),
-            include_str!("../../../templates/batteries/uploads/backend/handlers/upload.rs.tera"),
+            include_str!("../../../../templates/batteries/uploads/backend/handlers/upload.rs.tera"),
         )?;
         fs::write(
             project_dir.join("templates/batteries/uploads/backend/routes/uploads.rs.tera"),
-            include_str!("../../../templates/batteries/uploads/backend/routes/uploads.rs.tera"),
+            include_str!("../../../../templates/batteries/uploads/backend/routes/uploads.rs.tera"),
         )?;
         fs::write(
             project_dir
                 .join("templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"),
             include_str!(
-                "../../../templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"
+                "../../../../templates/batteries/uploads/frontend/components/FileDropzone.tsx.tera"
             ),
         )?;
         fs::write(
             project_dir.join("templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
-            include_str!("../../../templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
+            include_str!("../../../../templates/batteries/uploads/frontend/hooks/useUploadFile.ts.tera"),
         )?;
         println!("📄 Added upload templates");
     }
 
     // Create docker-compose.yml
     let mut docker_compose = fs::File::create(project_dir.join("docker-compose.yml"))?;
-    let mut docker_compose_content = include_str!("../../../templates/docker-compose.yml").to_string();
+    let mut docker_compose_content = include_str!("../../../../templates/docker-compose.yml").to_string();
     if api_only {
         let mut filtered = String::new();
         let mut skip = false;
@@ -373,29 +403,33 @@ chrono = { version = "0.4", features = ["serde"] }
 
     fs::write(
         project_dir.join("Dockerfile"),
-        include_str!("../../../templates/Dockerfile"),
+        include_str!("../../../../templates/Dockerfile"),
     )?;
     println!("📄 Created Dockerfile");
 
     fs::write(
         project_dir.join("compose.prod.yaml"),
-        include_str!("../../../templates/compose.prod.yaml"),
+        include_str!("../../../../templates/compose.prod.yaml"),
     )?;
     println!("📄 Created compose.prod.yaml");
 
     if with_db {
         let dockerfile_path = project_dir.join("backend/Dockerfile");
         fs::create_dir_all(project_dir.join("backend"))?;
+        let dockerfile_content = match db_type {
+            super::DbType::Postgres => "FROM rust:latest\nRUN apt-get update && apt-get install -y build-essential pkg-config libssl-dev libpq-dev \\n+    && cargo install diesel_cli --no-default-features --features postgres\nWORKDIR /app\n",
+            super::DbType::Sqlite => "FROM rust:latest\nRUN apt-get update && apt-get install -y build-essential pkg-config libsqlite3-dev \\n+    && cargo install diesel_cli --no-default-features --features sqlite\nWORKDIR /app\n",
+        };
         fs::write(
             dockerfile_path,
-            "FROM rust:latest\nRUN apt-get update && apt-get install -y build-essential pkg-config libssl-dev libpq-dev \\n+    && cargo install diesel_cli --no-default-features --features postgres\nWORKDIR /app\n",
+            dockerfile_content,
         )?;
         println!("📄 Created backend/Dockerfile with diesel_cli");
     }
 
     // Create example grafo.yaml
     let mut example_yaml = fs::File::create(project_dir.join("gen/example.yaml"))?;
-    let example_yaml_content = include_str!("../../../gen/users.yaml");
+    let example_yaml_content = include_str!("../../../../gen/users.yaml");
     example_yaml.write_all(example_yaml_content.as_bytes())?;
     println!("📄 Created example grafo.yaml");
 
@@ -406,7 +440,11 @@ chrono = { version = "0.4", features = ["serde"] }
         let dependencies = cargo_toml["dependencies"].as_table_mut().unwrap();
         let mut diesel_dependency = toml::map::Map::new();
         diesel_dependency.insert("version".to_string(), toml::Value::String("2.1".to_string()));
-        diesel_dependency.insert("features".to_string(), toml::Value::Array(vec![toml::Value::String("postgres".to_string()), toml::Value::String("r2d2".to_string())]));
+        let features = match db_type {
+            super::DbType::Postgres => vec!["postgres", "r2d2"],
+            super::DbType::Sqlite => vec!["sqlite", "r2d2"],
+        };
+        diesel_dependency.insert("features".to_string(), toml::Value::Array(features.into_iter().map(|s| toml::Value::String(s.to_string())).collect()));
         dependencies.insert(
             "diesel".to_string(),
             toml::Value::Table(diesel_dependency),
@@ -496,13 +534,13 @@ psql $DATABASE_URL -f backend/seeds/usuarios.sql
 
 fn write_react_starter(dir: &Path) -> Result<()> {
     use std::fs;
-    fs::write(dir.join("frontend/package.json"), include_str!("../../../templates/frontend/package.json"))?;
-    fs::write(dir.join("frontend/tsconfig.json"), include_str!("../../../templates/frontend/tsconfig.json"))?;
-    fs::write(dir.join("frontend/vite.config.ts"), include_str!("../../../templates/frontend/vite.config.ts"))?;
-    fs::write(dir.join("frontend/index.html"), include_str!("../../../templates/frontend/index.html"))?;
+    fs::write(dir.join("frontend/package.json"), include_str!("../../../../templates/frontend/package.json"))?;
+    fs::write(dir.join("frontend/tsconfig.json"), include_str!("../../../../templates/frontend/tsconfig.json"))?;
+    fs::write(dir.join("frontend/vite.config.ts"), include_str!("../../../../templates/frontend/vite.config.ts"))?;
+    fs::write(dir.join("frontend/index.html"), include_str!("../../../../templates/frontend/index.html"))?;
     fs::write(dir.join("frontend/src/index.css"), "")?;
     fs::write(dir.join("frontend/src/App.tsx"), "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n")?;
-    fs::write(dir.join("frontend/src/main.tsx"), include_str!("../../../templates/frontend/main.tsx"))?;
+    fs::write(dir.join("frontend/src/main.tsx"), include_str!("../../../../templates/frontend/main.tsx"))?;
     Ok(())
 }
 

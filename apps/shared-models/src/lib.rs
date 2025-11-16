@@ -320,6 +320,33 @@ pub struct DslModule {
     pub rpc: BTreeMap<String, DslUseCase>,
 }
 
+impl From<Module> for DslModule {
+    fn from(module: Module) -> Self {
+        let mut usecases = BTreeMap::new();
+        for node in module.nodes {
+            if node.node_type == NodeType::UseCase {
+                let usecase = DslUseCase {
+                    input: node
+                        .input
+                        .into_iter()
+                        .map(|f| (f.name, f.field_type))
+                        .collect(),
+                    output: node.output,
+                    doc: node.doc,
+                    steps: vec![],
+                };
+                usecases.insert(node.id, usecase);
+            }
+        }
+        DslModule {
+            entity: None,
+            usecases,
+            pages: BTreeMap::new(),
+            rpc: BTreeMap::new(),
+        }
+    }
+}
+
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FerrumDsl {

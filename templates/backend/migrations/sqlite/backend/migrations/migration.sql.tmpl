@@ -1,0 +1,11 @@
+{% set module = modules[0] %}
+{% set entity = module.entities_info[0] %}
+-- Auto-generated migration for {{ entity.name }}
+CREATE TABLE IF NOT EXISTS {{ entity.table }} (
+    id TEXT PRIMARY KEY,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+    {% for field in entity.fields %}
+    , {{ field.name_snake }} {% if field.type == "uuid" %}TEXT{% elif field.type == "string" %}TEXT{% elif field.type == "text" %}TEXT{% elif field.type == "boolean" %}INTEGER{% elif field.type == "timestamp" %}DATETIME{% elif field.type == "date" %}DATETIME{% elif field.type == "decimal" %}REAL{% elif field.type == "integer" %}INTEGER{% else %}TEXT{% endif %}
+    {% endfor %}
+);
