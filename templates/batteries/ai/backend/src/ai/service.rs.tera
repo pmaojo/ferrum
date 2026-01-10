@@ -1,0 +1,36 @@
+use anyhow::Result;
+use super::client::{AiClient, Message};
+use super::vector_store::VectorStore;
+
+pub struct AiService {
+    client: AiClient,
+    // vector_store: VectorStore,
+}
+
+impl AiService {
+    pub fn new(provider: &str, model: &str) -> Self {
+        Self {
+            client: AiClient::new(provider, model),
+            // vector_store: VectorStore::new(...),
+        }
+    }
+
+    pub async fn chat(&self, prompt: &str) -> Result<String> {
+        let messages = vec![
+            Message {
+                role: "user".to_string(),
+                content: prompt.to_string(),
+            }
+        ];
+
+        let response = self.client.chat(messages).await?;
+        Ok(response.content)
+    }
+
+    pub async fn get_embedding(&self, text: &str) -> Result<Vec<f32>> {
+        self.client.generate_embedding(text).await
+    }
+
+    // RAG implementation would go here
+    // pub async fn chat_with_context(&self, prompt: &str, context_entity: &str) -> Result<String> { ... }
+}

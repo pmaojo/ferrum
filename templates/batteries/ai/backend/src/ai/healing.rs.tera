@@ -1,0 +1,94 @@
+use anyhow::Result;
+use super::client::{AiClient, Message, AiProvider};
+use serde::{de::DeserializeOwned, Serialize};
+use tracing::{warn, info};
+
+/// A trait for retryable operations that can be healed by AI
+#[async_trait::async_trait]
+pub trait Healable<T> {
+    async fn try_op(&self) -> Result<T>;
+    fn context(&self) -> String;
+}
+
+pub struct HealingEngine {
+    client: AiClient,
+    max_retries: u32,
+}
+
+impl HealingEngine {
+    pub fn new(client: AiClient) -> Self {
+        Self {
+            client,
+            max_retries: 2,
+        }
+    }
+
+    pub fn with_retries(mut self, retries: u32) -> Self {
+        self.max_retries = retries;
+        self
+    }
+
+    /// Attempts to parse JSON from a string, and if it fails, asks the AI to fix it.
+    pub async fn parse_json<T: DeserializeOwned + Serialize>(&self, input: &str, schema_desc: Option<&str>) -> Result<T> {
+        // First try: Direct parse
+        match serde_json::from_str::<T>(input) {
+            Ok(val) => return Ok(val),
+            Err(e) => {
+                warn!("JSON parse failed, attempting AI healing: {}", e);
+                // Continue to healing logic
+            }
+        }
+
+        let mut current_input = input.to_string();
+
+        for i in 0..self.max_retries {
+            let prompt = format!(
+                "I have a malformed JSON string that failed to parse. \n\
+                Error: {}\n\
+                \n\
+                Please fix the JSON to match the expected schema (implied by the error or standard conventions).\n\
+                {}\n\
+                RETURN ONLY THE VALID JSON STRING, no markdown formatting, no explanations.\n\
+                \n\
+                Malformed Input:\n{}",
+                "JSON parse error", // We could pass the actual serde error if we propagated it better
+                schema_desc.unwrap_or(""),
+                current_input
+            );
+
+            let message = Message {
+                role: "user".to_string(),
+                content: prompt,
+            };
+
+            match self.client.chat(vec![message]).await {
+                Ok(response) => {
+                    let fixed_json = response.content.trim();
+                    // Clean markdown code blocks if present
+                    let fixed_json = fixed_json
+                        .strip_prefix("```json").unwrap_or(fixed_json)
+                        .strip_prefix("```").unwrap_or(fixed_json)
+                        .strip_suffix("```").unwrap_or(fixed_json)
+                        .trim();
+
+                    match serde_json::from_str::<T>(fixed_json) {
+                        Ok(val) => {
+                            info!("AI successfully healed JSON on attempt {}", i + 1);
+                            return Ok(val);
+                        }
+                        Err(e) => {
+                            warn!("Healed JSON still invalid on attempt {}: {}", i + 1, e);
+                            current_input = fixed_json.to_string(); // Loop again with the AI's output? Or fail?
+                            // Usually better to fail or try with a stronger prompt, but for now we loop.
+                        }
+                    }
+                }
+                Err(e) => {
+                    warn!("AI healing request failed: {}", e);
+                }
+            }
+        }
+
+        Err(anyhow::anyhow!("Failed to parse JSON even after AI healing"))
+    }
+}
