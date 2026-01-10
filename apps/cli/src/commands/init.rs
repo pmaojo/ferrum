@@ -31,6 +31,13 @@ pub fn init(
             .with_prompt("Include AI/LLM integration?")
             .default(with_ai)
             .interact()?;
+
+        // AI implies DB
+        if with_ai && !with_db {
+             println!("ℹ️  AI integration requires database support. Enabling Diesel ORM.");
+             with_db = true;
+        }
+
         with_db = Confirm::new()
             .with_prompt("Include Diesel ORM setup?")
             .default(with_db)
@@ -142,9 +149,7 @@ edition = "2021"
     }
 
     // Basic backend skeleton
-    fs::write(
-        project_dir.join("backend/src/main.rs"),
-        r#"use axum::{routing::get, Router};
+    let mut main_rs_content = r#"use axum::{routing::get, Router};
 use std::net::SocketAddr;
 
 #[tokio::main]
@@ -158,7 +163,19 @@ async fn main() {
         .await
         .unwrap();
 }
-"#,
+"#.to_string();
+
+    if with_ai {
+        main_rs_content = format!("{}\n{}",
+            "#[cfg(feature = \"ai\")]\npub mod ai;\n",
+            main_rs_content
+        );
+        // We might want to register routes here in the future, but for now just the mod declaration
+    }
+
+    fs::write(
+        project_dir.join("backend/src/main.rs"),
+        main_rs_content,
     )?;
     fs::write(
         project_dir.join("backend/tests/integration_test.rs"),
@@ -433,28 +450,63 @@ chrono = { version = "0.4", features = ["serde"] }
     example_yaml.write_all(example_yaml_content.as_bytes())?;
     println!("📄 Created example grafo.yaml");
 
-    if with_db {
+    if with_db || with_ai {
         let cargo_toml_path = project_dir.join("backend/Cargo.toml");
         fs::create_dir_all(project_dir.join("backend"))?;
         let mut cargo_toml: toml::Value = toml::from_str(&fs::read_to_string(&cargo_toml_path)?)?;
         let dependencies = cargo_toml["dependencies"].as_table_mut().unwrap();
-        let mut diesel_dependency = toml::map::Map::new();
-        diesel_dependency.insert("version".to_string(), toml::Value::String("2.1".to_string()));
-        let features = match db_type {
-            super::DbType::Postgres => vec!["postgres", "r2d2"],
-            super::DbType::Sqlite => vec!["sqlite", "r2d2"],
-        };
-        diesel_dependency.insert("features".to_string(), toml::Value::Array(features.into_iter().map(|s| toml::Value::String(s.to_string())).collect()));
-        dependencies.insert(
-            "diesel".to_string(),
-            toml::Value::Table(diesel_dependency),
-        );
-        dependencies.insert(
-            "dotenvy".to_string(),
-            toml::Value::String("0.15".to_string()),
-        );
+
+        if with_db {
+            let mut diesel_dependency = toml::map::Map::new();
+            diesel_dependency.insert("version".to_string(), toml::Value::String("2.1".to_string()));
+            let features = match db_type {
+                super::DbType::Postgres => vec!["postgres", "r2d2"],
+                super::DbType::Sqlite => vec!["sqlite", "r2d2"],
+            };
+            diesel_dependency.insert("features".to_string(), toml::Value::Array(features.into_iter().map(|s| toml::Value::String(s.to_string())).collect()));
+            dependencies.insert(
+                "diesel".to_string(),
+                toml::Value::Table(diesel_dependency),
+            );
+            dependencies.insert(
+                "dotenvy".to_string(),
+                toml::Value::String("0.15".to_string()),
+            );
+        }
+
+        if with_ai {
+            let mut pgvector_dep = toml::map::Map::new();
+            pgvector_dep.insert("version".to_string(), toml::Value::String("0.4".to_string()));
+            pgvector_dep.insert("features".to_string(), toml::Value::Array(vec![toml::Value::String("diesel".to_string())]));
+
+            dependencies.insert(
+                "pgvector".to_string(),
+                toml::Value::Table(pgvector_dep),
+            );
+            dependencies.insert(
+                "reqwest".to_string(),
+                toml::Value::String("0.11".to_string()),
+            );
+            dependencies.insert(
+                "serde_json".to_string(),
+                toml::Value::String("1.0".to_string()),
+            );
+
+            // Add ai feature
+            let features_table = cargo_toml.entry("features").or_insert(toml::Value::Table(toml::map::Map::new()));
+            if let toml::Value::Table(f) = features_table {
+                 f.insert("ai".to_string(), toml::Value::Array(vec![]));
+                 // Add ai to default
+                 if let Some(toml::Value::Array(default)) = f.get_mut("default") {
+                     default.push(toml::Value::String("ai".to_string()));
+                 } else {
+                     f.insert("default".to_string(), toml::Value::Array(vec![toml::Value::String("ai".to_string())]));
+                 }
+            }
+        }
+
         fs::write(&cargo_toml_path, toml::to_string(&cargo_toml)?)?;
-        println!("📄 Updated backend/Cargo.toml with Diesel dependencies");
+        println!("📄 Updated backend/Cargo.toml with dependencies");
     }
 
     // Create README.md

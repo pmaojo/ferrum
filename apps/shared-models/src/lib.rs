@@ -39,6 +39,8 @@ pub enum NodeType {
     Iot,
     Policy,
     Resource,
+    VectorStore,
+    AiModel,
 }
 
 #[typeshare]
@@ -260,6 +262,26 @@ pub struct DslIot {
 
 #[typeshare]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslVectorStore {
+    pub name: String,
+    #[serde(rename = "embeddingModel")]
+    pub embedding_model: String,
+    #[serde(default)]
+    pub dimensions: Option<u32>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DslAiModel {
+    pub name: String,
+    pub provider: String, // ollama, openai
+    pub model: String,
+    #[serde(default)]
+    pub config: BTreeMap<String, String>,
+}
+
+#[typeshare]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DslForm {
     #[serde(default)]
     pub fields: Vec<String>,
@@ -379,4 +401,8 @@ pub struct FerrumDsl {
     pub resources: Vec<DslResource>,
     #[serde(default)]
     pub iot: Vec<DslIot>,
+    #[serde(default, rename = "vectorStores")]
+    pub vector_stores: Vec<DslVectorStore>,
+    #[serde(default, rename = "aiModels")]
+    pub ai_models: Vec<DslAiModel>,
 }

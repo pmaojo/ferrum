@@ -1,0 +1,38 @@
+use anyhow::Result;
+use pgvector::Vector;
+use diesel::prelude::*;
+use diesel::sql_types::*;
+use crate::db::schema; // Assuming you have a schema module generated
+use uuid::Uuid;
+
+// Note: You need to define a table in your schema that supports vectors.
+// This is a generic implementation pattern.
+
+pub struct VectorStore {
+    pool: crate::db::DbPool, // Ensure your app exposes DbPool type
+}
+
+impl VectorStore {
+    pub fn new(pool: crate::db::DbPool) -> Self {
+        Self { pool }
+    }
+
+    pub async fn search(&self, table_name: &str, embedding: Vec<f32>, limit: i64) -> Result<Vec<(Uuid, f32)>> {
+        // This is a placeholder. In a real implementation, you would use Diesel's
+        // raw SQL or a specific query builder to perform the vector cosine distance search.
+        // Example raw SQL:
+        // SELECT id, 1 - (embedding <=> $1) as similarity FROM items ORDER BY embedding <=> $1 LIMIT $2
+
+        // Since Diesel doesn't fully support dynamic table names in a typesafe way,
+        // this often requires raw sql_query.
+
+        // Implementation left as an exercise for the specific generated entity structure
+        // or handled by the generated specific vector store for each entity.
+        Ok(vec![])
+    }
+}
+
+// Helper trait to extend models with vector capabilities
+pub trait Vectorizable {
+    fn as_vector(&self) -> Option<Vector>;
+}

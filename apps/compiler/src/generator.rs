@@ -67,6 +67,8 @@ impl Generator {
             NodeType::Upload => self.generate_upload(module, node),
             NodeType::Iot => Ok(()),
             NodeType::Policy | NodeType::Resource => Ok(()),
+            NodeType::VectorStore => self.generate_vector_store(module, node),
+            NodeType::AiModel => Ok(()),
         }
     }
 
@@ -144,6 +146,43 @@ impl Generator {
             .join("frontend/src/components")
             .join(format!("{}.tsx", capitalize(&node.id)));
         self.write_file(&component_path, &component_content)?;
+
+        Ok(())
+    }
+
+    fn generate_vector_store(&self, module: &Module, node: &Node) -> Result<()> {
+        // We expect node.story to contain the embedding dimension or use a default
+        let dimensions = node.input.iter()
+            .find(|f| f.name == "dimensions")
+            .map(|f| f.field_type.parse::<u32>().unwrap_or(1536))
+            .unwrap_or(1536);
+
+        // Generate migration
+        let mig_root = self.output_dir.join("backend/migrations");
+        std::fs::create_dir_all(&mig_root)?;
+        let mig_idx = std::fs::read_dir(&mig_root)?.count() + 1;
+        let table_name = node.id.to_lowercase();
+        let mig_dir = mig_root.join(format!("{:04}_create_vector_store_{}", mig_idx, table_name));
+        std::fs::create_dir_all(&mig_dir)?;
+
+        let up_sql = format!(
+            "CREATE EXTENSION IF NOT EXISTS vector;\n\
+             CREATE TABLE {} (\n\
+                 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n\
+                 content TEXT NOT NULL,\n\
+                 metadata JSONB,\n\
+                 embedding VECTOR({}),\n\
+                 created_at TIMESTAMP DEFAULT now()\n\
+             );\n\
+             CREATE INDEX ON {} USING hnsw (embedding vector_cosine_ops);",
+            table_name,
+            dimensions,
+            table_name
+        );
+        std::fs::write(mig_dir.join("up.sql"), up_sql)?;
+
+        let down_sql = format!("DROP TABLE {};", table_name);
+        std::fs::write(mig_dir.join("down.sql"), down_sql)?;
 
         Ok(())
     }
@@ -588,6 +627,34 @@ impl Generator {
                 .join("frontend/src/components")
                 .join("LoginForm.tsx");
             self.write_file(&component_path, &component_content)?;
+        }
+
+        // AI Batteries: Check if any module has AI nodes or if global config requires it.
+        // For now, we check if any VectorStore or AiModel nodes exist in the module.
+        // In a real scenario, we might pass a global flag to Generator or check DslApp features.
+        let has_ai = module.nodes.iter().any(|n| matches!(n.node_type, NodeType::VectorStore | NodeType::AiModel));
+
+        if has_ai {
+            // Generate AI module
+            let ai_mod_content = self.templates.render("batteries/ai/backend/src/ai/mod.rs.tera", &context)
+                .context("Failed to render AI mod template")?;
+            self.write_file(self.output_dir.join("backend/src/ai/mod.rs"), &ai_mod_content)?;
+
+            let client_content = self.templates.render("batteries/ai/backend/src/ai/client.rs.tera", &context)
+                .context("Failed to render AI client template")?;
+            self.write_file(self.output_dir.join("backend/src/ai/client.rs"), &client_content)?;
+
+            let vector_content = self.templates.render("batteries/ai/backend/src/ai/vector_store.rs.tera", &context)
+                .context("Failed to render AI vector store template")?;
+            self.write_file(self.output_dir.join("backend/src/ai/vector_store.rs"), &vector_content)?;
+
+            let service_content = self.templates.render("batteries/ai/backend/src/ai/service.rs.tera", &context)
+                .context("Failed to render AI service template")?;
+            self.write_file(self.output_dir.join("backend/src/ai/service.rs"), &service_content)?;
+
+            let healing_content = self.templates.render("batteries/ai/backend/src/ai/healing.rs.tera", &context)
+                .context("Failed to render AI healing template")?;
+            self.write_file(self.output_dir.join("backend/src/ai/healing.rs"), &healing_content)?;
         }
 
         Ok(())

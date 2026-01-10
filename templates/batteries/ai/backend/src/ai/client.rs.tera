@@ -1,0 +1,184 @@
+use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+
+#[derive(Clone)]
+pub struct AiClient {
+    base_url: String,
+    provider: AiProvider,
+    model: String,
+    api_key: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+pub enum AiProvider {
+    Ollama,
+    OpenAi,
+}
+
+#[derive(Serialize)]
+struct ChatRequest {
+    model: String,
+    messages: Vec<Message>,
+    stream: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Message {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Deserialize)]
+struct ChatResponse {
+    message: Message,
+}
+
+#[derive(Deserialize)]
+struct OpenAiChatResponse {
+    choices: Vec<OpenAiChoice>,
+}
+
+#[derive(Deserialize)]
+struct OpenAiChoice {
+    message: Message,
+}
+
+#[derive(Serialize)]
+struct EmbeddingRequest {
+    model: String,
+    prompt: String,
+}
+
+#[derive(Serialize)]
+struct OpenAiEmbeddingRequest {
+    model: String,
+    input: String,
+}
+
+#[derive(Deserialize)]
+struct EmbeddingResponse {
+    embedding: Vec<f32>,
+}
+
+#[derive(Deserialize)]
+struct OpenAiEmbeddingResponse {
+    data: Vec<OpenAiEmbeddingData>,
+}
+
+#[derive(Deserialize)]
+struct OpenAiEmbeddingData {
+    embedding: Vec<f32>,
+}
+
+impl AiClient {
+    pub fn new(provider: &str, model: &str) -> Self {
+        let (base_url, provider_enum, api_key) = match provider {
+            "openai" => (
+                "https://api.openai.com/v1".to_string(),
+                AiProvider::OpenAi,
+                std::env::var("OPENAI_API_KEY").ok(),
+            ),
+            _ => (
+                std::env::var("OLLAMA_URL").unwrap_or_else(|_| "http://localhost:11434".to_string()),
+                AiProvider::Ollama,
+                None,
+            ),
+        };
+
+        Self {
+            base_url,
+            provider: provider_enum,
+            model: model.to_string(),
+            api_key,
+        }
+    }
+
+    pub async fn chat(&self, messages: Vec<Message>) -> Result<Message> {
+        let client = reqwest::Client::new();
+        let mut request = client.post(format!("{}/api/chat", self.base_url));
+
+        if let AiProvider::OpenAi = self.provider {
+            request = client.post(format!("{}/chat/completions", self.base_url));
+            if let Some(key) = &self.api_key {
+                request = request.header("Authorization", format!("Bearer {}", key));
+            }
+        }
+
+        let body = match self.provider {
+            AiProvider::Ollama => json!({
+                "model": self.model,
+                "messages": messages,
+                "stream": false
+            }),
+            AiProvider::OpenAi => json!({
+                "model": self.model,
+                "messages": messages
+            }),
+        };
+
+        let response = request.json(&body).send().await?;
+
+        if !response.status().is_success() {
+            let error_text = response.text().await?;
+            return Err(anyhow::anyhow!("AI API error: {}", error_text));
+        }
+
+        match self.provider {
+            AiProvider::Ollama => {
+                let chat_response: ChatResponse = response.json().await?;
+                Ok(chat_response.message)
+            }
+            AiProvider::OpenAi => {
+                let chat_response: OpenAiChatResponse = response.json().await?;
+                chat_response.choices.first()
+                    .map(|c| c.message.clone())
+                    .ok_or_else(|| anyhow::anyhow!("No choices in OpenAI response"))
+            }
+        }
+    }
+
+    pub async fn generate_embedding(&self, text: &str) -> Result<Vec<f32>> {
+        let client = reqwest::Client::new();
+
+        match self.provider {
+            AiProvider::Ollama => {
+                let response = client
+                    .post(format!("{}/api/embeddings", self.base_url))
+                    .json(&json!({
+                        "model": self.model,
+                        "prompt": text
+                    }))
+                    .send()
+                    .await?;
+
+                if !response.status().is_success() {
+                    return Err(anyhow::anyhow!("Embedding API error: {}", response.text().await?));
+                }
+
+                let embedding_response: EmbeddingResponse = response.json().await?;
+                Ok(embedding_response.embedding)
+            }
+            AiProvider::OpenAi => {
+                let request = client
+                    .post(format!("{}/embeddings", self.base_url))
+                    .header("Authorization", format!("Bearer {}", self.api_key.as_deref().unwrap_or_default()))
+                    .json(&json!({
+                        "model": "text-embedding-ada-002", // Usually different from chat model
+                        "input": text
+                    }));
+
+                let response = request.send().await?;
+
+                if !response.status().is_success() {
+                    return Err(anyhow::anyhow!("OpenAI Embedding error: {}", response.text().await?));
+                }
+
+                let embedding_response: OpenAiEmbeddingResponse = response.json().await?;
+                embedding_response.data.first()
+                    .map(|d| d.embedding.clone())
+                    .ok_or_else(|| anyhow::anyhow!("No data in OpenAI embedding response"))
+            }
+        }
+    }
+}
