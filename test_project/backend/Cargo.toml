@@ -1,0 +1,25 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+keywords = ["ferrum", "axum", "rust"]
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+embedded-hal = { version = "1", optional = true }
+rppal = { version = "0.18", optional = true }
+rumqttc = { version = "0.22", optional = true }
+ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
+axum-server = { version = "0.6", features = ["tls-rustls"] }
+rustls-acme = { version = "0.9", features = ["axum"] }
+tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
+tokio-stream = "0.1"
+
+[features]
+default = []
+hal = ["dep:embedded-hal"]
+rppal = ["dep:rppal"]
+mqtt = ["dep:rumqttc"]
+ethercat = ["dep:ethercat-rs"]
