@@ -151,17 +151,90 @@ edition = "2021"
     // Basic backend skeleton
     let mut main_rs_content = r#"use axum::{routing::get, Router};
 use std::net::SocketAddr;
+use std::path::PathBuf;
+use rustls_acme::{caches::DirCache, AcmeConfig};
+use tokio_stream::StreamExt;
+use tower_http::services::{ServeDir, ServeFile};
 
 #[tokio::main]
 async fn main() {
-    let app = Router::new().route("/", get(|| async { "Hello Ferrum" }));
+    // Load configuration from environment variables
+    let port = std::env::var("PORT").unwrap_or_else(|_| "3000".to_string()).parse::<u16>().unwrap();
+    let https = std::env::var("HTTPS").unwrap_or_else(|_| "false".to_string()) == "true";
+    let domain = std::env::var("DOMAIN").ok();
+    let email = std::env::var("EMAIL").ok();
+    let static_dir = std::env::var("STATIC_DIR").ok();
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    println!("🚀 backend running on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    let mut app = Router::new().route("/api/health", get(|| async { "Ferrum API is healthy" }));
+
+    // Serve static files (SPA support)
+    if let Some(dir) = static_dir {
+        let path = PathBuf::from(dir);
+        if path.exists() {
+            let serve_dir = ServeDir::new(&path)
+                .not_found_service(ServeFile::new(path.join("index.html")));
+            app = app.fallback_service(serve_dir);
+            println!("📂 Serving static files from {:?}", path);
+        } else {
+            println!("⚠️  Static directory {:?} does not exist", path);
+        }
+    } else {
+         app = app.route("/", get(|| async { "Hello Ferrum" }));
+    }
+
+    if https {
+        if let Some(domain) = domain {
+            println!("🔒 Starting HTTPS server on port 443 for domain {}", domain);
+
+            let state = AcmeConfig::new(vec![domain.clone()])
+                .contact(email.iter().map(|e| format!("mailto:{}", e)))
+                .cache_option(Some(DirCache::new("certs")))
+                .directory_lets_encrypt(true)
+                .state();
+
+            let acceptor = state.axum_acceptor(state.default_rustls_config());
+
+            tokio::spawn(async move {
+                let mut state = state;
+                loop {
+                    match state.next().await.unwrap() {
+                        Ok(ok) => println!("event: {:?}", ok),
+                        Err(err) => println!("error: {:?}", err),
+                    }
+                }
+            });
+
+            let addr = SocketAddr::from(([0, 0, 0, 0], 443));
+            let listener = axum_server::bind(addr).acceptor(acceptor);
+            println!("🚀 HTTPS Server running on https://{}", domain);
+
+            // Optional HTTP redirect
+            tokio::spawn(async move {
+                let redirect_app = Router::new().fallback(move |host: axum::extract::Host, uri: axum::http::Uri| async move {
+                    let url = format!("https://{}{}", host.0, uri);
+                    axum::response::Redirect::permanent(&url)
+                });
+                let addr = SocketAddr::from(([0, 0, 0, 0], 80));
+                println!("↩️  Redirecting HTTP traffic from port 80 to HTTPS");
+                axum_server::bind(addr)
+                    .serve(redirect_app.into_make_service())
+                    .await
+                    .unwrap();
+            });
+
+            listener.serve(app.into_make_service()).await.unwrap();
+        } else {
+            eprintln!("❌ HTTPS enabled but DOMAIN env var is missing");
+            std::process::exit(1);
+        }
+    } else {
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+        println!("🚀 Backend running on {}", addr);
+        axum_server::bind(addr)
+            .serve(app.into_make_service())
+            .await
+            .unwrap();
+    }
 }
 "#.to_string();
 
@@ -194,13 +267,17 @@ edition = "2021"
 keywords = ["ferrum", "axum", "rust"]
 
 [dependencies]
-axum = "0.6"
+axum = "0.7"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 embedded-hal = { version = "1", optional = true }
 rppal = { version = "0.18", optional = true }
 rumqttc = { version = "0.22", optional = true }
 ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
+axum-server = { version = "0.7", features = ["tls-rustls"] }
+rustls-acme = { version = "0.14", features = ["axum"] }
+tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
+tokio-stream = "0.1"
 
 [features]
 default = []
@@ -493,19 +570,17 @@ chrono = { version = "0.4", features = ["serde"] }
             );
 
             // Add ai feature
-            let features_table = cargo_toml
-                .as_table_mut()
-                .expect("backend/Cargo.toml root is a TOML table")
-                .entry("features".to_string())
-                .or_insert_with(|| toml::Value::Table(toml::map::Map::new()));
-            if let toml::Value::Table(f) = features_table {
-                 f.insert("ai".to_string(), toml::Value::Array(vec![]));
-                 // Add ai to default
-                 if let Some(toml::Value::Array(default)) = f.get_mut("default") {
-                     default.push(toml::Value::String("ai".to_string()));
-                 } else {
-                     f.insert("default".to_string(), toml::Value::Array(vec![toml::Value::String("ai".to_string())]));
-                 }
+            if let Some(f) = cargo_toml.as_table_mut() {
+                let features_table = f.entry("features").or_insert(toml::Value::Table(toml::map::Map::new()));
+                if let toml::Value::Table(f) = features_table {
+                    f.insert("ai".to_string(), toml::Value::Array(vec![]));
+                    // Add ai to default
+                    if let Some(toml::Value::Array(default)) = f.get_mut("default") {
+                        default.push(toml::Value::String("ai".to_string()));
+                    } else {
+                        f.insert("default".to_string(), toml::Value::Array(vec![toml::Value::String("ai".to_string())]));
+                    }
+                }
             }
         }
 
