@@ -1,10 +1,14 @@
 use ferrum_compiler::{parse_dsl_yaml, project_to_modules};
 use std::path::PathBuf;
 
+/// `CARGO_MANIFEST_DIR` is `<root>/apps/compiler`; the DSL fixtures live in
+/// `<root>/packages/gen`, two levels up.
 fn fixture_path(name: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .unwrap()
+        .and_then(|apps| apps.parent())
+        .expect("compiler crate sits at <root>/apps/compiler")
+        .join("packages")
         .join("gen")
         .join(name)
 }

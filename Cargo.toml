@@ -7,7 +7,7 @@ authors = ["Ferrum Team"]
 
 [lib]
 name = "ferrum"
-path = "apps/cli/src/lib.rs"
+path = "src/lib.rs"
 
 [workspace]
 members = [
