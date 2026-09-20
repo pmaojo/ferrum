@@ -1,5 +1,12 @@
 use std::{collections::HashMap, net::SocketAddr, thread, time::Duration};
 
+// `ferrum_engine::services` (the mqtt/coap client wrappers this file
+// exercises) has never been built, and neither the `mqtt` nor `coap`
+// feature is declared in ferrum-engine's Cargo.toml, so the `#[tokio::test]`
+// functions below are permanently inert either way. Gate the import the
+// same as the tests themselves so this file compiles instead of failing on
+// a crate that doesn't exist.
+#[cfg(any(feature = "mqtt", feature = "coap"))]
 use ferrum_engine::services;
 
 #[cfg(feature = "coap")]
