@@ -493,7 +493,11 @@ chrono = { version = "0.4", features = ["serde"] }
             );
 
             // Add ai feature
-            let features_table = cargo_toml.entry("features").or_insert(toml::Value::Table(toml::map::Map::new()));
+            let features_table = cargo_toml
+                .as_table_mut()
+                .expect("backend/Cargo.toml root is a TOML table")
+                .entry("features".to_string())
+                .or_insert_with(|| toml::Value::Table(toml::map::Map::new()));
             if let toml::Value::Table(f) = features_table {
                  f.insert("ai".to_string(), toml::Value::Array(vec![]));
                  // Add ai to default
