@@ -11,37 +11,36 @@ path = "src/main.rs"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
-tera = "1.19"
+tera = "1.20"
 anyhow = "1.0"
-thiserror = "1.0"
+thiserror = "2.0"
 tracing = "0.1"
 ferrum-shared-models = { path = "../shared-models" }
 ferrum-engine = { path = "../engine" }
 ferrum-service = { path = "../ferrum-service" }
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.6", features = ["derive"] }
 Inflector = "0.11"
-petgraph = "0.6"
-ctrlc = "3.4.4"
-toml = "0.8.12"
+petgraph = "0.8"
+ctrlc = "3.5"
+toml = "0.9"
 ferrum-compiler = { path = "../compiler" }
 dotenvy = "0.15.7"
-serde_json = "1.0.117"
-regex = "1.10.4"
-atty = "0.2.14"
-reqwest = { version = "0.11", features = ["blocking", "json"] }
+serde_json = "1.0.151"
+regex = "1.13"
+reqwest = { version = "0.12", features = ["blocking", "json"] }
 tokio = { version = "1", features = ["full"] }
 walkdir = "2"
-diesel_migrations = "2.1.0"
-sha2 = "0.10.8"
-webbrowser = "0.8"
-glob = "0.3.1"
-dialoguer = "0.11.0"
-diesel = { version = "2.1.0", features = ["postgres", "r2d2", "sqlite"] }
-neo4rs = "0.6.1"
+diesel_migrations = "2.3"
+sha2 = "0.11"
+webbrowser = "1.2"
+glob = "0.3.4"
+dialoguer = "0.12"
+diesel = { version = "2.3", features = ["postgres", "r2d2", "sqlite"] }
+neo4rs = "0.8"
 
 
 [dev-dependencies]
 tempfile = "3"
-base64 = "0.21"
-serial_test = "3.0.0"
-mockito = "1.4.0"
+base64 = "0.23"
+serial_test = "4.0"
+mockito = "1.7"

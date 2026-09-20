@@ -2,9 +2,8 @@ use anyhow::Result;
 
 pub fn ai_team(text: String) -> Result<()> {
     use crate::config::LlmConfig;
-    use atty::Stream;
     use reqwest::blocking::Client;
-    use std::io::{self, Read};
+    use std::io::{self, IsTerminal, Read};
 
     let cfg_model = LlmConfig::load().and_then(|c| c.model);
     let model = std::env::var("MODEL")
@@ -13,7 +12,7 @@ pub fn ai_team(text: String) -> Result<()> {
         .unwrap_or_else(|| "openai".to_string());
 
     let mut prompt = text;
-    if !atty::is(Stream::Stdin) {
+    if !io::stdin().is_terminal() {
         let mut buf = String::new();
         io::stdin().read_to_string(&mut buf)?;
         if !buf.trim().is_empty() {

@@ -43,11 +43,13 @@ serde = "1.0"
     .unwrap();
 
     let cargo_toml_content = fs::read_to_string(&cargo_toml_path).unwrap();
-    let cargo_toml: toml::Value = cargo_toml_content.parse().unwrap();
+    // toml 0.9+ (spec 1.1) reserves `Value` for a single value expression;
+    // a whole document parses as `Table`.
+    let cargo_toml: toml::Table = cargo_toml_content.parse().unwrap();
     let dependencies = cargo_toml["dependencies"].as_table().unwrap();
 
     let diesel = dependencies["diesel"].as_table().unwrap();
-    assert_eq!(diesel["version"].as_str().unwrap(), "2.1");
+    assert_eq!(diesel["version"].as_str().unwrap(), "2.3");
     let features = diesel["features"].as_array().unwrap();
     assert!(features.contains(&toml::Value::String("postgres".to_string())));
     assert!(features.contains(&toml::Value::String("r2d2".to_string())));

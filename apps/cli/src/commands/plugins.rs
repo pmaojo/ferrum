@@ -79,7 +79,8 @@ pub fn add_plugin(plugin: String) -> Result<()> {
                         if let Ok(bytes) = std::fs::read(&lib_path) {
                             use sha2::{Digest, Sha256};
                             let hash = Sha256::digest(&bytes);
-                            println!("🔑 SHA256: {:x}", hash);
+                            let hex: String = hash.iter().map(|b| format!("{b:02x}")).collect();
+                            println!("🔑 SHA256: {hex}");
                         }
                     }
                 }
