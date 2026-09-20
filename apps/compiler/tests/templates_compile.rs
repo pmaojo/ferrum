@@ -6,10 +6,17 @@ use std::fs;
 use std::path::PathBuf;
 
 fn templates_path() -> PathBuf {
+    workspace_root().join("templates")
+}
+
+/// `CARGO_MANIFEST_DIR` is `<root>/apps/compiler`, so the workspace root —
+/// where `templates/` lives — is two levels up, not one.
+fn workspace_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .unwrap()
-        .join("templates")
+        .and_then(|apps| apps.parent())
+        .expect("compiler crate sits at <root>/apps/compiler")
+        .to_path_buf()
 }
 
 #[test]

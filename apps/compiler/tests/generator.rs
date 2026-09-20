@@ -2,10 +2,17 @@ use ferrum_compiler::{Field, Generator, Module, Node, NodeType};
 use std::path::PathBuf;
 
 fn templates_path() -> PathBuf {
+    workspace_root().join("templates")
+}
+
+/// `CARGO_MANIFEST_DIR` is `<root>/apps/compiler`, so the workspace root —
+/// where `templates/` lives — is two levels up, not one.
+fn workspace_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .unwrap()
-        .join("templates")
+        .and_then(|apps| apps.parent())
+        .expect("compiler crate sits at <root>/apps/compiler")
+        .to_path_buf()
 }
 
 fn basic_entity_module() -> Module {
@@ -237,7 +244,11 @@ validations:
             .join("frontend/src/validations/corporateEmail.ts"),
     )
     .unwrap();
-    assert!(frontend_val.contains("export { corporateEmail } from './custom'"));
+    // Quote style is not ours to assert: `run_post_processing` shells out to
+    // prettier when it is installed, which rewrites '' to "". Assert the
+    // re-export, not the formatter's preference.
+    let frontend_val = frontend_val.replace('\'', "\"");
+    assert!(frontend_val.contains("export { corporateEmail } from \"./custom\""));
 
     assert!(dir.path().join("backend/src/validations/custom.rs").exists());
     assert!(dir.path().join("backend/src/validations/mod.rs").exists());
