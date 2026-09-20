@@ -2,5 +2,5 @@ use axum::{Router, routing::get};
 use crate::handlers::policies::check_policy;
 
 pub fn routes() -> Router {
-    Router::new().route("/policies/:name", get(check_policy))
+    Router::new().route("/policies/{name}", get(check_policy))
 }

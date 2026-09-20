@@ -150,6 +150,7 @@ edition = "2021"
 
     // Basic backend skeleton
     let mut main_rs_content = r#"use axum::{routing::get, Router};
+use axum_extra::extract::Host;
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use rustls_acme::{caches::DirCache, AcmeConfig};
@@ -210,7 +211,7 @@ async fn main() {
 
             // Optional HTTP redirect
             tokio::spawn(async move {
-                let redirect_app = Router::new().fallback(move |host: axum::extract::Host, uri: axum::http::Uri| async move {
+                let redirect_app = Router::new().fallback(move |host: Host, uri: axum::http::Uri| async move {
                     let url = format!("https://{}{}", host.0, uri);
                     axum::response::Redirect::permanent(&url)
                 });
@@ -267,15 +268,15 @@ edition = "2021"
 keywords = ["ferrum", "axum", "rust"]
 
 [dependencies]
-axum = "0.7"
+axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 embedded-hal = { version = "1", optional = true }
 rppal = { version = "0.18", optional = true }
 rumqttc = { version = "0.22", optional = true }
-ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
-axum-server = { version = "0.7", features = ["tls-rustls"] }
-rustls-acme = { version = "0.14", features = ["axum"] }
+axum-server = { version = "0.8", features = ["tls-rustls"] }
+axum-extra = { version = "0.12", features = ["typed-header"] }
+rustls-acme = { version = "0.15", features = ["axum"] }
 tower-http = { version = "0.5", features = ["fs", "trace", "cors"] }
 tokio-stream = "0.1"
 
@@ -284,7 +285,6 @@ default = []
 hal = ["dep:embedded-hal"]
 rppal = ["dep:rppal"]
 mqtt = ["dep:rumqttc"]
-ethercat = ["dep:ethercat-rs"]
 "#,
     )?;
 
