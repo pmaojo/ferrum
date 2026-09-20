@@ -2,7 +2,6 @@ use std::sync::{Arc, Mutex};
 
 use ferrum_engine::{sync_ast_to_graph, GraphRunner};
 use ferrum_shared_models::{Module, Node, NodeType};
-use neo4rs::Query;
 
 /// Simple in-memory mock implementing [`GraphRunner`].
 struct MockGraph {
@@ -16,9 +15,12 @@ impl MockGraph {
 }
 
 impl GraphRunner for MockGraph {
-    fn run_query<'a>(&'a self, q: Query) -> std::pin::Pin<Box<dyn std::future::Future<Output = neo4rs::Result<()>> + Send + 'a>> {
-        let query_string = q.query().to_string();
-        self.queries.lock().unwrap().push(query_string);
+    fn run_query<'a>(
+        &'a self,
+        cypher: String,
+        _params: Vec<(&'static str, String)>,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = neo4rs::Result<()>> + Send + 'a>> {
+        self.queries.lock().unwrap().push(cypher);
         Box::pin(async { Ok(()) })
     }
 }
