@@ -34,6 +34,8 @@ pub fn sync(file: PathBuf, uri: String, user: String, password: String) -> Resul
             policies: vec![],
             resources: vec![],
             iot: vec![],
+            ai_models: vec![],
+            vector_stores: vec![],
         };
         dsl.modules.insert(module.name.clone(), module.into());
         ferrum_engine::sync_ast_to_graph(&dsl, &()).await?;
