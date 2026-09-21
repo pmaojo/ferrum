@@ -1,14 +1,14 @@
 import React from 'react';
-import { use{{ node.id | capitalize }} } from '../hooks/use{{ node.id | capitalize }}';
+import { use{{ node.id | pascal_case }} } from '../hooks/use{{ node.id | pascal_case }}';
 
-interface {{ node.id | capitalize }}ViewProps {
+interface {{ node.id | pascal_case }}ViewProps {
   {% for input in node.input %}
   {{ input.name }}: string; // Using string as default type
   {% endfor %}
 }
 
-export const {{ node.id | capitalize }}View: React.FC<{{ node.id | capitalize }}ViewProps> = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }) => {
-  const { data, isLoading, error } = use{{ node.id | capitalize }}({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} });
+export const {{ node.id | pascal_case }}View: React.FC<{{ node.id | pascal_case }}ViewProps> = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }) => {
+  const { data, isLoading, error } = use{{ node.id | pascal_case }}({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} });
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {(error as Error).message}</div>;

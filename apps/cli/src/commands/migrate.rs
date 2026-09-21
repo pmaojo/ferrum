@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+#[cfg(feature = "postgres")]
 pub fn migrate() -> Result<()> {
     use diesel::prelude::*;
     use diesel_migrations::{FileBasedMigrations, MigrationHarness};
@@ -13,5 +14,10 @@ pub fn migrate() -> Result<()> {
 
     println!("✅ Database migrations applied");
     Ok(())
+}
+
+#[cfg(not(feature = "postgres"))]
+pub fn migrate() -> Result<()> {
+    anyhow::bail!("database migrations require the ferrum-cli `postgres` feature")
 }
 
