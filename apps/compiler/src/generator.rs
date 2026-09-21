@@ -65,10 +65,45 @@ impl Generator {
             NodeType::Form => self.generate_form(module, node),
             NodeType::Validation => self.generate_validation(module, node),
             NodeType::Upload => self.generate_upload(module, node),
+            // `iot:` DSL entries do reach this match (see
+            // `ferrum_compiler::dsl::project_to_modules`), but the real
+            // generation for them doesn't happen here: `compile_dsl` calls
+            // `iotgen::compile_iot` directly against `dsl.iot` (bypassing
+            // the Node graph entirely), which is what actually writes
+            // `backend/iot/*.rs`. This arm is a deliberate no-op so the two
+            // pipelines don't double-generate.
             NodeType::Iot => Ok(()),
-            NodeType::Policy | NodeType::Resource => Ok(()),
+            // Same story as Iot: `compile_dsl` calls `policygen::compile_policies`
+            // / `resourcegen::compile_resources` directly against
+            // `dsl.policies` / `dsl.resources`, so this arm never fires for
+            // the normal `ferrum compile` flow (those DSL fields are never
+            // converted into graph `Node`s by `project_to_modules`). It only
+            // fires for a raw `Node` written by hand via `ferrum compile
+            // --graph`, for which `Generator` has no renderer — fail loudly
+            // there instead of silently dropping the node.
+            NodeType::Policy | NodeType::Resource => {
+                anyhow::bail!(
+                    "no raw-graph renderer for node type {:?} ({}) — policies/resources are \
+                     generated from the DSL's `policies`/`resources` sections via `compile_dsl`, \
+                     not from a hand-written Node graph",
+                    node.node_type,
+                    node.id
+                )
+            }
             NodeType::VectorStore => self.generate_vector_store(module, node),
-            NodeType::AiModel => Ok(()),
+            // Unlike Iot/Policy/Resource, `aiModels` has no generator
+            // anywhere in the codebase: `dsl.ai_models` is parsed from YAML
+            // and never read again by `project_to_modules` or `compile_dsl`.
+            // Genuinely unimplemented, not just wired elsewhere — fail
+            // loudly rather than claim success.
+            NodeType::AiModel => {
+                anyhow::bail!(
+                    "code generation for node type {:?} ({}) isn't implemented yet \
+                     (dsl.ai_models isn't consumed anywhere in the compiler)",
+                    node.node_type,
+                    node.id
+                )
+            }
         }
     }
 
