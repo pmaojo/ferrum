@@ -64,10 +64,10 @@ pub fn generate_mutation(mutation: &DslMutation, paths: &ProjectPaths) -> Result
     let auth_line = if mutation.auth_required {
         "const token = localStorage.getItem('token');\n    const headers: any = token ? { 'Authorization': `Bearer ${token}` } : {};\n".to_string()
     } else {
-        String::new()
+        "const headers: Record<string, string> = {};\n".to_string()
     };
     let ts_content = format!(
-        "import {{ useState }} from 'react';\n{ts_import}export async function use{hook_name}(input: {ts_ret}) {{\n  {auth_line}  const res = await fetch('/api/mutations/{orig}', {{\n    method: 'POST',\n    headers: {{ 'Content-Type': 'application/json', ...headers }},\n    body: JSON.stringify(input),\n  }});\n  return res.json() as Promise<{ts_ret}>;\n}}\n",
+        "import {{ useState }} from 'react';\n{ts_import}export function use{hook_name}() {{\n  const [loading, setLoading] = useState(false);\n  const [error, setError] = useState<Error | null>(null);\n\n  const mutate = async (input: {ts_ret}) => {{\n    setLoading(true);\n    setError(null);\n    try {{\n{auth_line}      const res = await fetch('/api/mutations/{orig}', {{\n        method: 'POST',\n        headers: {{ 'Content-Type': 'application/json', ...headers }},\n        body: JSON.stringify(input),\n      }});\n      if (!res.ok) throw new Error(`Mutation failed: ${{res.status}}`);\n      return await res.json() as Promise<{ts_ret}>;\n    }} catch (err) {{\n      const nextError = err instanceof Error ? err : new Error('Mutation failed');\n      setError(nextError);\n      throw nextError;\n    }} finally {{\n      setLoading(false);\n    }}\n  }};\n\n  return {{ mutate, loading, error }};\n}}\n",
         ts_import = ts_import,
         hook_name = hook_name,
         ts_ret = ts_ret,
@@ -106,7 +106,9 @@ mod tests {
         };
         generate_mutation(&mutation, &paths).unwrap();
         assert!(dir.path().join("backend/mutations/create_user.rs").exists());
-        assert!(dir.path().join("frontend/hooks/useCreateUser.ts").exists());
+        let hook = fs::read_to_string(dir.path().join("frontend/hooks/useCreateUser.ts")).unwrap();
+        assert!(hook.contains("const mutate = async"));
+        assert!(hook.contains("return { mutate, loading, error }"));
     }
 
     #[test]

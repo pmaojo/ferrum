@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { {{ node.output }} } from '../types/{{ node.output }}';
-
-interface {{ node.id | capitalize }}Params {
+{% if node.output %}import { {{ node.output }} } from '../types/{{ node.output }}';
+{% endif %}
+interface {{ node.id | pascal_case }}Params {
   {% for input in node.input %}
   {{ input.name }}: string; // Using string as default type
   {% endfor %}
 }
 
-export const use{{ node.id | capitalize }} = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }: {{ node.id | capitalize }}Params) => {
-  return useQuery<{{ node.output }}>(
+export const use{{ node.id | pascal_case }} = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }: {{ node.id | pascal_case }}Params) => {
+  return useQuery{% if node.output %}<{{ node.output }}>{% endif %}(
     ['{{ node.id }}', {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %}],
     async () => {
       const response = await fetch(`/api/{{ module_name }}/{{ node.id | lower }}`, {

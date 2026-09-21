@@ -1,0 +1,10 @@
+app:
+  name: createuser
+modules:
+  createuser:
+    usecases:
+      createUser:
+        input:
+          example: string
+        output: null
+        steps: []

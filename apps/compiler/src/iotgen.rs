@@ -2,7 +2,7 @@ use anyhow::Result;
 use inflector::Inflector;
 use std::fs;
 
-use ferrum_shared_models::{DslIot, DslIotExpose, FerrumDsl};
+use ferrum_shared_models::{DslIot, FerrumDsl};
 
 use crate::iot_protocol::{DefaultProtocol, EthercatProtocol, GpioProtocol, IotProtocol, MqttProtocol};
 use crate::ProjectPaths;
@@ -63,6 +63,7 @@ pub fn compile_iot(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ferrum_shared_models::DslIotExpose;
     use tempfile::tempdir;
 
     #[test]

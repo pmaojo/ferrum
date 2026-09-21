@@ -1,5 +1,7 @@
 use anyhow::{Context, Result};
 use inflector::Inflector;
+use serde_json::Value;
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::{Context as TeraContext, Tera};
@@ -26,6 +28,7 @@ impl Generator {
 
         let mut templates =
             Tera::new(templates_glob).context("Failed to initialize Tera template engine")?;
+        templates.register_filter("pascal_case", pascal_case_filter);
         templates.autoescape_on(vec![]);
 
         Ok(Self {
@@ -186,7 +189,7 @@ impl Generator {
         Ok(())
     }
 
-    fn generate_vector_store(&self, module: &Module, node: &Node) -> Result<()> {
+    fn generate_vector_store(&self, _module: &Module, node: &Node) -> Result<()> {
         // We expect node.story to contain the embedding dimension or use a default
         let dimensions = node.input.iter()
             .find(|f| f.name == "dimensions")
@@ -772,12 +775,15 @@ impl Generator {
 }
 
 // Helper function to capitalize first letter of a string
+fn pascal_case_filter(value: &Value, _: &HashMap<String, Value>) -> tera::Result<Value> {
+    let input = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("pascal_case expects a string"))?;
+    Ok(Value::String(input.to_pascal_case()))
+}
+
 pub(crate) fn capitalize(s: &str) -> String {
-    let mut chars = s.chars();
-    match chars.next() {
-        None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-    }
+    s.to_pascal_case()
 }
 
 pub(crate) fn snake_case(s: &str) -> String {
@@ -834,6 +840,8 @@ mod tests {
     #[test]
     fn test_capitalize() {
         assert_eq!(capitalize("hello"), "Hello");
+        assert_eq!(capitalize("createUser"), "CreateUser");
+        assert_eq!(capitalize("create_user"), "CreateUser");
         assert_eq!(capitalize(""), "");
     }
 
