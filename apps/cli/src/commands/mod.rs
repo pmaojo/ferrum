@@ -284,6 +284,45 @@ pub enum Commands {
         #[arg(value_enum)]
         provider: DeployProvider,
     },
+    /// Add a resource client (redis, s3, ...) to the DSL and generate it
+    #[command(name = "make:resource")]
+    MakeResource {
+        /// Resource name, e.g. RedisCache
+        name: String,
+        /// Resource type, e.g. redis, s3
+        #[arg(long)]
+        resource_type: String,
+        /// DSL file to add the resource to
+        #[arg(long, default_value = "gen/example.yaml")]
+        file: PathBuf,
+    },
+    /// Add a scheduled job to the DSL and generate it
+    #[command(name = "make:job")]
+    MakeJob {
+        /// Job name, e.g. SendWeeklyDigest
+        name: String,
+        /// Cron schedule, e.g. "0 0 * * *"
+        #[arg(long)]
+        schedule: String,
+        /// Handler identifier; defaults to the job name
+        #[arg(long)]
+        handler: Option<String>,
+        /// DSL file to add the job to
+        #[arg(long, default_value = "gen/example.yaml")]
+        file: PathBuf,
+    },
+    /// Add an authorization policy to the DSL and generate it
+    #[command(name = "make:policy")]
+    MakePolicy {
+        /// Policy name, e.g. AdminOnly
+        name: String,
+        /// Guard expression, e.g. "role:admin"
+        #[arg(long)]
+        guard: String,
+        /// DSL file to add the policy to
+        #[arg(long, default_value = "gen/example.yaml")]
+        file: PathBuf,
+    },
 }
 
 mod compile;
@@ -307,6 +346,7 @@ mod ai_team;
 mod flow_report;
 mod build;
 mod deploy;
+mod make;
 
 pub use analyze::analyze;
 pub use ai_team::ai_team;
@@ -329,6 +369,7 @@ pub use sync_cmd::sync;
 pub use usecase_prompt::usecase_prompt;
 pub use compile::{compile, compile_with_formatters};
 pub use plugins::{add_plugin, list_plugins, remove_plugin};
+pub use make::{make_job, make_policy, make_resource};
 
 pub(crate) fn load_plugins() -> Result<ferrum_engine::plugins::PluginManager> {
     use std::fs;
