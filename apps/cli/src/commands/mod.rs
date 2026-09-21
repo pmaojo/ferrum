@@ -323,6 +323,25 @@ pub enum Commands {
         #[arg(long, default_value = "gen/example.yaml")]
         file: PathBuf,
     },
+    /// Add a standalone entity to the DSL and generate its model, schema,
+    /// migration and Diesel ORM files
+    #[command(name = "make:entity")]
+    MakeEntity {
+        /// Entity name, e.g. Post
+        name: String,
+        /// Fields as name:type pairs, e.g. title:string body:text --field published:bool
+        #[arg(long = "field", value_name = "NAME:TYPE")]
+        fields: Vec<String>,
+        /// Name of an existing entity to derive fields from
+        #[arg(long)]
+        derive_from: Option<String>,
+        /// DSL file to add the entity to
+        #[arg(long, default_value = "gen/example.yaml")]
+        file: PathBuf,
+        /// Template directory (defaults to the same one `ferrum compile` uses)
+        #[arg(long)]
+        templates: Option<PathBuf>,
+    },
 }
 
 mod compile;
@@ -369,7 +388,7 @@ pub use sync_cmd::sync;
 pub use usecase_prompt::usecase_prompt;
 pub use compile::{compile, compile_with_formatters};
 pub use plugins::{add_plugin, list_plugins, remove_plugin};
-pub use make::{make_job, make_policy, make_resource};
+pub use make::{make_entity, make_job, make_policy, make_resource};
 
 pub(crate) fn load_plugins() -> Result<ferrum_engine::plugins::PluginManager> {
     use std::fs;

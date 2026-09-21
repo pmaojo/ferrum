@@ -40,6 +40,7 @@ pub struct EntityContext<'a> {
     pub module: &'a Module,
     pub node: &'a Node,
     pub module_name: &'a str,
+    pub fields: Vec<DieselField>,
 }
 
 /// Context for components.
@@ -113,7 +114,7 @@ pub struct DocumentationContext<'a> {
 }
 
 /// Field metadata used in Diesel ORM templates.
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct DieselField {
     pub name: String,
     pub rust_type: String,

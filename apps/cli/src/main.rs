@@ -4,8 +4,8 @@ use ferrum_cli::{
     add_plugin, analyze, compile, component_prompt, dev, explain, fill_todos,
     generate_graph, init, list_plugins, migrate, plugin_docs, prompt,
     remove_plugin, sync, usecase_prompt, flow_report, generate_usecase,
-    doctor, extract_i18n, ai_team, build, deploy, make_job, make_policy,
-    make_resource, Cli, Commands,
+    doctor, extract_i18n, ai_team, build, deploy, make_entity, make_job,
+    make_policy, make_resource, Cli, Commands,
 };
 
 fn main() -> Result<()> {
@@ -92,5 +92,12 @@ fn main() -> Result<()> {
             file,
         } => make_job(name, schedule, handler, file),
         Commands::MakePolicy { name, guard, file } => make_policy(name, guard, file),
+        Commands::MakeEntity {
+            name,
+            fields,
+            derive_from,
+            file,
+            templates,
+        } => make_entity(name, fields, derive_from, file, templates),
     }
 }

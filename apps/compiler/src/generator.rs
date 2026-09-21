@@ -278,10 +278,36 @@ impl Generator {
     }
 
     fn generate_entity(&self, module: &Module, node: &Node) -> Result<()> {
+        // Prepare field metadata for templates. Computed once up front so
+        // the Rust model, the TS schema and the Diesel ORM templates all
+        // render the entity's actual fields instead of drifting from it.
+        let fields: Vec<DieselField> = node
+            .input
+            .iter()
+            .map(|f| DieselField {
+                name: f.name.clone(),
+                rust_type: match f.field_type.as_str() {
+                    "uuid" => "Uuid".into(),
+                    "int" | "integer" => "i32".into(),
+                    "bool" => "bool".into(),
+                    "timestamp" => "chrono::NaiveDateTime".into(),
+                    _ => "String".into(),
+                },
+                sql_type: match f.field_type.as_str() {
+                    "uuid" => "Uuid".into(),
+                    "int" | "integer" => "Integer".into(),
+                    "bool" => "Bool".into(),
+                    "timestamp" => "Timestamp".into(),
+                    _ => "Text".into(),
+                },
+            })
+            .collect();
+
         let ctx = EntityContext {
             module,
             node,
             module_name: &module.name,
+            fields: fields.clone(),
         };
         let context =
             TeraContext::from_serialize(&ctx).context("Failed to serialize entity context")?;
@@ -347,29 +373,6 @@ impl Generator {
         if !mod_path.exists() {
             self.write_file(&mod_path, "pub mod models;\npub mod schema;\n")?;
         }
-
-        // Prepare field metadata for templates
-        let fields: Vec<DieselField> = node
-            .input
-            .iter()
-            .map(|f| DieselField {
-                name: f.name.clone(),
-                rust_type: match f.field_type.as_str() {
-                    "uuid" => "Uuid".into(),
-                    "int" | "integer" => "i32".into(),
-                    "bool" => "bool".into(),
-                    "timestamp" => "chrono::NaiveDateTime".into(),
-                    _ => "String".into(),
-                },
-                sql_type: match f.field_type.as_str() {
-                    "uuid" => "Uuid".into(),
-                    "int" | "integer" => "Integer".into(),
-                    "bool" => "Bool".into(),
-                    "timestamp" => "Timestamp".into(),
-                    _ => "Text".into(),
-                },
-            })
-            .collect();
 
         let diesel_ctx = DieselContext {
             table_name: node.id.to_lowercase(),

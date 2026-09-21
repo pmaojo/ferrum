@@ -7,7 +7,6 @@ use chrono::NaiveDateTime;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct {{ node.id | capitalize }} {
     pub id: Uuid,
-    pub email: String,
-    pub password: String,
-    pub creado_en: NaiveDateTime,
+{% for field in fields %}    pub {{ field.name }}: {{ field.rust_type }},
+{% endfor %}    pub created_at: NaiveDateTime,
 }

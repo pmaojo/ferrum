@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const {{ node.id | lower }}Schema = z.object({
   id: z.string().uuid(),
-  name: z.string(),
-  createdAt: z.string().datetime(),
+{% for field in fields %}  {{ field.name }}: {% if field.rust_type == "Uuid" %}z.string().uuid(){% elif field.rust_type == "i32" %}z.number(){% elif field.rust_type == "bool" %}z.boolean(){% elif field.rust_type == "chrono::NaiveDateTime" %}z.string().datetime(){% else %}z.string(){% endif %},
+{% endfor %}  createdAt: z.string().datetime(),
 });
 
 export type {{ node.id | capitalize }} = z.infer<typeof {{ node.id | lower }}Schema>;

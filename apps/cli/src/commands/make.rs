@@ -1,9 +1,10 @@
 use anyhow::{Context, Result};
 use inflector::Inflector;
+use std::collections::BTreeMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use ferrum_shared_models::{DslJob, DslPolicy, DslResource, FerrumDsl};
+use ferrum_shared_models::{DslJob, DslPolicy, DslResource, DslStandaloneEntity, FerrumDsl};
 
 /// Write `dsl` back to `path` as YAML, overwriting the file in place.
 ///
@@ -98,5 +99,61 @@ pub fn make_policy(name: String, guard: String, file: std::path::PathBuf) -> Res
 
     println!("✅ Added policy '{name}' to {}", file.display());
     println!("✅ Generated backend/policies/{}.rs", name.to_lowercase());
+    Ok(())
+}
+
+/// `ferrum make:entity NAME --field title:string --field body:text` — the
+/// equivalent of `artisan make:model`/`rails generate model`: adds a
+/// standalone entity to the DSL and generates its Rust model, TypeScript
+/// schema, Diesel migration and Diesel ORM boilerplate immediately.
+///
+/// Unlike `make:resource`/`make:job`/`make:policy`, which call a per-item
+/// generator function directly, entities are only rendered through the
+/// Node-graph `Generator` (`generate_entity`), so this goes through the
+/// same `project_to_modules` conversion `ferrum compile` uses and then
+/// generates just the one resulting module instead of the whole project.
+pub fn make_entity(
+    name: String,
+    fields: Vec<String>,
+    derive_from: Option<String>,
+    file: PathBuf,
+    templates: Option<PathBuf>,
+) -> Result<()> {
+    let mut dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
+    if dsl.entities.iter().any(|e| e.name == name) {
+        anyhow::bail!("an entity named '{name}' already exists in {}", file.display());
+    }
+
+    let mut field_map = BTreeMap::new();
+    for f in &fields {
+        let (fname, ftype) = f.split_once(':').with_context(|| {
+            format!("field '{f}' must be in the form name:type, e.g. title:string")
+        })?;
+        field_map.insert(fname.to_string(), ftype.to_string());
+    }
+
+    dsl.entities.push(DslStandaloneEntity {
+        name: name.clone(),
+        derive_from,
+        fields: field_map,
+    });
+    write_dsl_yaml(&file, &dsl)?;
+
+    let modules = ferrum_compiler::project_to_modules(&mut dsl)?;
+    let module = modules
+        .into_iter()
+        .find(|m| m.name == name)
+        .context("internal error: entity module not found after DSL conversion")?;
+
+    let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
+    let generator = ferrum_compiler::Generator::new(templates_dir, PathBuf::from("."))?;
+    generator.generate(&module)?;
+
+    let slug = name.to_lowercase();
+    println!("✅ Added entity '{name}' to {}", file.display());
+    println!("✅ Generated shared-models/{slug}.rs");
+    println!("✅ Generated frontend/src/schemas/{slug}.ts");
+    println!("✅ Generated backend/migrations/NNNN_create_{slug}/{{up,down}}.sql");
+    println!("✅ Updated backend/src/db/{{models,schema}}.rs");
     Ok(())
 }
