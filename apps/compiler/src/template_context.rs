@@ -40,6 +40,7 @@ pub struct EntityContext<'a> {
     pub module: &'a Module,
     pub node: &'a Node,
     pub module_name: &'a str,
+    pub fields: Vec<DieselField>,
 }
 
 /// Context for components.
@@ -71,6 +72,13 @@ pub struct SchemaContext<'a> {
 pub struct FormContext<'a> {
     pub module: &'a Module,
     pub node: &'a Node,
+    /// PascalCase name of the mutation hook this form submits to (from
+    /// `node.description`, i.e. the DSL's `submitTo`), computed with the
+    /// same `to_pascal_case()` the mutation generator itself uses so the
+    /// import always matches the file that generator actually writes.
+    pub hook_name: String,
+    /// PascalCase name of an optional policy-gate hook (from `node.doc`).
+    pub policy_hook_name: Option<String>,
 }
 
 /// Parsed validation rule used when generating validation functions.
@@ -113,7 +121,7 @@ pub struct DocumentationContext<'a> {
 }
 
 /// Field metadata used in Diesel ORM templates.
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct DieselField {
     pub name: String,
     pub rust_type: String,

@@ -274,6 +274,7 @@ serde = { version = "1", features = ["derive"] }
 embedded-hal = { version = "1", optional = true }
 rppal = { version = "0.18", optional = true }
 rumqttc = { version = "0.22", optional = true }
+ethercat-rs = { version = "0.2", package = "ethercat_rs", optional = true }
 axum-server = { version = "0.8", features = ["tls-rustls"] }
 axum-extra = { version = "0.12", features = ["typed-header"] }
 rustls-acme = { version = "0.15", features = ["axum"] }
@@ -285,6 +286,7 @@ default = []
 hal = ["dep:embedded-hal"]
 rppal = ["dep:rppal"]
 mqtt = ["dep:rumqttc"]
+ethercat = ["dep:ethercat-rs"]
 "#,
     )?;
 
@@ -530,12 +532,15 @@ chrono = { version = "0.4", features = ["serde"] }
     if with_db || with_ai {
         let cargo_toml_path = project_dir.join("backend/Cargo.toml");
         fs::create_dir_all(project_dir.join("backend"))?;
-        let mut cargo_toml: toml::Value = toml::from_str(&fs::read_to_string(&cargo_toml_path)?)?;
+        // toml 0.9+ (spec 1.1) split `Value` into "a single value expression"
+        // and `Table` into "a whole document" — `Value::parse` no longer
+        // accepts a multi-table document like a `Cargo.toml`. `Table` does.
+        let mut cargo_toml: toml::Table = toml::from_str(&fs::read_to_string(&cargo_toml_path)?)?;
         let dependencies = cargo_toml["dependencies"].as_table_mut().unwrap();
 
         if with_db {
             let mut diesel_dependency = toml::map::Map::new();
-            diesel_dependency.insert("version".to_string(), toml::Value::String("2.1".to_string()));
+            diesel_dependency.insert("version".to_string(), toml::Value::String("2.3".to_string()));
             let features = match db_type {
                 super::DbType::Postgres => vec!["postgres", "r2d2"],
                 super::DbType::Sqlite => vec!["sqlite", "r2d2"],
@@ -562,16 +567,19 @@ chrono = { version = "0.4", features = ["serde"] }
             );
             dependencies.insert(
                 "reqwest".to_string(),
-                toml::Value::String("0.11".to_string()),
+                toml::Value::String("0.12".to_string()),
             );
             dependencies.insert(
                 "serde_json".to_string(),
                 toml::Value::String("1.0".to_string()),
             );
 
-            // Add ai feature
-            if let Some(f) = cargo_toml.as_table_mut() {
-                let features_table = f.entry("features").or_insert(toml::Value::Table(toml::map::Map::new()));
+            // Add ai feature — `cargo_toml` is itself the document's table now
+            // (see the `toml::Table` note above), so no `.as_table_mut()` step.
+            {
+                let features_table = cargo_toml
+                    .entry("features".to_string())
+                    .or_insert(toml::Value::Table(toml::map::Map::new()));
                 if let toml::Value::Table(f) = features_table {
                     f.insert("ai".to_string(), toml::Value::Array(vec![]));
                     // Add ai to default
