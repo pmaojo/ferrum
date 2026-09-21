@@ -1,6 +1,6 @@
 import React from 'react';
-import { use{{ node.description | capitalize }} } from '../hooks/use{{ node.description | capitalize }}';
-{% if node.doc %}import { use{{ node.doc | capitalize }} } from '../hooks/use{{ node.doc | capitalize }}';
+import { use{{ hook_name }} } from '../../hooks/use{{ hook_name }}';
+{% if policy_hook_name %}import { use{{ policy_hook_name }} } from '../../hooks/use{{ policy_hook_name }}';
 {% endif %}
 import { z } from 'zod';
 
@@ -11,8 +11,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export const {{ node.id | capitalize }}: React.FC = () => {
-  const { mutate } = use{{ node.description | capitalize }}();
-{% if node.doc %}  const allowed = use{{ node.doc | capitalize }}();
+  const { mutate } = use{{ hook_name }}();
+{% if policy_hook_name %}  const allowed = use{{ policy_hook_name }}();
   if (!allowed) return null;
 {% endif %}  const [values, setValues] = React.useState<FormData>({
 {% for field in node.input %}    {{ field.name }}: '',

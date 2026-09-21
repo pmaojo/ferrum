@@ -342,6 +342,21 @@ pub enum Commands {
         #[arg(long)]
         templates: Option<PathBuf>,
     },
+    /// Scaffold an entity plus a create mutation and form, all wired together
+    #[command(name = "make:scaffold")]
+    MakeScaffold {
+        /// Entity name, e.g. Post
+        name: String,
+        /// Fields as name:type pairs, e.g. title:string body:text
+        #[arg(long = "field", value_name = "NAME:TYPE")]
+        fields: Vec<String>,
+        /// DSL file to add the scaffold to
+        #[arg(long, default_value = "gen/example.yaml")]
+        file: PathBuf,
+        /// Template directory (defaults to the same one `ferrum compile` uses)
+        #[arg(long)]
+        templates: Option<PathBuf>,
+    },
 }
 
 mod compile;
@@ -388,7 +403,7 @@ pub use sync_cmd::sync;
 pub use usecase_prompt::usecase_prompt;
 pub use compile::{compile, compile_with_formatters};
 pub use plugins::{add_plugin, list_plugins, remove_plugin};
-pub use make::{make_entity, make_job, make_policy, make_resource};
+pub use make::{make_entity, make_job, make_policy, make_resource, make_scaffold};
 
 pub(crate) fn load_plugins() -> Result<ferrum_engine::plugins::PluginManager> {
     use std::fs;

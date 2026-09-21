@@ -1,4 +1,4 @@
-use ferrum_cli::commands::{make_entity, make_job, make_policy, make_resource};
+use ferrum_cli::commands::{make_entity, make_job, make_policy, make_resource, make_scaffold};
 use serial_test::serial;
 use std::{env, fs};
 use tempfile::tempdir;
@@ -134,6 +134,43 @@ fn make_entity_adds_to_dsl_and_generates_real_fields() {
         Some(templates_path()),
     )
     .is_err());
+
+    env::set_current_dir(cwd).unwrap();
+}
+
+#[test]
+#[serial]
+fn make_scaffold_wires_entity_mutation_and_form_together() {
+    let dir = tempdir().unwrap();
+    let cwd = env::current_dir().unwrap();
+    env::set_current_dir(dir.path()).unwrap();
+
+    let file = std::path::PathBuf::from("gen/example.yaml");
+    write_base_dsl(&file);
+
+    make_scaffold(
+        "Post".to_string(),
+        vec!["title:string".to_string(), "body:text".to_string()],
+        file.clone(),
+        Some(templates_path()),
+    )
+    .unwrap();
+
+    let dsl = ferrum_compiler::parse_dsl_yaml(&file).unwrap();
+    assert!(dsl.entities.iter().any(|e| e.name == "Post"));
+    assert!(dsl.mutations.iter().any(|m| m.name == "createPost" && m.entities == vec!["Post".to_string()]));
+    assert!(dsl.forms.iter().any(|f| f.name == "PostForm" && f.submit_to == "createPost"));
+
+    assert!(std::path::Path::new("shared-models/post.rs").exists());
+    assert!(std::path::Path::new("backend/mutations/create_post.rs").exists());
+    assert!(std::path::Path::new("frontend/hooks/useCreatePost.ts").exists());
+    assert!(std::path::Path::new("frontend/src/forms/PostForm.tsx").exists());
+
+    // The form must import the hook the mutation step actually generated -
+    // both the name (PascalCase, matching Inflector, not Tera's naive
+    // capitalize) and the relative path.
+    let form = fs::read_to_string("frontend/src/forms/PostForm.tsx").unwrap();
+    assert!(form.contains("import { useCreatePost } from \"../../hooks/useCreatePost\";"));
 
     env::set_current_dir(cwd).unwrap();
 }

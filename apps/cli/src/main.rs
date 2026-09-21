@@ -5,7 +5,7 @@ use ferrum_cli::{
     generate_graph, init, list_plugins, migrate, plugin_docs, prompt,
     remove_plugin, sync, usecase_prompt, flow_report, generate_usecase,
     doctor, extract_i18n, ai_team, build, deploy, make_entity, make_job,
-    make_policy, make_resource, Cli, Commands,
+    make_policy, make_resource, make_scaffold, Cli, Commands,
 };
 
 fn main() -> Result<()> {
@@ -99,5 +99,11 @@ fn main() -> Result<()> {
             file,
             templates,
         } => make_entity(name, fields, derive_from, file, templates),
+        Commands::MakeScaffold {
+            name,
+            fields,
+            file,
+            templates,
+        } => make_scaffold(name, fields, file, templates),
     }
 }

@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use inflector::Inflector;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tera::{Context as TeraContext, Tera};
@@ -476,7 +477,12 @@ impl Generator {
     }
 
     fn generate_form(&self, module: &Module, node: &Node) -> Result<()> {
-        let ctx = FormContext { module, node };
+        let ctx = FormContext {
+            module,
+            node,
+            hook_name: node.description.as_deref().unwrap_or_default().to_pascal_case(),
+            policy_hook_name: node.doc.as_deref().map(|d| d.to_pascal_case()),
+        };
         let context =
             TeraContext::from_serialize(&ctx).context("Failed to serialize form context")?;
 

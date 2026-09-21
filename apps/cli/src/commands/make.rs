@@ -4,7 +4,21 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use ferrum_shared_models::{DslJob, DslPolicy, DslResource, DslStandaloneEntity, FerrumDsl};
+use ferrum_shared_models::{
+    DslJob, DslMutation, DslPolicy, DslResource, DslStandaloneEntity, DslStandaloneForm, FerrumDsl,
+};
+
+/// Parse `name:type` pairs from `--field` flags, e.g. `title:string`.
+fn parse_fields(fields: &[String]) -> Result<BTreeMap<String, String>> {
+    let mut field_map = BTreeMap::new();
+    for f in fields {
+        let (fname, ftype) = f.split_once(':').with_context(|| {
+            format!("field '{f}' must be in the form name:type, e.g. title:string")
+        })?;
+        field_map.insert(fname.to_string(), ftype.to_string());
+    }
+    Ok(field_map)
+}
 
 /// Write `dsl` back to `path` as YAML, overwriting the file in place.
 ///
@@ -124,13 +138,7 @@ pub fn make_entity(
         anyhow::bail!("an entity named '{name}' already exists in {}", file.display());
     }
 
-    let mut field_map = BTreeMap::new();
-    for f in &fields {
-        let (fname, ftype) = f.split_once(':').with_context(|| {
-            format!("field '{f}' must be in the form name:type, e.g. title:string")
-        })?;
-        field_map.insert(fname.to_string(), ftype.to_string());
-    }
+    let field_map = parse_fields(&fields)?;
 
     dsl.entities.push(DslStandaloneEntity {
         name: name.clone(),
@@ -155,5 +163,79 @@ pub fn make_entity(
     println!("✅ Generated frontend/src/schemas/{slug}.ts");
     println!("✅ Generated backend/migrations/NNNN_create_{slug}/{{up,down}}.sql");
     println!("✅ Updated backend/src/db/{{models,schema}}.rs");
+    Ok(())
+}
+
+/// `ferrum make:scaffold NAME --field title:string --field body:text` — the
+/// equivalent of `rails generate scaffold`: an entity, a create mutation
+/// (backend handler + frontend hook), and a form wired to submit to it, in
+/// one command.
+///
+/// ferrum's `routes:` DSL section is frontend page routing (no HTTP verb),
+/// not a REST API surface, so unlike Rails a scaffold here doesn't fabricate
+/// backend CRUD endpoints — only the pieces the DSL actually models. Add a
+/// route separately with a plain DSL edit (or a future `make:route`) once
+/// the page that lists/shows the entity exists.
+pub fn make_scaffold(
+    name: String,
+    fields: Vec<String>,
+    file: PathBuf,
+    templates: Option<PathBuf>,
+) -> Result<()> {
+    let mut dsl = ferrum_compiler::parse_dsl_yaml(&file)?;
+    if dsl.entities.iter().any(|e| e.name == name) {
+        anyhow::bail!("an entity named '{name}' already exists in {}", file.display());
+    }
+
+    let field_map = parse_fields(&fields)?;
+    let mutation_name = format!("create{name}");
+    let form_name = format!("{name}Form");
+
+    dsl.entities.push(DslStandaloneEntity {
+        name: name.clone(),
+        derive_from: None,
+        fields: field_map.clone(),
+    });
+    let mutation = DslMutation {
+        name: mutation_name.clone(),
+        handler: format!("./backend/mutations/{}.rs", mutation_name.to_snake_case()),
+        entities: vec![name.clone()],
+        auth_required: false,
+        policy: None,
+    };
+    dsl.mutations.push(mutation.clone());
+    dsl.forms.push(DslStandaloneForm {
+        name: form_name.clone(),
+        submit_to: mutation_name.clone(),
+        fields: field_map,
+        policy: None,
+    });
+    write_dsl_yaml(&file, &dsl)?;
+
+    let paths = ferrum_compiler::ProjectPaths::new(".");
+    ferrum_compiler::generate_mutation(&mutation, &paths)?;
+
+    let modules = ferrum_compiler::project_to_modules(&mut dsl)?;
+    let templates_dir = templates.unwrap_or_else(|| PathBuf::from("templates"));
+    let generator = ferrum_compiler::Generator::new(templates_dir, PathBuf::from("."))?;
+    for module in &modules {
+        // "forms" bundles every standalone form in the DSL, so this
+        // regenerates all of them, not just the new one - same as
+        // `ferrum compile` would. Harmless: generation is idempotent.
+        if module.name == name || module.name == "forms" {
+            generator.generate(module)?;
+        }
+    }
+
+    let slug = name.to_lowercase();
+    let mutation_slug = mutation_name.to_snake_case();
+    println!("✅ Scaffolded '{name}' in {}", file.display());
+    println!(
+        "✅ Entity:   shared-models/{slug}.rs, frontend/src/schemas/{slug}.ts, backend/migrations/..._create_{slug}"
+    );
+    println!(
+        "✅ Mutation: backend/mutations/{mutation_slug}.rs, frontend/hooks/use{mutation_name}.ts"
+    );
+    println!("✅ Form:     frontend/src/forms/{form_name}.tsx");
     Ok(())
 }

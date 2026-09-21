@@ -7,6 +7,6 @@ pub use commands::{
     component_prompt, deploy, dev, doctor, explain, extract_i18n, fill_todos,
     fill_todos_with_pattern, flow_report, generate_graph, generate_usecase,
     init, list_plugins, make_entity, make_job, make_policy, make_resource,
-    migrate, plugin_docs, prompt, remove_plugin, sync, usecase_prompt, Cli,
-    Commands,
+    make_scaffold, migrate, plugin_docs, prompt, remove_plugin, sync,
+    usecase_prompt, Cli, Commands,
 };
