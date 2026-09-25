@@ -1,32 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
-{% if node.output %}import { {{ node.output }} } from '../types/{{ node.output }}';
+{% if node.output %}import type { {{ node.output }} } from '../types/{{ node.output }}';
 {% endif %}
-interface {{ node.id | pascal_case }}Params {
-  {% for input in node.input %}
-  {{ input.name }}: string; // Using string as default type
-  {% endfor %}
-}
+export interface {{ node.id | pascal_case }}Params {
+{% for input in node.input %}  {{ input.name }}: string;
+{% endfor %}}
 
-export const use{{ node.id | pascal_case }} = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }: {{ node.id | pascal_case }}Params) => {
-  return useQuery{% if node.output %}<{{ node.output }}>{% endif %}(
-    ['{{ node.id }}', {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %}],
-    async () => {
+export const use{{ node.id | pascal_case }} = (params: {{ node.id | pascal_case }}Params) => {
+  return useQuery({
+    queryKey: ['{{ node.id }}'{% for input in node.input %}, params.{{ input.name }}{% endfor %}],
+    queryFn: async (): Promise<{% if node.output %}{{ node.output }}{% else %}unknown{% endif %}> => {
       const response = await fetch(`/api/{{ module_name }}/{{ node.id | lower }}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }),
+        body: JSON.stringify({ {% for input in node.input %}{{ input.name }}: params.{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error(`Request failed with status ${response.status}`);
       }
-      
+
       return response.json();
     },
-    {
-      enabled: {% for input in node.input %}!!{{ input.name }}{% if not loop.last %} && {% endif %}{% endfor %},
-    }
-  );
+{% if node.input %}    // Only fire once every parameter has a value; without this the request
+    // would run with undefined arguments on first render.
+    enabled: {% for input in node.input %}Boolean(params.{{ input.name }}){% if not loop.last %} && {% endif %}{% endfor %},
+{% endif %}  });
 };

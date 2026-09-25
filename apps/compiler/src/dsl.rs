@@ -115,11 +115,18 @@ pub fn project_to_modules(project: &mut FerrumDsl) -> ValidationResult<Vec<Modul
                     id: f.name.clone(),
                     node_type: NodeType::Form,
                     doc: f.policy.clone(),
+                    // `submitTo` is kept in `description` because the form
+                    // generator derives the hook name from it. It must NOT
+                    // become a `depends_on` edge: it usually points at a
+                    // `mutations:` entry, which is not a graph node, and
+                    // `validate_modules` rejects any edge whose target is not
+                    // a node — which made every `make:scaffold` output
+                    // uncompilable.
                     description: Some(f.submit_to.clone()),
                     story: None,
                     input,
                     output: None,
-                    depends_on: vec![f.submit_to.clone()],
+                    depends_on: Vec::new(),
                     implements: None,
                     view: None,
                     schema: None,

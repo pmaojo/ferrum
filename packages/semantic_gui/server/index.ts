@@ -115,16 +115,25 @@ await (async () => {
   // This serves both the API and the client.
   // Port 3000 is the only port that is not firewalled by default.
   const port = Number(process.env.PORT) || 3000;
+  // HOST defaults to 0.0.0.0 so containerised deployments keep listening on
+  // every interface; set HOST=127.0.0.1 to bind loopback only.
+  const host = process.env.HOST || '0.0.0.0';
+  // SO_REUSEPORT is opt-in: it is only useful when several cluster workers
+  // share a port, and it is not supported everywhere (macOS and Windows
+  // reject the socket option outright with ENOTSUP/EINVAL, which crashes the
+  // process at startup). Set REUSE_PORT=true to enable it explicitly.
+  const reusePort = process.env.REUSE_PORT === 'true';
   server.listen(
     {
       port,
-      host: '0.0.0.0',
-      reusePort: true,
+      host,
+      reusePort,
     },
     () => {
       serverLogger.info(`Server started successfully`, {
         port,
-        host: '0.0.0.0',
+        host,
+        reusePort,
         environment: app.get('env'),
         nodeVersion: process.version,
       });

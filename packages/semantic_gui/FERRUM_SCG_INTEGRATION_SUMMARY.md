@@ -8,7 +8,7 @@ Successfully implemented complete SCG (Semantic Code Graph) integration for the 
 
 ### ✅ 3.1 Define FerrumGraphData interface
 
-**Location**: `applications/semantic_gui/shared/types/ferrum-types.ts`
+**Location**: `packages/semantic_gui/shared/types/ferrum-types.ts`
 
 **Implemented**:
 - Complete TypeScript interfaces for Ferrum graph data exchange
@@ -26,7 +26,7 @@ Successfully implemented complete SCG (Semantic Code Graph) integration for the 
 
 ### ✅ 3.2 Create Ferrum SCG template
 
-**Location**: `applications/semantic_gui/templates/ferrus-hexagonal.json`
+**Location**: `packages/semantic_gui/templates/ferrus-hexagonal.json`
 
 **Enhanced**:
 - Added IoT node type with proper visualization
@@ -44,7 +44,7 @@ Successfully implemented complete SCG (Semantic Code Graph) integration for the 
 
 ### ✅ 3.3 Implement YAML DSL to graph conversion
 
-**Location**: `applications/semantic_gui/shared/converters/ferrum-dsl-converter.ts`
+**Location**: `packages/semantic_gui/shared/converters/ferrum-dsl-converter.ts`
 
 **Implemented**:
 - Complete YAML DSL parser using the `yaml` library
@@ -62,7 +62,7 @@ Successfully implemented complete SCG (Semantic Code Graph) integration for the 
 
 ### ✅ 3.4 Implement graph to YAML DSL conversion
 
-**Location**: `applications/semantic_gui/shared/converters/ferrum-dsl-converter.ts`
+**Location**: `packages/semantic_gui/shared/converters/ferrum-dsl-converter.ts`
 
 **Implemented**:
 - Reverse conversion from FerrumGraphData to YAML DSL

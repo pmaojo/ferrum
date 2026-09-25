@@ -1,22 +1,33 @@
-import React from 'react';
-import { use{{ hook_name }} } from '../../hooks/use{{ hook_name }}';
-{% if policy_hook_name %}import { use{{ policy_hook_name }} } from '../../hooks/use{{ policy_hook_name }}';
-{% endif %}
-import { z } from 'zod';
+import * as React from "react";
+import { z } from "zod";
+import { use{{ hook_name }} } from "../../hooks/use{{ hook_name }}";
+{% if policy_hook_name %}import { use{{ policy_hook_name }} } from "../../hooks/use{{ policy_hook_name }}";
+{% endif %}import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 
 const schema = z.object({
-{% for field in node.input %}  {{ field.name }}: z.string(),
+{% for field in node.input %}  {{ field.name }}: z.string().min(1, "{{ field.name }} is required"),
 {% endfor %}});
 
 type FormData = z.infer<typeof schema>;
 
-export const {{ node.id | capitalize }}: React.FC = () => {
-  const { mutate } = use{{ hook_name }}();
+export const {{ node.id | pascal_case }}: React.FC = () => {
+  const { mutate, loading, error } = use{{ hook_name }}();
 {% if policy_hook_name %}  const allowed = use{{ policy_hook_name }}();
   if (!allowed) return null;
 {% endif %}  const [values, setValues] = React.useState<FormData>({
-{% for field in node.input %}    {{ field.name }}: '',
+{% for field in node.input %}    {{ field.name }}: "",
 {% endfor %}  });
+  const [validationError, setValidationError] = React.useState<string | null>(
+    null
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [e.target.name]: e.target.value });
@@ -24,15 +35,45 @@ export const {{ node.id | capitalize }}: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const res = schema.safeParse(values);
-    if (!res.success) { console.error(res.error); return; }
-    mutate(values);
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      setValidationError(parsed.error.issues[0]?.message ?? "Invalid input");
+      return;
+    }
+    setValidationError(null);
+    mutate(parsed.data);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-{% for field in node.input %}      <input name="{{ field.name }}" value={values.{{ field.name }}} onChange={handleChange} placeholder="{{ field.name }}" />
-{% endfor %}      <button type="submit">Submit</button>
-    </form>
+    <Card className="max-w-md">
+      <CardHeader>
+        <CardTitle>{{ node.id | pascal_case }}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+{% for field in node.input %}          <div className="space-y-2">
+            <Label htmlFor="{{ field.name }}">{{ field.name }}</Label>
+            <Input
+              id="{{ field.name }}"
+              name="{{ field.name }}"
+              value={values.{{ field.name }}}
+              onChange={handleChange}
+              placeholder="{{ field.name }}"
+            />
+          </div>
+{% endfor %}          {validationError ? (
+            <p className="text-sm text-destructive">{validationError}</p>
+          ) : null}
+          {error ? (
+            <p className="text-sm text-destructive">{error.message}</p>
+          ) : null}
+          <Button type="submit" disabled={loading}>
+            {loading ? "Saving…" : "Submit"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
+
+export default {{ node.id | pascal_case }};

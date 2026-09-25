@@ -234,7 +234,8 @@ pub fn make_scaffold(
         "✅ Entity:   shared-models/{slug}.rs, frontend/src/schemas/{slug}.ts, backend/migrations/..._create_{slug}"
     );
     println!(
-        "✅ Mutation: backend/mutations/{mutation_slug}.rs, frontend/hooks/use{mutation_name}.ts"
+        "✅ Mutation: backend/mutations/{mutation_slug}.rs, frontend/hooks/use{}.ts",
+        mutation_name.to_pascal_case()
     );
     println!("✅ Form:     frontend/src/forms/{form_name}.tsx");
     Ok(())

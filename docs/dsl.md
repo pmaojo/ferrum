@@ -31,7 +31,7 @@ Ferrum extends the DSL with several high level declarations. The [README](../REA
 
 - **queries** → generates Rust handlers and React hooks
 - **mutations** → like queries but for changing state; can require auth
-- **routes / pages** → creates a `frontend/routes.tsx` file
+- **routes / pages** → creates a `frontend/src/routes.tsx` router plus placeholder pages in `frontend/src/pages/`
 - **jobs** → scheduled tasks placed in `backend/jobs/`
 - **resources** → integrations with external services (APIs, queues...)
 - **policies** → reusable authorization guards

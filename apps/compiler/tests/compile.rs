@@ -1,4 +1,6 @@
-use ferrum_compiler::{compile_dsl, parse_dsl_yaml, ProjectPaths};
+use ferrum_compiler::{
+    compile_dsl, parse_dsl_yaml, project_to_modules, validate_modules, ProjectPaths,
+};
 use std::fs;
 
 #[test]
@@ -53,7 +55,11 @@ policies:
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/mutations/create_user.rs").exists());
     assert!(out.path().join("frontend/hooks/useCreateUser.ts").exists());
-    assert!(out.path().join("frontend/routes.tsx").exists());
+    // The router and its page modules belong to the Vite source root so the
+    // app shell can import them; `frontend/routes.tsx` was outside `src/`.
+    assert!(out.path().join("frontend/src/routes.tsx").exists());
+    assert!(out.path().join("frontend/src/pages/HomePage.tsx").exists());
+    assert!(out.path().join("frontend/src/App.tsx").exists());
 }
 
 #[test]
@@ -273,4 +279,53 @@ iot:
     let paths = ProjectPaths::new(out.path());
     compile_dsl(&dsl, &paths).unwrap();
     assert!(out.path().join("backend/iot/robot_ethercat.rs").exists());
+}
+
+/// `make:scaffold` emits an entity plus a mutation plus a form that submits to
+/// that mutation. The form's `submitTo` used to be lowered into a
+/// `depends_on` edge, and since a mutation is not a graph node
+/// `validate_modules` rejected the whole project — so the documented
+/// scaffold-then-compile flow could never succeed.
+#[test]
+fn standalone_form_submitting_to_mutation_validates_and_compiles() {
+    let yaml = r#"app:
+  name: demo
+forms:
+  - name: PostForm
+    submitTo: createPost
+    fields:
+      title: string
+mutations:
+  - name: createPost
+    handler: ./backend/mutations/create_post.rs
+    entities: [Post]
+"#;
+    let dir = tempfile::tempdir().unwrap();
+    let file = dir.path().join("dsl.yaml");
+    fs::write(&file, yaml).unwrap();
+    let mut dsl = parse_dsl_yaml(&file).unwrap();
+
+    // This is the assertion that used to fail: the form's `submitTo` target is
+    // a mutation, which is not a graph node.
+    let modules = project_to_modules(&mut dsl).unwrap();
+    validate_modules(&modules).unwrap();
+
+    let templates = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(|apps| apps.parent())
+        .expect("compiler crate sits at <root>/apps/compiler")
+        .join("templates");
+    let out = tempfile::tempdir().unwrap();
+    let paths = ProjectPaths::new(out.path());
+    let mut generator =
+        ferrum_compiler::Generator::new(templates.as_path(), out.path()).unwrap();
+    generator.set_modules(modules.clone());
+    for module in &modules {
+        generator.generate(module).unwrap();
+    }
+    compile_dsl(&dsl, &paths).unwrap();
+
+    assert!(out.path().join("frontend/src/forms/PostForm.tsx").exists());
+    let form = fs::read_to_string(out.path().join("frontend/src/forms/PostForm.tsx")).unwrap();
+    assert!(form.contains("useCreatePost"));
 }

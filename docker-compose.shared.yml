@@ -4,7 +4,7 @@ services:
   # Semantic Code Graph UI (Port 3000) - Optimized
   scg-ui:
     build:
-      context: ./applications/semantic_gui
+      context: ./packages/semantic_gui
       dockerfile: Dockerfile
       target: production
       cache_from:
@@ -277,7 +277,7 @@ services:
   # SCG Database Migration
   scg-migrate:
     build:
-      context: ./applications/semantic_gui
+      context: ./packages/semantic_gui
       dockerfile: Dockerfile
       target: base
     container_name: scg_migrate
@@ -291,13 +291,13 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./applications/semantic_gui/shared:/app/shared
-      - ./applications/semantic_gui/migrations:/app/migrations
-      - ./applications/semantic_gui/scripts:/app/scripts
-      - ./applications/semantic_gui/drizzle.config.ts:/app/drizzle.config.ts
-      - ./applications/semantic_gui/package.json:/app/package.json
-      - ./applications/semantic_gui/package-lock.json:/app/package-lock.json
-      - ./applications/semantic_gui/tsconfig.json:/app/tsconfig.json
+      - ./packages/semantic_gui/shared:/app/shared
+      - ./packages/semantic_gui/migrations:/app/migrations
+      - ./packages/semantic_gui/scripts:/app/scripts
+      - ./packages/semantic_gui/drizzle.config.ts:/app/drizzle.config.ts
+      - ./packages/semantic_gui/package.json:/app/package.json
+      - ./packages/semantic_gui/package-lock.json:/app/package-lock.json
+      - ./packages/semantic_gui/tsconfig.json:/app/tsconfig.json
     working_dir: /app
     command: ["sh", "-c", "npm run db:push && npm run db:seed"]
     networks:

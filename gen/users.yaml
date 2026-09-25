@@ -1,0 +1,38 @@
+# Example Ferrum architecture, copied into new projects as gen/example.yaml.
+#
+# Compile it with:
+#   ferrum compile gen/users.yaml --templates templates --output projects/example
+#
+# See docs/dsl.md for every supported section.
+app:
+  name: users
+  title: Users example
+  version: "0.1.0"
+  database: postgres
+
+modules:
+  users:
+    entity:
+      fields:
+        email: string
+        name: string
+        age: int
+    usecases:
+      listUsers:
+        input:
+          limit: int
+        output: User
+      getUser:
+        input:
+          id: uuid
+        output: User
+
+routes:
+  - name: home
+    path: /
+    to: HomePage
+    authRequired: false
+
+pages:
+  - name: HomePage
+    component: HomePage.tsx

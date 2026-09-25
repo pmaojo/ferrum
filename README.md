@@ -36,8 +36,12 @@ ferrum init my-project --with-ai
 
 # API-only backend (skip frontend)
 ferrum init my-project --api-only
-# Use Leptos CSR instead of React
-# Or enable server-side rendering
+
+# Choose the frontend: react (default) or egui (native desktop).
+# NOTE: leptos-csr / leptos-ssr are accepted by the flag but not implemented —
+# no templates ship for them, so they currently produce an empty frontend.
+ferrum init my-project --frontend egui
+
 # Skip starter templates
 ferrum init my-project --nostarter
 ```
@@ -96,40 +100,41 @@ the AI provider at runtime.
 
 ### 🖥 Desktop Studio
 
-Ferrum also provides a native desktop version of the Studio built with Bevy.
-Start it with:
+There is no Bevy desktop application any more — the `studio-desktop` crate has
+been removed and the web studio below is the only graphical front end.
 
-```bash
-cargo run -p studio-desktop
-```
+### 🌐 Web Studio (Semantic Code Graph)
 
-The application automatically launches the Python backend, so you don't need
-to run `make ai-dev` beforehand. When building release packages the
-`ai_service` binary is bundled inside the final zip, so Python isn't required on
-the target machine. The side panel now includes a text field and
-a **Regenerate** button to fetch a fresh graph from your question.
-Right-click any node to open the context menu. Besides editing its info you can
-**Simulate** the flow of the surrounding subgraph, **Generate** a component YAML
-and **Validate** the selection. Results from these actions appear in a popup.
-See [studio-desktop/README.md](studio-desktop/README.md) for details.
-
-### 🌐 Web Studio
-
-The recommended way to explore your architecture is the web studio built with
-
-```bash
-```
-
-Or start the entire stack with Docker:
-
-```bash
-docker-compose up
-```
-
-This launches the backend, AI service and Leptos frontend on
-`http://localhost:3000`. The web studio fetches the same `/graph-rag` and
-`/ai-team` endpoints and shares the typed models defined under
+The visual editor lives in `packages/semantic_gui`: a React + Vite app that
+renders your architecture as an editable graph and talks to the same
+`/graph-rag` and `/ai-team` endpoints, sharing the typed models defined under
 `ferrum-shared-models`.
+
+Run it from the repository root:
+
+```bash
+make studio-install          # npm install --legacy-peer-deps
+cp packages/semantic_gui/.env.example packages/semantic_gui/.env
+# edit DATABASE_URL, then push the schema and seed:
+cd packages/semantic_gui && npx drizzle-kit push --force && npm run db:seed
+cd ../.. && make studio      # http://127.0.0.1:3000
+```
+
+The server validates `GROQ_API_KEY`, `SESSION_SECRET` and `DATABASE_URL` at
+boot and refuses to start without them. `make studio-db` brings up the bundled
+Postgres, which publishes host port 5432 — change the mapping if that port is
+already taken.
+
+Or run the containerized stack instead of local processes:
+
+```bash
+docker compose -f packages/semantic_gui/docker-compose.yml up
+```
+
+The Studio serves the graph editor at `/`, a dashboard at `/dashboard`, the
+template marketplace at `/templates`, PermaGraph at `/permagraph` and agent
+management at `/agents`. API routes are mounted under `/api/v1` and are
+JWT-gated (roles `owner` / `reader`).
 
 Alternatively, run the native setup script on Ubuntu:
 
@@ -385,12 +390,19 @@ typed Rust struct and the corresponding `diesel::table!` in `schema.rs`.
 
 ```bash
 ferrum/
-├── cli/            # CLI commands
-├── compiler/       # Parser, AST and codegen
-├── templates/      # Tera-based code templates
-├── shared-models/  # Rust models exported to TypeScript
-├── studio-desktop/ # Bevy desktop application (sole UI)
-├── templates/docker-compose.yml  # Docker template copied to new projects
+├── apps/
+│   ├── cli/             # the `ferrum` binary — every subcommand
+│   ├── compiler/        # parser, AST, validators, code generation
+│   ├── engine/          # plugin manager
+│   ├── ferrum-service/  # runtime helpers (auth, logging, SSE)
+│   └── shared-models/   # DSL types, exported to TS via typeshare
+├── packages/
+│   ├── ai/              # FastAPI agent team + GraphRAG
+│   ├── graph/           # PermaGraph knowledge-graph framework
+│   ├── mcp-server/      # MCP bridge
+│   └── semantic_gui/    # Semantic Code Graph web studio
+├── templates/           # Tera codegen templates + React starter files
+├── gen/                 # example grafo.yaml
 ├── Makefile
 └── Cargo.toml
 ```
@@ -403,8 +415,9 @@ Generated projects live outside this repo, for example:
 ```bash
 ~/projects/my-crm-app/
 ├── backend/
-├── frontend/
+├── frontend/       # React + Vite + Tailwind + shadcn/ui
 ├── shared-models/
+├── docs/
 └── grafo.yaml
 ```
 
@@ -418,7 +431,13 @@ Generated projects live outside this repo, for example:
 | `adapter` | `db/<mod>.rs`, implementation of traits                   |
 | `port`    | `ports.rs`                                                |
 | `entity`  | `shared-models/*.rs`, auto-exported to TS via `typeshare` |
+| `form`    | `frontend/src/forms/<Name>.tsx` (shadcn inputs + Zod)     |
 | *any*     | Frontend: TS types, Zod schemas, React hooks/components   |
+
+The generated React app is **Vite + Tailwind CSS + shadcn/ui**: components render
+as cards and tables rather than raw JSON, forms use styled inputs, and theming is
+driven by the CSS variables in `frontend/src/index.css`. Router output goes to
+`frontend/src/routes.tsx` with placeholder pages under `frontend/src/pages/`.
 
 ### Plugin Framework & Services
 
@@ -483,15 +502,18 @@ automatically.
 ## 📦 Output Example
 
 ```bash
-my-crm-app/shared-models/user.rs          # Rust model
-my-crm-app/frontend/src/types/User.ts     # TypeScript model
-my-crm-app/frontend/src/hooks/useUser.ts  # React data hook
-my-crm-app/frontend/src/components/UserView.tsx # Auto-generated component
-my-crm-app/frontend/src/schemas/userSchema.ts   # Zod validation schema
-my-crm-app/backend/handlers/users.rs      # Axum HTTP handler
-my-crm-app/backend/routes/users.rs        # Route definition
-my-crm-app/backend/db/users.rs            # Adapter logic
-my-crm-app/backend/ports.rs               # Port traits
+my-crm-app/shared-models/user.rs                    # Rust model
+my-crm-app/frontend/src/types/User.ts               # TypeScript model
+my-crm-app/frontend/src/hooks/useUser.ts            # React data hook (TanStack Query)
+my-crm-app/frontend/src/components/UserView.tsx     # Card/table view component
+my-crm-app/frontend/src/schemas/user.ts             # Zod validation schema
+my-crm-app/frontend/src/routes.tsx                  # react-router route objects
+my-crm-app/frontend/src/pages/HomePage.tsx          # Page placeholder (never overwritten)
+my-crm-app/frontend/src/components/ui/*.tsx         # shadcn/ui primitives
+my-crm-app/backend/handlers/users.rs                # Axum HTTP handler
+my-crm-app/backend/routes/users.rs                  # Route definition
+my-crm-app/backend/db/users.rs                      # Adapter logic
+my-crm-app/backend/ports.rs                         # Port traits
 ```
 
 ---
@@ -501,8 +523,9 @@ my-crm-app/backend/ports.rs               # Port traits
 * 🤖 Prompt-to-graph via RAG + OWL reasoning
 * 📦 Pluggable template marketplace
 * ⚙️ Additional framework targets (e.g. Tauri, Bun, etc.)
-* 🧩 Visual graph-based editor (React Flow)
+* 🧩 Visual graph-based editor — shipped in `packages/semantic_gui` (see [Web Studio](#-web-studio-semantic-code-graph))
 * 🛠 Modular plugin system (`ferrum add auth`, `ferrum add graphql`, ...)
+* ⚙️ Implement the `leptos-csr` / `leptos-ssr` frontend targets (flag exists, templates do not)
 
 ---
 

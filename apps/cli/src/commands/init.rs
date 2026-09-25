@@ -673,13 +673,33 @@ psql $DATABASE_URL -f backend/seeds/usuarios.sql
 
 fn write_react_starter(dir: &Path) -> Result<()> {
     use std::fs;
+    // Project-level frontend config.
     fs::write(dir.join("frontend/package.json"), include_str!("../../../../templates/frontend/package.json"))?;
     fs::write(dir.join("frontend/tsconfig.json"), include_str!("../../../../templates/frontend/tsconfig.json"))?;
     fs::write(dir.join("frontend/vite.config.ts"), include_str!("../../../../templates/frontend/vite.config.ts"))?;
     fs::write(dir.join("frontend/index.html"), include_str!("../../../../templates/frontend/index.html"))?;
-    fs::write(dir.join("frontend/src/index.css"), "")?;
+    // Tailwind + shadcn/ui: the generated components and forms import these
+    // primitives, so they have to exist in a freshly initialised project.
+    fs::write(dir.join("frontend/tailwind.config.js"), include_str!("../../../../templates/frontend/tailwind.config.js"))?;
+    fs::write(dir.join("frontend/postcss.config.js"), include_str!("../../../../templates/frontend/postcss.config.js"))?;
+    fs::write(dir.join("frontend/src/index.css"), include_str!("../../../../templates/frontend/index.css"))?;
     fs::write(dir.join("frontend/src/App.tsx"), "export default function App() {\n  return <h1>Ferrum app ready!</h1>;\n}\n")?;
     fs::write(dir.join("frontend/src/main.tsx"), include_str!("../../../../templates/frontend/main.tsx"))?;
+    // `lib/` and `components/ui/` are new directories, so create them first —
+    // `fs::write` does not create parent directories.
+    fs::create_dir_all(dir.join("frontend/src/lib"))?;
+    fs::write(dir.join("frontend/src/lib/utils.ts"), include_str!("../../../../templates/frontend/lib/utils.ts"))?;
+    fs::create_dir_all(dir.join("frontend/src/components/ui"))?;
+    for (name, source) in [
+        ("button.tsx", include_str!("../../../../templates/frontend/ui/button.tsx")),
+        ("card.tsx", include_str!("../../../../templates/frontend/ui/card.tsx")),
+        ("input.tsx", include_str!("../../../../templates/frontend/ui/input.tsx")),
+        ("label.tsx", include_str!("../../../../templates/frontend/ui/label.tsx")),
+        ("table.tsx", include_str!("../../../../templates/frontend/ui/table.tsx")),
+        ("textarea.tsx", include_str!("../../../../templates/frontend/ui/textarea.tsx")),
+    ] {
+        fs::write(dir.join("frontend/src/components/ui").join(name), source)?;
+    }
     Ok(())
 }
 

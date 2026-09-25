@@ -56,7 +56,9 @@ modules:
     let handler = fs::read_to_string(out.path().join("backend/handlers/users.rs")).unwrap();
     assert!(handler.contains("pub async fn listUsers_handler"));
     let hook = fs::read_to_string(out.path().join("frontend/src/hooks/useListUsers.ts")).unwrap();
-    assert!(hook.contains("export const useListusers"));
+    // `pascal_case` (not Tera's `capitalize`) is what the template uses, and
+    // the component imports the same symbol — keep them in step.
+    assert!(hook.contains("export const useListUsers"));
 }
 
 #[test]

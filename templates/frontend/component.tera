@@ -1,23 +1,97 @@
-import React from 'react';
+import * as React from 'react';
 import { use{{ node.id | pascal_case }} } from '../hooks/use{{ node.id | pascal_case }}';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table';
 
-interface {{ node.id | pascal_case }}ViewProps {
-  {% for input in node.input %}
-  {{ input.name }}: string; // Using string as default type
-  {% endfor %}
+export interface {{ node.id | pascal_case }}ViewProps {
+{% for input in node.input %}  {{ input.name }}: string;
+{% endfor %}}
+
+/** Render one record as a label/value grid. */
+function RecordGrid({ record }: { record: Record<string, unknown> }) {
+  return (
+    <dl className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-x-4 gap-y-2 text-sm">
+      {Object.entries(record).map(([key, value]) => (
+        <React.Fragment key={key}>
+          <dt className="font-medium text-muted-foreground">{key}</dt>
+          <dd className="truncate">{String(value)}</dd>
+        </React.Fragment>
+      ))}
+    </dl>
+  );
 }
 
-export const {{ node.id | pascal_case }}View: React.FC<{{ node.id | pascal_case }}ViewProps> = ({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} }) => {
-  const { data, isLoading, error } = use{{ node.id | pascal_case }}({ {% for input in node.input %}{{ input.name }}{% if not loop.last %}, {% endif %}{% endfor %} });
+/** Render whatever the endpoint returned without assuming a shape. */
+function DataView({ data }: { data: unknown }) {
+  if (Array.isArray(data)) {
+    if (data.length === 0) {
+      return <p className="text-sm text-muted-foreground">No results.</p>;
+    }
+    const columns = Object.keys(data[0] as Record<string, unknown>);
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {columns.map(column => (
+              <TableHead key={column}>{column}</TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.map((row, index) => (
+            <TableRow key={index}>
+              {columns.map(column => (
+                <TableCell key={column}>
+                  {String((row as Record<string, unknown>)[column] ?? '')}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  }
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {(error as Error).message}</div>;
-  if (!data) return null;
+  if (data && typeof data === 'object') {
+    return <RecordGrid record={data as Record<string, unknown>} />;
+  }
+
+  return <p className="text-sm">{String(data ?? '')}</p>;
+}
+
+export const {{ node.id | pascal_case }}View: React.FC<{{ node.id | pascal_case }}ViewProps> = props => {
+  const { data, isLoading, error } = use{{ node.id | pascal_case }}(props);
 
   return (
-    <div className="{{ node.id | lower }}-view">
-      <h2>{{ node.output }}</h2>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </div>
+    <Card className="{{ node.id | lower }}-view">
+      <CardHeader>
+        <CardTitle>{% if node.output %}{{ node.output }}{% else %}{{ node.id | pascal_case }}{% endif %}</CardTitle>
+        <CardDescription>{{ node.id | pascal_case }}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : error ? (
+          <p className="text-sm text-destructive">{(error as Error).message}</p>
+        ) : (
+          <DataView data={data} />
+        )}
+      </CardContent>
+    </Card>
   );
 };
+
+export default {{ node.id | pascal_case }}View;

@@ -21,7 +21,7 @@ pnpm openapi:generate
 pnpm sdk:generate
 ```
 
-El primer comando produce `applications/semantic_gui/openapi.json` recorriendo todas las rutas expuestas. El segundo genera `applications/semantic_gui/client/src/sdk.ts` utilizando ese esquema.
+El primer comando produce `packages/semantic_gui/openapi.json` recorriendo todas las rutas expuestas. El segundo genera `packages/semantic_gui/client/src/sdk.ts` utilizando ese esquema.
 
 ## Frontend routes
 
