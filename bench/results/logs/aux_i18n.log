@@ -1,0 +1,6 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum i18n /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml
+(cwd=/Users/Shared/proyectos/ferrum/bench/out/i18n_cwd)
+exit=0 wall=0.0091s
+--- stdout ---
+✅ Wrote 13 messages to frontend/src/i18n.ts
+--- stderr ---

@@ -1,0 +1,17 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum init init-uploads-app --with-uploads
+(cwd=/Users/Shared/proyectos/ferrum/bench/out/init)
+exit=1 wall=0.0083s
+--- stdout ---
+🏗️  Initializing new Ferrum project: init-uploads-app
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 Created directory: init-uploads-app/backend/src
+📁 Created directory: init-uploads-app/backend/tests
+📁 Created directory: init-uploads-app/shared-models/src
+📁 Created directory: init-uploads-app/templates/backend
+📁 Created directory: init-uploads-app/templates/shared-models
+📁 Created directory: init-uploads-app/gen
+📁 Created directory: init-uploads-app/data/postgres
+📁 Created directory: init-uploads-app/frontend/src
+📁 Created directory: init-uploads-app/templates/frontend
+--- stderr ---
+Error: No such file or directory (os error 2)

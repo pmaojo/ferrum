@@ -1,0 +1,9 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum analyze /Users/Shared/proyectos/ferrum/bench/dsl/legacy_graph.yaml --json
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=1 wall=0.0062s
+--- stdout ---
+--- stderr ---
+Error: Failed to parse YAML from: /Users/Shared/proyectos/ferrum/bench/dsl/legacy_graph.yaml
+
+Caused by:
+    missing field `app` at line 2 column 1

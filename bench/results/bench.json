@@ -1,0 +1,937 @@
+{
+  "aux_commands": [
+    {
+      "command": "analyze",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 0,
+      "expectation": "ok",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 4390,
+      "wall": {
+        "max": 0.012393166999999039,
+        "mean": 0.011132841999999244,
+        "median": 0.011012667000002807,
+        "min": 0.010437916999997299,
+        "n": 5,
+        "stdev": 0.0007429606532365938
+      }
+    },
+    {
+      "command": "analyze-bottleneck",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 0,
+      "expectation": "ok",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 4720,
+      "wall": {
+        "max": 0.011598333999998545,
+        "mean": 0.011058516599997858,
+        "median": 0.010934790999996835,
+        "min": 0.010857332999997027,
+        "n": 5,
+        "stdev": 0.0003056913980642129
+      }
+    },
+    {
+      "command": "analyze-legacy",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 1,
+      "expectation": "ok",
+      "stderr_bytes": 148,
+      "stderr_head": [
+        "Error: Failed to parse YAML from: /Users/Shared/proyectos/ferrum/bench/dsl/legacy_graph.yaml",
+        "",
+        "Caused by:"
+      ],
+      "stdout_bytes": 0,
+      "wall": {
+        "max": 0.0068628329999995685,
+        "mean": 0.006171649799999557,
+        "median": 0.006081125000001464,
+        "min": 0.005759208000000626,
+        "n": 5,
+        "stdev": 0.00041804418620089895
+      }
+    },
+    {
+      "command": "explain",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 0,
+      "expectation": "ok",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 593,
+      "wall": {
+        "max": 0.010636791999999673,
+        "mean": 0.010002283399998646,
+        "median": 0.009900584000000379,
+        "min": 0.00961470800000086,
+        "n": 5,
+        "stdev": 0.00038182023466378797
+      }
+    },
+    {
+      "command": "graph-new-dsl",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 1,
+      "expectation": "unsupported-new-dsl",
+      "stderr_bytes": 144,
+      "stderr_head": [
+        "Error: Failed to parse YAML from: /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml",
+        "",
+        "Caused by:"
+      ],
+      "stdout_bytes": 0,
+      "wall": {
+        "max": 0.010124459000003583,
+        "mean": 0.009757691800000145,
+        "median": 0.009760042000003466,
+        "min": 0.009460957999998243,
+        "n": 5,
+        "stdev": 0.0002425081826075396
+      }
+    },
+    {
+      "command": "graph-legacy-dsl",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 0,
+      "expectation": "ok",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 71,
+      "wall": {
+        "max": 0.007501957999998865,
+        "mean": 0.006679058199999588,
+        "median": 0.006532666000005349,
+        "min": 0.006219916999995689,
+        "n": 5,
+        "stdev": 0.0005294987965168332
+      }
+    },
+    {
+      "command": "flow",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 1,
+      "expectation": "needs-ai-service",
+      "stderr_bytes": 237,
+      "stderr_head": [
+        "Error: Failed to connect to AI service. Is it running?",
+        "",
+        "Caused by:"
+      ],
+      "stdout_bytes": 0,
+      "wall": {
+        "max": 0.013873083000000008,
+        "mean": 0.010914949800000785,
+        "median": 0.010004583000004175,
+        "min": 0.009606624999996427,
+        "n": 5,
+        "stdev": 0.0018175656999528105
+      }
+    },
+    {
+      "command": "sync",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 1,
+      "expectation": "legacy-only",
+      "stderr_bytes": 144,
+      "stderr_head": [
+        "Error: Failed to parse YAML from: /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml",
+        "",
+        "Caused by:"
+      ],
+      "stdout_bytes": 0,
+      "wall": {
+        "max": 0.009681624999998917,
+        "mean": 0.009235316799997405,
+        "median": 0.009150749999996322,
+        "min": 0.008890124999993532,
+        "n": 5,
+        "stdev": 0.0002932460577189777
+      }
+    },
+    {
+      "command": "doctor",
+      "cwd": "/Users/Shared/proyectos/ferrum",
+      "exit_code": 0,
+      "expectation": "environment",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 51,
+      "wall": {
+        "max": 0.0057530419999949345,
+        "mean": 0.005385024799997496,
+        "median": 0.005442082999998377,
+        "min": 0.004917749999997056,
+        "n": 5,
+        "stdev": 0.0003690502843510469
+      }
+    },
+    {
+      "command": "i18n",
+      "cwd": "/Users/Shared/proyectos/ferrum/bench/out/i18n_cwd",
+      "exit_code": 0,
+      "expectation": "writes-to-cwd",
+      "stderr_bytes": 0,
+      "stderr_head": [],
+      "stdout_bytes": 44,
+      "wall": {
+        "max": 0.010149249999997778,
+        "mean": 0.009424100200001817,
+        "median": 0.009395459000003825,
+        "min": 0.008649166000004982,
+        "n": 5,
+        "stdev": 0.0006065841378870801
+      }
+    }
+  ],
+  "collision_probe": {
+    "component_hooks": 0,
+    "declared_usecases": 6,
+    "exit_code": 0,
+    "fixture": "collide",
+    "handler_files": [
+      "order.rs"
+    ],
+    "materialised_in_handler": 1,
+    "modules": [
+      "order"
+    ],
+    "per_module": [
+      {
+        "component_hooks": [],
+        "declared": [
+          "createOrder",
+          "updateOrder",
+          "cancelOrder",
+          "refundOrder",
+          "shipOrder",
+          "archiveOrder"
+        ],
+        "lost_from_handler": [
+          "createOrder",
+          "cancelOrder",
+          "refundOrder",
+          "shipOrder",
+          "archiveOrder"
+        ],
+        "materialised_in_handler": [
+          "updateOrder"
+        ],
+        "module": "order"
+      }
+    ]
+  },
+  "collision_probe_tier1": {
+    "component_hooks": 0,
+    "declared_usecases": 6,
+    "exit_code": 0,
+    "fixture": "collide_tier1",
+    "handler_files": [
+      "auth.rs",
+      "realtime_sse.rs",
+      "tenant.rs",
+      "upload.rs",
+      "user.rs"
+    ],
+    "materialised_in_handler": 2,
+    "modules": [
+      "user",
+      "tenant"
+    ],
+    "per_module": [
+      {
+        "component_hooks": [],
+        "declared": [
+          "createUser",
+          "getUser",
+          "listUsers"
+        ],
+        "lost_from_handler": [
+          "createUser",
+          "getUser"
+        ],
+        "materialised_in_handler": [
+          "listUsers"
+        ],
+        "module": "user"
+      },
+      {
+        "component_hooks": [],
+        "declared": [
+          "createTenant",
+          "getTenant",
+          "listTenants"
+        ],
+        "lost_from_handler": [
+          "createTenant",
+          "getTenant"
+        ],
+        "materialised_in_handler": [
+          "listTenants"
+        ],
+        "module": "tenant"
+      }
+    ]
+  },
+  "determinism": {
+    "differing": [],
+    "files": 666,
+    "identical": true,
+    "reps_s": [
+      7.588375000000013,
+      7.054339290999991
+    ]
+  },
+  "init": [
+    {
+      "command": "init-plain",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "flags": [],
+      "output": {
+        "by_ext": {
+          "(none)": 1,
+          ".css": 1,
+          ".html": 1,
+          ".js": 2,
+          ".json": 2,
+          ".md": 1,
+          ".rs": 2,
+          ".toml": 1,
+          ".ts": 2,
+          ".tsx": 8,
+          ".yaml": 2,
+          ".yml": 1
+        },
+        "by_top": {
+          "Dockerfile": 1,
+          "README.md": 1,
+          "backend": 3,
+          "compose.prod.yaml": 1,
+          "docker-compose.yml": 1,
+          "frontend": 16,
+          "gen": 1
+        },
+        "bytes": 20321,
+        "files": 24,
+        "loc": 737
+      },
+      "stderr_head": [],
+      "wall": {
+        "max": 0.009232458999974824,
+        "mean": 0.008836041999984445,
+        "median": 0.008818457999979046,
+        "min": 0.008457208999999466,
+        "n": 3,
+        "stdev": 0.00038792401112536283
+      }
+    },
+    {
+      "command": "init-full",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "flags": [
+        "--with-db",
+        "--with-auth",
+        "--with-graph",
+        "--with-jobs",
+        "--with-ai"
+      ],
+      "output": {
+        "by_ext": {
+          "(none)": 4,
+          ".css": 1,
+          ".html": 1,
+          ".js": 2,
+          ".json": 2,
+          ".md": 1,
+          ".rs": 2,
+          ".sql": 6,
+          ".tera": 5,
+          ".toml": 2,
+          ".ts": 2,
+          ".tsx": 8,
+          ".yaml": 2,
+          ".yml": 1
+        },
+        "by_top": {
+          ".env": 1,
+          "Dockerfile": 1,
+          "Makefile": 1,
+          "README.md": 1,
+          "backend": 7,
+          "compose.prod.yaml": 1,
+          "diesel.toml": 1,
+          "docker-compose.yml": 1,
+          "frontend": 16,
+          "gen": 1,
+          "templates": 8
+        },
+        "bytes": 23310,
+        "files": 39,
+        "loc": 811
+      },
+      "stderr_head": [],
+      "wall": {
+        "max": 0.011471457999988388,
+        "mean": 0.010067916333336294,
+        "median": 0.009630375000000413,
+        "min": 0.009101916000020083,
+        "n": 3,
+        "stdev": 0.001243890725179047
+      }
+    },
+    {
+      "command": "init-api-only",
+      "exit_code": 0,
+      "expected_exit": 0,
+      "flags": [
+        "--api-only",
+        "--with-db"
+      ],
+      "output": {
+        "by_ext": {
+          "(none)": 4,
+          ".md": 1,
+          ".rs": 2,
+          ".sql": 6,
+          ".tera": 3,
+          ".toml": 2,
+          ".yaml": 2,
+          ".yml": 1
+        },
+        "by_top": {
+          ".env": 1,
+          "Dockerfile": 1,
+          "Makefile": 1,
+          "README.md": 1,
+          "backend": 7,
+          "compose.prod.yaml": 1,
+          "diesel.toml": 1,
+          "docker-compose.yml": 1,
+          "gen": 1,
+          "templates": 6
+        },
+        "bytes": 9127,
+        "files": 21,
+        "loc": 305
+      },
+      "stderr_head": [],
+      "wall": {
+        "max": 0.008713166999996247,
+        "mean": 0.008496124999993526,
+        "median": 0.008649499999989985,
+        "min": 0.008125707999994347,
+        "n": 3,
+        "stdev": 0.0003223661538355775
+      }
+    },
+    {
+      "command": "init-uploads",
+      "exit_code": 1,
+      "expected_exit": null,
+      "flags": [
+        "--with-uploads"
+      ],
+      "output": {
+        "by_ext": {
+          ".css": 1,
+          ".html": 1,
+          ".js": 2,
+          ".json": 2,
+          ".rs": 2,
+          ".toml": 1,
+          ".ts": 2,
+          ".tsx": 8
+        },
+        "by_top": {
+          "backend": 3,
+          "frontend": 16
+        },
+        "bytes": 17542,
+        "files": 19,
+        "loc": 606
+      },
+      "stderr_head": [
+        "Error: No such file or directory (os error 2)"
+      ],
+      "wall": {
+        "max": 0.0124383749999879,
+        "mean": 0.010366152666658005,
+        "median": 0.010342165999986719,
+        "min": 0.008317916999999397,
+        "n": 3,
+        "stdev": 0.002060333723587228
+      }
+    }
+  ],
+  "legacy_graph": {
+    "exit_code": 0,
+    "files": [
+      "backend/db/billing.rs",
+      "backend/handlers/billing.rs",
+      "backend/migrations/0001_create_invoice/down.sql",
+      "backend/migrations/0001_create_invoice/up.sql",
+      "backend/ports.rs",
+      "backend/routes/billing.rs",
+      "backend/src/db/mod.rs",
+      "backend/src/db/models.rs",
+      "backend/src/db/schema.rs",
+      "docs/api/createInvoice.md",
+      "docs/api/getInvoice.md",
+      "docs/api/listInvoices.md",
+      "docs/api/voidInvoice.md",
+      "docs/db/invoice_entity.md",
+      "docs/modules/invoiceReaderPort.md",
+      "docs/modules/invoiceRepository.md",
+      "docs/modules/invoiceWriterPort.md",
+      "frontend/src/components/CreateInvoice.tsx",
+      "frontend/src/components/GetInvoice.tsx",
+      "frontend/src/components/ListInvoices.tsx",
+      "frontend/src/components/VoidInvoice.tsx",
+      "frontend/src/hooks/useCreateInvoice.ts",
+      "frontend/src/hooks/useGetInvoice.ts",
+      "frontend/src/hooks/useListInvoices.ts",
+      "frontend/src/hooks/useVoidInvoice.ts",
+      "frontend/src/schemas/invoice.ts",
+      "shared-models/invoice.rs"
+    ],
+    "output": {
+      "by_ext": {
+        ".md": 8,
+        ".rs": 8,
+        ".sql": 2,
+        ".ts": 5,
+        ".tsx": 4
+      },
+      "by_top": {
+        "backend": 9,
+        "docs": 8,
+        "frontend": 9,
+        "shared-models": 1
+      },
+      "bytes": 18532,
+      "files": 27,
+      "loc": 717
+    },
+    "wall": {
+      "max": 0.525967124999994,
+      "mean": 0.513128891599996,
+      "median": 0.516428999999988,
+      "min": 0.4937800000000152,
+      "n": 5,
+      "stdev": 0.012521375959874412
+    }
+  },
+  "meta": {
+    "binary": "/Users/Shared/proyectos/ferrum/target/debug/ferrum",
+    "binary_bytes": 45902648,
+    "binary_mtime": 1790347913.158936,
+    "cargo_on_default_path": "/Users/pm/.cargo/bin/cargo",
+    "finished": "2026-09-25T16:14:42",
+    "platform": "darwin",
+    "prettier_on_path": null,
+    "python": "3.9.6",
+    "reps": {
+      "tier1": 2,
+      "tier2": 2,
+      "tier3": 2,
+      "tier4": 1
+    },
+    "started": "2026-09-25T16:11:55",
+    "typeshare_on_path": null
+  },
+  "plugins": [
+    {
+      "exit_code": 0,
+      "n_plugins": 0,
+      "output": {
+        "by_ext": {
+          ".md": 202,
+          ".rs": 260,
+          ".sql": 82,
+          ".ts": 251,
+          ".tsx": 131,
+          ".txt": 1
+        },
+        "by_top": {
+          ".ferrum": 1,
+          "backend": 301,
+          "docs": 182,
+          "frontend": 402,
+          "shared-models": 41
+        },
+        "bytes": 550842,
+        "files": 927,
+        "loc": 20173
+      },
+      "plugin_set": "none",
+      "plugins": [],
+      "wall": {
+        "max": 9.856941958000007,
+        "mean": 9.639771389000003,
+        "median": 9.533682124999999,
+        "min": 9.528690084000004,
+        "n": 3,
+        "stdev": 0.1880917918149952
+      }
+    },
+    {
+      "exit_code": 0,
+      "n_plugins": 3,
+      "output": {
+        "by_ext": {
+          ".md": 202,
+          ".rs": 261,
+          ".sql": 82,
+          ".ts": 251,
+          ".tsx": 131,
+          ".txt": 1
+        },
+        "by_top": {
+          ".ferrum": 1,
+          "backend": 302,
+          "docs": 182,
+          "frontend": 402,
+          "shared-models": 41
+        },
+        "bytes": 550922,
+        "files": 928,
+        "loc": 20177
+      },
+      "plugin_set": "core",
+      "plugins": [
+        "graphql",
+        "auth",
+        "cron"
+      ],
+      "wall": {
+        "max": 9.988648708999989,
+        "mean": 9.76984806966666,
+        "median": 9.670266124999998,
+        "min": 9.650629374999994,
+        "n": 3,
+        "stdev": 0.18974111393460746
+      }
+    },
+    {
+      "exit_code": 0,
+      "n_plugins": 9,
+      "output": {
+        "by_ext": {
+          ".md": 202,
+          ".rs": 264,
+          ".sql": 82,
+          ".ts": 251,
+          ".tsx": 132,
+          ".txt": 1
+        },
+        "by_top": {
+          ".ferrum": 1,
+          "backend": 305,
+          "docs": 182,
+          "frontend": 403,
+          "shared-models": 41
+        },
+        "bytes": 551604,
+        "files": 932,
+        "loc": 20205
+      },
+      "plugin_set": "all",
+      "plugins": [
+        "graphql",
+        "auth",
+        "auth-password",
+        "auth-oauth",
+        "stripe",
+        "cron",
+        "cms-sanity",
+        "cms-notion",
+        "realtime-sse"
+      ],
+      "wall": {
+        "max": 10.096059499999996,
+        "mean": 9.670185749999996,
+        "median": 9.512974499999999,
+        "min": 9.401523249999997,
+        "n": 3,
+        "stdev": 0.37300359714878983
+      }
+    }
+  ],
+  "scaling_default_path": [
+    {
+      "declared_counts": {
+        "components": 2,
+        "entities": 3,
+        "forms": 2,
+        "iot": 1,
+        "jobs": 1,
+        "modules": 2,
+        "mutations": 4,
+        "pages": 2,
+        "policies": 5,
+        "queries": 4,
+        "resources": 1,
+        "routes": 2,
+        "uploads": 1,
+        "usecases": 6,
+        "validations": 5,
+        "vectorStores": 1
+      },
+      "declared_units": 42,
+      "dsl_bytes": 5690,
+      "exit_code": 0,
+      "files_per_s": 56.387491816244896,
+      "label": "path_default",
+      "loc_per_s": 1068.7132677119166,
+      "modules": 2,
+      "output": {
+        "by_ext": {
+          ".md": 27,
+          ".rs": 51,
+          ".sql": 10,
+          ".ts": 38,
+          ".tsx": 23
+        },
+        "by_top": {
+          "backend": 56,
+          "docs": 25,
+          "frontend": 63,
+          "shared-models": 5
+        },
+        "bytes": 76565,
+        "files": 149,
+        "loc": 2824
+      },
+      "reps": 2,
+      "runtime_warnings": 35,
+      "tier": "tier1",
+      "units_per_s": 15.894460780418024,
+      "usecases_per_s": 2.270637254345432,
+      "wall": {
+        "max": 2.7452165,
+        "mean": 2.64243,
+        "median": 2.64243,
+        "min": 2.5396435000000004,
+        "n": 2,
+        "stdev": 0.14536206232886198
+      },
+      "wall_samples_s": [
+        2.7452165,
+        2.5396435000000004
+      ]
+    },
+    {
+      "declared_counts": {
+        "components": 8,
+        "entities": 9,
+        "forms": 8,
+        "iot": 1,
+        "jobs": 2,
+        "modules": 8,
+        "mutations": 16,
+        "pages": 8,
+        "policies": 6,
+        "queries": 16,
+        "resources": 2,
+        "routes": 8,
+        "uploads": 1,
+        "usecases": 24,
+        "validations": 20,
+        "vectorStores": 1
+      },
+      "declared_units": 138,
+      "dsl_bytes": 18728,
+      "exit_code": 0,
+      "files_per_s": 80.57243710933679,
+      "label": "path_default",
+      "loc_per_s": 1702.2430556457646,
+      "modules": 8,
+      "output": {
+        "by_ext": {
+          ".md": 84,
+          ".rs": 117,
+          ".sql": 34,
+          ".ts": 108,
+          ".tsx": 59
+        },
+        "by_top": {
+          "backend": 134,
+          "docs": 76,
+          "frontend": 175,
+          "shared-models": 17
+        },
+        "bytes": 230372,
+        "files": 402,
+        "loc": 8493
+      },
+      "reps": 2,
+      "runtime_warnings": 71,
+      "tier": "tier2",
+      "units_per_s": 27.6591948285783,
+      "usecases_per_s": 4.810294752796226,
+      "wall": {
+        "max": 5.112989791,
+        "mean": 4.9892992495,
+        "median": 4.9892992495,
+        "min": 4.865608708,
+        "n": 2,
+        "stdev": 0.17492484132657252
+      },
+      "wall_samples_s": [
+        4.865608708,
+        5.112989791
+      ]
+    },
+    {
+      "declared_counts": {
+        "components": 20,
+        "entities": 21,
+        "forms": 20,
+        "iot": 3,
+        "jobs": 5,
+        "modules": 20,
+        "mutations": 40,
+        "pages": 20,
+        "policies": 9,
+        "queries": 40,
+        "resources": 5,
+        "routes": 20,
+        "uploads": 3,
+        "usecases": 60,
+        "validations": 50,
+        "vectorStores": 2
+      },
+      "declared_units": 338,
+      "dsl_bytes": 46732,
+      "exit_code": 0,
+      "files_per_s": 80.8799883954231,
+      "label": "path_default",
+      "loc_per_s": 1743.548950701335,
+      "modules": 20,
+      "output": {
+        "by_ext": {
+          ".md": 202,
+          ".rs": 260,
+          ".sql": 82,
+          ".ts": 251,
+          ".tsx": 131
+        },
+        "by_top": {
+          "backend": 301,
+          "docs": 182,
+          "frontend": 402,
+          "shared-models": 41
+        },
+        "bytes": 544879,
+        "files": 926,
+        "loc": 19962
+      },
+      "reps": 2,
+      "runtime_warnings": 143,
+      "tier": "tier3",
+      "units_per_s": 29.522069198329383,
+      "usecases_per_s": 5.240603999703441,
+      "wall": {
+        "max": 11.481990875000001,
+        "mean": 11.449061979000001,
+        "median": 11.449061979000001,
+        "min": 11.416133083000002,
+        "n": 2,
+        "stdev": 0.04656849131717259
+      },
+      "wall_samples_s": [
+        11.481990875000001,
+        11.416133083000002
+      ]
+    },
+    {
+      "declared_counts": {
+        "components": 40,
+        "entities": 41,
+        "forms": 40,
+        "iot": 5,
+        "jobs": 10,
+        "modules": 40,
+        "mutations": 80,
+        "pages": 40,
+        "policies": 14,
+        "queries": 80,
+        "resources": 10,
+        "routes": 40,
+        "uploads": 5,
+        "usecases": 120,
+        "validations": 100,
+        "vectorStores": 4
+      },
+      "declared_units": 669,
+      "dsl_bytes": 91913,
+      "exit_code": 0,
+      "files_per_s": 89.03721663693409,
+      "label": "path_default",
+      "loc_per_s": 1940.563649528888,
+      "modules": 40,
+      "output": {
+        "by_ext": {
+          ".md": 396,
+          ".rs": 493,
+          ".sql": 162,
+          ".ts": 488,
+          ".tsx": 251
+        },
+        "by_top": {
+          "backend": 574,
+          "docs": 356,
+          "frontend": 779,
+          "shared-models": 81
+        },
+        "bytes": 1063398,
+        "files": 1790,
+        "loc": 39013
+      },
+      "reps": 1,
+      "runtime_warnings": 263,
+      "tier": "tier4",
+      "units_per_s": 33.27703794978151,
+      "usecases_per_s": 5.968975417001168,
+      "wall": {
+        "max": 20.103952792,
+        "mean": 20.103952792,
+        "median": 20.103952792,
+        "min": 20.103952792,
+        "n": 1,
+        "stdev": 0.0
+      },
+      "wall_samples_s": [
+        20.103952792
+      ]
+    }
+  ],
+  "scaling_minimal_path": [],
+  "startup_baseline": {
+    "samples": [
+      0.020710666000000003,
+      0.006633791,
+      0.005782416999999998,
+      0.006936290999999997,
+      0.0057016670000000075,
+      0.006055667000000001,
+      0.006212666999999991,
+      0.005718834000000006,
+      0.005939083999999997,
+      0.005866415999999999
+    ],
+    "wall": {
+      "max": 0.020710666000000003,
+      "mean": 0.00755575,
+      "median": 0.005997375499999999,
+      "min": 0.0057016670000000075,
+      "n": 10,
+      "stdev": 0.004639967985750932
+    }
+  }
+}

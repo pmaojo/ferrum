@@ -1,0 +1,6 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum graph /Users/Shared/proyectos/ferrum/bench/dsl/legacy_graph.yaml -o /Users/Shared/proyectos/ferrum/bench/out/legacy.dot
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=0 wall=0.0075s
+--- stdout ---
+✅ Graph written to /Users/Shared/proyectos/ferrum/bench/out/legacy.dot
+--- stderr ---

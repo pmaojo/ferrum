@@ -1,0 +1,7 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum doctor
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=0 wall=0.0049s
+--- stdout ---
+🔎 Running ferrum doctor...
+⚠️  .env file not found
+--- stderr ---

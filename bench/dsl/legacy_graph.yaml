@@ -1,0 +1,55 @@
+# Legacy raw-graph fixture: ports, adapters and explicit entities.
+module: billing
+nodes:
+  - id: invoiceReaderPort
+    type: port
+  - id: invoiceWriterPort
+    type: port
+  - id: invoiceRepository
+    type: adapter
+    implements: invoiceReaderPort
+  - id: invoice
+    type: entity
+    input:
+      - name: id
+        type: uuid
+      - name: number
+        type: string
+      - name: total
+        type: float
+      - name: issuedAt
+        type: timestamp
+      - name: paid
+        type: bool
+  - id: createInvoice
+    type: usecase
+    input:
+      - name: id
+        type: uuid
+    output: Invoice
+    depends_on: [invoiceRepository]
+    doc: Billing usecase createInvoice
+  - id: getInvoice
+    type: usecase
+    input:
+      - name: id
+        type: uuid
+    output: Invoice
+    depends_on: [invoiceRepository]
+    doc: Billing usecase getInvoice
+  - id: listInvoices
+    type: usecase
+    input:
+      - name: id
+        type: uuid
+    output: "Vec<Invoice>"
+    depends_on: [invoiceRepository]
+    doc: Billing usecase listInvoices
+  - id: voidInvoice
+    type: usecase
+    input:
+      - name: id
+        type: uuid
+    output: Invoice
+    depends_on: [invoiceRepository]
+    doc: Billing usecase voidInvoice

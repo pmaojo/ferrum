@@ -1,0 +1,245 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum compile /Users/Shared/proyectos/ferrum/bench/dsl/tier3.yaml -o /Users/Shared/proyectos/ferrum/bench/out/path_default_tier3 -t /Users/Shared/proyectos/ferrum/templates
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=0 wall=11.4161s
+--- stdout ---
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+⚠️  typeshare not available or failed, skipping TypeScript generation
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+✅ Successfully compiled /Users/Shared/proyectos/ferrum/bench/dsl/tier3.yaml
+⚠️  'cargo fmt' failed or is unavailable ('cargo fmt' exited with an error)
+⚠️  'prettier' failed or is unavailable (failed to execute 'prettier')
+--- stderr ---
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it
+error: 'cargo-fmt' is not installed for the toolchain 'stable-aarch64-apple-darwin'.
+help: run `rustup component add rustfmt` to install it

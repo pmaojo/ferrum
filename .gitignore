@@ -25,3 +25,6 @@ dist-ssr/
 *.sln
 *.sw?
 .DS_Store
+
+# Benchmark scratch output (generated trees)
+/bench/out/

@@ -1,4 +1,5 @@
 pub mod analysis;
+pub mod artifact;
 pub mod authgen;
 pub mod componentgen;
 pub mod dsl;
@@ -20,6 +21,7 @@ pub mod utils;
 pub mod validator;
 
 pub use analysis::*;
+pub use artifact::*;
 pub use authgen::*;
 pub use componentgen::*;
 pub use dsl::*;

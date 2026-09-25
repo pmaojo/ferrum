@@ -1,0 +1,43 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum explain /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=0 wall=0.0099s
+--- stdout ---
+Features:
+-----------
+- auth
+- cron
+- realtime-sse
+- uploads
+
+Resources:
+-----------
+- cache (redis)
+- userQueue (sqs)
+- cartQueue (sqs)
+- invoiceQueue (sqs)
+- pricingQueue (sqs)
+
+Jobs:
+-----
+- user_sync -> user.sync
+- cart_sync -> cart.sync
+- invoice_sync -> invoice.sync
+- pricing_sync -> pricing.sync
+
+Routes:
+-------
+- user /user
+- tenant /tenant
+- catalog /catalog
+- inventory /inventory
+- cart /cart
+- order /order
+- payment /payment
+- shipment /shipment
+- invoice /invoice
+- analytics /analytics
+- notification /notification
+- support /support
+- pricing /pricing
+- promotion /promotion
+--- stderr ---

@@ -198,11 +198,8 @@ impl Generator {
 
         // Generate migration
         let mig_root = self.output_dir.join("backend/migrations");
-        std::fs::create_dir_all(&mig_root)?;
-        let mig_idx = std::fs::read_dir(&mig_root)?.count() + 1;
         let table_name = node.id.to_lowercase();
-        let mig_dir = mig_root.join(format!("{:04}_create_vector_store_{}", mig_idx, table_name));
-        std::fs::create_dir_all(&mig_dir)?;
+        let mig_dir = format!("create_vector_store_{}", table_name);
 
         let up_sql = format!(
             "CREATE EXTENSION IF NOT EXISTS vector;\n\
@@ -218,10 +215,9 @@ impl Generator {
             dimensions,
             table_name
         );
-        std::fs::write(mig_dir.join("up.sql"), up_sql)?;
 
         let down_sql = format!("DROP TABLE {};", table_name);
-        std::fs::write(mig_dir.join("down.sql"), down_sql)?;
+        crate::artifact::ensure_migration(&mig_root, &mig_dir, &up_sql, &down_sql)?;
 
         Ok(())
     }
@@ -263,20 +259,13 @@ impl Generator {
             .context("Failed to render port template")?;
         let port_path = self.output_dir.join("backend/ports.rs");
 
-        // Append to ports file or create if it doesn't exist
-        let existing_content = if port_path.exists() {
-            fs::read_to_string(&port_path).unwrap_or_default()
-        } else {
-            String::new()
-        };
-
-        let updated_content = if existing_content.is_empty() {
-            port_content
-        } else {
-            format!("{}{}", existing_content, port_content)
-        };
-
-        self.write_file(&port_path, &updated_content)?;
+        // One managed region per port: `ports.rs` is shared by every port node,
+        // so concatenating would duplicate every trait on the second compile.
+        crate::artifact::upsert_region(
+            &port_path,
+            &format!("port:{}", node.id),
+            port_content.trim_end(),
+        )?;
 
         Ok(())
     }
@@ -340,10 +329,6 @@ impl Generator {
 
         // Generate Diesel migration based on entity fields
         let mig_root = self.output_dir.join("backend/migrations");
-        std::fs::create_dir_all(&mig_root)?;
-        let mig_idx = std::fs::read_dir(&mig_root)?.count() + 1;
-        let mig_dir = mig_root.join(format!("{:04}_create_{}", mig_idx, node.id.to_lowercase()));
-        std::fs::create_dir_all(&mig_dir)?;
 
         let mut columns = String::new();
         for field in &node.input {
@@ -360,14 +345,15 @@ impl Generator {
             "CREATE TABLE {} (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n{}    created_at TIMESTAMP DEFAULT now()\n);\n",
             node.id.to_lowercase(), columns
         );
-        std::fs::write(mig_dir.join("up.sql"), up_sql)?;
         let down_sql = format!("DROP TABLE {};", node.id.to_lowercase());
-        std::fs::write(mig_dir.join("down.sql"), down_sql)?;
+        crate::artifact::ensure_migration(
+            &mig_root,
+            &format!("create_{}", node.id.to_lowercase()),
+            &up_sql,
+            &down_sql,
+        )?;
 
         // ---------------- Diesel ORM generation ----------------
-        use std::fs::OpenOptions;
-        use std::io::Write;
-
         let db_dir = self.output_dir.join("backend/src/db");
         std::fs::create_dir_all(&db_dir)?;
         let models_path = db_dir.join("models.rs");
@@ -395,26 +381,23 @@ impl Generator {
             .render("backend/db/schema.rs.tera", &diesel_ctx)
             .context("Failed to render Diesel schema template")?;
 
-        if !models_path.exists() {
-            let mut f = OpenOptions::new()
-                .create(true)
-                .write(true)
-                .open(&models_path)?;
-            writeln!(f, "use diesel::prelude::*;")?;
-            writeln!(f, "use serde::{{Deserialize, Serialize}};")?;
-            writeln!(f, "use uuid::Uuid;\n")?;
-            f.write_all(model_snippet.as_bytes())?;
-        } else {
-            let mut f = OpenOptions::new().append(true).open(&models_path)?;
-            writeln!(f)?;
-            f.write_all(model_snippet.as_bytes())?;
-        }
-
-        let mut schema_file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&schema_path)?;
-        writeln!(schema_file, "{}", schema_snippet.trim_end())?;
+        // Each entity owns one region in the shared files, so recompiling
+        // replaces that entity's block instead of appending a second copy.
+        crate::artifact::upsert_region(
+            &models_path,
+            "models:header",
+            "use diesel::prelude::*;\nuse serde::{Deserialize, Serialize};\nuse uuid::Uuid;",
+        )?;
+        crate::artifact::upsert_region(
+            &models_path,
+            &format!("entity:{}", node.id.to_lowercase()),
+            model_snippet.trim_end(),
+        )?;
+        crate::artifact::upsert_region(
+            &schema_path,
+            &format!("entity:{}", node.id.to_lowercase()),
+            schema_snippet.trim_end(),
+        )?;
 
         Ok(())
     }
@@ -522,7 +505,6 @@ impl Generator {
             TeraContext::from_serialize(&ctx).context("Failed to serialize validation context")?;
 
         // Ensure validations module and custom rule file exist
-        use std::fs::OpenOptions;
         let mod_path = self
             .output_dir
             .join("backend/src/validations/mod.rs");
@@ -533,9 +515,13 @@ impl Generator {
                 .context("Failed to render validations mod template")?;
             self.write_file(&mod_path, &mod_content)?;
         }
-        let mut mod_file = OpenOptions::new().append(true).open(&mod_path)?;
-        use std::io::Write;
-        writeln!(mod_file, "pub mod {};", fn_name)?;
+        // Accumulative + de-duplicated: compiling twice must not declare the
+        // same module twice, which would be a hard error in Rust.
+        crate::artifact::add_region_line(
+            &mod_path,
+            "modules",
+            &format!("pub mod {};", fn_name),
+        )?;
 
         let custom_backend_path = self
             .output_dir

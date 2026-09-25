@@ -1,0 +1,42 @@
+# Collision probe: many usecases inside a single module.
+app:
+  name: collide
+  title: Collision probe
+  database: postgres
+modules:
+  order:
+    entity:
+      fields:
+        code: string
+        amount: float
+    usecases:
+      createOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]
+      updateOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]
+      cancelOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]
+      refundOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]
+      shipOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]
+      archiveOrder:
+        input:
+          id: uuid
+        output: Order
+        steps: [order]

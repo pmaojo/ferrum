@@ -1,0 +1,31 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum init init-api-only-app --api-only --with-db
+(cwd=/Users/Shared/proyectos/ferrum/bench/out/init)
+exit=0 wall=0.0081s
+--- stdout ---
+🏗️  Initializing new Ferrum project: init-api-only-app
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 Created directory: init-api-only-app/backend/src
+📁 Created directory: init-api-only-app/backend/tests
+📁 Created directory: init-api-only-app/shared-models/src
+📁 Created directory: init-api-only-app/templates/backend
+📁 Created directory: init-api-only-app/templates/shared-models
+📁 Created directory: init-api-only-app/gen
+📁 Created directory: init-api-only-app/data/postgres
+📁 Created directory: init-api-only-app/backend/migrations
+📄 Added Diesel templates and .env file
+📄 Created docker-compose.yml
+📄 Created Dockerfile
+📄 Created compose.prod.yaml
+📄 Created backend/Dockerfile with diesel_cli
+📄 Created example grafo.yaml
+📄 Updated backend/Cargo.toml with dependencies
+📄 Created README.md
+
+✅ Project initialized successfully!
+📂 Project location: init-api-only-app
+
+Next steps:
+  1. cd init-api-only-app
+  2. ferrum compile gen/example.yaml
+  3. ferrum dev
+--- stderr ---

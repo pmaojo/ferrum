@@ -1,0 +1,37 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum init init-full-app --with-db --with-auth --with-graph --with-jobs --with-ai
+(cwd=/Users/Shared/proyectos/ferrum/bench/out/init)
+exit=0 wall=0.0091s
+--- stdout ---
+🏗️  Initializing new Ferrum project: init-full-app
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 Created directory: init-full-app/backend/src
+📁 Created directory: init-full-app/backend/tests
+📁 Created directory: init-full-app/shared-models/src
+📁 Created directory: init-full-app/templates/backend
+📁 Created directory: init-full-app/templates/shared-models
+📁 Created directory: init-full-app/gen
+📁 Created directory: init-full-app/data/postgres
+📁 Created directory: init-full-app/frontend/src
+📁 Created directory: init-full-app/templates/frontend
+📁 Created directory: init-full-app/data/neo4j
+📁 Created directory: init-full-app/data/ollama
+📁 Created directory: init-full-app/backend/migrations
+📄 Added Diesel templates and .env file
+📄 Added authentication templates
+📄 Added job templates
+📄 Created docker-compose.yml
+📄 Created Dockerfile
+📄 Created compose.prod.yaml
+📄 Created backend/Dockerfile with diesel_cli
+📄 Created example grafo.yaml
+📄 Updated backend/Cargo.toml with dependencies
+📄 Created README.md
+
+✅ Project initialized successfully!
+📂 Project location: init-full-app
+
+Next steps:
+  1. cd init-full-app
+  2. ferrum compile gen/example.yaml
+  3. ferrum dev
+--- stderr ---

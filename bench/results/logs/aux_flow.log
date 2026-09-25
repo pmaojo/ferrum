@@ -1,0 +1,12 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum flow /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=1 wall=0.0096s
+--- stdout ---
+--- stderr ---
+Error: Failed to connect to AI service. Is it running?
+
+Caused by:
+    0: error sending request for url (http://localhost:8001/simulate/flow)
+    1: client error (Connect)
+    2: tcp connect error
+    3: Connection refused (os error 61)

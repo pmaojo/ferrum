@@ -1,0 +1,29 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum init init-plain-app
+(cwd=/Users/Shared/proyectos/ferrum/bench/out/init)
+exit=0 wall=0.0085s
+--- stdout ---
+🏗️  Initializing new Ferrum project: init-plain-app
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 Created directory: init-plain-app/backend/src
+📁 Created directory: init-plain-app/backend/tests
+📁 Created directory: init-plain-app/shared-models/src
+📁 Created directory: init-plain-app/templates/backend
+📁 Created directory: init-plain-app/templates/shared-models
+📁 Created directory: init-plain-app/gen
+📁 Created directory: init-plain-app/data/postgres
+📁 Created directory: init-plain-app/frontend/src
+📁 Created directory: init-plain-app/templates/frontend
+📄 Created docker-compose.yml
+📄 Created Dockerfile
+📄 Created compose.prod.yaml
+📄 Created example grafo.yaml
+📄 Created README.md
+
+✅ Project initialized successfully!
+📂 Project location: init-plain-app
+
+Next steps:
+  1. cd init-plain-app
+  2. ferrum compile gen/example.yaml
+  3. ferrum dev
+--- stderr ---

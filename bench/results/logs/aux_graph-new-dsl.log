@@ -1,0 +1,9 @@
+$ /Users/Shared/proyectos/ferrum/target/debug/ferrum graph /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml -o /Users/Shared/proyectos/ferrum/bench/out/atlas.dot
+(cwd=/Users/Shared/proyectos/ferrum)
+exit=1 wall=0.0095s
+--- stdout ---
+--- stderr ---
+Error: Failed to parse YAML from: /Users/Shared/proyectos/ferrum/bench/dsl/atlas.yaml
+
+Caused by:
+    missing field `module` at line 2 column 1
