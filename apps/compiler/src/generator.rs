@@ -151,6 +151,7 @@ impl Generator {
             .join("backend/routes")
             .join(format!("{}.rs", module.name));
         self.write_file(&route_path, &route_content)?;
+        self.write_module_indexes()?;
 
         // Generate frontend hook
         let hook_content = self
@@ -174,6 +175,36 @@ impl Generator {
             .join(format!("{}.tsx", capitalize(&node.id)));
         self.write_file(&component_path, &component_content)?;
 
+        Ok(())
+    }
+
+    /// `handlers/mod.rs` and `routes/mod.rs` list every module that has a
+    /// file there, so the backend crate can declare them; rendered from the
+    /// directory each time, the result is the same however many modules ran.
+    fn write_module_indexes(&self) -> Result<()> {
+        let list = |dir: &str| -> Result<Vec<String>> {
+            let mut names: Vec<String> = fs::read_dir(self.output_dir.join(dir))?
+                .filter_map(|e| e.ok())
+                .filter_map(|e| e.path().file_stem().map(|s| s.to_string_lossy().to_string()))
+                .filter(|n| n != "mod")
+                .collect();
+            names.sort();
+            names.dedup();
+            Ok(names)
+        };
+        let handlers: String = list("backend/handlers")?
+            .iter()
+            .map(|n| format!("pub mod {n};\n"))
+            .collect();
+        self.write_file(self.output_dir.join("backend/handlers/mod.rs"), &handlers)?;
+        let routes = list("backend/routes")?;
+        let mut content: String = routes.iter().map(|n| format!("pub mod {n};\n")).collect();
+        content.push_str("\npub fn router() -> axum::Router {\n    axum::Router::new()\n");
+        for n in &routes {
+            content.push_str(&format!("        .merge({n}::{n}_routes())\n"));
+        }
+        content.push_str("}\n");
+        self.write_file(self.output_dir.join("backend/routes/mod.rs"), &content)?;
         Ok(())
     }
 

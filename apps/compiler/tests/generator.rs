@@ -301,6 +301,11 @@ fn a_module_with_several_use_cases_keeps_every_handler_and_route() {
     assert!(routes.contains(r#".route("/todos/{id}", delete(deleteTodo_handler))"#), "{routes}");
     assert!(routes.contains(r#".route("/todos/{id}/toggle-todo", post(toggleTodo_handler))"#), "{routes}");
     assert!(routes.contains(r#".route("/todos", get(listTodos_handler))"#), "{routes}");
+    // The crate can declare and mount every module that has a file.
+    let index = std::fs::read_to_string(dir.path().join("backend/routes/mod.rs")).unwrap();
+    assert!(index.contains("pub mod todos;") && index.contains(".merge(todos::todos_routes())"), "{index}");
+    let index = std::fs::read_to_string(dir.path().join("backend/handlers/mod.rs")).unwrap();
+    assert!(index.contains("pub mod todos;"), "{index}");
     // The model carries the primary key its table declares.
     let models = std::fs::read_to_string(dir.path().join("backend/src/db/models.rs")).unwrap();
     assert!(models.contains("pub id: Uuid,"), "{models}");
