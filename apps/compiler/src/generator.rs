@@ -29,6 +29,7 @@ impl Generator {
         let mut templates =
             Tera::new(templates_glob).context("Failed to initialize Tera template engine")?;
         templates.register_filter("pascal_case", pascal_case_filter);
+        templates.register_filter("kebab_case", kebab_case_filter);
         templates.autoescape_on(vec![]);
 
         Ok(Self {
@@ -361,7 +362,8 @@ impl Generator {
         let mod_path = db_dir.join("mod.rs");
 
         if !mod_path.exists() {
-            self.write_file(&mod_path, "pub mod models;\npub mod schema;\n")?;
+            // Created once and then owned by the user, who adds `DbPool` here.
+            self.write_user_file(&mod_path, "pub mod models;\npub mod schema;\n")?;
         }
 
         let diesel_ctx = DieselContext {
@@ -531,7 +533,7 @@ impl Generator {
                 .templates
                 .render("backend/validations/custom.rs.tera", &TeraContext::new())
                 .context("Failed to render custom validation template")?;
-            self.write_file(&custom_backend_path, &custom_content)?;
+            self.write_user_file(&custom_backend_path, &custom_content)?;
         }
 
         let custom_frontend_path = self
@@ -542,7 +544,7 @@ impl Generator {
                 .templates
                 .render("frontend/validations/custom.ts.tera", &TeraContext::new())
                 .context("Failed to render custom validation TS template")?;
-            self.write_file(&custom_frontend_path, &custom_ts)?;
+            self.write_user_file(&custom_frontend_path, &custom_ts)?;
         }
 
         let backend_content = self
@@ -719,7 +721,16 @@ impl Generator {
         self.write_file(&doc_path, &doc_content)
     }
 
+    /// Write a file fully derived from the graph and the templates: it gets
+    /// the generated-code header and keeps the bodies of its `vord:hole`s
+    /// across recompiles (see [`crate::ownership`]).
     fn write_file<P: AsRef<Path>>(&self, path: P, content: &str) -> Result<()> {
+        crate::ownership::write_generated(path, content)
+    }
+
+    /// Write a file that ferrum only creates once and then hands over to the
+    /// user: no generated-code header, no holes.
+    fn write_user_file<P: AsRef<Path>>(&self, path: P, content: &str) -> Result<()> {
         let path = path.as_ref();
         if let Some(parent) = path.parent() {
             fs::create_dir_all(parent)
@@ -766,6 +777,13 @@ fn pascal_case_filter(value: &Value, _: &HashMap<String, Value>) -> tera::Result
         .as_str()
         .ok_or_else(|| tera::Error::msg("pascal_case expects a string"))?;
     Ok(Value::String(input.to_pascal_case()))
+}
+
+fn kebab_case_filter(value: &Value, _: &HashMap<String, Value>) -> tera::Result<Value> {
+    let input = value
+        .as_str()
+        .ok_or_else(|| tera::Error::msg("kebab_case expects a string"))?;
+    Ok(Value::String(input.to_kebab_case()))
 }
 
 pub(crate) fn capitalize(s: &str) -> String {

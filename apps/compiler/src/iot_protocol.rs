@@ -4,6 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslIot, DslIotExpose};
 
+use crate::ownership::{hole_name, line_hole, write_generated};
 use crate::ProjectPaths;
 
 /// Abstraction over IoT protocol specific code generation.
@@ -45,7 +46,7 @@ fn default_generate_hook(iot: &DslIot, expose: &DslIotExpose, paths: &ProjectPat
         )
     };
 
-    fs::write(hook_dir.join(format!("use{hook_name}.ts")), content)?;
+    write_generated(hook_dir.join(format!("use{hook_name}.ts")), &content)?;
     Ok(())
 }
 
@@ -65,31 +66,39 @@ fn default_generate_handler(iot: &DslIot, expose: &DslIotExpose, paths: &Project
                 name = iot.name.to_snake_case()
             )
         } else {
+            let hole = line_hole(
+                "",
+                &hole_name("iot", &format!("{}-mqtt", iot.name)),
+                "iot_mqtt",
+                &format!("iot:{}", iot.name),
+                "",
+            );
             format!(
-                "// MQTT template for {name}\n// Topic: {path}\n// \u{26F3} AI_FILL[iot_mqtt] --context=iot:{name}\n",
+                "// MQTT template for {name}\n// Topic: {path}\n{hole}",
                 name = iot.name,
-                path = path
             )
         };
-        fs::write(dir.join(format!("{}_mqtt.rs", iot.name.to_snake_case())), content)?;
+        write_generated(dir.join(format!("{}_mqtt.rs", iot.name.to_snake_case())), &content)?;
     } else {
         let handler_name = format!("{}_handler", iot.name.to_snake_case());
         let content = if iot.simulate {
+            let sim_fn = format!("{}_sim", iot.name.to_snake_case());
             format!(
                 "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    super::sim::{sim_fn}();\n    Json(())\n}}\n",
-                handler_name = handler_name,
-                sim_fn = format!("{}_sim", iot.name.to_snake_case())
             )
         } else {
+            let hole = line_hole(
+                "    ",
+                &hole_name("iot", &format!("{}-http", iot.name)),
+                "iot_http",
+                &format!("iot:{}", iot.name),
+                "Json(())",
+            );
             format!(
-                "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    // Exposed via {method} {path}\n    // \u{26F3} AI_FILL[iot_http] --context=iot:{orig}\n    Json(())\n}}\n",
-                handler_name = handler_name,
-                method = method,
-                path = path,
-                orig = iot.name,
+                "use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {handler_name}(State(_state): State<Arc<AppState>>) -> Json<()> {{\n    // Exposed via {method} {path}\n{hole}}}\n",
             )
         };
-        fs::write(dir.join(format!("{}.rs", handler_name)), content)?;
+        write_generated(dir.join(format!("{}.rs", handler_name)), &content)?;
     }
 
     Ok(())
@@ -100,12 +109,18 @@ impl IotProtocol for GpioProtocol {
     fn generate_driver(&self, iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
         let dir = paths.backend.join("iot");
         fs::create_dir_all(&dir)?;
-        let content = format!(
-            "use rppal::gpio::Gpio;\n\npub fn {name}_gpio() -> Gpio {{\n    // \u{26F3} AI_FILL[iot_gpio] --context=iot:{orig}\n    Gpio::new().unwrap()\n}}\n",
-            name = iot.name.to_snake_case(),
-            orig = iot.name
+        let hole = line_hole(
+            "    ",
+            &hole_name("iot", &format!("{}-gpio", iot.name)),
+            "iot_gpio",
+            &format!("iot:{}", iot.name),
+            "Gpio::new().unwrap()",
         );
-        fs::write(dir.join(format!("{}_gpio.rs", iot.name.to_snake_case())), content)?;
+        let content = format!(
+            "use rppal::gpio::Gpio;\n\npub fn {name}_gpio() -> Gpio {{\n{hole}}}\n",
+            name = iot.name.to_snake_case(),
+        );
+        write_generated(dir.join(format!("{}_gpio.rs", iot.name.to_snake_case())), &content)?;
         Ok(())
     }
 
@@ -123,15 +138,21 @@ impl IotProtocol for MqttProtocol {
     fn generate_driver(&self, iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
         let dir = paths.backend.join("iot");
         fs::create_dir_all(&dir)?;
+        let hole = line_hole(
+            "    ",
+            &hole_name("iot", &format!("{}-mqtt-client", iot.name)),
+            "iot_mqtt_client",
+            &format!("iot:{}", iot.name),
+            "Client::new(options, 10)",
+        );
         let content = format!(
-            "use rumqttc::{{MqttOptions, Client}};\n\npub fn {name}_mqtt_client() -> Client {{\n    let options = MqttOptions::new(\"{client}\", \"localhost\", 1883);\n    // \u{26F3} AI_FILL[iot_mqtt_client] --context=iot:{orig}\n    Client::new(options, 10)\n}}\n",
+            "use rumqttc::{{MqttOptions, Client}};\n\npub fn {name}_mqtt_client() -> Client {{\n    let options = MqttOptions::new(\"{client}\", \"localhost\", 1883);\n{hole}}}\n",
             name = iot.name.to_snake_case(),
             client = iot.name.to_snake_case(),
-            orig = iot.name
         );
-        fs::write(
+        write_generated(
             dir.join(format!("{}_mqtt_client.rs", iot.name.to_snake_case())),
-            content,
+            &content,
         )?;
         Ok(())
     }
@@ -150,14 +171,20 @@ impl IotProtocol for EthercatProtocol {
     fn generate_driver(&self, iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
         let dir = paths.backend.join("iot");
         fs::create_dir_all(&dir)?;
-        let content = format!(
-            "use ethercat_rs::Master;\n\npub fn {name}_master() -> Master {{\n    // \u{26F3} AI_FILL[iot_ethercat] --context=iot:{orig}\n    Master::default()\n}}\n",
-            name = iot.name.to_snake_case(),
-            orig = iot.name
+        let hole = line_hole(
+            "    ",
+            &hole_name("iot", &format!("{}-ethercat", iot.name)),
+            "iot_ethercat",
+            &format!("iot:{}", iot.name),
+            "Master::default()",
         );
-        fs::write(
+        let content = format!(
+            "use ethercat_rs::Master;\n\npub fn {name}_master() -> Master {{\n{hole}}}\n",
+            name = iot.name.to_snake_case(),
+        );
+        write_generated(
             dir.join(format!("{}_ethercat.rs", iot.name.to_snake_case())),
-            content,
+            &content,
         )?;
         Ok(())
     }

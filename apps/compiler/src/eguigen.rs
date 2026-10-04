@@ -64,7 +64,7 @@ impl EguiGenerator {
             .templates
             .render("Cargo.toml.tera", &context)
             .context("Failed to render Cargo.toml template")?;
-        fs::write(frontend_egui_dir.join("Cargo.toml"), cargo_content)
+        crate::ownership::write_generated(frontend_egui_dir.join("Cargo.toml"), &cargo_content)
             .context("Failed to write Cargo.toml")?;
 
         // Generate main.rs
@@ -72,7 +72,7 @@ impl EguiGenerator {
             .templates
             .render("main.rs.tera", &context)
             .context("Failed to render main.rs template")?;
-        fs::write(src_dir.join("main.rs"), main_content)
+        crate::ownership::write_generated(src_dir.join("main.rs"), &main_content)
             .context("Failed to write main.rs")?;
 
         // Generate app.rs
@@ -80,7 +80,7 @@ impl EguiGenerator {
             .templates
             .render("app.rs.tera", &context)
             .context("Failed to render app.rs template")?;
-        fs::write(src_dir.join("app.rs"), app_content)
+        crate::ownership::write_generated(src_dir.join("app.rs"), &app_content)
             .context("Failed to write app.rs")?;
 
         Ok(())
@@ -98,7 +98,7 @@ impl EguiGenerator {
             .templates
             .render("state.rs.tera", &context)
             .context("Failed to render state.rs template")?;
-        fs::write(src_dir.join("state.rs"), state_content)
+        crate::ownership::write_generated(src_dir.join("state.rs"), &state_content)
             .context("Failed to write state.rs")?;
 
         Ok(())
@@ -153,7 +153,7 @@ impl EguiGenerator {
             .templates
             .render("navigation.rs.tera", &context)
             .context("Failed to render navigation.rs template")?;
-        fs::write(src_dir.join("navigation.rs"), nav_content)
+        crate::ownership::write_generated(src_dir.join("navigation.rs"), &nav_content)
             .context("Failed to write navigation.rs")?;
 
         // Generate API client files
@@ -161,14 +161,14 @@ impl EguiGenerator {
             .templates
             .render("api/mod.rs.tera", &TeraContext::new())
             .context("Failed to render api/mod.rs template")?;
-        fs::write(api_dir.join("mod.rs"), api_mod_content)
+        crate::ownership::write_generated(api_dir.join("mod.rs"), &api_mod_content)
             .context("Failed to write api/mod.rs")?;
 
         let api_client_content = self
             .templates
             .render("api/client.rs.tera", &TeraContext::new())
             .context("Failed to render api/client.rs template")?;
-        fs::write(api_dir.join("client.rs"), api_client_content)
+        crate::ownership::write_generated(api_dir.join("client.rs"), &api_client_content)
             .context("Failed to write api/client.rs")?;
 
         Ok(())
@@ -255,7 +255,7 @@ impl EguiGenerator {
             .context("Failed to render view template")?;
         
         let view_file = views_dir.join(format!("{}.rs", module_name));
-        fs::write(&view_file, view_content)
+        crate::ownership::write_generated(&view_file, &view_content)
             .with_context(|| format!("Failed to write view file: {}", view_file.display()))?;
 
         Ok(())
@@ -317,7 +317,7 @@ impl EguiGenerator {
             .render("views/mod.rs.tera", &context)
             .context("Failed to render views/mod.rs template")?;
         
-        fs::write(views_dir.join("mod.rs"), mod_content)
+        crate::ownership::write_generated(views_dir.join("mod.rs"), &mod_content)
             .context("Failed to write views/mod.rs")?;
 
         Ok(())

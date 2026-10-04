@@ -1,4 +1,5 @@
-use crate::utils::{write_file, ProjectPaths};
+use crate::ownership::{hole_name, line_hole, write_generated};
+use crate::utils::ProjectPaths;
 use anyhow::Result;
 use inflector::Inflector;
 
@@ -26,14 +27,17 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
         .cloned()
         .unwrap_or_else(|| "serde_json::Value".into());
 
-    let rust_content = format!(
-        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>) -> Json<Vec<{ret_ty}>> {{\n    // ⛳️ AI_FILL[query_logic] --context=query:{orig}\n    Json(vec![])\n}}\n",
-        imports = imports,
-        func_name = func_name,
-        ret_ty = ret_ty,
-        orig = query.name,
+    let hole = line_hole(
+        "    ",
+        &hole_name("query", &query.name),
+        "query_logic",
+        &format!("query:{}", query.name),
+        "Json(vec![])",
     );
-    write_file(backend_dir.join(format!("{}.rs", func_name)), &rust_content)?;
+    let rust_content = format!(
+        "{imports}use axum::{{Json, extract::State}};\nuse std::sync::Arc;\nuse crate::AppState;\n\npub async fn {func_name}(State(_state): State<Arc<AppState>>) -> Json<Vec<{ret_ty}>> {{\n{hole}}}\n",
+    );
+    write_generated(backend_dir.join(format!("{}.rs", func_name)), &rust_content)?;
 
     let ts_import = query
         .entities
@@ -52,7 +56,7 @@ pub fn generate_query(query: &DslQuery, paths: &ProjectPaths) -> Result<()> {
         ts_ret = ts_ret,
         orig = query.name
     );
-    write_file(
+    write_generated(
         frontend_dir.join(format!("use{hook_name}.ts")),
         &ts_content,
     )?;

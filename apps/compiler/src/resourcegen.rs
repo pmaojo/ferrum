@@ -4,6 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslResource, FerrumDsl};
 
+use crate::ownership::write_generated;
 use crate::ProjectPaths;
 
 pub fn generate_resource(res: &DslResource, paths: &ProjectPaths) -> Result<()> {
@@ -31,7 +32,7 @@ pub fn generate_resource(res: &DslResource, paths: &ProjectPaths) -> Result<()> 
             res.resource_type, res.config
         ),
     };
-    fs::write(dir.join(format!("{}.rs", res.name.to_lowercase())), content)?;
+    write_generated(dir.join(format!("{}.rs", res.name.to_lowercase())), &content)?;
     Ok(())
 }
 

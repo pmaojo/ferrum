@@ -17,6 +17,9 @@
 //! Rewriting a key replaces its block in place, so repeated compiles converge
 //! on identical output, and anything the user writes outside the markers is
 //! preserved. Duplicate blocks left behind by older versions are collapsed.
+//!
+//! Files assembled from regions, and migrations, also carry the generated-code
+//! header from [`crate::ownership`].
 
 use anyhow::{Context, Result};
 use std::fs;
@@ -102,6 +105,9 @@ where
 
     let mut output = lines.join("\n");
     output.push('\n');
+    // Shared files are assembled from generated regions only, so the whole
+    // file is generated code.
+    let output = crate::ownership::with_header(path, &output);
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .with_context(|| format!("failed to create {}", parent.display()))?;
@@ -177,8 +183,10 @@ pub fn ensure_migration(root: &Path, slug: &str, up_sql: &str, down_sql: &str) -
         }
     };
 
-    fs::write(dir.join("up.sql"), up_sql)?;
-    fs::write(dir.join("down.sql"), down_sql)?;
+    let up = dir.join("up.sql");
+    let down = dir.join("down.sql");
+    fs::write(&up, crate::ownership::with_header(&up, up_sql))?;
+    fs::write(&down, crate::ownership::with_header(&down, down_sql))?;
     Ok(())
 }
 

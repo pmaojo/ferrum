@@ -5,6 +5,7 @@ use std::fs;
 use ferrum_shared_models::{DslIot, FerrumDsl};
 
 use crate::iot_protocol::{DefaultProtocol, EthercatProtocol, GpioProtocol, IotProtocol, MqttProtocol};
+use crate::ownership::write_generated;
 use crate::ProjectPaths;
 
 fn generate_simulator(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
@@ -15,7 +16,7 @@ fn generate_simulator(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
         name = iot.name.to_snake_case(),
         orig = iot.name
     );
-    fs::write(dir.join(format!("{}_sim.rs", iot.name.to_snake_case())), content)?;
+    write_generated(dir.join(format!("{}_sim.rs", iot.name.to_snake_case())), &content)?;
     Ok(())
 }
 
@@ -23,7 +24,9 @@ pub fn generate_iot(iot: &DslIot, paths: &ProjectPaths) -> Result<()> {
     let dir = paths.backend.join("iot");
     fs::create_dir_all(&dir)?;
     let file = dir.join(format!("{}.rs", iot.name.to_snake_case()));
-    fs::write(&file, &iot.code)?;
+    // `code` comes verbatim from the graph, so the file is generated too:
+    // change it in the YAML, not here.
+    write_generated(&file, &iot.code)?;
 
     let protocol: Box<dyn IotProtocol> = match iot.protocol.as_deref() {
         Some(p) if p.eq_ignore_ascii_case("gpio")

@@ -2,6 +2,8 @@ use rumqttc::{MqttOptions, Client};
 
 pub fn example_client() -> Client {
     let options = MqttOptions::new("example", "localhost", 1883);
-    // ⚙ AI_FILL[iot_rumqttc]
+    // vord:hole iot-rumqttc
+    // ⛳ AI_FILL[iot_rumqttc] --context=iot:rumqttc
     Client::new(options, 10)
+    // vord:end-hole
 }

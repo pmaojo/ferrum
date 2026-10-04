@@ -40,9 +40,8 @@ fn role_based_policy_evaluates() {
     )
     .unwrap();
 
-    let main_rs = format!(
-        "mod policies;\nuse base64::engine::general_purpose::STANDARD;\nuse base64::Engine as _;\nfn main() {{\n    let payload = STANDARD.encode(r#\"{{\"roles\":[\"admin\"]}}\"#);\n    let token = format!(\"a.{{}}.b\", payload);\n    policies::set_request_context(&format!(\"jwt={{}}\", token));\n    println!(\"{{}}\", policies::evaluate_policy(\"isAdmin\"));\n}}\n"
-    );
+    let main_rs =
+        "mod policies;\nuse base64::engine::general_purpose::STANDARD;\nuse base64::Engine as _;\nfn main() {\n    let payload = STANDARD.encode(r#\"{\"roles\":[\"admin\"]}\"#);\n    let token = format!(\"a.{}.b\", payload);\n    policies::set_request_context(&format!(\"jwt={}\", token));\n    println!(\"{}\", policies::evaluate_policy(\"isAdmin\"));\n}\n";
     fs::write(crate_dir.join("src/main.rs"), main_rs).unwrap();
 
     let output = build_and_run(&crate_dir);
@@ -64,7 +63,12 @@ fn custom_guard_policy_evaluates() {
     let crate_dir = out.path().join("crate");
     fs::create_dir_all(crate_dir.join("src/policies")).unwrap();
     let mut mod_rs = fs::read_to_string(paths.backend.join("policies/mod.rs")).unwrap();
-    mod_rs.push_str("\npub fn check_admin() -> bool { true }\n");
+    // Custom guards are hand-written inside the `policy-guards` hole, which
+    // ships a deny-by-default stub.
+    let stub = "pub fn check_admin() -> bool {\n    false\n}";
+    assert!(mod_rs.contains("// vord:hole policy-guards"));
+    assert!(mod_rs.contains(stub));
+    mod_rs = mod_rs.replace(stub, "pub fn check_admin() -> bool { true }");
     fs::write(crate_dir.join("src/policies/mod.rs"), mod_rs).unwrap();
     fs::copy(paths.backend.join("policies/isadmin.rs"), crate_dir.join("src/policies/isadmin.rs")).unwrap();
 

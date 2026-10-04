@@ -4,6 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslJob, FerrumDsl};
 
+use crate::ownership::{hole_name, line_hole, write_generated};
 use crate::{utils::handle_unauthorized_snippet, ProjectPaths};
 
 pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
@@ -21,14 +22,18 @@ pub fn generate_job(job: &DslJob, paths: &ProjectPaths) -> Result<()> {
             )
         })
         .unwrap_or_default();
-    let content = format!(
-        "// Scheduled: {}\n\npub async fn {}() {{\n{policy_check}    // ⛳️ AI_FILL[job_logic] --context=job:{orig}\n}}\n",
-        job.schedule,
-        func_name,
-        policy_check = policy_check,
-        orig = job.name,
+    let hole = line_hole(
+        "    ",
+        &hole_name("job", &job.name),
+        "job_logic",
+        &format!("job:{}", job.name),
+        "",
     );
-    fs::write(backend_dir.join(format!("{}.rs", func_name)), content)?;
+    let content = format!(
+        "// Scheduled: {schedule}\n\npub async fn {func_name}() {{\n{policy_check}{hole}}}\n",
+        schedule = job.schedule,
+    );
+    write_generated(backend_dir.join(format!("{}.rs", func_name)), &content)?;
     Ok(())
 }
 
