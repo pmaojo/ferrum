@@ -20,7 +20,10 @@ impl {{ node.id | capitalize }} {
 #[async_trait]
 impl {{ node.implements | capitalize }} for {{ node.id | capitalize }} {
     async fn get_{{ module_name | lower }}(&self, id: Uuid) -> Usuario {
+        // vord:hole adapter-{{ node.id | kebab_case }}
+        // ⛳ AI_FILL[adapter_logic] --context=adapter:{{ node.id }}
         let mut conn = self.pool.get().unwrap();
         usuarios.find(id).first::<Usuario>(&mut conn).unwrap()
+        // vord:end-hole
     }
 }

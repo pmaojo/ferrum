@@ -3,6 +3,7 @@ use std::fs;
 
 use ferrum_shared_models::FerrumDsl;
 
+use crate::ownership::write_generated;
 use crate::utils::write_file;
 use crate::ProjectPaths;
 
@@ -98,7 +99,7 @@ export default function {symbol}() {{
         ));
     }
     content.push_str("];\n\nexport default routes;\n");
-    write_file(src.join("routes.tsx"), &content)?;
+    write_generated(src.join("routes.tsx"), &content)?;
 
     // App shell — only replaces the untouched `ferrum init` placeholder.
     let app_file = src.join("App.tsx");
@@ -121,9 +122,7 @@ export default function {symbol}() {{
         backend.push_str(&format!("    (\"{}\", \"{}\"),\n", route.name, route.path));
     }
     backend.push_str("]\n");
-    let backend_file = paths.backend.join("src").join("routes.rs");
-    fs::create_dir_all(backend_file.parent().unwrap())?;
-    fs::write(backend_file, backend)?;
+    write_generated(paths.backend.join("src").join("routes.rs"), &backend)?;
 
     Ok(())
 }

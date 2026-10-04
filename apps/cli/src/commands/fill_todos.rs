@@ -2,8 +2,11 @@ use anyhow::{Context, Result};
 use std::path::PathBuf;
 
 /// Default regex pattern used to locate AI_FILL markers.
-pub(crate) const TODO_PATTERN: &str =
-    r"// \xE2\x9B\xB3 AI_FILL\[(?P<task>[^\]]+)\] --context=(?P<context>[^\n]+)";
+///
+/// Generated files place `// ⛳ AI_FILL[task] --context=kind:id` inside a
+/// `vord:hole`, so the code filled in here lands in the hand-written part of
+/// the file and is kept by later recompiles.
+pub(crate) const TODO_PATTERN: &str = ferrum_compiler::AI_FILL_PATTERN;
 
 /// Public interface used by the CLI.
 pub fn fill_todos(dir: PathBuf) -> Result<()> {
@@ -15,7 +18,7 @@ fn details_from_env_or_prompt(node: &str) -> String {
     std::env::var("FERRUM_TEST_INPUT").unwrap_or_else(|_| {
         use dialoguer::Input;
         Input::new()
-            .with_prompt(&format!("Describe {node}"))
+            .with_prompt(format!("Describe {node}"))
             .allow_empty(false)
             .interact_text()
             .unwrap_or_default()
@@ -45,7 +48,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                         let task = &caps["task"];
                         let node = &caps["context"];
                         let mut code = client
-                            .post(&format!("{}/fill-todo", base_url))
+                            .post(format!("{}/fill-todo", base_url))
                             .json(&json!({"code": node, "instructions": task}))
                             .send()
                             .and_then(|r| r.json::<serde_json::Value>())
@@ -62,7 +65,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                             let details = details_from_env_or_prompt(node);
 
                             code = client
-                                .post(&format!("{}/fill-todo", base_url))
+                                .post(format!("{}/fill-todo", base_url))
                                 .json(&json!({
                                     "code": node,
                                     "instructions": format!("{}; {}", task, details),
@@ -78,7 +81,7 @@ pub fn fill_todos_with_pattern(dir: PathBuf, pattern: &str) -> Result<()> {
                                 .unwrap_or_else(|| "// failed to fill".to_string());
 
                             let _ = client
-                                .post(&format!("{}/node-info", base_url))
+                                .post(format!("{}/node-info", base_url))
                                 .json(&json!({"id": node, "story": details}))
                                 .send();
                         }

@@ -10,8 +10,9 @@ Ferrum ships two CLI commands that rely on this context:
 ```bash
 ferrum fill-todos gen
 ```
-Fill code blocks marked with `// ⛳️ AI_FILL[task] --context NODE_ID` using
-GraphRAG to fetch dependencies for `NODE_ID`.
+Fill code blocks marked with `// ⛳ AI_FILL[task] --context=kind:NODE_ID` using
+GraphRAG to fetch dependencies for `NODE_ID`. Generated files put each marker
+inside a `vord:hole` region, so the filled-in code is kept when you recompile.
 
 If the filler service returns an empty snippet, Ferrum will now ask you for a
 short description or story about `NODE_ID`. The extra details are sent back to

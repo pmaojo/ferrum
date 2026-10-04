@@ -21,6 +21,9 @@ pub async fn {{ node.id }}_handler(
     }
     {% endfor %}
     {% endif %}
+    // vord:hole usecase-{{ node.id | kebab_case }}
+    // ⛳ AI_FILL[usecase_logic] --context=usecase:{{ node.id }}
     let results = usuarios.load::<Usuario>(&mut conn).unwrap();
     Ok(Json(results))
+    // vord:end-hole
 }

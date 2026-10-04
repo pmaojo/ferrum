@@ -3,6 +3,7 @@ use std::fs;
 
 use ferrum_shared_models::{FerrumDsl, SharedComponent};
 
+use crate::ownership::{hole_name, line_hole, write_generated};
 use crate::ProjectPaths;
 
 /// Map primitive field types from the DSL to TypeScript types.
@@ -33,13 +34,24 @@ pub fn generate_component(comp: &SharedComponent, paths: &ProjectPaths) -> Resul
         .collect::<Vec<_>>()
         .join(", ");
 
-    let content = format!(
-        "{props_interface}export function {name}({{{params}}}: {name}Props) {{\n    return (\n        <div className=\"p-4 border rounded-lg bg-white shadow-sm {name}\">\n            <h2 className=\"text-xl font-semibold mb-2\">{name}</h2>\n            <div className=\"space-y-2\">\n                {{/* Component content */}}\n            </div>\n        </div>\n    );\n}}\n",
-        props_interface = props_interface,
-        name = comp.name,
-        params = params
+    // The whole render body is a hole: the props interface and signature
+    // follow the graph, what the component draws is hand-written.
+    let placeholder = format!(
+        "return (\n    <div className=\"p-4 border rounded-lg bg-white shadow-sm {name}\">\n        <h2 className=\"text-xl font-semibold mb-2\">{name}</h2>\n        <div className=\"space-y-2\" />\n    </div>\n);",
+        name = comp.name
     );
-    fs::write(dir.join(format!("{}.tsx", comp.name)), content)?;
+    let hole = line_hole(
+        "    ",
+        &hole_name("component", &comp.name),
+        "component_body",
+        &format!("component:{}", comp.name),
+        &placeholder,
+    );
+    let content = format!(
+        "{props_interface}export function {name}({{{params}}}: {name}Props) {{\n{hole}}}\n",
+        name = comp.name,
+    );
+    write_generated(dir.join(format!("{}.tsx", comp.name)), &content)?;
     Ok(())
 }
 
@@ -51,7 +63,7 @@ pub fn generate_index(comps: &[SharedComponent], paths: &ProjectPaths) -> Result
     for c in comps {
         content.push_str(&format!("export * from './{}';\n", c.name));
     }
-    fs::write(dir.join("index.ts"), content)?;
+    write_generated(dir.join("index.ts"), &content)?;
     Ok(())
 }
 
@@ -66,7 +78,7 @@ pub fn generate_docs(comp: &SharedComponent, paths: &ProjectPaths) -> Result<()>
             content.push_str(&format!("- `{}`: `{}`\n", p.name, p.field_type));
         }
     }
-    fs::write(dir.join(format!("{}.md", comp.name)), content)?;
+    write_generated(dir.join(format!("{}.md", comp.name)), &content)?;
     Ok(())
 }
 
@@ -106,7 +118,7 @@ mod tests {
         };
         generate_component(&comp, &paths).unwrap();
         assert!(dir.path().join("frontend/components/Card.tsx").exists());
-        generate_index(&[comp.clone()], &paths).unwrap();
+        generate_index(std::slice::from_ref(&comp), &paths).unwrap();
         assert!(dir.path().join("frontend/components/index.ts").exists());
         generate_docs(&comp, &paths).unwrap();
         assert!(dir.path().join("frontend/components/docs/Card.md").exists());

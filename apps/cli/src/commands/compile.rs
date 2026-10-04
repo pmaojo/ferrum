@@ -105,6 +105,16 @@ pub fn compile_with_formatters(
         plugins.compile_all()?;
     }
 
+    // Hand-written hole content whose hole no longer exists (for example a
+    // renamed node) cannot be written back; say so instead of losing it
+    // silently.
+    for (path, hole) in ferrum_compiler::take_orphaned_holes(&output_dir) {
+        eprintln!(
+            "⚠️  {}: hole `{hole}` is no longer generated; its hand-written content was not carried over",
+            path.display()
+        );
+    }
+
     use ferrum_compiler::{format_frontend, format_rust};
 
     // Format Rust and TypeScript sources using the provided formatters

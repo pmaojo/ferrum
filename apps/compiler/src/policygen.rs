@@ -4,6 +4,7 @@ use std::fs;
 
 use ferrum_shared_models::{DslPolicy, FerrumDsl};
 
+use crate::ownership::{line_hole, write_generated};
 use crate::ProjectPaths;
 
 pub fn generate_policy(policy: &DslPolicy, paths: &ProjectPaths) -> Result<()> {
@@ -23,9 +24,9 @@ pub fn generate_policy(policy: &DslPolicy, paths: &ProjectPaths) -> Result<()> {
             func = func
         )
     };
-    fs::write(
+    write_generated(
         dir.join(format!("{}.rs", policy.name.to_lowercase())),
-        content,
+        &content,
     )?;
 
     let hook_dir = paths.frontend.join("hooks");
@@ -44,7 +45,7 @@ pub fn generate_policy(policy: &DslPolicy, paths: &ProjectPaths) -> Result<()> {
             orig = policy.name
         )
     };
-    fs::write(hook_dir.join(format!("{hook_name}.ts")), ts_content)?;
+    write_generated(hook_dir.join(format!("{hook_name}.ts")), &ts_content)?;
     Ok(())
 }
 
@@ -70,7 +71,7 @@ fn generate_policy_hook(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
         imports = imports,
         cases = cases
     );
-    fs::write(hook_dir.join("usePolicy.ts"), ts_content)?;
+    write_generated(hook_dir.join("usePolicy.ts"), &ts_content)?;
     Ok(())
 }
 
@@ -99,7 +100,33 @@ fn generate_policy_mod(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
         ));
     }
     content.push_str("        _ => false,\n    })\n}\n");
-    fs::write(dir.join("mod.rs"), content)?;
+
+    // Guards that are not `role:` checks call `super::<guard>()`, which is
+    // hand-written logic: give it a hole, seeded with deny-by-default stubs.
+    let mut custom_guards: Vec<&str> = dsl
+        .policies
+        .iter()
+        .filter(|p| !p.guard.starts_with("role:"))
+        .map(|p| p.guard.as_str())
+        .collect();
+    custom_guards.sort_unstable();
+    custom_guards.dedup();
+    if !custom_guards.is_empty() {
+        let stubs = custom_guards
+            .iter()
+            .map(|g| format!("pub fn {g}() -> bool {{\n    false\n}}"))
+            .collect::<Vec<_>>()
+            .join("\n\n");
+        content.push('\n');
+        content.push_str(&line_hole(
+            "",
+            "policy-guards",
+            "policy_guards",
+            &format!("policy:{}", custom_guards.join(",")),
+            &stubs,
+        ));
+    }
+    write_generated(dir.join("mod.rs"), &content)?;
     Ok(())
 }
 
@@ -113,7 +140,7 @@ fn generate_policy_docs(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
     for p in &dsl.policies {
         md.push_str(&format!("* **{}** - guard: `{}`\n", p.name, p.guard));
     }
-    fs::write(dir.join("policies.md"), md).context("write policies docs")?;
+    write_generated(dir.join("policies.md"), &md).context("write policies docs")?;
     Ok(())
 }
 
@@ -121,7 +148,7 @@ fn generate_policy_layout(paths: &ProjectPaths) -> Result<()> {
     let comp_dir = paths.frontend.join("components");
     fs::create_dir_all(&comp_dir)?;
     let content = "import React from 'react';\nimport { usePolicy } from '../hooks/usePolicy';\n\ninterface Props { policy?: string; children: React.ReactNode; }\nexport const PolicyGate: React.FC<Props> = ({ policy, children }) => {\n  const allowed = policy ? usePolicy(policy) : true;\n  if (!allowed) return null;\n  return <>{children}</>;\n};\n";
-    fs::write(comp_dir.join("PolicyGate.tsx"), content)?;
+    write_generated(comp_dir.join("PolicyGate.tsx"), content)?;
     Ok(())
 }
 
@@ -140,7 +167,7 @@ fn generate_policy_admin(dsl: &FerrumDsl, paths: &ProjectPaths) -> Result<()> {
         ));
     }
     let content = format!("import React from 'react';\n\nexport const PoliciesAdmin: React.FC = () => (\n  <div>\n    <h2>Policies</h2>\n    <ul>\n{entries}    </ul>\n  </div>\n);\n", entries=entries);
-    fs::write(comp_dir.join("PoliciesAdmin.tsx"), content)?;
+    write_generated(comp_dir.join("PoliciesAdmin.tsx"), &content)?;
     Ok(())
 }
 
