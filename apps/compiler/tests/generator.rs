@@ -254,3 +254,60 @@ validations:
     assert!(dir.path().join("backend/src/validations/mod.rs").exists());
     assert!(dir.path().join("frontend/src/validations/custom.ts").exists());
 }
+
+fn node(id: &str, node_type: NodeType) -> Node {
+    Node {
+        id: id.into(),
+        node_type,
+        doc: None,
+        description: None,
+        story: None,
+        input: vec![],
+        output: None,
+        depends_on: vec![],
+        implements: None,
+        view: None,
+        schema: None,
+        api_name: None,
+        ref_node: None,
+    }
+}
+
+#[test]
+fn a_module_with_several_use_cases_keeps_every_handler_and_route() {
+    let dir = tempfile::tempdir().unwrap();
+    let generator = Generator::new(templates_path().as_path(), dir.path()).unwrap();
+    let module = Module {
+        name: "todos".into(),
+        nodes: vec![
+            node("todos", NodeType::Entity),
+            node("listTodos", NodeType::UseCase),
+            node("createTodo", NodeType::UseCase),
+            node("toggleTodo", NodeType::UseCase),
+            node("deleteTodo", NodeType::UseCase),
+        ],
+    };
+
+    generator.generate(&module).unwrap();
+
+    let handlers = std::fs::read_to_string(dir.path().join("backend/handlers/todos.rs")).unwrap();
+    for name in ["listTodos", "createTodo", "toggleTodo", "deleteTodo"] {
+        assert!(handlers.contains(&format!("{name}_handler")), "{name} handler missing:\n{handlers}");
+    }
+    // The module's own entity, not a hard-coded one.
+    assert!(handlers.contains("use crate::db::models::Todos;"), "{handlers}");
+    assert!(!handlers.contains("Usuario"), "{handlers}");
+    let routes = std::fs::read_to_string(dir.path().join("backend/routes/todos.rs")).unwrap();
+    assert!(routes.contains(r#".route("/todos/{id}", delete(deleteTodo_handler))"#), "{routes}");
+    assert!(routes.contains(r#".route("/todos/{id}/toggle-todo", post(toggleTodo_handler))"#), "{routes}");
+    assert!(routes.contains(r#".route("/todos", get(listTodos_handler))"#), "{routes}");
+    // The crate can declare and mount every module that has a file.
+    let index = std::fs::read_to_string(dir.path().join("backend/routes/mod.rs")).unwrap();
+    assert!(index.contains("pub mod todos;") && index.contains(".merge(todos::todos_routes())"), "{index}");
+    let index = std::fs::read_to_string(dir.path().join("backend/handlers/mod.rs")).unwrap();
+    assert!(index.contains("pub mod todos;"), "{index}");
+    // The model carries the primary key its table declares.
+    let models = std::fs::read_to_string(dir.path().join("backend/src/db/models.rs")).unwrap();
+    assert!(models.contains("pub id: Uuid,"), "{models}");
+    assert!(models.contains("use super::schema::*;"), "{models}");
+}

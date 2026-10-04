@@ -1,8 +1,9 @@
-use axum::{routing::get, Router};
+#[allow(unused_imports)]
+use axum::{routing::{delete, get, post, put}, Router};
 
-use crate::handlers::{{ module_name }}::{{ node.id }}_handler;
+use crate::handlers::{{ module_name }}::*;
 
 pub fn {{ module_name }}_routes() -> Router {
     Router::new()
-        .route("/{{ module_name }}", get({{ node.id }}_handler))
-}
+{% for uc in usecases %}        .route("{{ uc.path }}", {{ uc.method }}({{ uc.id }}_handler))
+{% endfor %}}
