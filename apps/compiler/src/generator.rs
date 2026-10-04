@@ -113,22 +113,7 @@ impl Generator {
     }
 
     fn generate_usecase(&self, module: &Module, node: &Node) -> Result<()> {
-        let mut field_validations: Vec<FieldValidation> = Vec::new();
-        if let Some(vmod) = self.modules.iter().find(|m| m.name == "validations") {
-            for val in &vmod.nodes {
-                if let Some(applies) = &val.description {
-                    for field in &node.input {
-                        let expected = format!("{}.{}.{}", module.name, node.id, field.name);
-                        if applies == &expected {
-                            field_validations.push(FieldValidation {
-                                field: field.name.clone(),
-                                func: snake_case(&val.id),
-                            });
-                        }
-                    }
-                }
-            }
-        }
+        let field_validations = self.field_validations(module, node);
         let ctx = UsecaseContext {
             module,
             node,
@@ -143,10 +128,13 @@ impl Generator {
         let context =
             TeraContext::from_serialize(&ctx).context("Failed to serialize usecase context")?;
 
-        // Generate handler
+        // The handler and route files hold every use case of the module, so
+        // they are rendered from all of them each time: writing one file per
+        // use case kept only the last one. Output is identical on every call.
+        let module_context = self.module_context(module)?;
         let handler_content = self
             .templates
-            .render("backend/handler.tera", &context)
+            .render("backend/handler.tera", &module_context)
             .context("Failed to render handler template")?;
         let handler_path = self
             .output_dir
@@ -154,10 +142,9 @@ impl Generator {
             .join(format!("{}.rs", module.name));
         self.write_file(&handler_path, &handler_content)?;
 
-        // Generate route
         let route_content = self
             .templates
-            .render("backend/route.tera", &context)
+            .render("backend/route.tera", &module_context)
             .context("Failed to render route template")?;
         let route_path = self
             .output_dir
@@ -188,6 +175,72 @@ impl Generator {
         self.write_file(&component_path, &component_content)?;
 
         Ok(())
+    }
+
+    fn field_validations(&self, module: &Module, node: &Node) -> Vec<FieldValidation> {
+        let mut field_validations: Vec<FieldValidation> = Vec::new();
+        if let Some(vmod) = self.modules.iter().find(|m| m.name == "validations") {
+            for val in &vmod.nodes {
+                if let Some(applies) = &val.description {
+                    for field in &node.input {
+                        let expected = format!("{}.{}.{}", module.name, node.id, field.name);
+                        if applies == &expected {
+                            field_validations.push(FieldValidation {
+                                field: field.name.clone(),
+                                func: snake_case(&val.id),
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        field_validations
+    }
+
+    /// Everything the module's handler and route templates need: the entity
+    /// the module owns (table and model names come from it) and each use
+    /// case with the HTTP shape its name implies.
+    fn module_context(&self, module: &Module) -> Result<TeraContext> {
+        let entity = module
+            .nodes
+            .iter()
+            .find(|n| matches!(n.node_type, NodeType::Entity))
+            .map(|n| {
+                serde_json::json!({
+                    "struct_name": capitalize(&n.id),
+                    "table_name": n.id.to_lowercase(),
+                })
+            });
+        let mut usecases = Vec::new();
+        for node in module
+            .nodes
+            .iter()
+            .filter(|n| matches!(n.node_type, NodeType::UseCase))
+        {
+            let (kind, method, path, takes_id, takes_body) = usecase_shape(&module.name, &node.id);
+            let validations = if takes_body {
+                self.field_validations(module, node)
+            } else {
+                Vec::new()
+            };
+            usecases.push(serde_json::json!({
+                "id": node.id,
+                "kind": kind,
+                "method": method,
+                "path": path,
+                "takes_id": takes_id,
+                "takes_body": takes_body,
+                "field_validations": validations
+                    .iter()
+                    .map(|v| serde_json::json!({"field": v.field, "func": v.func}))
+                    .collect::<Vec<_>>(),
+            }));
+        }
+        let mut context = TeraContext::new();
+        context.insert("module_name", &module.name);
+        context.insert("entity", &entity);
+        context.insert("usecases", &usecases);
+        Ok(context)
     }
 
     fn generate_vector_store(&self, _module: &Module, node: &Node) -> Result<()> {
@@ -388,7 +441,7 @@ impl Generator {
         crate::artifact::upsert_region(
             &models_path,
             "models:header",
-            "use diesel::prelude::*;\nuse serde::{Deserialize, Serialize};\nuse uuid::Uuid;",
+            "use diesel::prelude::*;\nuse serde::{Deserialize, Serialize};\nuse uuid::Uuid;\n\nuse super::schema::*;",
         )?;
         crate::artifact::upsert_region(
             &models_path,
@@ -860,5 +913,29 @@ mod tests {
         let r = parse_validation_rule("regex /@/");
         assert_eq!(r.kind, "Regex");
         assert_eq!(r.pattern.unwrap(), "@");
+    }
+}
+
+/// The REST shape a use case's name implies: `(kind, method, path, takes_id,
+/// takes_body)`. `list*`, `get*`, `create*`, `update*` and `delete*` map onto
+/// CRUD routes of the module; any other name (`toggleTodo`) is its own
+/// `POST /<module>/<name>` action.
+fn usecase_shape(module: &str, id: &str) -> (&'static str, &'static str, String, bool, bool) {
+    let lower = id.to_lowercase();
+    let collection = format!("/{module}");
+    let item = format!("/{module}/{{id}}");
+    if lower.starts_with("list") {
+        ("list", "get", collection, false, false)
+    } else if lower.starts_with("get") {
+        ("get", "get", item, true, false)
+    } else if lower.starts_with("create") {
+        ("create", "post", collection, false, true)
+    } else if lower.starts_with("update") {
+        ("update", "put", item, true, true)
+    } else if lower.starts_with("delete") {
+        ("delete", "delete", item, true, false)
+    } else {
+        let action = id.to_kebab_case();
+        ("action", "post", format!("/{module}/{{id}}/{action}"), true, false)
     }
 }

@@ -93,6 +93,10 @@ fn init_scaffold_is_user_owned() {
                 stack.push(path);
                 continue;
             }
+            // ferrum's own templates carry the markers they emit.
+            if path.components().any(|c| c.as_os_str() == "templates") {
+                continue;
+            }
             files += 1;
             let content = fs::read_to_string(&path).unwrap_or_default();
             assert!(

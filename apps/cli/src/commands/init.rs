@@ -1,4 +1,7 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
+
+static TEMPLATES: include_dir::Dir<'_> =
+    include_dir::include_dir!("$CARGO_MANIFEST_DIR/../../templates");
 use std::path::{Path, PathBuf};
 
 pub fn init(
@@ -147,6 +150,13 @@ edition = "2021"
         fs::create_dir_all(project_dir.join(dir))?;
         println!("📁 Created directory: {}/{}", name, dir);
     }
+
+    // The project carries its own copy of ferrum's templates, so `ferrum
+    // compile` works without pointing --templates at a checkout.
+    TEMPLATES
+        .extract(project_dir.join("templates"))
+        .context("failed to write ferrum's templates into the project")?;
+    println!("📄 Copied ferrum templates into {}/templates", name);
 
     // Basic backend skeleton
     let mut main_rs_content = r#"use axum::{routing::get, Router};

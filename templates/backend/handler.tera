@@ -1,29 +1,30 @@
-use axum::{extract::{Extension, Json}, http::StatusCode};
-use diesel::prelude::*;
-{% if field_validations %}
-use crate::validations::{% for v in field_validations %}{{ v.func }}{% if not loop.last %}, {% endif %}{% endfor %};
+use axum::{extract::{Extension, Json, Path}, http::StatusCode};
+{% if entity %}use diesel::prelude::*;
+{% endif %}use uuid::Uuid;
+
+use crate::db::DbPool;
+{% if entity %}use crate::db::models::{{ entity.struct_name }};
+use crate::db::schema::{{ entity.table_name }}::dsl::*;
+{% endif %}{% set_global validated = false %}{% for uc in usecases %}{% if uc.field_validations | length > 0 %}{% set_global validated = true %}{% endif %}{% endfor %}{% if validated %}use crate::validations::*;
 {% endif %}
-
-use crate::db::{DbPool};
-use crate::db::models::Usuario;
-use crate::db::schema::usuarios::dsl::*;
-
-pub async fn {{ node.id }}_handler(
+{% for uc in usecases %}
+#[allow(non_snake_case)]
+pub async fn {{ uc.id }}_handler(
     Extension(pool): Extension<DbPool>,
-    Json(payload): Json<serde_json::Value>,
-) -> Result<Json<Vec<Usuario>>, StatusCode> {
-    let mut conn = pool.get().unwrap();
-    {% if field_validations %}
-    // Simple validation
-    {% for v in field_validations %}
-    if !{{ v.func }}(payload["{{ v.field }}"].as_str().unwrap_or("")) {
+{% if uc.takes_id %}    Path(_item_id): Path<Uuid>,
+{% endif %}{% if uc.takes_body %}    Json({% if uc.field_validations | length > 0 %}payload{% else %}_payload{% endif %}): Json<serde_json::Value>,
+{% endif %}) -> Result<Json<serde_json::Value>, StatusCode> {
+    let mut _conn = pool.get().map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?;
+{% for v in uc.field_validations %}    if !{{ v.func }}(payload["{{ v.field }}"].as_str().unwrap_or("")) {
         return Err(StatusCode::BAD_REQUEST);
     }
-    {% endfor %}
-    {% endif %}
-    // vord:hole usecase-{{ node.id | kebab_case }}
-    // ⛳ AI_FILL[usecase_logic] --context=usecase:{{ node.id }}
-    let results = usuarios.load::<Usuario>(&mut conn).unwrap();
-    Ok(Json(results))
-    // vord:end-hole
+{% endfor %}    // vord:hole usecase-{{ uc.id | kebab_case }}
+    // ⛳ AI_FILL[usecase_logic] --context=usecase:{{ uc.id }}
+{% if entity and uc.kind == "list" %}    let rows = {{ entity.table_name }}
+        .load::<{{ entity.struct_name }}>(&mut _conn)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    Ok(Json(serde_json::to_value(rows).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?))
+{% else %}    Err(StatusCode::NOT_IMPLEMENTED)
+{% endif %}    // vord:end-hole
 }
+{% endfor %}
